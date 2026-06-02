@@ -78,8 +78,12 @@ public class ModuleDAO extends DBConnection {
 		}
 
 		deleteModuleListingI18n(moduleListing.getModuleId());
-		for(ModuleListingI18n moduleI18ns : moduleListingI18ns) {
-			getCurrentSession().persist(moduleI18ns);
+		
+		getCurrentSession().flush();
+	    getCurrentSession().clear();
+	    
+		for(ModuleListingI18n moduleI18n : moduleListingI18ns) {
+			getCurrentSession().merge(moduleI18n);
 		}
 	}
 

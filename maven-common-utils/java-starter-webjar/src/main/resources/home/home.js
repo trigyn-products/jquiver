@@ -350,8 +350,21 @@ const jqOpenDeletConfirmation = function(a_successCallBack, a_cancelCallBack, de
 			my: "center",
 			at: "center"
 		},
-		buttons: [{
+		buttons: [
+			{
+				text: "Delete",
+				"class": 'btn btn-primary',
+				click: function() {
+					$(this).dialog('close');
+					$temp.remove();
+					if (a_successCallBack) {
+						a_successCallBack();
+					}
+				}
+			},
+			{
 			text: "Cancel",
+			"class" : 'btn btn-secondary',
 			click: function() {
 				$(this).dialog('close');
 				$temp.remove();
@@ -359,17 +372,8 @@ const jqOpenDeletConfirmation = function(a_successCallBack, a_cancelCallBack, de
 					a_cancelCallBack();
 				}
 			},
-		},
-		{
-			text: "Delete",
-			click: function() {
-				$(this).dialog('close');
-				$temp.remove();
-				if (a_successCallBack) {
-					a_successCallBack();
-				}
-			}
-		},
+		}
+		
 		],
 		open: function(event, ui) {
 			$('.ui-dialog-titlebar')
@@ -443,14 +447,31 @@ const resizeMonacoEditor = function(monacoEditorObj, containerName, childContain
 	monacoEditorObj.layout();
 };
 
-const onFullScreenChange = function(monacoEditorObj, containerName, childContainerName) {
-	var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
+	const onFullScreenChange = function(monacoEditorObj, containerName, childContainerName) {
+    const fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
 
-	if (fullscreenElement == null) {
-		$('#' + childContainerName).width(1108).height(350);
-		$('#' + containerName).css("overflow-y", "hidden");
-		monacoEditorObj.layout();
-	}
+    const $container = $('#' + containerName);
+    const $child = $('#' + childContainerName);
+
+    if (fullscreenElement == null) {
+        // Exiting full screen
+		$child.css({
+		    width: '100%',
+		    height: '100%'
+		});
+        $container.css("overflow-y", "hidden");
+    } else {
+        // Entering full screen - make it fill the screen
+        const width = window.innerWidth;
+        const height = window.innerHeight; 
+        $child.width(width).height(height);
+        $container.css("overflow-y", "auto");
+    }
+
+    // This is the key line
+    setTimeout(() => {
+        monacoEditorObj.layout();
+    }, 100);  // Delay slightly to let DOM changes apply
 };
 
 const capitalizeFirstLetter = function(inputStr) {
@@ -502,7 +523,7 @@ const getCookie = function(cname) {
 const changeLanguage = function() {
 	var localeId = $("#languageOptions").find(":selected").val();
 	$.ajax({
-		async: false,
+	//	async: false,
 		type: "GET",
 		cache: false,
 		url: contextPath + "/cf/cl?lang=" + localeId,
@@ -640,7 +661,11 @@ function deleteCookie(name) {
 }
 
 function clearCookie() {
-    document.cookie = "locale=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+	document.cookie = "locale=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+	document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+	document.cookie = "r=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+	localStorage.removeItem("decrypted_token");
+	window.fetch = window.originalFetch;
 }
 
 $(function () {
@@ -653,3 +678,68 @@ $(function () {
 	    });
 	};
 });
+
+/* For SALT AUTO REFRESH */
+
+(function () {
+
+    let lastSaltRefreshTime = Date.now();
+    const SALT_REFRESH_THRESHOLD = 4 * 60 * 1000;
+    let saltRefreshInProgress = false;
+    let typingTimer = null;
+
+    window.userActivityDetected = function () {
+        clearTimeout(typingTimer);
+
+        typingTimer = setTimeout(function () {
+            checkAndRefreshSalt();
+        }, 500);
+    }
+
+    function checkAndRefreshSalt() {
+        const now = Date.now();
+        const diff = now - lastSaltRefreshTime;
+
+        if (diff >= SALT_REFRESH_THRESHOLD && !saltRefreshInProgress) {
+            refreshSalt();
+        }
+    }
+
+    function refreshSalt() {
+        const saltId = getCookie("r");
+        if (!saltId) {
+            return;
+        }
+        saltRefreshInProgress = true;
+
+        $.ajax({
+            type: "POST",
+            url: contextPath + apiPath + "/rsalt",
+            dataType: "text",
+            data: { saltId: saltId },
+            success: function () {
+                lastSaltRefreshTime = Date.now();
+                saltRefreshInProgress = false;
+                console.log("Salt refreshed successfully");
+            },
+            error: function () {
+                saltRefreshInProgress = false;
+                console.error("Salt refresh failed");
+            }
+        });
+    }
+
+    function attachInputListeners() {
+        $(document).on("keyup paste change", "input, textarea, select", userActivityDetected);
+    }
+
+    function initSaltAutoRefresh() {
+        attachInputListeners();
+    }
+
+    // Initialize once DOM is ready
+    $(function () {
+        initSaltAutoRefresh();
+    });
+
+})();

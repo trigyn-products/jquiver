@@ -186,6 +186,9 @@ class DynamicRest {
 			context.serviceLogicContent.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
 				resizeMonacoEditor(context.serviceLogicContent, "htmlContainer", "htmlEditor");
 			});
+			context.serviceLogicContent.onDidChangeModelContent(function() {
+				userActivityDetected(); // for salt refresh
+			});
 		});
 
 	}
@@ -363,6 +366,9 @@ class DynamicRest {
 			});
 			context.updateVariableSeq();
 			disableInputSuggestion();
+			saveUpdateEditor.onDidChangeModelContent(function() {
+				userActivityDetected(); // for salt refresh
+			});
 		});
 
 	}
@@ -386,6 +392,7 @@ class DynamicRest {
 	}
 
 	saveDynarest = function() {
+		var isEdit = $('#isEdit').val();
 		let isDataSaved = false;
 		let context = this;
 		let scriptLibInsertArr = new Array();
@@ -441,11 +448,15 @@ class DynamicRest {
 			success: function(data) {
 				if (data === true) {
 					$("#isEdit").val(1);
-					isDataSaved = context.saveDAOQueries(context.formId);
+					isDataSaved = context.saveDAOQueries(context.formId,isEdit);
 				}
 			},
 			error: function(xhr, data) {
-				showMessage("Error occurred while saving", "warn");
+				if (xhr.responseText != null || xhr.responseText != '' || xhr.responseText != undefined) {
+					showMessage(xhr.responseText, "warn");
+				} else {
+					showMessage("Error occurred while saving", "warn");
+				}
 			},
 		});
 		return isDataSaved;
@@ -514,7 +525,11 @@ class DynamicRest {
 	}
 
 
-	saveDAOQueries = function(formId) {
+	saveDAOQueries = function(formId,isEdit) {
+		var isEdit = $('#isEdit').val();
+		if (saveModDetails(isEdit, $("#dynarestId").val()) == false) {
+			return false;
+		}
 		let context = this;
 		let isDataSaved = false;
 		let saveUpdateQueryArray = new Array();

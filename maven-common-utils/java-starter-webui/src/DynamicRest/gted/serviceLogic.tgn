@@ -1,0 +1,33 @@
+var HashMap =  Java.type('java.util.HashMap');
+var System = Java.type('java.lang.System');
+var params = new HashMap();
+var queryParam = new HashMap();
+
+function getTagEntityDetails(){ 
+	
+    params.put("tagId", requestDetails.tagId);
+    
+   var queryResult = jq_getDBResult("SELECT ted.tag_entity_details_id, ted.module_id, mm.module_name AS child_module_name,ted.module_json as moduleJson,ted.permissions as permissionJson, ted.entity_id As child_entity_id, era.entity_name AS child_entity_name " +
+  "FROM jq_tag_entity_details ted " +
+  "LEFT JOIN jq_master_modules mm ON ted.module_id = mm.module_id " +
+  "LEFT JOIN jq_entity_role_association era ON ted.entity_id = era.entity_id " +
+  "WHERE ted.tag_id = :tagId " +
+  "GROUP BY ted.module_id, ted.entity_id " +
+  "ORDER BY mm.module_name",
+  null,
+  params
+);
+  
+        if(queryResult != null) {
+            return queryResult.data_list;
+        }
+    
+}
+
+function loadTagEntityData() {
+    var returnObject = new Object();    
+    returnObject.tagData = getTagEntityDetails();
+    return returnObject;
+}
+
+loadTagEntityData();

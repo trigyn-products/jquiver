@@ -326,10 +326,6 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
                 <option value="1" selected>Custom</option>                   
                 <option value="2">System</option>                 
             </select>
-			<#if environment == "dev">
-				<input id="downloadDashlet" class="btn btn-primary" onclick= "dashletListing.downloadDashlet();" name="downloadDashlet" value="Download Dashlets" type="button">
-				<input id="uploadDashlet" class="btn btn-primary" onclick= "dashletListing.uploadDashlet();" name="uploadDashlet" value="Upload Dashlets" type="button">
-			</#if>
 			<a href="${(contextPath)!''''}/cf/ad"> 
 				<input id="additionalDataSource" class="btn btn-primary" value="Additional Datasource" type="button">
 			</a>
@@ -448,20 +444,13 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		const revisionCount = uiObject.rowData.revisionCount;
 					
 		let actionElement;
-		<#if environment == "dev">
-			actionElement = "<span id=''"+dashletId+"'' class= ''grid_action_icons''><i class=''fa fa-pencil'' title=''${messageSource.getMessage("jws.editDashlet")}''></i></span>";
-      		actionElement = actionElement + "<span id=''"+dashletId+"'' class= ''grid_action_icons'' onclick=''dashletListing.downloadDashletById(this)''><i class=''fa fa-download''></i></span>";
-          	actionElement = actionElement + "<span id=''"+dashletId+"_upload'' name=''"+dashletName+"'' class= ''grid_action_icons'' onclick=''dashletListing.uploadDashletById(this)''><i class=''fa fa-upload''></i></span>";
-		<#else>
-			actionElement = "<span id=''"+dashletId+"'' class= ''grid_action_icons''  onclick=''dashletListing.submitForm(this)'' title=''${messageSource.getMessage("jws.editDashlet")}''><i class=''fa fa-pencil''></i></span>";	
-			if(revisionCount > 1){
-				actionElement = actionElement + ''<span id="''+dashletId+''_entity" name="''+dashletName+''" onclick="dashletListing.submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
-			}else{
-				actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
-			}
-			return actionElement;		
+		actionElement = "<span id=''"+dashletId+"'' class= ''grid_action_icons''  onclick=''dashletListing.submitForm(this)'' title=''${messageSource.getMessage("jws.editDashlet")}''><i class=''fa fa-pencil''></i></span>";	
+		if(revisionCount > 1){
+			actionElement = actionElement + ''<span id="''+dashletId+''_entity" name="''+dashletName+''" onclick="dashletListing.submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
+		}else{
+			actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
+		}		
 			
-		</#if>
 		return actionElement;
 	}
 	

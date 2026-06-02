@@ -90,6 +90,7 @@ class TemplateEngine {
 			});
 			context.editor.onDidChangeModelContent(function() {
 				$('#errorMessage').hide();
+				userActivityDetected(); // for salt refresh
 			});
 			context.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
 				resizeMonacoEditor(context.editor, "htmlContainer", "htmlEditor");
@@ -161,30 +162,42 @@ class TemplateEngine {
 
 	onSaveAndClose = function() {
 		const context = this;
-		let isDataSaved = false;
-		const velocityName = $("#vmName").val().trim();
-		let velocityTempData = context.editor.getValue().trim();
-		$.ajax({
-			async: false,
-			type: "POST",
-			cache: false,
-			url: contextPath + "/cf/std",
-			data: {
-				velocityId: context.templateId,
-				velocityName: velocityName,
-				velocityTempData: velocityTempData
-			},
-			success: function(data) {
-				context.templateId = data;
-				context.saveEntityRoleAssociation(context.templateId);
-				isDataSaved = true;
-				showMessage("Information saved successfully", "success");
-			},
-			error: function(xhr, error) {
-				showMessage("Error occurred while saving", "error");
-			},
-		});
-		return isDataSaved;
+		if (context.templateId != "0"){
+			isEdit = 1;
+		} else{
+			isEdit = 0;
+		}
+		if (saveModDetails(isEdit, context.templateId) == false) {
+			return false;
+		}
+			let isDataSaved = false;
+			const velocityName = $("#vmName").val().trim();
+			let velocityTempData = context.editor.getValue().trim();
+			$.ajax({
+				async: false,
+				type: "POST",
+				cache: false,
+				url: contextPath + "/cf/std",
+				data: {
+					velocityId: context.templateId,
+					velocityName: velocityName,
+					velocityTempData: velocityTempData
+				},
+				success: function(data) {
+					context.templateId = data;
+					context.saveEntityRoleAssociation(context.templateId);
+					isDataSaved = true;
+					showMessage("Information saved successfully", "success");
+					if (isEdit == 0) { 
+						saveModDetails(isEdit, context.templateId);
+					}
+				},
+				error: function(xhr, error) {
+					showMessage("Error occurred while saving", "error");
+				},
+			});
+			
+			return isDataSaved;
 	}
 
 	saveEntityRoleAssociation = function(templateId) {

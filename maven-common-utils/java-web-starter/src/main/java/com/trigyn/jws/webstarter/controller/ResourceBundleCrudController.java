@@ -1,13 +1,16 @@
 package com.trigyn.jws.webstarter.controller;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,14 +21,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
@@ -63,6 +67,10 @@ public class ResourceBundleCrudController {
 	
 	@Autowired
 	private FileUtilities 		  fileUtilities 		= null;
+	
+	@Autowired
+	private PropertyMasterService			propertyMasterService	= null;
+	
 
 	@GetMapping(value = "/rb", produces = MediaType.TEXT_HTML_VALUE)
 	public String dbResourceBundleListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
@@ -189,7 +197,19 @@ public class ResourceBundleCrudController {
 		};
 		String modifiedContent = a_httpServletRequest.getParameter("modifiedContent");
 		ObjectMapper objectMapper = new ObjectMapper();
-		List<ResourceBundleVO> resourceBundleList = objectMapper.readValue(modifiedContent, resourceBundleType);
+		List<ResourceBundleVO> resourceBundleList = new ArrayList<>();
+
+		JsonNode node = objectMapper.readTree(modifiedContent);
+		String			dbDateFormat	= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
+				Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME, com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+		DateFormat		dateFormat		= new SimpleDateFormat(dbDateFormat);
+		objectMapper.setDateFormat(dateFormat);
+		if (node.isArray()) {
+		    resourceBundleList = objectMapper.readValue(modifiedContent, new TypeReference<List<ResourceBundleVO>>() {});
+		} else {
+		    ResourceBundleVO singleVO = objectMapper.readValue(modifiedContent, ResourceBundleVO.class);
+		    resourceBundleList.add(singleVO);
+		}
 		resourceBundleService.saveResourceBundleDetails(resourceBundleList, Constant.REVISION_SOURCE_VERSION_TYPE);
 	}
 
@@ -211,7 +231,7 @@ public class ResourceBundleCrudController {
 	 * @return String result success/fail.
 	 * @throws Exception is thrown
 	 */
-	@RequestMapping(value = "/erb")
+	@PostMapping(value = "/erb")
 	@ResponseBody
 	public String exportResourceBundleData(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return resourceBundleService.exportResourceBundleData(request);
@@ -225,7 +245,7 @@ public class ResourceBundleCrudController {
 	 * @param response  - HttpServletResponse
 	 * @throws Exception is thrown
 	 */
-	@RequestMapping(value = "/dExport", method = RequestMethod.POST)
+	@PostMapping(value = "/dExport")
 	@ResponseBody
 	public void downloadExport(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String filePath = request.getParameter("filePath");
@@ -241,7 +261,7 @@ public class ResourceBundleCrudController {
 	 * @return json string
 	 * @throws Exception is thrown
 	 */
-	@RequestMapping(value = "/irb")
+	@PostMapping(value = "/irb")
 	@ResponseBody
 	public String importExport(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		try {
@@ -253,5 +273,5 @@ public class ResourceBundleCrudController {
 			return "fail:" + exception.getMessage();
 		}
 	}
-
+	
 }

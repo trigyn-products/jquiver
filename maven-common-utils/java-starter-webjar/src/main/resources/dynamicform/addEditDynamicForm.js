@@ -259,6 +259,20 @@ class AddEditDynamicForm {
 			context.addSaveQueryEditor();
 		}
 		$("#saveSqlContent").remove();
+		
+		document.addEventListener("fullscreenchange", () => {
+				    if (dashletSQLEditor) {
+				        onFullScreenChange(dashletSQLEditor, "sqlContainer", "sqlEditor");
+				    }
+				    if (dashletSQLEditors && dashletSQLEditors.length > 0) {
+				        dashletSQLEditors.forEach(editorObj => {
+				            const idx = editorObj.index; 
+				            const containerId = "saveSqlContainer_" + idx;
+				            const childId = "saveSqlEditor_" + idx;
+				            onFullScreenChange(editorObj.editor, containerId, childId);
+				        });
+				    }
+				});
 	}
 
 	backToDynamicFormListing() {
@@ -285,7 +299,7 @@ class AddEditDynamicForm {
 			let inputFormQIdElement = "<div class='col-3'><label for='inputformIdcontainer_" + index + "' style='white-space:nowrap'></label><input id='inputformIdcontainer_" + index + "' type ='hidden' class='form-control' /></div>";
 			let inputElement = "<div class='col-3'><label for='inputcontainer_" + index + "' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_" + index + "' type ='text' value='result_" + (index + 1) + "' class='form-control' /></div>";
 			let selectElement = "<div class='col-3'><label for='selectcontainer_" + index + "' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_" + index + "' class='form-control' onchange='addEdit.updateDatasourceState(this,jsonArray);'><option value='2'>Insert-Update-Delete Query</option><option value='3'>Stored Procedure</option><option value='4'>Javascript</option><option value='5'>Python</option><option value='6'>PHP</option></select></div>";
-			let datasourceEditor = "<div class='col-3'><div><label for='datasourcecontainer_" + index + "' style='white-space:nowrap'>Datasource </label><select id='datasourcecontainer_" + index + "' name='dataSourceId' class='form-control' onchange='showHideTableAutocomplete()'><option id='defaultConnection' value=''>Default Connection</option>";
+			let datasourceEditor = "<div class='col-3'><div><label for='datasourcecontainer_" + index + "' style='white-space:nowrap'>Datasource </label><select id='datasourcecontainer_" + index + "' name='datasourcecontainer_" + index + "' class='form-control' onchange='showHideTableAutocomplete()'><option id='defaultConnection' value=''>Default Connection</option>";
 			let inputscriptInsertEle = "<div class='col-3' style='display:none;'><label for='inputscriptInsert_" + index + "' style='white-space:nowrap'></label><input id='inputscriptInsert_" + index + "' type ='hidden' class='form-control' /></div>";
 			let inputscriptDeleteEle = "<div class='col-3' style='display:none;'><label for='inputscriptdelete_" + index + "' style='white-space:nowrap'></label><input id='inputscriptdelete_" + index + "' type ='hidden' class='form-control' /></div>";
 			let inputscriptRevisionEle = "<div class='col-3' style='display:none;'><label for='inputscriptrevision_" + index + "' style='white-space:nowrap'></label><input id='inputscriptrevision_" + index + "' type ='hidden' class='form-control' /></div>";
@@ -483,7 +497,7 @@ class AddEditDynamicForm {
 				addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing);
 		});
 		dashletSAVESQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
-			resizeMonacoEditor(dashletSAVESQLEditor, "daoContainerDiv_" + index, "saveSqlEditor_" + index);
+			resizeMonacoEditor(dashletSAVESQLEditor, "saveSqlContainer_" + index, "saveSqlEditor_" + index);
 		});
 		dashletSAVESQLEditor.onDidChangeModelContent(function() {
 			$('#errorMessage').hide();
@@ -616,29 +630,39 @@ getFormData() {
 	return $("#dynamicform").serialize();
 }
 
-saveFormData(formData) {
-	
-	const context = this;
-	let isDataSaved = false;
-	$.ajax({
-		type: "POST",
-		async: false,
-		url: contextPath + "/cf/sdfd",
-		data: formData,
-		success: function(data) {
-			isDataSaved = true;
-			$("#formId").val(data);
-			saveEntityRoleAssociation(data);
-			showMessage("Information saved successfully.", "success");
-			
-		},
-		error: function(xhr, error) {
-			showMessage("Error occurred while saving", "error");
-		},
+	saveFormData(formData) {
+		let formId = $("#formId").val();
+		if (formId != "") {
+			isEdit = 1;
+		} else {
+			isEdit = 0;
+		}
+		if (saveModDetails(isEdit, formId) == false) {
+			return false;
+		}
+			const context = this;
+			let isDataSaved = false;
+			$.ajax({
+				type: "POST",
+				async: false,
+				url: contextPath + "/cf/sdfd",
+				data: formData,
+				success: function(data) {
+					isDataSaved = true;
+					$("#formId").val(data);
+					saveEntityRoleAssociation(data);
+					showMessage("Information saved successfully", "success");
+					if (isEdit == 0) {
+						saveModDetails(isEdit, data);
+					}
+				},
+				error: function(xhr, error) {
+					showMessage("Error occurred while saving", "error");
+				},
 
-	});
-	return isDataSaved;
-}
+			});
+			return isDataSaved;
+	}
 
    getScriptLib(formQueryId) {
 	var newScriptArray = new Array();
@@ -766,7 +790,6 @@ validateDynamicForm = function() {
 		showMessage("Save/update query can't be blank", "warn");
 		return false;
 	}
-
 	
 	return true;
 }
@@ -1032,7 +1055,12 @@ function onSaveButtonClick(a_actionType, isEdit) {
 						var fieldName = regextErrors[2];
 						if (errorType != undefined && 'JQuiverRegexError' === errorType && fieldName != undefined && fieldText != undefined){
 							$("[name="+fieldName+"]").effect("highlight", {}, 3000);
-							let labelText = $("input[name='" + fieldName + "']")
+							/*let labelText = $("input[name='" + fieldName + "']")
+							    .parents(".col-inner-form")
+							    .find("label")
+							    .text()
+							    .trim();*/
+							let labelText = $("[name='" + fieldName + "']")
 							    .parents(".col-inner-form")
 							    .find("label")
 							    .text()
@@ -1236,7 +1264,7 @@ function validateData() {
 	}
 
 	for (let iCounter = 0, length = files.length; iCounter < length; iCounter++) {
-		if ($(files[iCounter]).val().trim().length < 1 && isOptional === false) {
+		if ($(files[iCounter]).val().trim().length < 1/* && isOptional === false*/) {
 			$(files[iCounter]).focus();
 			$(files[iCounter]).closest("div").parent().effect("highlight", {}, 3000);
 			return undefined;
@@ -1261,6 +1289,8 @@ function validateData() {
 	});
 	let formData = new FormData();
 	let encryptedData;
+	
+	let allFiles = $("#" + formName).find("input:file");
 	if (formMap.get("isCaptchaEnabled") == 1) {
 		if (formMap.get("isCsrfEnabled") == 1) {
 			if (formMap.get("captchaValue") != null) {
@@ -1272,17 +1302,21 @@ function validateData() {
 		formData.append('formCaptcha', formMap.get("captchaValue"));
 		formData.append('isCaptchaEnabled', formMap.get("isCaptchaEnabled"));
 		formData.append('isCsrfEnabled', formMap.get("isCsrfEnabled"));
-		if (files.length > 0) {
-			for (let iCounter = 0, length = files.length; iCounter < length; iCounter++) {
-				formData.append($(files[iCounter]).attr("name"), $(files[iCounter])[0].files[0]);
+		if (allFiles.length > 0) {
+			for (let iCounter = 0, length = allFiles.length; iCounter < length; iCounter++) {
+				if($(allFiles[iCounter])[0].files[0] != undefined) {
+					formData.append($(allFiles[iCounter]).attr("name"), $(allFiles[iCounter])[0].files[0]);
+				}
 			}
 		}
 		return formData;
 	} else {
 		data.append('formData', JSON.stringify(serializedForm.formatSerializedArray()));
-		if (files.length > 0) {
-			for (let iCounter = 0, length = files.length; iCounter < length; iCounter++) {
-				data.append($(files[iCounter]).attr("name"), $(files[iCounter])[0].files[0]);
+		if (allFiles.length > 0) {
+			for (let iCounter = 0, length = allFiles.length; iCounter < length; iCounter++) {
+				if($(allFiles[iCounter])[0].files[0] != undefined) {
+					data.append($(allFiles[iCounter]).attr("name"), $(allFiles[iCounter])[0].files[0]);
+				}
 			}
 		}
 		return data;

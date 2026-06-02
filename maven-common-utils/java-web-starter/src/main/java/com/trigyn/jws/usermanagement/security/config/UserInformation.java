@@ -68,6 +68,18 @@ public class UserInformation implements UserDetails, OAuth2User, OidcUser {
 			authorities.add(authority);
 		}
 	}
+	
+	public UserInformation(String userId, String username, String fullName,
+			List<? extends GrantedAuthority> authorities, List<String> roles, boolean isDefaultPassword,
+			boolean active) {
+		this.userId				= userId;
+		this.userName			= username;
+		this.fullName			= fullName;
+		this.authorities		= new ArrayList<>(authorities);
+		this.roles				= roles;
+		this.isDefaultPassword	= isDefaultPassword;
+		this.active				= active;
+	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

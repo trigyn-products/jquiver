@@ -33,9 +33,6 @@ public final class Constant {
 	public static final String	FILE_BIN_UPLOAD_DIRECTORY_NAME	= "FileBin";
 	public static final String	GENERIC_USER_NOTIFICATION		= "notification-listing";
 	public static final String	FILES_UPLOAD_DIRECTORY_NAME		= "Files";
-
-	
-	
 	public final static String TEMPLATES                = "Templates";
 	public final static String AUTOCOMPLETE             = "Autocomplete";
 	public final static String RESOURCEBUNDLE           = "ResourceBundle";
@@ -57,12 +54,43 @@ public final class Constant {
 	public final static String SCHEDULER                = "Scheduler";
 	public final static String FILEIMPEXPDETAILS        = "Files";
 	public final static String SCRIPTLIBRARY            = "ScriptLibrary";
+	public final static String BUSINESSMODULE           = "BusinessModule";
+	public final static String WORKFLOW				    = "Workflow";
+	public final static String AUTOCOMPLETEMODID		= "91a81b68-0ece-11eb-94b2-f48e38ab9348";
+	public final static String TEMPLATEMODID			= "1b0a2e40-098d-11eb-9a16-f48e38ab9348";
+	public final static String DYNAMICFORMMODID			= "30a0ff61-0ecf-11eb-94b2-f48e38ab9348";
+	public final static String RESTAPIMODID				= "47030ee1-0ecf-11eb-94b2-f48e38ab9348";
+	public final static String RESOURCEBUNDLEMODID		= "5559212c-8c8f-11eb-8dcd-0242ac130003";
+	public final static String NOTIFICATIONMODID		= "6ac6a54c-8d3f-11eb-8dcd-0242ac130003";
+	public final static String FILEBINMODID				= "248ffd91-7760-11eb-94ed-f48e38ab8cd7";
+	public final static String FORMIOMODID				= "1faee99c-021c-11ef-a019-7c8ae1bb24d8";
+	public final static String DASHLETMODID				= "19aa8996-80a2-11eb-971b-f48e38ab8cd7";
+	public final static String GRIDMODID				= "07067149-098d-11eb-9a16-f48e38ab9348";
+	public final static String APPCONFIGURATIONMODID	= "76270518-8c8f-11eb-8dcd-0242ac130003";
+	public final static String DASHBOARDMODID			= "b0f8646c-0ecf-11eb-94b2-f48e38ab9348";
+	public final static String ROUTERMODID				= "c6cc466a-0ed3-11eb-94b2-f48e38ab9348";
+	public final static String APICLIENTMODID			= "ded49cbd-ed7c-40ce-b1f8-c2e34ad33473";
+	public final static String SCHEDULERMODID			= "fcd0df1f-783f-11eb-94ed-f48e38ab8cd6";
+	public final static String ADDITIONALDATASOURCEMODID = "799947cc-b6cb-11eb-8529-0242ac130003";
+	public final static String BUSINESSMODENTITY        = "jq_business_module";
+	public final static String HELPMANUALMODID          = "fcd0df1f-783f-11eb-94ed-f48e38ab8cd7";
+	public final static String ADMINROLEID          	= "ae6465b3-097f-11eb-9a16-f48e38ab9348";
+	public final static String WORKFLOWID            	= "6f1a8a6e-5a6d-4f4d-b9d3-8f1e8a7c9b2a";
 	
+	public final static String	HHC								= "hhc.exe";
+	public final static String	HHA								= "hha.dll";
+	public final static String	ITIRCL							= "itircl.dll";
+	public final static String	ITSS							= "itss.dll";
+	public final static String	ITCC							= "itcc.dll";
+	public final static String	HHCTRL							= "hhctrl.ocx";
+	public final static String	HHCOUT							= "hhcout.dll";
+	public final static String	HHKOUT							= "hhkout.dll";
+	public final static String	CHCOMPILER						= "chmCompiler";
 	
 	
 	public enum ModuleType {
 		TEMPLATE("template"), AUTOCOMPLETE("autocomplete"), RESOURCEBUNDLE("resouceBundle"), DASHBOARD("dashboard"),
-		DASHLET("dashlet"), DYNAREST("dynarest"), DYNAMICFORM("dynamicForm"),SCRIPTLIBRARY("scriptlibrary"), FORMIO("FormIO");
+		DASHLET("dashlet"), DYNAREST("dynarest"), DYNAMICFORM("dynamicForm"),SCRIPTLIBRARY("scriptlibrary"), FORMIO("FormIO"),BUSINESSMODULE("BusinessModule"),APPLICATIONCONFIGURATION("propertyMaster");
 
 		final String moduleType;
 
@@ -81,7 +109,7 @@ public final class Constant {
 		NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission"), ROUTER("Router"),
 		APPLICATIONCONFIGURATION("ApplicationConfiguration"), MANAGEUSERS("ManageUsers"), MANAGEROLES("ManageRoles"),
 		HELPMANUAL("HelpManual"), APICLIENTDETAILS("ApiClientDetails"), ADDITIONALDATASOURCE("AdditionalDatasource"),
-		SCHEDULER("Scheduler"), FILEIMPEXPDETAILS("Files"),SCRIPTLIBRARY("ScriptLibrary"), FORMIO("FormIO");
+		SCHEDULER("Scheduler"), FILEIMPEXPDETAILS("Files"),SCRIPTLIBRARY("ScriptLibrary"), FORMIO("FormIO"),BUSINESSMODULE("BusinessModule"),BUSINESSENTITYMODULES("BusinessEntityModules"),WORKFLOW("Workflow");
 
 		final String moduleType;
 
@@ -119,7 +147,7 @@ public final class Constant {
 		Dashboard(MasterModuleType.DASHBOARD),Dashlet(MasterModuleType.DASHLET),Notification(MasterModuleType.NOTIFICATION),UserManagement(MasterModuleType.MANAGEUSERS),
 		ApplicationConfiguration(MasterModuleType.APPLICATIONCONFIGURATION), HelpManual(MasterModuleType.HELPMANUAL),ManagePermissions(MasterModuleType.PERMISSION),
 		ManageRoles(MasterModuleType.MANAGEROLES),Files(MasterModuleType.FILEIMPEXPDETAILS),APIClientDetails(MasterModuleType.APICLIENTDETAILS),
-		AdditionalDatasource(MasterModuleType.ADDITIONALDATASOURCE),Scriptlibrary(MasterModuleType.SCRIPTLIBRARY),Scheduler(MasterModuleType.SCHEDULER), FORMIO(MasterModuleType.FORMIO);
+		AdditionalDatasource(MasterModuleType.ADDITIONALDATASOURCE),Scriptlibrary(MasterModuleType.SCRIPTLIBRARY),Scheduler(MasterModuleType.SCHEDULER), FORMIO(MasterModuleType.FORMIO),BUSINESSMODULE(MasterModuleType.BUSINESSMODULE);
 		final MasterModuleType _baseEnum;
 
 		EntityNameModuleTypeEnumExportImport(MasterModuleType a_baseEnum) {
@@ -137,7 +165,7 @@ public final class Constant {
 		DYNAMICFORM("jq_dynamic_form"), GRID("jq_grid_details"), NOTIFICATION("jq_generic_user_notification"),
 		APPLICATIONCONFIGURATION("jq_property_master"), HELPMANUAL("jq_manual_type"),
 		APICLIENTDETAILS("jq_api_client_details"), ADDITIONALDATASOURCE("jq_additional_datasource"),
-		SCHEDULER("jq_job_scheduler"), FILEIMPEXPDETAILS("Files"),SCRIPTLIBRARY("jq_script_lib_details"), FORMIO("FormIO");
+		SCHEDULER("jq_job_scheduler"), FILEIMPEXPDETAILS("Files"),SCRIPTLIBRARY("jq_script_lib_details"), FORMIO("FormIO"), BUSINESSMODULE("jq_business_module"),BUSINESSENTITYMODULES("jq_business_module_entity_details"),WORKFLOW("jq_workflow_definition");
 
 		final String tableName;
 
@@ -165,4 +193,6 @@ public final class Constant {
 	public static final String	DYNA_REST_MOD_ID					= "47030ee1-0ecf-11eb-94b2-f48e38ab9348";
 	public static final String	DYNAFORM_MOD_ID						= "30a0ff61-0ecf-11eb-94b2-f48e38ab9348";
 	public static final String	Captcha								= "Captcha";
+	public static final String	SCRIPT_lIB_MOD_ID					= "70bd445b-ae33-45dd-98f9-0a0c49463315";
+	public static final String	BUSINESS_MOD_ID						= "ba72cdd7-7ad3-4163-a98f-48847beee391";
 }

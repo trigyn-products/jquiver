@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.antlr.v4.runtime.atn.SemanticContext.AND;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -274,16 +275,17 @@ public class GenericGridParams {
 			filterParams.setRules(lstSearch);
 			this.setFilterParams(filterParams);
 		}
-		
+
 		if (filterParams.getGroupOp() == null) {
 			filterParams.setGroupOp("AND");
 		}
-
+		
 		Set<String> reqParamKeys = request.getParameterMap().keySet();
 		for (String reqParamKey : reqParamKeys) {
 			SearchFields searchField = new SearchFields();
 			if (reqParamKey.contains("cr_")) {
 				Object obj = null;
+				
 				if (request.getParameter(reqParamKey).contains("int_")) {
 					obj = Long.parseLong(request.getParameter(reqParamKey).replace("int_", ""));
 				} else if (request.getParameter(reqParamKey).contains("flt_")) {
@@ -298,8 +300,15 @@ public class GenericGridParams {
 					if (request.getParameterMap().containsKey("cmp_" + colName)) {
 						String comparator = request.getParameter("cmp_" + colName);
 						searchField.setOp(Comparator.valueOf(comparator).toString());
+						if (request.getParameterMap().containsKey("type_" + colName) && Comparator.btw.toString().equals(searchField.getOp())) {
+							searchField.setType(request.getParameter("type_" + colName).toString());
+						}
+						
 					} else {
 						searchField.setOp(Comparator.eq.name());//Default comparator if not defined
+					}
+					if(request.getParameterMap().containsKey("lo_" + colName)) {
+						searchField.setLogicalOp(request.getParameter("lo_" + colName).toString());
 					}
 					lstSearch.add(searchField);
 				}
@@ -312,6 +321,7 @@ public class GenericGridParams {
 					if (this.criteriaParams == null) {
 						this.criteriaParams = new HashMap<String, Object>();
 					}
+					
 					for (Map.Entry<String, String> additionalParam : additonalParamMap.entrySet()) {
 						if ("m".equals(additionalParam.getKey()) 
 								&& additionalParam.getValue().contains("true")) {
@@ -342,6 +352,7 @@ public class GenericGridParams {
 				}
 			}
 		}
+
 		filterParams.setRules(lstSearch);
 		this.setFilterParams(filterParams);
 		return this;

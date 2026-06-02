@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
@@ -363,7 +364,7 @@ public class SendMailService {
 			}
 			/** Ends Here */
 
-			if (mail.getHeaderArray() != null) {
+			if (mail.getHeaderArray() != null  && mail.getHeaderArray().getPropertyName()!=null) {
 				for (PropertyListXMLVO propertyXMLVO : mail.getHeaderArray().getPropertyName()) {
 
 					message.setHeader(propertyXMLVO.getName(), propertyXMLVO.getValue());
@@ -403,7 +404,9 @@ public class SendMailService {
 				if (emlFileStoragePath == null || (emlFileStoragePath != null && emlFileStoragePath.isEmpty())) {
 					emlFileStoragePath = System.getProperty("java.io.tmpdir");
 				}
-
+				if (!emlFileStoragePath.endsWith(File.separator)) {
+				    emlFileStoragePath = emlFileStoragePath + File.separator;
+				}
 				File emFile = new File(emlFileStoragePath);
 				if (emFile.exists() == false) {
 					emlFileStoragePath = System.getProperty("java.io.tmpdir");
@@ -436,7 +439,7 @@ public class SendMailService {
 
 				mailHistory.setMailFaliedTime(Calendar.getInstance());
 				mailHistory.setEmlFilePath(emlFileStoragePath);
-
+				mailHistory.setFailedLog( a_excep.getCause().getMessage());
 				sendMailDao.saveFailedMails(mailHistory);
 
 			} catch (IOException | MessagingException a_exc) {
@@ -772,7 +775,9 @@ public class SendMailService {
 				if (emlFileStoragePath == null || (emlFileStoragePath != null && emlFileStoragePath.isEmpty())) {
 					emlFileStoragePath = System.getProperty("java.io.tmpdir");
 				}
-
+				if (!emlFileStoragePath.endsWith(File.separator)) {
+				    emlFileStoragePath = emlFileStoragePath + File.separator;
+				}
 				File emFile = new File(emlFileStoragePath);
 				if (emFile.exists() == false) {
 					emlFileStoragePath = System.getProperty("java.io.tmpdir");
@@ -804,7 +809,7 @@ public class SendMailService {
 
 				mailHistory.setMailFaliedTime(Calendar.getInstance());
 				mailHistory.setEmlFilePath(emlFileStoragePath);
-
+				mailHistory.setFailedLog( a_exc.getCause().getMessage());
 				sendMailDao.saveFailedMails(mailHistory);
 
 			} catch (IOException | MessagingException a_excp) {
@@ -928,7 +933,9 @@ public class SendMailService {
 				if (emlFileStoragePath == null || (emlFileStoragePath != null && emlFileStoragePath.isEmpty())) {
 					emlFileStoragePath = System.getProperty("java.io.tmpdir");
 				}
-
+				if (!emlFileStoragePath.endsWith(File.separator)) {
+				    emlFileStoragePath = emlFileStoragePath + File.separator;
+				}
 				File emFile = new File(emlFileStoragePath);
 				if (emFile.exists() == false) {
 					emlFileStoragePath = System.getProperty("java.io.tmpdir");
@@ -963,7 +970,7 @@ public class SendMailService {
 
 				mailHistory.setMailFaliedTime(Calendar.getInstance());
 				mailHistory.setEmlFilePath(emlFileStoragePath);
-
+				mailHistory.setFailedLog( exc.getCause().getMessage());
 				sendMailDao.saveFailedMails(mailHistory);
 
 				if (mail.getLoggedInUserRole().contains("ADMIN") && mail.getIsAuthenticationEnabled()) {
@@ -1232,7 +1239,7 @@ public class SendMailService {
 			}
 			/** Ends Here */
 
-			if (mail.getHeaderArray() != null) {
+			if (mail.getHeaderArray() != null  && mail.getHeaderArray().getPropertyName()!=null) {
 				for (PropertyListXMLVO propertyXMLVO : mail.getHeaderArray().getPropertyName()) {
 
 					message.setHeader(propertyXMLVO.getName(), propertyXMLVO.getValue());
@@ -1276,7 +1283,9 @@ public class SendMailService {
 					if (emlFileStoragePath == null || (emlFileStoragePath != null && emlFileStoragePath.isEmpty())) {
 						emlFileStoragePath = System.getProperty("java.io.tmpdir");
 					}
-
+					if (!emlFileStoragePath.endsWith(File.separator)) {
+					    emlFileStoragePath = emlFileStoragePath + File.separator;
+					}
 					File emFile = new File(emlFileStoragePath);
 					if (emFile.exists() == false) {
 						emlFileStoragePath = System.getProperty("java.io.tmpdir");
@@ -1309,6 +1318,7 @@ public class SendMailService {
 
 					mailHistory.setMailFaliedTime(Calendar.getInstance());
 					mailHistory.setEmlFilePath(emlFileStoragePath);
+					mailHistory.setFailedLog( a_excep.getCause().getMessage());
 					sendMailDao.saveFailedMails(mailHistory);
 
 					JobDataMap jobDataMap = new JobDataMap();
@@ -1316,7 +1326,10 @@ public class SendMailService {
 					if (emailVo.getMailSenderGroupId() != null) {
 						jobDataMap.put("mailSenderGroupId", emailVo.getMailScheduleId());
 					}
-					jobDataMap.put("requestParams", emailVo.getRequestParams());
+					ObjectMapper mapper = new ObjectMapper();
+					String paramJson = mapper.writeValueAsString(emailVo.getRequestParams());
+					jobDataMap.put("requestParams", paramJson);
+//					jobDataMap.put("requestParams", emailVo.getRequestParams());
 					String jobGroup = emailVo.getMailScheduleId();
 					jobService.scheduleOneTimeJob(emailVo.getMailScheduleId(), jobGroup, JwsMailScheduleJob.class,
 							DateBuilder.evenMinuteDateAfterNow(), jobDataMap);

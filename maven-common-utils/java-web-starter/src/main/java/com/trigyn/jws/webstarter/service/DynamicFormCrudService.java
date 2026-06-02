@@ -103,14 +103,7 @@ public class DynamicFormCrudService {
 			templateMap.put("dynamicForm", dynamicForm);
 			templateMap.put("environment", environment);
 
-			if (environment.equalsIgnoreCase("dev") && StringUtils.isNotEmpty(formId)) {
-				errorDataMap.put("statusCode", HttpStatus.RESET_CONTENT.value());
-				errorDataMap.put("errorMessage",
-						"The request was successful. Accessing Form Builder in DEV mode is restricted.");
-				return menuService.getTemplateWithSiteLayout("error-page", errorDataMap);
-			} else {
-				return menuService.getTemplateWithSiteLayout("dynamic-form-manage-details", templateMap);
-			}
+            return menuService.getTemplateWithSiteLayout("dynamic-form-manage-details", templateMap);
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured while loading Dynamic Form page.", custStopException);
 			throw custStopException;
@@ -176,7 +169,7 @@ public class DynamicFormCrudService {
 		Integer			typeSelect		= dynamicFormVO.getFormTypeId();
 		/* Method called for implementing Activity Log */
 		logActivity(formId, templateName, typeSelect);
-		saveScriptLibraryDetails(formData, sourceTypeId, dynamicFormVO);
+		saveScriptLibraryDetails(formData, sourceTypeId);
 		moduleVersionService.saveModuleVersion(dynamicFormVO, null, dynamicForm.getFormId(), "jq_dynamic_form",
 				sourceTypeId);
 		String templateCacheKey = com.trigyn.jws.webstarter.utils.Constant.TargetLookupId.DYANMICFORM.getTargetLookupId() + "::" + dynamicForm.getFormId();
@@ -185,8 +178,8 @@ public class DynamicFormCrudService {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public String saveScriptLibraryDetails(MultiValueMap<String, String> formData, Integer sourceTypeId,
-			DynamicFormVO dynamicFormVO) throws Exception {
+	public String saveScriptLibraryDetails(MultiValueMap<String, String> formData, Integer sourceTypeId)
+			throws Exception {
 		ObjectMapper	objectMapper	= new ObjectMapper();
 		String			formSaveQueryId;
 		String			scriptLibInsertId;
@@ -206,12 +199,8 @@ public class DynamicFormCrudService {
 		List<String>					formSaveQueryIdList	= objectMapper.readValue(formSaveQueryId, List.class);
 
 		List<ScriptLibraryConnection>	scriptLibInsert		= new ArrayList<>();
-		if (sourceTypeId == Constant.REVISION_SOURCE_VERSION_TYPE) {
-			String			scriptLibId		= dynamicFormVO.getScriptLibId();
-			List<String>	scriptLibIdList	= objectMapper.readValue(scriptLibId, List.class);
-			dynamicFormDAO.scriptLibSave(formSaveQueryIdList, scriptLibIdList, scriptLibInsert, moduleId, sourceTypeId);
 
-		} else {
+		if (sourceTypeId == Constant.MASTER_SOURCE_VERSION_TYPE) {
 			scriptLibInsertId	= formData.getFirst("scriptLibInsert");
 			scriptLibDeleteId	= formData.getFirst("scriptLibDelete");
 			List<String>	scriptLibDeleteList	= objectMapper.readValue(scriptLibDeleteId, List.class);
@@ -316,8 +305,6 @@ public class DynamicFormCrudService {
 			formSaveQueryMap.put("datasourceId", dynamicFormSaveQuery.getDatasourceId());
 			formSaveQueryMap.put("queryType", dynamicFormSaveQuery.getDaoQueryType());
 			formSaveQueryMap.put("variableName", dynamicFormSaveQuery.getResultVariableName());
-			// List<Map<String, Object>> scriptLibList =
-			// getScriptLibDetatils(dynamicFormSaveQuery.getDynamicFormQueryId());
 			dynamicFormList.add(formSaveQueryMap);
 
 		}
@@ -368,22 +355,12 @@ public class DynamicFormCrudService {
 		dynamicFormVO.setFormTypeId(dynamicForm.getFormTypeId());
 		dynamicFormVO.setCreatedBy(dynamicForm.getCreatedBy());
 		dynamicFormVO.setCreatedDate(dynamicForm.getCreatedDate());
+		dynamicFormVO.setLastUpdatedBy(dynamicForm.getLastUpdatedBy());
+		dynamicFormVO.setLastUpdatedTs(dynamicForm.getLastUpdatedTs());
 		List<String>	variableName		= new ArrayList<>();
 		List<String>	dataSourceId		= new ArrayList<>();
 		List<Integer>	formInsertQueryType	= new ArrayList<>();
 		List<String>	formQueryId			= new ArrayList<>();
-
-		String			scriptLibraryId		= formData.getFirst("scriptLibId");
-		List<String>	scriptLibIds		= objectMapper.readValue(scriptLibraryId, List.class);
-		List<String>	scriptLibId			= new ArrayList<>();
-		for (int iScriptIdCounter = 0; iScriptIdCounter < scriptLibIds.size(); iScriptIdCounter++) {
-			scriptLibId.add("\"" + scriptLibIds.get(iScriptIdCounter) + "\"");
-			String			scriptLibrayIds		= scriptLibId.toString();
-			String			scriptLibIDs		= scriptLibrayIds.replaceAll("\\[", "").replaceAll("\\]", "");
-			List<String>	scriptLibraryIds	= new ArrayList<String>();
-			scriptLibraryIds.add(scriptLibIDs);
-			dynamicForm.setScriptLibraryId(scriptLibraryIds.toString());
-		}
 
 		List<DynamicFormSaveQuery>		formSaveQueries		= dynamicForm.getDynamicFormSaveQueries();
 		List<DynamicFormSaveQueryVO>	formSaveQueryVOs	= new ArrayList<>();
@@ -400,7 +377,6 @@ public class DynamicFormCrudService {
 		dynamicFormVO.setDatasourceDetails(dataSourceId.toString());
 		dynamicFormVO.setQueryType(formInsertQueryType.toString());
 
-		dynamicFormVO.setScriptLibId(dynamicForm.getScriptLibraryId());
 		if (null == formData.getFirst("formSaveQueryId")) {
 			dynamicFormVO.setFormQueryId(formQueryId.toString());
 		} else {

@@ -25,14 +25,7 @@ public class JwsUserDetailsService implements IUserDetailsService {
 
 	@Override
 	public UserDetailsVO getUserDetails() {
- 		HttpServletRequest	requestObject	= getRequest();
-		Authentication		authentication	= null;
-		if(requestObject != null && requestObject.getSession().getAttribute("SPRING_SECURITY_CONTEXT") != null) {
-			authentication = ((SecurityContextImpl) requestObject.getSession().getAttribute("SPRING_SECURITY_CONTEXT")).getAuthentication();
-		}
-		if(authentication == null) {
-			authentication = SecurityContextHolder.getContext().getAuthentication();
-		}
+		Authentication		authentication	= SecurityContextHolder.getContext().getAuthentication();
  		
 		if (authentication != null && Boolean.FALSE.equals(authentication instanceof AnonymousAuthenticationToken)) {
 			detailsVO = new UserDetailsVO();

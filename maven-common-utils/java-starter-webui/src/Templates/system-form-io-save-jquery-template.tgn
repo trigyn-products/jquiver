@@ -2,7 +2,6 @@ var HashMap =  Java.type("java.util.HashMap");
 var System = Java.type("java.lang.System");
 var ObjectMapper = Java.type("com.fasterxml.jackson.databind.ObjectMapper");
 var FormIOUtils = Java.type("com.trigyn.jws.formio.utils.FormIOUtils");
-var TemplatingUtils = Java.type("com.trigyn.jws.templating.utils.TemplatingUtils");
 var RegextPattern = Java.type("java.util.regex.Pattern");
 var dbProductName = "${dbProductName}";
 var dataSourceId = null;
@@ -16,16 +15,15 @@ function saveFormDetails() {
 	fieldList.forEach(function(item, index) {
 		if (requestDetails &&
 			requestDetails[item.fieldName] != null) {		
-            var templatingUtils = new TemplatingUtils();
             var valueStr = String(requestDetails[item.fieldName]);	
 			var dataType = String(item.dataType);	
 			if(dataType != null && dataType.equalsIgnoreCase("xml")) {	
-                if(valueStr != "" && templatingUtils.isValidXML(valueStr) == false){
+                if(valueStr != "" && requestDetails["dynamicTemplate"].isValidXML(valueStr) == false){
                     jq_sendError("412", "Invalid value ");
                     return;
                 }	
             } else if(dataType != null && dataType.equalsIgnoreCase("json")) {
-                if(valueStr != "" && templatingUtils.isValidJSON(valueStr) == false){
+                if(valueStr != "" && requestDetails["dynamicTemplate"].isValidJSON(valueStr) == false){
                     jq_sendError("412", "Invalid value ");
                     return;
                 }

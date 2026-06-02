@@ -62,6 +62,7 @@ import com.trigyn.jws.dynarest.utils.Constants;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
+import com.trigyn.jws.usermanagement.security.config.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -103,6 +104,9 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	
 	@Autowired
 	private JwsDynarestDAO					dynarestDAO						= null;
+	
+	@Autowired
+	private JwtUtil						jwtUtil						= null;
 
 	@Override
 	public void init() {
@@ -192,6 +196,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
 		try {
 			Map<String, Object> details = new HashMap<>();
+			fileUploadId = fileUploadId.trim();
 			FileUpload fileUploadDetails = fileUploadRepository.findById(fileUploadId).orElse(null);
 			if (fileUploadDetails == null) {
 				List<FileUploadTemp> fileUploadTempDetails = fileUploadTempRepository
@@ -345,7 +350,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			if (file.length() == 0) {
 				InputStream in = FilesStorageServiceImpl.class.getResourceAsStream(filePath);
 				if (in == null) {
-					System.out.println("File Not Found : fileBinId: " + fileUploadEntity.getFileBinId()
+					logger.info("File Not Found : fileBinId: " + fileUploadEntity.getFileBinId()
 							+ " : filePath : " + filePath);
 					FileInfo fileInfo = new FileInfo();
 					fileInfo.setFileName(fileUploadEntity.getOriginalFileName());
@@ -723,7 +728,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 				}
 				scriptEngine.put("httpRequestObject", requestObject);
 				scriptEngine.put("requestHeaders", headerMap);
-				scriptEngine.put("session", requestObject.getSession());
+				String userName = jwtUtil.extractUserNameFromRequest(requestObject); 
+				scriptEngine.put("username", userName);
 			}
 			if (queryType.equals(Constants.UPLOAD_FILE_VALIDATOR)) {
 				fileBinId = "upload_" +fileBinId;
@@ -752,7 +758,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		        		resultSetMap.put("isAllowed", result);
 		        	}
 		        }else if(scriptEngine.getFactory().getLanguageName().equalsIgnoreCase("php")) {
-		        	System.out.println("Sys Out is necessary for PHP"+scriptResult);
+		        	logger.info("Script Result obtained during execution using PHP" + scriptResult);
 			        String result = stringWriter.toString();
 			        resultSetMap.put("isAllowed", result);
 				} else {

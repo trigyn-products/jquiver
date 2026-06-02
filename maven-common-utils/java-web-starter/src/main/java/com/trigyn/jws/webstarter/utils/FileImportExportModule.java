@@ -131,7 +131,7 @@ public class FileImportExportModule implements DownloadUploadModule<FileUpload> 
 		List<FileUploadExportVO>		filsImpExpVOs			= (List<FileUploadExportVO>) importObject;
 		for (FileUploadExportVO fueVO : filsImpExpVOs) {
 			FileUpload fu = new FileUpload(fueVO.getFileUploadId(), fueVO.getPhysicalFileName(),
-					fueVO.getOriginalFileName(), fueVO.getFilePath(), fueVO.getUpdatedBy(), fueVO.getFileBinId(),
+					fueVO.getOriginalFileName(), fueVO.getFilePath(), fueVO.getUpdatedBy(), fueVO.getLastUpdatedTs(), fueVO.getFileBinId(),
 					fueVO.getFileAssociationId());
 			fileUploads.add(fu);
 			fileUploadImportEntity = new FileUploadImportEntity(fileUploads);

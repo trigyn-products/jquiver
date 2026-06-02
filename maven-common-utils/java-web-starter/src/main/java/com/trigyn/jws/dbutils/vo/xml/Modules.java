@@ -2,6 +2,8 @@ package com.trigyn.jws.dbutils.vo.xml;
 
 import java.util.List;
 
+import com.trigyn.jws.workflow.vo.WorkflowDefinitionExportVO;
+
 public class Modules {
 
 	private String									moduleID;
@@ -25,6 +27,8 @@ public class Modules {
 	private List<FileUploadExportVO>				fileUploadList;
 	
 	private ScriptLibraryDetailsExportVO			scriptLibraryExportVo;
+	
+	private WorkflowDefinitionExportVO			    workflowDefinition;
 	
 
 	public String getModuleID() {
@@ -114,5 +118,18 @@ public class Modules {
 	public void setScriptLibraryExportVo(ScriptLibraryDetailsExportVO scriptLibraryExportVo) {
 		this.scriptLibraryExportVo = scriptLibraryExportVo;
 	}
+
+	public WorkflowDefinitionExportVO getWorkflowDefinition() {
+		return workflowDefinition;
+	}
+
+	public void setWorkflowDefinition(WorkflowDefinitionExportVO workflowDefinition) {
+		this.workflowDefinition = workflowDefinition;
+	}
+
+
+
+
+	
 
 }

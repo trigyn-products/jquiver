@@ -1,0 +1,2 @@
+REPLACE INTO jq_master_modules(module_id, module_name,sequence,is_system_module, auxiliary_data, module_type_id,grid_details_id,module_type,is_entity_perm_supported,is_imp_exp_supported,is_perm_supported) VALUES
+('6f1a8a6e-5a6d-4f4d-b9d3-8f1e8a7c9b2a', 'Workflow', 101,1, null, null,'workflowDefinitionGrid','Workflow',0,1,0);

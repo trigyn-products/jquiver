@@ -86,7 +86,6 @@ public class HttpClient {
 			sb.append(output);
 		}
 		httpUrlConnection.disconnect();
-		System.out.println(sb.toString());
 		return sb.toString();
 	}
 	

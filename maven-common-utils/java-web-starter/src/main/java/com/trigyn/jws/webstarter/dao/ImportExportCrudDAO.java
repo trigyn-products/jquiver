@@ -153,6 +153,12 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " UNION "
 				+ " SELECT fio.form_io_id as id, fio.form_name as name, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') as versionID, 'FormIO' as enityType"
 				+ " FROM jq_form_io fio LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = fio.form_io_id WHERE fio.form_io_type = 1 GROUP BY fio.form_io_id"
+				+ " UNION "
+				+ " SELECT bm.business_module_id as id, bm.module_name as name, 'NA' as versionID, 'BusinessModule' as enityType FROM jq_business_module bm"
+				+ " GROUP BY bm.business_module_id "
+				+ " UNION "
+				+ " SELECT wd.definition_id as id, wd.definition_name as name, version as versionID, 'Workflow' as enityType FROM jq_workflow_definition wd"
+				+ " GROUP BY wd.definition_id "
 				+ "";
 
 		return jdbcTemplate.queryForList(querySQL);
@@ -184,6 +190,8 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'Files' AS enityType FROM jq_file_upload js WHERE file_path <> '/images'"
 				+ " UNION " + " SELECT COUNT(*) AS count, 'ScriptLibrary' AS enityType FROM jq_script_lib_details jqsl"
 				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'FormIO' AS enityType FROM jq_form_io"
+				+ " UNION " + " SELECT COUNT(*) AS count, 'BusinessModule' AS enityType FROM jq_business_module"
+				+ " UNION " + " SELECT COUNT(*) AS count, 'Workflow' AS enityType FROM jq_workflow_definition"
 				+ "";
 
 		return jdbcTemplate.queryForList(querySQL);
@@ -216,6 +224,8 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'Files' AS enityType FROM jq_file_upload js WHERE file_path <> '/images'"
 				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'ScriptLibrary' AS enityType FROM jq_script_lib_details"
 				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'FormIO' AS enityType FROM jq_form_io"
+				+ " UNION " + " SELECT COUNT(*) AS totalCount, 'BusinessModule' AS enityType FROM jq_business_module"
+				+ " UNION " + " SELECT COUNT(*) AS totalCount, 'Workflow' AS enityType FROM jq_workflow_definition"
 				+ "";
 
 		return jdbcTemplate.queryForList(querySQL);
@@ -273,6 +283,9 @@ public class ImportExportCrudDAO extends DBConnection {
                 + "  UNION"
                 + "  SELECT jqsd.script_lib_id AS moduleID, jqsd.library_name AS moduleName, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') AS moduleVersion, 'ScriptLibrary' AS moduleType,`jqsd`.`updated_date` AS isAfterDate"
                 + "  FROM jq_script_lib_details jqsd LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = jqsd.script_lib_id GROUP BY jqsd.script_lib_id"
+                + "  UNION"
+                + "  SELECT wd.definition_id AS moduleID, wd.definition_name AS moduleName, version AS moduleVersion, 'Workflow' AS moduleType,`wd`.`created_date` AS isAfterDate"
+                + "  FROM jq_workflow_definition wd	"
                 + " ) AS DATA ");
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		if (modifiedAfter != null) {

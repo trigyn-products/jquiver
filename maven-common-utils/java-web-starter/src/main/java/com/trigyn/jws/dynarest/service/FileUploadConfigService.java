@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,8 +66,8 @@ public class FileUploadConfigService {
 				entity.getLastUpdatedBy(), entity.getLastUpdatedTs(), entity.getCreatedBy(), entity.getCreatedDate(),
 				entity.getUploadQueryType(), entity.getViewQueryType(), entity.getDeleteQueryType(),
 				entity.getDatasourceViewValidator(), entity.getDatasourceUploadValidator(),
-				entity.getDatasourceDeleteValidator(), entity.getIsCustomUpdated(), entity.getUploadScriptLibraryId(),
-				entity.getViewScriptLibraryId(), entity.getDeleteScriptLibraryId(),entity.getIsFileStorageEnable(),entity.getCustomFileStorageClass());
+				entity.getDatasourceDeleteValidator(), entity.getIsCustomUpdated(), 
+				entity.getIsFileStorageEnable(),entity.getCustomFileStorageClass());
 		return config;
 
 	}
@@ -95,12 +95,6 @@ public class FileUploadConfigService {
 		config.setViewQueryContent(vo.getViewQueryContent());
 		config.setDatasourceViewValidator(vo.getDatasourceViewValidator());
 		config.setIsCustomUpdated(vo.getIsCustomUpdated());
-		config.setUploadScriptLibraryId(
-				vo.getUploadScriptLibraryId() != null ? vo.getUploadScriptLibraryId().trim() : "");
-		config.setViewScriptLibraryId(vo.getViewScriptLibraryId() != null ? vo.getViewScriptLibraryId().trim() : "");
-		config.setDeleteScriptLibraryId(
-				vo.getDeleteScriptLibraryId() != null ? vo.getDeleteScriptLibraryId().trim() : "");
-
 		return config;
 	}
 	
@@ -126,12 +120,6 @@ public class FileUploadConfigService {
 		config.setViewQueryContent(fileUploadConfigExportVO.getViewQueryContent());
 		config.setDatasourceViewValidator(fileUploadConfigExportVO.getDatasourceViewValidator());
 		config.setIsCustomUpdated(fileUploadConfigExportVO.getIsCustomUpdated());
-		config.setUploadScriptLibraryId(
-				fileUploadConfigExportVO.getUploadScriptLibraryId() != null ? fileUploadConfigExportVO.getUploadScriptLibraryId().trim() : "");
-		config.setViewScriptLibraryId(fileUploadConfigExportVO.getViewScriptLibraryId() != null ? fileUploadConfigExportVO.getViewScriptLibraryId().trim() : "");
-		config.setDeleteScriptLibraryId(
-				fileUploadConfigExportVO.getDeleteScriptLibraryId() != null ? fileUploadConfigExportVO.getDeleteScriptLibraryId().trim() : "");
-
 		return config;
 	}
 

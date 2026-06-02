@@ -8,6 +8,9 @@ public final class QueryStore {
 
 	protected static final String	QUERY_TO_ALL_API_QUERIES															= "SELECT new com.trigyn.jws.dynarest.vo.RestApiDaoQueries(jdrdd.jwsDaoQueryTemplate , jdrdd.jwsResultVariableName, jdrdd.jwsQuerySequence, jdrdd.queryType, jdrdd.datasourceId) FROM JwsDynamicRestDaoDetail AS jdrdd "
 			+ " WHERE jdrdd.jwsDynamicRestDetailId = :dynarestId ORDER BY jdrdd.jwsQuerySequence ASC ";
+	
+	protected static final String	QUERY_TO_DATA_SOURCE_ID															= "SELECT jdrdd.datasourceId FROM JwsDynamicRestDaoDetail AS jdrdd "
+			+ " WHERE jdrdd.jwsDynamicRestDetailId = :dynarestId ";
 
 	protected static final String	QUERY_TO_API_DETAILS_BY_URL															= "SELECT new com.trigyn.jws.dynarest.vo.RestApiDetails(jdrd.jwsDynamicRestId, jdrd.jwsDynamicRestUrl, jdrd.jwsRbacId, jdrd.jwsMethodName, "
 			+ " jdrd.jwsMethodDescription, jrpd.jwsResponseProducerType, jdrd.jwsServiceLogic, jdrd.jwsPlatformId, jrtd.jwsRequestType, jdrd.jwsHeaderJson, jdrd.isSecured, jdrd.jwsRequestTypeId) FROM JwsDynamicRestDetail AS jdrd LEFT OUTER JOIN jdrd.jwsRequestTypeDetail AS jrtd LEFT OUTER JOIN jdrd.jwsResponseProducerDetail AS jrpd "
@@ -52,6 +55,8 @@ public final class QueryStore {
 	public static final String      JPA_QUERY_TO_GET_ACTIVE_SCHEDULERS_BY_ID 											= "SELECT sc FROM JqScheduler AS sc WHERE sc.isActive = :isActive AND sc.schedulerId = :schedulerId";
 	
 	public static final String     JPA_QUERY_TO_GET_ALL_TEMP_FILE_DETAILS_BY_FILE_UPLOAD_TEMP_ID ="SELECT fut FROM FileUploadTemp AS fut WHERE fut.fileUploadTempId = :fileUploadTempId AND fut.action = 1";
+
+	public static final String		JPA_QUERY_TO_GET_FILE_TAG_DETAILS_ID_BY_FILE_UPLOAD_TAG_ID									= "SELECT fu FROM FileUploadTags AS fu WHERE fu.fileUploadId = :fileUploadId";
 
 }
 

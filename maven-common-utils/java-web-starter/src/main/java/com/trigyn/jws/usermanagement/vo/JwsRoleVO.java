@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.entities.JwsRole;
 
 public class JwsRoleVO implements Serializable {
@@ -19,6 +20,8 @@ public class JwsRoleVO implements Serializable {
 	private Integer				isActive			= null;
 
 	private Integer				rolePriority		= null;
+	
+	private Integer	isCustomUpdated	= 1;
 
 	public String getRoleId() {
 		return roleId;
@@ -66,6 +69,16 @@ public class JwsRoleVO implements Serializable {
 		this.rolePriority = rolePriority;
 	}
 
+	
+	
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
 	public JwsRole convertVOToEntity(JwsRoleVO jwsRoleVO) {
 		JwsRole jwsRole = new JwsRole();
 		jwsRole.setRoleId(StringUtils.isNotEmpty(jwsRoleVO.getRoleId()) ? jwsRoleVO.getRoleId() : null);
@@ -73,8 +86,20 @@ public class JwsRoleVO implements Serializable {
 		jwsRole.setRoleDescription(jwsRoleVO.getRoleDescription());
 		jwsRole.setIsActive(jwsRoleVO.getIsActive());
 		jwsRole.setRolePriority(jwsRoleVO.getRolePriority());
+		jwsRole.setIsCustomUpdated(jwsRoleVO.getIsCustomUpdated());
 		return jwsRole;
 	}
+	
+//	public JwsRoleVO convertEntityToVO(JwsRole jwsRole) {
+//		JwsRoleVO jwsRoleVo = new JwsRoleVO();
+//		jwsRoleVo.setRoleId(StringUtils.isNotEmpty(jwsRole.getRoleId()) ? jwsRole.getRoleId() : null);
+//		jwsRoleVo.setRoleName(jwsRole.getRoleName());
+//		jwsRoleVo.setRoleDescription(jwsRole.getRoleDescription());
+//		jwsRoleVo.setIsActive(jwsRole.getIsActive());
+//		jwsRoleVo.setRolePriority(jwsRole.getRolePriority());
+//		jwsRoleVo.setIsCustomUpdated(jwsRole.getIsCustomUpdated());
+//		return jwsRoleVo;
+//	}
 
 	public JwsRoleVO() {
 	}

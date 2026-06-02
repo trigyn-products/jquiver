@@ -1,0 +1,656 @@
+<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
+<head>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/crypto-js/aes.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/crypto-js/mode-ecb.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/crypto-js/enc-utf16.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/crypto-js/pbkdf2.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
+<style>
+    .displayflex{
+        display:flex;
+        flex-direction: column;
+    }
+
+    .displayflex label{
+		font-weight:bold;
+    }
+
+    .captchacenter{
+	    display: flex;
+	    align-items: center;
+	    margin-top: 21px;
+	}
+
+	.captchafeildbx{
+		font-weight:bold;
+	}
+
+	.captchacenter #imgCaptcha{
+	    height: 47px;
+        margin:0px;
+	}
+
+    .captchafeildbx input{
+	    height: 47px;
+        margin:0px;
+	}
+
+     #reloadCaptcha{
+        margin:0px 8px;
+            width: 60px;
+         height: 28px;
+    }
+
+    .importfeildconfig {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+
+    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name pageHeader">Add Details</h2> 
+ 	</div>
+  <form name="addEditForm" id="addEditForm" onsubmit="return false;" action="#">
+    <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+    
+    	<div class="row">
+				<input type="hidden" data-type="text" id="definitionid" name="definitionid"  value="${(resultSetObject.definition_id)!""}" > 
+
+	    		<div class="col-lg-6 col-12">
+					<div class="col-inner-form full-form-fields">
+						 <label for="definitionName" >
+						            <span class="asteriskmark">*</span>
+						            	Definition Name
+						 </label>
+						<input type="text" data-type="text" id="definitionName" name="definitionName"  value="${(resultSetObject.definition_name)!""}" maxlength="100" placeholder="Definition Name" class="form-control ">                      
+					</div>
+                       
+				</div>
+                <div class="col-lg-6 col-12">
+					<div class="col-inner-form full-form-fields">
+						 <label for="workflowFile">${messageSource.getMessage("jws.importFile")}</label>
+                                <textarea id="workflowFileContent" name="workflowFileContent" style="display:none;">
+                                ${(resultSetObject.bpmn_xml)!''}
+                                </textarea>
+                                <input type="hidden" id="workflowFileName" name="workflowFileName">
+                                       <div class="importfeildconfig"  id="showFileupload" style="margin-right: 0px;">
+                                            <input type="file" id="workflowFile" name="workflowFile" class="fileuploaddoc optional"
+                                                   accept=".bpmn,.xml,.json"   />                        
+                                       </div>
+                                
+                        
+					</div>
+              </div>
+    	</div>
+
+        <div id="ftlParameterDiv" class="col-12 method-sign-info-div">			
+		     <a class="tipsicon collapsed " data-bs-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+                <i class="fa fa-solid fa-lightbulb" aria-hidden="true"></i>${messageSource.getMessage('jws.tips')}
+             </a>
+
+             <div class="collapse" id="tipscolpase">
+                  <div class="tipscontent">
+                    <span id="contextParameter"></span>
+                        <h3 class="titlename method-sign-info">
+                        <label for="ftlParameter">BPMN XML Generator :</label>   </h3>
+                        <span id="ftlParameter">Use the BPMN Generator button to create a BPMN XML file. Once generated, download the file, copy the XML content from the downloaded file, and paste it into the editor below to proceed.</span>
+                  </div>
+             </div>        
+         </div>	
+         <div class="row">                                                                                                
+              <div class="col-lg-6 col-12" style="margin-top: 20px;">                  
+                   <label for="htmlEditor">
+                          <span class="asteriskmark">*</span>
+                                BPMN XML will appear here
+                   </label>                                                                   
+              </div>
+              <div class="col-lg-6 col-12 text-end" style="margin-top: 10px;">
+                   <button type="button" id="bpmnGeneratorBtn" class="btn btn-secondary btn-sm">
+                           BPMN Generator
+                   </button>      
+              </div>    
+         </div>
+                
+         <div class="row margin-t-b">                                                                                                
+              <div class="col-12">
+                   <div class="html_script">
+                        <div class="grp_lblinp">
+                             <div id="htmlContainer" class="ace-editor-container">
+                                  <div id="htmlEditor" class="ace-editor"></div>
+                             </div>
+                        </div>
+                   </div>
+              </div>
+         </div>        
+  </form>
+	<div class="row">
+		<div class="col-12">
+			<div class="text-end">
+				<div class="btn-group dropup custom-grp-btn">
+                    <span id="savedAction">
+                    <button type="button" id="saveAndReturn" class="btn btn-primary" >${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </span>
+                    <span id="actionDropdownBtn"  data-bs-toggle="dropdown" aria-expanded="false" type="button" class="caret-icon btn btn-primary dropdown-toggle panel-collapsed" ></span>
+                    <div class="dropdown-menu action-cls"  id="actionDiv">
+                    	<ul class="dropdownmenu">
+                            <li id="saveAndCreateNew" >${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" >${messageSource.getMessage("jws.saveAndEdit")}</li>
+                        </ul>
+                    </div>  
+                </div>
+				<span >
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+				</span> 
+			</div>
+		</div>
+	</div>
+</div>
+<script ${scriptNonce} >
+	document.title = "Manage workflow_definition";
+	contextPath = "${contextPath}";	 
+	viewPath = "${(viewPath)!'/view'}";
+    formId = "${formId}";
+     let monacoSugg;
+    let suggestionArray;
+    let workFlowdefinition;
+      /*Written for Updating Monaco Suggestions*/
+    monacoSugg = '${(suggestions)!""}';
+    suggestionArray = JSON.parse(monacoSugg);
+    
+  
+    localStorage.setItem('r', null);
+  	let isEdit = 0;
+  
+    const actionDropdownBtn = document.getElementById("actionDropdownBtn");	
+	const backBtn = document.getElementById("backBtn");
+	//const toggleBooleanChkBox = document.getElementById("toggleBooleanChkBox");
+    const toggleBooleanChkBox = document.querySelectorAll('.onoffswitch-checkbox');
+    if(toggleBooleanChkBox){
+        toggleBooleanChkBox.forEach(function(checkbox) {
+            checkbox.addEventListener("change", function (event) {
+                const idParts = checkbox.id.split("_")[1]; 
+                const index = idParts[idParts.length - 1]; 
+                toggleBooleanVal(index);
+            });
+        });
+    }
+
+	
+	actionDropdownBtn.addEventListener("click", function (event) {
+	    actionOptions();
+	});
+	
+	backBtn.addEventListener("click", function (event) {
+	    backToPreviousPage();
+	});
+	
+	/*if (toggleBooleanChkBox) {
+		toggleBooleanChkBox.addEventListener("change", function (event) {
+		    toggleBooleanVal();
+		});
+	}
+  function toggleBooleanVal() {
+		let isChecked = $('#toggleBooleanChkBox').is(':checked')? 1 : 0;		
+        $("#toggleBoolean").val(isChecked);  
+    }  */
+  function toggleBooleanVal(index) {
+        const checkbox = document.getElementById('toggleBooleanChkBox_'+index);
+        const hiddenField = document.getElementById('toggleBoolean_'+index);
+        if (checkbox && hiddenField) {
+            const isChecked = checkbox.checked ? 1 : 0;
+            hiddenField.value = isChecked;
+        }
+    }
+  
+  $("#reloadCaptcha").click(function(event){
+     var imagesrc=contextPath+"/cf/captcha/"+formId+"_captcha"+"#";
+     generateCaptch(imagesrc);
+    $("#formCaptcha").val("");
+});
+  $(function(){
+  
+    document.getElementById("bpmnGeneratorBtn").addEventListener("click", function () {
+    window.open("https://demo.bpmn.io/", "_blank");
+    });
+      
+    initiatePage();
+    Object.keys(saveFunctionMap).forEach(actionId => {
+		const $el = $('#' + actionId);
+		if ($el.length) {
+			$el.on("click", () => {
+				onSaveButtonClick(saveFunctionMap[actionId], isEdit);
+			});
+		}
+	});
+    // setting value on edit.
+      <#if (resultSet)??>
+      	<#list resultSet as resultSetList>
+      	</#list>
+      </#if>
+    
+      <#if (resultSet)?? && resultSet?has_content>
+      	isEdit = 1;
+	
+	$(".pageHeader").html("Edit Details ${(formName)!''}");
+      <#else>
+	
+      </#if>
+	changeDefaultAction()
+	hideShowActionButtons();
+  });
+  
+  /**
+	* This method should return non null or defined object in order to 
+ 	* submit the form. return null or undefined in case your custom / additional 
+	* validation fails. If you don't want to perform any validation then either
+	* delete the method or return the same object.
+	* 
+	* If you want to change the name of the form, then implement below method and return 
+	* the form name in String
+	* 
+	*      getFormName();
+	* 
+	* If you want to change the URL/router of the form, then implement below method and return 
+	* the form url/router in String
+	* 
+	*      getformURL();
+	*
+	* you also want to call below lines to focus and highlight erroneous field
+	*      $("#"+fieldName).focus();
+	*      $("#"+fieldName).closest("div").parent().effect("highlight", {}, 3000);
+	*      showMessage("Issue in input", "warn");
+	* 
+	* In case a processed value has to be passed to the server for saving/processing, then you can call
+	* function pushToSerializedData.
+	* The default parameters to be passed will be, 
+	*		a_serializedFormData: This is the input for this method.
+	* 		a_name				: This is the parameter name, which will be used to access the parameter at server side.
+	*		a_value				: This will be String value, which will be saved at the used to save/update at server.
+	*		a_valueType			: Data type of the parameter, which will be saved/updated to DB.
+	*
+	*/
+	function onValidation(a_serializedFormData){
+        
+        let validData = saveValidation(isEdit);
+        if (!validData) {
+            return null;
+        }
+
+		const isCsrfEnabled = a_serializedFormData.get('isCsrfEnabled');
+        let parsedFormData;
+        try {
+            if(isCsrfEnabled != null && isCsrfEnabled == "1"){
+                var decryptedFormData = decryptFormData(a_serializedFormData.get('formData'),$("#formCaptcha").val());
+                parsedFormData = JSON.parse(decryptedFormData); 
+            }else{
+                parsedFormData = JSON.parse(a_serializedFormData.get('formData')); 
+            }
+        } catch (exec) {
+            showMessage("Invalid JSON in formData", "error");
+            return false;
+        }	            
+        let fieldList = [
+		{
+		    "regexPattern" : "^.{1,100}$",
+		    "fieldName" : "definitionName",
+		    "dataType" : "text"
+		}
+	];
+        
+        for (let field of parsedFormData) {
+	        let fieldName = field.name;
+	        let fieldValue = field.value ?? '';  
+	        let fieldConfig = fieldList.find(f => f.fieldName === fieldName);    
+	        if (fieldConfig) {
+	            let pattern = fieldConfig.regexPattern;
+	            let regex = new RegExp(pattern);
+	             if (regex.test(fieldValue) == false) {
+	                 var errorMessage = "Invalid value";
+                   let labelText = $("[name='" + fieldName + "']")
+							    .parents(".col-inner-form")
+							    .find("label")
+							    .text()
+							    .trim();
+					if(labelText != ''){
+						errorMessage = errorMessage +" for "+labelText;
+					}
+	                showMessage(errorMessage, "warn");
+	                 $("[name="+fieldName+"]").focus();
+	                 $("[name="+fieldName+"]").effect("highlight", {}, 3000);
+	                 return null;
+	             }
+	        }
+	    }	    
+	    return a_serializedFormData;
+	}
+	
+  /**
+	* this method is called when there is a successful response from server.
+	* you can use this to take other actions in case you need to. Success 
+	* message will be shown before calling this method. 
+	* you can define getSuccessMessage() function and return string for custom success message
+	*/
+	function onSuccess(a_serverResponse){
+	}
+	
+  /**
+	* this method is called when there is any error at server while executing server side 
+	* code.
+	* you can use this to take other actions in case you need to.
+	* error message will be shown before calling this method. If you don't want the message to be 
+	* shown, then define getErrorMessage() function and return null or undefined.
+	*
+	* you can define getErrorMessage() function and return string for custom error message
+	*/
+	function onError(jqXHR, exception){
+	    showMessage(exception, "error");
+	}
+
+	//Code go back to previous page
+	function backToPreviousPage() {
+			location.href = contextPath+viewPath+"/wd";
+	}
+
+
+
+
+
+
+
+/*function saveValidation(isEdit) {
+    var definitionName = $("#definitionName").val().trim();
+
+    if (definitionName === "") {
+        $("#definitionName").closest("div").parent().effect("highlight", {}, 3000);
+        $("#definitionName").focus();
+        showMessage("Please enter the Definition Name", "warn");
+        return false;
+    }
+
+    // Check allowed characters
+     const re = /^[A-Za-z][\w\-\:\.]*([ ]?[\w\-\:\.]*)*$/;
+    if (!re.test(definitionName)) {
+        showMessage("Allowed characters are a-z, A-Z, 0-9, _, -, .,:, ", "error");
+        return false;
+    }
+
+    // === Check File Upload (only for new definition or mandatory uploads) ===
+    let fileInput = document.getElementById("workflowFile");
+     if (fileInput) {
+        if (fileInput.files.length === 0 ) {
+            $("#workflowFile").closest("div").effect("highlight", {}, 3000);
+            $("#workflowFile").focus();
+            showMessage("Please upload a workflow file", "warn");
+            return false;
+        }
+
+        if (fileInput.files.length > 0) {
+            let fileName = fileInput.files[0].name.toLowerCase();
+            if (!(fileName.endsWith(".bpmn") || fileName.endsWith(".xml"))) {
+                $("#workflowFile").closest("div").effect("highlight", {}, 3000);
+                $("#workflowFile").focus();
+                showMessage("Only .bpmn or .xml files are allowed", "error");
+                $("#workflowFile").val("");
+                return false;
+            }
+        }
+    }
+
+    // Duplicate check only on create (isEdit == "0")
+    if (isEdit === 0) { 
+        let isKeyExist = false;
+        $.ajax({
+            async: false, // synchronous check (could be improved with promises)
+            type: "GET",
+            dataType: "json",
+            url: contextPath + "/cf/cwfdn?dn=" + encodeURIComponent(definitionName),
+            success: function(data) {
+                isKeyExist = data === true;
+            }
+        });
+
+        if (isKeyExist) {
+           // $('#errorMessage').show().html("This definition Name already exists. Kindly enter a different definition Name.");
+            showMessage("This definition Name already exists. Kindly enter a different definition Name.", "error");
+            $("#definitionName").focus();
+            return false;
+        } else {
+            $("#errorMessage").hide().html("");
+        }
+    }
+
+    return true;
+}*/
+function isValidXML(text) {
+    try {
+        let parser = new DOMParser();
+        let xmlDoc = parser.parseFromString(text, "application/xml");
+        return !xmlDoc.querySelector("parsererror");
+    } catch (e) {
+        return false;
+    }
+}
+
+function saveValidation(isEdit) {
+    var definitionName = $("#definitionName").val().trim();
+
+    if (definitionName === "") {
+        $("#definitionName").closest("div").parent().effect("highlight", {}, 3000);
+        $("#definitionName").focus();
+        showMessage("Please enter the Definition Name", "warn");
+        return false;
+    }
+
+    // Check allowed characters
+    const re = /^[A-Za-z][\w\-\:\.]*([ ]?[\w\-\:\.]*)*$/;
+    if (!re.test(definitionName)) {
+        showMessage("Allowed characters are a-z, A-Z, 0-9, _, -, .,:, ", "error");
+        return false;
+    }
+
+    // === File / Editor content validation ===
+    let editorContent = (window.editor && window.editor.getValue().trim()) || "";
+    let fileInput = document.getElementById("workflowFile");
+
+    if (editorContent === "" && (!fileInput || fileInput.files.length === 0)) {
+        showMessage("Please either upload a BPMN file OR enter BPMN content in the editor", "warn");
+        return false;
+    }
+
+    // Prefer editor content
+    if (editorContent !== "") {
+        // ✅ Validate XML
+        if (!isValidXML(editorContent)) {
+            showMessage("The workflow content must be valid BPMN XML.", "error");
+            window.editor.focus();
+            return false;
+        }
+
+        document.getElementById("workflowFileContent").value = editorContent;
+        if (!document.getElementById("workflowFileName").value) {
+            document.getElementById("workflowFileName").value = "editor-input.bpmn";
+        }
+    } else if (fileInput.files.length > 0) {
+        // If editor is empty but file uploaded
+        let file = fileInput.files[0];
+        document.getElementById("workflowFileName").value = file.name;
+    }
+
+    // === Duplicate check only on create ===
+    if (isEdit === 0) {
+        let isKeyExist = false;
+        $.ajax({
+            async: false,
+            type: "GET",
+            dataType: "json",
+            url: contextPath + "/cf/cwfdn?dn=" + encodeURIComponent(definitionName),
+            success: function (data) {
+                isKeyExist = data === true;
+            }
+        });
+
+        if (isKeyExist) {
+            showMessage("This definition Name already exists. Kindly enter a different definition Name.", "error");
+            $("#definitionName").focus();
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+
+function initiatePage() {
+    const context = this;
+
+    // Configure Monaco loader
+    require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }, waitSeconds: 120 });
+
+    require(["vs/editor/editor.main"], function () {
+
+        // === Get initial content from hidden field or default empty ===
+        let hiddenContent = document.getElementById("workflowFileContent").value || "";
+
+        var initialContent = hiddenContent && hiddenContent.trim() !== ""
+            ? hiddenContent
+            : "";
+
+        // === Create Monaco editor ===
+        context.editor = monaco.editor.create(document.getElementById("htmlEditor"), {
+            value: initialContent,
+            language: "xml",
+            theme: "vs-dark",
+            automaticLayout: true,
+            scrollBeyondLastLine: false,
+            wordWrap: "on"
+            // (native placeholder not available in all Monaco builds)
+        });
+
+        window.editor = context.editor; // global reference
+
+        // === Auto-format XML after editor loads ===
+        setTimeout(() => {
+            if (context.editor.getValue().trim()) {
+                context.editor.getAction("editor.action.formatDocument").run();
+            }
+        }, 500);
+
+        // === Suggestions (completion items) ===
+        const suggestions = suggestionArray.map(s => ({
+            label: s.label,
+            kind: s.kinda,
+            insertText: s.insertText,
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+        }));
+
+        monaco.languages.registerCompletionItemProvider("xml", {
+            triggerCharacters: ["@"],
+            provideCompletionItems: (model, position) => {
+                const wordUntilPos = model.getWordUntilPosition(position);
+                const wordRange = {
+                    startLineNumber: position.lineNumber,
+                    endLineNumber: position.lineNumber,
+                    startColumn: wordUntilPos.startColumn,
+                    endColumn: wordUntilPos.endColumn
+                };
+                return { suggestions: suggestions.map(s => ({ ...s, range: wordRange })) };
+            }
+        });
+
+        // === Snippet fix logic ===
+        context.editor.onDidChangeCursorSelection(e => {
+            if (e.source === "snippet") {
+                const cursor = context.editor.getPosition();
+                const content = context.editor.getValue().split("\n");
+                let lineContent = content[cursor.lineNumber - 1];
+
+                if (lineContent.includes("@{")) {
+                    const idx = lineContent.lastIndexOf("@");
+                    lineContent = lineContent.substring(0, idx) + "$" + lineContent.substring(idx + 1);
+                } else if (lineContent.includes("@<")) {
+                    const idx = lineContent.lastIndexOf("@");
+                    lineContent = lineContent.substring(0, idx) + "" + lineContent.substring(idx + 1);
+                }
+
+                content[cursor.lineNumber - 1] = lineContent;
+                context.editor.setValue(content.join("\n"));
+                context.editor.setPosition(cursor);
+            }
+        });
+
+        // === Sync editor -> hidden input ===
+        context.editor.onDidChangeModelContent(() => {
+            document.getElementById("workflowFileContent").value = context.editor.getValue();
+            $("#errorMessage").hide();
+            userActivityDetected(); // for salt refresh
+        });
+
+        // === Save shortcut Ctrl/Cmd + S ===
+        context.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
+            typeOfActionWithIsEdit(
+                "workflow-definition-form",
+                $("#savedAction").find("button"),
+                isEdit,
+                workFlowdefinition.saveValidation.bind(workFlowdefinition),
+                workFlowdefinition.backToPreviousPage
+            );
+        });
+
+        // === Resize shortcut Ctrl/Cmd + Shift + M ===
+        context.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, () => {
+            resizeMonacoEditor(context.editor, "htmlContainer", "htmlEditor");
+        });
+    });
+}
+
+
+
+document.getElementById("workflowFile").addEventListener("change", function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const allowedExtensions = [".bpmn", ".xml"];
+    const fileName = file.name.toLowerCase();
+    const isValid = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+    if (!isValid) {
+        showMessage("Only .bpmn or .xml files are allowed", "error");
+        this.value = ""; // reset invalid file
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const fileContent = e.target.result;
+
+        // Update Monaco editor if initialized
+        if (window.editor) {
+            window.editor.setValue(fileContent);
+            window.editor.setPosition({ lineNumber: 1, column: 1 });
+            window.editor.focus();
+        }
+
+        // Update hidden fields
+        document.getElementById("workflowFileContent").value = fileContent;
+        document.getElementById("workflowFileName").value = file.name;
+
+        // Hide any previous error messages
+        $("#errorMessage").hide();
+    };
+
+    reader.readAsText(file);
+});
+
+</script>

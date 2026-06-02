@@ -79,13 +79,6 @@ public class MasterCreatorController {
 			String				roleIdString	= formData.getFirst("roleIds");
 			List<String>		roleIds			= objectMapper.readValue(roleIdString, List.class);
 			masterCreatorService.saveEntityRolesForMasterGenerator(details, roleIds);
-			String				environment				= propertyMasterService.findPropertyMasterValue("system", "system",
-					"profile");
-			if ("dev".equalsIgnoreCase(environment)) {
-				TemplateMaster template=(TemplateMaster) details.get("templateMaster");
-				DynamicForm dynamicForm=(DynamicForm) details.get("dynamicForm");
-				masterCreatorService.downloadFiles(template,dynamicForm);
-			}
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured while loading Master Genertor page.", custStopException);
 			throw custStopException;

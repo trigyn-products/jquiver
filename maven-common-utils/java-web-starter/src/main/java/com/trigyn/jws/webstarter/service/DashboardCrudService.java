@@ -186,6 +186,9 @@ public class DashboardCrudService {
 		}
 		dashboardEntity.setDashboardRoles(roleAssociations);
 		dashboardEntity.setDashboardDashlets(dashletAssociations);
+		dashboardVO.setCreatedBy(dashboardEntity.getCreatedBy());
+		dashboardVO.setCreatedDate(dashboardEntity.getCreatedDate());
+		dashboardVO.setLastUpdatedTs(dashboardEntity.getLastUpdatedTs()); 
 		moduleVersionService.saveModuleVersion(dashboardVO, null, dashboardEntity.getDashboardId(), "jq_dashboard",
 				sourceTypeId);
 		/* Method called for implementing Activity Log */
@@ -255,6 +258,20 @@ public class DashboardCrudService {
 		dashboardVO.setIsDraggable(dashboard.getIsDraggable());
 		dashboardVO.setIsExportable(dashboard.getIsExportable());
 		dashboardVO.setDashboardBody(dashboard.getDashboardBody());
+		dashboardVO.setCreatedBy(dashboard.getCreatedBy());
+		dashboardVO.setCreatedDate(dashboard.getCreatedDate());
+		dashboardVO.setIsCustomUpdated(dashboard.getIsCustomUpdated());
+		dashboardVO.setIsDeleted(dashboard.getIsDeleted());
+		dashboardVO.setLastUpdatedTs(dashboard.getLastUpdatedTs());
+		dashboardVO.setDashboardType(dashboard.getDashboardType());
+		List<DashboardRoleAssociation>	listDRA		= dashboard.getDashboardRoleAssociations();
+		List<String>					roleIdList	= new ArrayList<>();
+		for (DashboardRoleAssociation dra : listDRA) {
+			roleIdList.add(dra.getId().getRoleId());
+		}
+		dashboardVO.setRoleIdList(roleIdList);
+		
+		
 
 		return dashboardVO;
 	}
@@ -334,6 +351,10 @@ public class DashboardCrudService {
 		logActivity(dashlet.getDashletName(), dashlet.getDashletTypeId(), action, masterModuleType);
 
 		dashletVO.setDashletId(dashlet.getDashletId());
+		dashletVO.setCreatedBy(dashlet.getCreatedBy());
+		dashletVO.setCreatedDate(dashlet.getCreatedDate());
+		dashletVO.setLastUpdatedTs(dashlet.getLastUpdatedTs());
+		dashletVO.setUpdatedBy(dashlet.getUpdatedBy());
 		List<DashletProperties> properties = new ArrayList<>();
 
 		try {
@@ -348,13 +369,6 @@ public class DashboardCrudService {
 			}
 			dashlet.setProperties(properties);
 			moduleVersionService.saveModuleVersion(dashletVO, null, dashlet.getDashletId(), "jq_dashlet", sourceTypeId);
-
-			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
-			if (environment.equalsIgnoreCase("dev")) {
-				String downloadFolderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system",
-						"template-storage-path");
-				downloadUploadModule.downloadCodeToLocal(dashlet, downloadFolderLocation);
-			}
 
 		} catch (Exception a_excep) {
 			logger.error("Error ocurred while saving Dashlets : DashletId : " + dashlet.getDashletId(), a_excep);

@@ -8,8 +8,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +52,19 @@ public class HelpManualImportExportModule {
 
 		List<ManualEntryDetails>	manualEntries		= iManualEntryDetailsRepository
 				.findAllByManualType(a_manualType.getManualId());
+		
+		// EXCLUDE "How Can I?" ENTRY + ALL CHILDREN
+
+		String excludedEntryId = "f67f5cc9-875a-41de-8761-16991b5aafc4";
+
+		Set<String> excludedIds = new HashSet<>();
+		excludedIds.add(excludedEntryId);
+
+		// recursively collect child ids
+		collectChildEntryIds(manualEntries, excludedEntryId, excludedIds);
+
+		// ---------------------------------------------------
+
 
 		String						fileUploadConfigId	= null;
 
@@ -96,8 +111,12 @@ public class HelpManualImportExportModule {
 		}
 		if (manualEntries != null) {
 			for (ManualEntryDetails med : manualEntries) {
+				
+				// SKIP EXCLUDED NODE + CHILD NODES
+				if (excludedIds.contains(med.getManualEntryId())) {
+					continue;
+				}
 			
-
 				manualEntryDetailsVOList.add(new ManualEntryDetailsExportVO(med.getManualEntryId(), med.getManualId(),
 						med.getEntryName(),
 						StringEscapeUtils.unescapeXml("<![CDATA[" + med.getEntryContent().trim() + "]]>"),
@@ -124,16 +143,31 @@ public class HelpManualImportExportModule {
 		}
 
 		HelpManualTypeExportVO	helpManualTypeVO	= new HelpManualTypeExportVO(a_manualType.getManualId(),
-				a_manualType.getName(), a_manualType.getIsSystemManual(),a_manualType.getHeaderTemplate(), manualEntryDetailsVOList,a_manualType.getCreatedBy(),a_manualType.getCreatedDate(),a_manualType.getLastUpdatedBy(),a_manualType.getLastUpdatedTs(), 
+				a_manualType.getName(), a_manualType.getIsSystemManual(),a_manualType.getHeaderTemplate(),a_manualType.getEditorName(),manualEntryDetailsVOList,a_manualType.getCreatedBy(),a_manualType.getCreatedDate(),a_manualType.getLastUpdatedBy(),a_manualType.getLastUpdatedTs(), 
 				fileUploadConfigExportVO,fileUploadExportVOList);
-
+		
 		Map<String, Object>		map					= new HashMap<>();
 		map.put("moduleName", a_manualType.getName());
 		map.put("moduleObject", helpManualTypeVO);
 		moduleDetailsMap.put(a_manualType.getManualId(), map);
 
 	}
+	
+	private void collectChildEntryIds(List<ManualEntryDetails> manualEntries, String parentId,
+			Set<String> excludedIds) {
 
+		for (ManualEntryDetails med : manualEntries) {
+
+			if (parentId.equals(med.getParentId())) {
+
+				excludedIds.add(med.getManualEntryId());
+
+				// recursive call for nested children
+				collectChildEntryIds(manualEntries, med.getManualEntryId(), excludedIds);
+			}
+		}
+	}
+	
 	public HelpManual importData(String folderLocation, String uploadFileName, String uploadID, Object importObject) {
 		HelpManual							helpManual				= null;
 
@@ -146,7 +180,7 @@ public class HelpManualImportExportModule {
 		List<ManualEntryDetailsExportVO>	manualEntriesVO			= helpManualTypeExportVO.getManualEntries();
 		FileUploadConfigExportVO			fileUploadConfigVO		= helpManualTypeExportVO.getFileUploadConfig();
 
-		ManualType							manualType				= new ManualType(manualId, name, isSystemManual,headerTemplate,helpManualTypeExportVO.getCreatedBy(),helpManualTypeExportVO.getCreatedDate(),helpManualTypeExportVO.getLastUpdatedBy(),helpManualTypeExportVO.getLastUpdatedTs());
+		ManualType							manualType				= new ManualType(manualId, name, isSystemManual,headerTemplate,helpManualTypeExportVO.getEditorName(), helpManualTypeExportVO.getCreatedBy(),helpManualTypeExportVO.getCreatedDate(),helpManualTypeExportVO.getLastUpdatedBy(),helpManualTypeExportVO.getLastUpdatedTs());
 
 		FileUploadConfig					fileUploadConfig		= null;
 		if (fileUploadConfigVO != null) {
@@ -174,7 +208,7 @@ public class HelpManualImportExportModule {
 		}
 		for (FileUploadExportVO fueVO : helpManualTypeExportVO.getFileUploadList()) {
 			FileUpload fu = new FileUpload(fueVO.getFileUploadId(), fueVO.getPhysicalFileName(),
-					fueVO.getOriginalFileName(), fueVO.getFilePath(), fueVO.getUpdatedBy(),
+					fueVO.getOriginalFileName(), fueVO.getFilePath(), fueVO.getUpdatedBy(), fueVO.getLastUpdatedTs(),
 					fueVO.getFileBinId(), fueVO.getFileAssociationId());
 			fileUploads.add(fu);
 		}

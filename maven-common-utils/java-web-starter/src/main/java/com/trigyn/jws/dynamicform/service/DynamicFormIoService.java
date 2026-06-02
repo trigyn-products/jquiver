@@ -145,6 +145,16 @@ public class DynamicFormIoService {
 			objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 			String jsonRegex = objectMapper.writeValueAsString(regexMap);
 			parameters.put("fieldList", jsonBuilder);
+			//For file bin component check
+			FormIOUtils	formIOUtils		= new FormIOUtils();
+			Object		formMetaData	= formIOUtils.getFormMetaDataById(formIoId);
+			if (formMetaData != null) {
+				ObjectMapper	objMapper	= new ObjectMapper();
+				JsonNode		formIoJson		= objMapper.readTree(formMetaData.toString());
+				boolean toggleFileBin = containsFileBin(formIoJson);
+				parameters.put("toggleFileBin", toggleFileBin);
+			}
+			//Done file bin component check
 			TemplateVO	templateVO	= templateService.getTemplateByName("formio-default-html-template");
 			String		template	= templateEngine.processTemplateContents(templateVO.getTemplate(),
 					templateVO.getTemplateName(), parameters);
@@ -211,10 +221,10 @@ public class DynamicFormIoService {
 			if (isKeyPresent) {
 				queryParams.add(columnName + " ,");
 				insertValuesJoiner = dynamicFormHelperService.createInsertQuery(insertValuesJoiner, tableName,
-						columnName, dataType, columnKey, dbProductName, isAutoIncrement, saveQueryparameters);
+						columnName, dataType, columnKey, dbProductName, isAutoIncrement, columnType, saveQueryparameters);
 				if ("false".equalsIgnoreCase(isAutoIncrement)) {
 					insertJoiner.add(columnName);
-					saveQueryParameterTypes.put(columnName, dataType);
+					saveQueryParameterTypes.put(columnName, columnType);
 					keyParams.add("'" + columnName + "'");
 					joinFormIoQueryBuilder(insertValuesJoiner, columnName, dataType, false, columnType, dbProductName,
 							coloumnCounter, isAutoIncrement, saveQueryparameters);
@@ -368,8 +378,8 @@ public class DynamicFormIoService {
 		}
 
 		for (Map<String, Object> info : tableInformation) {
-			if (info.get("columnType") == null) {
-
+			String columnType = (String) info.get("columnType");
+			if (columnType == null) {
 				continue;
 			}
 			String columnName = info.get("tableColumnName").toString();
@@ -384,7 +394,7 @@ public class DynamicFormIoService {
 			}
 			if (keys.contains(columnName)) {
 				insertValuesJoiner = dynamicFormHelperService.createInsertQuery(insertValuesJoiner, tableName,
-						columnName, dataType, columnKey, dbProductName, isAutoIncrement, saveQueryparameters);
+						columnName, dataType, columnKey, dbProductName, isAutoIncrement, columnType, saveQueryparameters);
 			}
 			if (columnKey != null && PRIMARY_KEY.equals(columnKey)) {
 				if ("false".equalsIgnoreCase(isAutoIncrement) && keys.contains(columnName)) {
@@ -416,7 +426,7 @@ public class DynamicFormIoService {
 			if (columnName != null && columnName.isEmpty() == false && "false".equalsIgnoreCase(isAutoIncrement)
 					&& keyParams.contains(strColumnName) == false) {
 				keyParams.add(strColumnName);
-				saveQueryParameterTypes.put(columnName, dataType);
+				saveQueryParameterTypes.put(columnName, columnType);
 				insertJoiner.add(columnName);
 				joinFormIoQueryBuilder(insertValuesJoiner, columnName, dataType, false, columnType, dbProductName,
 						coloumnCounter, isAutoIncrement, saveQueryparameters);
@@ -841,7 +851,7 @@ public class DynamicFormIoService {
 				String	columnType		= info.get("columnType").toString();
 				String	isAutoIncrement	= info.get("autoIncrement").toString();
 				String	regexInfo		= info.get("regexValidation").toString();
-				queryParametersTypes.put(columnName, dataType);
+				queryParametersTypes.put(columnName, columnType);
 				if ("PK".equals(columnKey)) {
 					templatesMap.put("primaryKeyColumnName", columnName);
 					parameters.put("primaryKeyColumnName", columnName);
@@ -872,14 +882,12 @@ public class DynamicFormIoService {
 			String columsAsCsv = StringUtils.join(colmnsAs, ",");
 			parameters.put("tableName", tableName);
 			parameters.put("columnNames", columsAsCsv);
-			String baseUrl = restDetailService.getServerBaseURL();
 			if (StringUtils.isBlank(moduleURL) == false) {
 				parameters.put("moduleURL", moduleURL);
 			}
-			objectMapper = new ObjectMapper();
-			objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-			String jsonRegex = objectMapper.writeValueAsString(regexMap);
 			parameters.put("fieldList", jsonBuilder);
+			//Setting toggleFileBin for fileconfigrenderer condition in formio-default-html-template
+			parameters.put("toggleFileBin", toggleFileBin);
 			TemplateVO	templateVO	= templateService.getTemplateByName("formio-default-html-template");
 			String		template	= templateEngine.processTemplateContents(templateVO.getTemplate(),
 					templateVO.getTemplateName(), parameters);
@@ -901,5 +909,29 @@ public class DynamicFormIoService {
 		return templatesMap;
 
 	}
+	
+	private static boolean containsFileBin(JsonNode node) {
+	    if (node == null) {
+	        return false;
+	    }
+
+	    // Check current node
+	    if (node.has("type") &&
+	        "filebincomponent".equals(node.get("type").asText())) {
+	        return true;
+	    }
+
+	    // Traverse children
+	    if (node.isContainerNode()) {
+	        for (JsonNode child : node) {
+	            if (containsFileBin(child)) {
+	                return true;
+	            }
+	        }
+	    }
+
+	    return false;
+	}
+
 
 }

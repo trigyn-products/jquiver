@@ -28,6 +28,18 @@
        
        
         <div class="topactionbuttons">
+
+            <div class="addonbtnblock">
+             <div class="showblock">
+                    <span>${messageSource.getMessage('jws.show')}</span>
+                    <select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                <option value="2">${messageSource.getMessage('jws.system')}</option>               
+            </select>
+           </div>
+
+             <div class="showblock">
             <select class="typeSelectDropDown" id="typeRole" onchange="changeType()">
                 <#if roles ??>
                     <#list roles as role>
@@ -35,20 +47,16 @@
                     </#list>
                 </#if>
             </select>
+
+             </div>
             <span onclick="backToPreviousPage();">
                 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
             </span>
                 
-        </div>
+       
+            </div>
           
-           <div class="text-end">
-        ${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
-                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
-                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
-                <option value="2">${messageSource.getMessage('jws.system')}</option>               
-            </select>
            </div>
-          
 
      </div>
     <div id="divManageEntityRoleGrid"></div>

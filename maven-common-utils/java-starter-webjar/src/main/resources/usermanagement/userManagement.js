@@ -174,7 +174,7 @@ function saveUserDetails() {
 				updatePropertyDetails();
 				showMessage("Information saved successfully", "success");
 				isAdminEmailExist = true;
-				$('#adminModalDialog').modal('hide');
+				$('#adminModalDialog').data('bs.modal')?._hide();
 				//$('#isAuthenticationEnabled' + oAuthId).val('-1').trigger("change");
 				$("#isAuthenticationEnabled").prop("checked", true).trigger("change");
 			},
@@ -841,7 +841,6 @@ function validateFormSubmit() {
 		oAuthRegElements.forEach(element => {
 			var oAuthRegClientVal = $("#" + element.id).val();
 			var oAuthRegValArry = jQuery.inArray(oAuthRegClientVal, validateRegisrations);
-			//console.log(oAuthRegValArry+" = "+JSON.stringify(validateRegisrations)+' = '+oAuthRegClientVal)
 			if (oAuthRegValArry == -1) {
 				validateRegisrations.push(oAuthRegClientVal);
 			} else {
@@ -990,13 +989,10 @@ function deleteRow(rowElement) {
 				var lastIndex = authTypeParentDivId.split("-").pop();	
 				let authId = "authType-"+lastIndex;
 				var keyObjDelete = $(rowElement).attr("id");
-				//console.log(keyObjDelete);
 				const [first, ...rest] = keyObjDelete.split('-');
 				const remainder = rest.join('-');
-				//console.log('remainder = '+remainder);
 				var displayName = $('#headerTable-'+remainder).find("input[name='displayName']").val();
 				var col2Value = $(rowElement).closest('tr').find("td:eq(1) input").attr('name');
-				//console.log(authId+' = '+displayName+ ' = '+col2Value);
 				deleteRowProps(authId, displayName, col2Value);
 				$(rowElement).closest("tr").remove();
 			}
@@ -1028,7 +1024,6 @@ function deleteRowProps(authId, displayName, keyObjUpdate) {
 	var updateConfigurations = [];
 	var idx = 0;
 	var jsonProperties1= JSON.stringify(parsedProperties);
-	//console.log(jsonProperties1);
 	if (typeof parsedProperties != 'undefined' && parsedProperties != null) {
 		$.each(parsedProperties, function(key, val) {
 			if (typeof key != 'undefined' && typeof val != 'undefined' && key != 'undefined') {
@@ -1040,7 +1035,6 @@ function deleteRowProps(authId, displayName, keyObjUpdate) {
 									
 									if (typeof configKey != 'undefined' && typeof configVal != 'undefined' && configVal.name == 'displayName' 
 									&& configVal.value == displayName && configVal.name == 'displayName') {
-										//console.log(' displayName = '+ JSON.stringify(configVal));
 											updateConfiguration = true;
 											idx = configKeys;
 									}
@@ -1052,9 +1046,7 @@ function deleteRowProps(authId, displayName, keyObjUpdate) {
 			}
 		});
 	}
-	//console.log(updateConfiguration +' = '+ idx);
 	var jsonProperties1= JSON.stringify(parsedProperties);
-	//console.log(jsonProperties1);
 	if (typeof parsedProperties != 'undefined' && parsedProperties != null && updateConfiguration) {
 		$.each(parsedProperties, function(key, val) {
 			if (typeof key != 'undefined' && typeof val != 'undefined' && key != 'undefined') {
@@ -1068,10 +1060,8 @@ function deleteRowProps(authId, displayName, keyObjUpdate) {
 										var updateConfigVals = [];
 										$.each(confVals, function(confKey, confVal) {
 											if (typeof confKey != 'undefined' && typeof confVal != 'undefined' ) {
-											//console.log(confVal.name +'=='+ keyObjUpdate);
 												if(confVal.name == keyObjUpdate && confKeys == idx){
 													//console.log(JSON.stringify(confVal)+' = '+confKey+' = '+idx+" = "+ keyObjUpdate);
-													//console.log(confVal.name+' push -'+keyObjUpdate);
 												}else{
 													updateConfigVals.push(confVal);
 												}
@@ -1089,7 +1079,6 @@ function deleteRowProps(authId, displayName, keyObjUpdate) {
 			}
 		});
 	}
-	//console.log('JSON -'+JSON.stringify(parsedProperties));
 	if(typeof parsedProperties != 'undefined' && parsedProperties != null ){
 		$.each(parsedProperties, function(key,val){	
 			if(typeof key != 'undefined' && key == 'authenticationDetail'){
@@ -1098,7 +1087,6 @@ function deleteRowProps(authId, displayName, keyObjUpdate) {
 		});
 	}
 	var jsonProperties= JSON.stringify(parsedProperties);
-	//console.log(jsonProperties);
 	$("#"+authId+" option[value="+$('#'+authId).val()+"]").attr("properties", encodeURIComponent(JSON.stringify(jsonProperties)));
 }
 
@@ -1108,7 +1096,6 @@ function deleteRowProps(authId, displayName, keyObjUpdate) {
 function htmlToJson(authDivId, authElementVal){
 	var authJson = {};	
 	var configurations = [];
-	//console.log(configurations+' DIv Id = '+ authDivId);
 	$('#'+authDivId).find('.configurations').each(function(){
 		$(this).find('.configuration').each(function( ic, vc ) {
 			var configuration = [];
@@ -1136,7 +1123,6 @@ function htmlToJson(authDivId, authElementVal){
 				if (typeof key != 'undefined' && typeof configuration != 'undefined') {
 					$.each(configuration, function(confKey, confVal) {
 						if (typeof confKey != 'undefined' && typeof confVal != 'undefined' && confVal.name == parentELement) {
-							//console.log(confVal.name +' = '+confVal.type+' Parent = '+parentELement);
 							var additionalDetails = {};
 							var additionalProps = [];
 							let obj = jsonObject(input, authElementVal);
@@ -1153,7 +1139,6 @@ function htmlToJson(authDivId, authElementVal){
 			});
 		});	
 	});
-	//console.log(authElementVal);
 	var authenticationType = {};
 	if(authElementVal == AuthType.DAO){
 		authenticationType.name = "enableDatabaseAuthentication";
@@ -1248,6 +1233,5 @@ function jsonObject(input, authTypeVal) {
 		obj.dropDownData = arr;
 		obj.type 	= "select";
 	}
-	console.log(JSON.stringify(obj));
 	return obj;
 }

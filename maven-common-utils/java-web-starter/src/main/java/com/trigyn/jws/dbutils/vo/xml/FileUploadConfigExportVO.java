@@ -45,12 +45,6 @@ public class FileUploadConfigExportVO {
 
 	private Integer						isCustomUpdated			  = null;
 	
-	private String				        uploadScriptLibraryId	  = null;
-	
-	private String						viewScriptLibraryId		  = null;
-	
-	private String						deleteScriptLibraryId	  = null;
-	
 	private Integer                     isFileStorageEnable       = 0;
 
 	private String                      customFileStorageClass    = null;
@@ -107,8 +101,7 @@ public class FileUploadConfigExportVO {
 			String dataSourceId, Integer isDeleted, String createdBy, Date createdDate, String updatedBy,
 			Date updatedDate, Integer uploadQueryType, Integer viewQueryType, Integer deleteQueryType,
 			String datasourceViewValidator, String datasourceUploadValidator, String datasourceDeleteValidator,
-			Integer isCustomUpdated, String uploadScriptLibraryId, String viewScriptLibraryId,
-			String deleteScriptLibraryId,Integer isFileStorageEnable,String customFileStorageClass) {
+			Integer isCustomUpdated,Integer isFileStorageEnable,String customFileStorageClass) {
 		this.fileBinId = fileBinId;
 		this.fileTypSupported = fileTypSupported;
 		this.maxFileSize = maxFileSize;
@@ -129,9 +122,6 @@ public class FileUploadConfigExportVO {
 		this.datasourceUploadValidator = datasourceUploadValidator;
 		this.datasourceDeleteValidator = datasourceDeleteValidator;
 		this.isCustomUpdated = isCustomUpdated;
-		this.uploadScriptLibraryId = uploadScriptLibraryId;
-		this.viewScriptLibraryId = viewScriptLibraryId;
-		this.deleteScriptLibraryId = deleteScriptLibraryId;
 		this.isFileStorageEnable=isFileStorageEnable;
 		this.customFileStorageClass=customFileStorageClass;
 	}
@@ -294,30 +284,6 @@ public class FileUploadConfigExportVO {
 
 	public void setIsCustomUpdated(Integer isCustomUpdated) {
 		this.isCustomUpdated = isCustomUpdated;
-	}
-
-	public String getUploadScriptLibraryId() {
-		return uploadScriptLibraryId;
-	}
-
-	public void setUploadScriptLibraryId(String uploadScriptLibraryId) {
-		this.uploadScriptLibraryId = uploadScriptLibraryId;
-	}
-
-	public String getViewScriptLibraryId() {
-		return viewScriptLibraryId;
-	}
-
-	public void setViewScriptLibraryId(String viewScriptLibraryId) {
-		this.viewScriptLibraryId = viewScriptLibraryId;
-	}
-
-	public String getDeleteScriptLibraryId() {
-		return deleteScriptLibraryId;
-	}
-
-	public void setDeleteScriptLibraryId(String deleteScriptLibraryId) {
-		this.deleteScriptLibraryId = deleteScriptLibraryId;
 	}
 
 	public Integer getIsFileStorageEnable() {

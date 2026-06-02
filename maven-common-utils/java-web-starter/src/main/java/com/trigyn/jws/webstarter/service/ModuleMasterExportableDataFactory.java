@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.webstarter.dao.GenerateModuleMasterQueries;
 import com.trigyn.jws.webstarter.utils.Constant;
-import com.trigyn.jws.webstarter.utils.Constant.MasterModuleType;
 
 @Component
 public class ModuleMasterExportableDataFactory {
@@ -76,7 +75,13 @@ public class ModuleMasterExportableDataFactory {
 
 	@Autowired
 	private ScriptLibraryExportableData scriptLibraryExportableData = null;
-
+	
+	@Autowired
+	private BusinessModuleExportableData businessModuleExportableData = null;
+	
+	@Autowired
+	private WorkflowExportableData workflowExportableData = null;
+	
 
 	public GenerateModuleMasterQueries getModuleMaster(String entityType) {
 
@@ -143,6 +148,13 @@ public class ModuleMasterExportableDataFactory {
 
 		case Constant.SCRIPTLIBRARY:
 			return scriptLibraryExportableData;
+			
+		case Constant.BUSINESSMODULE:
+			return businessModuleExportableData;
+			
+		case Constant.WORKFLOW:
+			return workflowExportableData;
+			
 		default:
 			// throw new UnsupportedOperationException("Unsupported type!");
 			return null;

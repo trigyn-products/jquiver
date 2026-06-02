@@ -25,13 +25,6 @@
                     <option value="2">${messageSource.getMessage('jws.system')}</option>                 
                     </select>       
                     </div> 
-                <#if environment == "dev">
-
-                <button id="downloadTemplate" onclick= "downloadTemplate();" type="button" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.downloadtemplate')}</button>
-
-                <button id="uploadTemplate" onclick= "uploadTemplate();" type="button" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.uploadTemplate')}</button>               
-                
-                </#if>
                 
                 <button id="addFreemarkerTemplate" onclick="submitForm()" type="button" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.addtemp')}</button> 
 
@@ -130,31 +123,24 @@
 		const updatedDate = uiObject.rowData.updatedDate;
 		const revisionCount = uiObject.rowData.revisionCount;
         
-            <#if environment == "dev">
-                 let element = "<span id='"+templateId+"'  class= 'grid_action_icons'><i class='fa fa-pencil'></i></span>";
-                 element = element + "<span id='"+templateId+"' class= 'grid_action_icons' onclick='downloadTemplateById(this)'><i class='fa fa-download'></i></span>";
-				 element = element + "<span id='"+templateId+"_upload' name='"+templateName+"' class= 'grid_action_icons' onclick='uploadTemplateById(this)'><i class='fa fa-upload'></i></span>";
-                 return element;
-            <#else>
-                let actionElement;
-				actionElement = '<span id="'+templateId+'" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>';
-				if(revisionCount > 1){
-					actionElement = actionElement + '<span id="'+templateId+'_entity" name="'+escape(templateName)+'" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
-				}else{
-					actionElement = actionElement + '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
-				}
-            		if(uiObject.rowData.templateTypeId == 1) {
-		        <#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>
-		        	<#list loggedInUserRoleList as loggedInUserRole>
-		            	<#if (loggedInUserRole == "ADMIN")>    
-		        			actionElement += '<span onclick=\'openDeletConfirmation("divTemplateGrid","'+templateId+'","1b0a2e40-098d-11eb-9a16-f48e38ab9348","'+templateName+'","'+updatedDate+'")\' class= "grid_action_icons" title="Delete"><i class="fa fa-trash "></i></span>'.toString();
-		        			<#break>
-		        		</#if>
-		        	</#list>
-		        </#if>
-		        }
-				return actionElement;
-            </#if>
+        let actionElement;
+		actionElement = '<span id="'+templateId+'" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>';
+		if(revisionCount > 1){
+			actionElement = actionElement + '<span id="'+templateId+'_entity" name="'+escape(templateName)+'" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
+		}else{
+			actionElement = actionElement + '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
+		}
+    		if(uiObject.rowData.templateTypeId == 1) {
+        <#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>
+        	<#list loggedInUserRoleList as loggedInUserRole>
+            	<#if (loggedInUserRole == "ADMIN")>    
+        			actionElement += '<span onclick=\'openDeletConfirmation("divTemplateGrid","'+templateId+'","1b0a2e40-098d-11eb-9a16-f48e38ab9348","'+templateName+'","'+updatedDate+'")\' class= "grid_action_icons" title="Delete"><i class="fa fa-trash "></i></span>'.toString();
+        			<#break>
+        		</#if>
+        	</#list>
+        </#if>
+        }
+		return actionElement;
     }
     
     function downloadTemplateById(thisObj){
@@ -230,37 +216,5 @@
         gridNew.pqGrid( "option", "dataModel.postData", postData);
         gridNew.pqGrid( "refreshDataAndView" );  
     }
-        
-    <#if environment == "dev">
-        function downloadTemplate(){
-            $.ajax({
-                url:contextPath+"/cf/dtl",
-                type:"POST",
-                success : function(data) {
-				  showMessage("Templates downloaded successfully", "success");
-				},
-				error : function(xhr, error){
-				  showMessage("Error occurred while downloading templates", "error");
-				},
-                
-            });
-        }
-        function uploadTemplate(){
-        var templatetypeId = $("#typeSelect").val(); 
-            $.ajax({
-                url:contextPath+"/cf/utd",
-                type:"POST",
-                 data:{
-		        	templatetypeId : templatetypeId,
-		        },
-                success : function(data) {
-				  showMessage("Template uploaded successfully", "success");
-				},
-				error : function(xhr, error){
-				  showMessage("Error occurred while uploading template", "error");
-				},
-                
-            });
-        }
-    </#if>
+      
 </script>

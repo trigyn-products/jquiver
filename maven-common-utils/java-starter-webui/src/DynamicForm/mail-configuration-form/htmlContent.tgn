@@ -678,34 +678,35 @@ input:checked + .slider:before {
         return '<span  onclick=\'downloadFile('+JSON.stringify(uiObject.rowData.eml_file_path)+')\' ><i class="fa fa-download"  title="Download Email"></i></span>'.toString();
   }
   
-    function downloadFile(uiObject){
-    	let xhr = new XMLHttpRequest();
-    	//window.open( contextPath+apiPath+"/downloadEmails/"+escape(uiObject), "_blank");
-	    let fileId = uuidv4();
-		xhr.open("GET", contextPath+apiPath+"/downloadEmails?emlFilePath="+escape(uiObject));
-		xhr.responseType = "blob";
-		xhr.send();
-	
-		xhr.onload = function(event) {
-			if (this.status == 200) {
-				let xhrObj = event.currentTarget;
-		    	let fileName = xhrObj.getResponseHeader("Content-Disposition").split("filename=")[1].split(";")[0];
-		        let blob = new Blob([this.response], {type: "application/pdf"});
-		        let downloadDocHrefElem = document.createElement("a");
-		        downloadDocHrefElem.style = "display: none";
-		        document.body.appendChild(downloadDocHrefElem);
-		        downloadDocHrefElem.setAttribute("id", fileId);
-		        let url = window.URL.createObjectURL(blob);
-		        downloadDocHrefElem.href = url;
-		        downloadDocHrefElem.download = fileName.replaceAll("\"", "");
-		        downloadDocHrefElem.click();
-		        window.URL.revokeObjectURL(url);
-		        $("#"+fileId).remove(); 
-			}else{
-				showMessage("Error occurred while downloading", "error");
-		    }
-		};
+function downloadFile(filePath) {
+
+    if (!filePath) {
+        showMessage("Invalid file path", "error");
+        return;
     }
+
+    let url = contextPath + "/cf/downloadEmails?emlFilePath=" + encodeURIComponent(filePath);
+
+    //  Create anchor
+    let link = document.createElement("a");
+    link.href = url;
+
+    //  Let server decide filename via Content-Disposition
+    link.setAttribute("download", "");
+
+    //  Avoid UI glitch / navigation
+    link.style.display = "none";
+    document.body.appendChild(link);
+
+    //  Trigger download
+    link.click();
+
+    //  Cleanup
+    setTimeout(() => {
+        document.body.removeChild(link);
+    }, 100);
+}
+
 /** Added for File Bin*/
      $(function () {
         //please change the name of the component if you are using default UI

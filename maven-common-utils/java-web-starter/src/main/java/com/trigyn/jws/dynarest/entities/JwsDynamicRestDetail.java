@@ -23,7 +23,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 
 
 @Entity
@@ -116,9 +115,6 @@ public class JwsDynamicRestDetail implements Serializable {
 	
 	@Column(name = "is_secured")	
 	private Integer								isSecured						= 0;
-	
-	@Transient
-	private String			scriptLibraryId				= null;
 	
 	public JwsDynamicRestDetail() {
 
@@ -437,14 +433,6 @@ public class JwsDynamicRestDetail implements Serializable {
 		this.isSecured = isSecured;
 	}
 
-	public String getScriptLibraryId() {
-		return scriptLibraryId;
-	}
-
-	public void setScriptLibraryId(String scriptLibraryId) {
-		this.scriptLibraryId = scriptLibraryId;
-	}
-
 	public JwsDynamicRestDetail getObject() {
 		JwsDynamicRestDetail dynaRest = new JwsDynamicRestDetail();
 		dynaRest.setJwsDynamicRestId(jwsDynamicRestId != null ? jwsDynamicRestId.trim() : jwsDynamicRestId);
@@ -462,7 +450,6 @@ public class JwsDynamicRestDetail implements Serializable {
 		dynaRest.setIsSecured(isSecured);
 		dynaRest.setJwsHeaderJson(jwsHeaderJson);
 		dynaRest.setIsCustomUpdated(isCustomUpdated);
-		dynaRest.setScriptLibraryId(scriptLibraryId != null ? scriptLibraryId.trim() : "");
 		try {
 			if (jwsServiceLogic != null) {
 				dynaRest.setJwsServiceLogic(jwsServiceLogic.trim());

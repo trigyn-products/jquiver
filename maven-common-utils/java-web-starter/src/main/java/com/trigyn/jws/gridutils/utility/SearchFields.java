@@ -5,6 +5,8 @@ public class SearchFields implements Cloneable{
 	private String	field;
 	private String	op;
 	private String	data;
+	private String logicalOp;
+	private String type;
 
 	public SearchFields() {
 		super();
@@ -58,5 +60,21 @@ public class SearchFields implements Cloneable{
 	@Override
 	public SearchFields clone() throws CloneNotSupportedException {
 		return new SearchFields(field, op, data);
+	}
+
+	public String getLogicalOp() {
+		return logicalOp;
+	}
+
+	public void setLogicalOp(String logicalOp) {
+		this.logicalOp = logicalOp;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 }

@@ -1,0 +1,7 @@
+var System= Java.type("java.lang.System");
+ var HashMap =  Java.type("java.util.HashMap");
+function updateBusinessModuleData(){
+        return 1;
+    }
+}
+updateBusinessModuleData();

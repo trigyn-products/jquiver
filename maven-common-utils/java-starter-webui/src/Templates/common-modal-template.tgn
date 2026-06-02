@@ -1,0 +1,371 @@
+<head>
+  <style>
+    .fixed-save-btn {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+    }
+
+        /* Toggle button wrapper */
+    .switch-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 15px;
+        }
+
+    /* Align buttons properly */
+    .text-right {
+        text-align: right;
+        }
+
+    /* Input box full width inside modal */
+    #busmoduleName {
+        width: 100%;
+        padding: 8px;
+        }
+
+    .toggle-input {
+        display: none;
+    }
+
+    .toggle-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #ccc;
+        border-radius: 20px;
+        position: relative;
+        cursor: pointer;
+        user-select: none;
+        padding: 0;
+        overflow: hidden;
+        height: 100%;
+        width:230px;
+        box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-option {
+        flex: 1;
+        text-align: center;
+        z-index: 2;
+        color: white;
+        font-weight: 600;
+        line-height: 40px;
+        transition: color 0.3s ease;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        height: 100%;
+        width: 50%;
+        top: 0;
+        left: 0;
+        background-color: var(--bluebgcolor);
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        z-index: 1;
+    }
+
+    /* Checked state */
+    .toggle-input:checked + .toggle-label .toggle-slider {
+        left: 50%;
+    }
+
+    .toggle-input:checked + .toggle-label .option-left {
+        color: white;
+    }
+
+    .toggle-input:checked + .toggle-label .option-right {
+        color: white;
+    }
+
+    .suggestion-item {
+        cursor: pointer;
+        padding: 3px;
+    }
+
+    .suggestion-item:hover {
+        background-color: #eee;
+    }
+
+ /* Fix modal width */
+.modal-dialog {
+    max-width: 600px;   /* fixed width for all modals */
+    width: 600px;       /* ensures it does not shrink */
+}
+
+
+
+
+/* Optional: improve look */
+#modAutocomplete .multiselect-container {
+    max-height: inherit;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+
+
+/* Align buttons nicely */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;  /* all buttons right aligned */
+    gap: 10px;  /* spacing between buttons */
+}
+
+.didyoublock{
+       color: black;
+    display: none;
+    cursor: pointer;
+    height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 20px 0px 20px;
+    margin-top: -2px;
+    border-radius: 0px 0px 5px;
+    border-top: 0px;
+ }
+
+.usermanagment-model {
+    height:550px !important;
+}
+
+.usermanagment-model .modal-content {
+    height:460px !important;
+}
+
+
+
+</style>
+   
+ </head>
+ <div class="modal usermanagment-model fade" id="busModuleModalDialog" aria-labelledby="busModuleModalDialog" tabindex="-1">
+          <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="ui-dialog-titlebar">Add Module</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form role="form">
+                  <div class="form-group">
+                    <div class="row">
+                        <div class="switch-wrapper mb-3">
+                        <input type="hidden" id="isCreateLink" name="isCreateLink" value="0">
+                        <input type="checkbox" id="showCreateLinkChkBox" name ="showCreateLinkChkBox" class="toggle-input" onchange="toggleCreateLink(this)">
+                        <label for="showCreateLinkChkBox" class="toggle-label">
+                            <span class="toggle-option option-left">Create</span>
+                            <span class="toggle-option option-right">Link</span>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        </div>
+
+                        <!-- Module name input -->
+                        <div class="col-12 mb-3" style="margin:0px !important">
+                        <input type="text" id="busmoduleName" name="busmoduleName" class="form-control" placeholder="Enter Module Name" autocomplete="off"  maxlength="250">
+                        <div id="didYouMean" class="didyoublock" style=""></div>
+                        </div>
+                        <input type="hidden" id="cmvEntityName" name="cmvEntityName" value="">
+
+                        <div id="modAutocomplete"  style="display:none">
+                            <div id="moduleAutocomplete">
+                                <@templateWithoutParams "module-multiselect"/>
+                            </div>          
+                   
+                    </div>
+                  </div>
+                   </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ok</button>
+                <button type="button" id="modalCloseBtn"  class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script>
+    $(function () {
+        // Show suggestions live
+       document.getElementById("busmoduleName").addEventListener("keyup", function() {
+            let input = this.value.trim();
+            let didYouMean = document.getElementById("didYouMean");
+            didYouMean.innerHTML = "";
+
+            if (!input) {
+                didYouMean.style.display = "none";
+                return;
+            }
+
+            let matches = findMatches(input, allModuleList);
+
+            if (matches.length > 0) {
+                didYouMean.innerHTML = "<div style='padding:5px;font-weight:bold;'>If you mean the below suggestions, then you can only link them :</div>";
+                matches.forEach(match => {
+                    let div = document.createElement("div");
+                    div.className = "suggestion-item";
+                    div.innerHTML = " " + match;
+                    // not selectable
+                    div.style.borderTop = "1px solid #ccc";
+                    div.style.padding = "5px";
+                    div.style.cursor = "default"; 
+                    didYouMean.appendChild(div);
+                });
+                didYouMean.style.display = "block";
+            } else {
+                didYouMean.style.display = "none";
+            }
+        });
+
+
+        getAllModuleNames();
+     
+    });
+
+    // Levenshtein Distance
+    function levenshtein(a, b) {
+        const matrix = Array.from({ length: b.length + 1 }, (_, i) =>
+            Array(a.length + 1).fill(0)
+        );
+        for (let i = 0; i <= b.length; i++) matrix[i][0] = i;
+        for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j - 1] + 1,
+                        matrix[i][j - 1] + 1,
+                        matrix[i - 1][j] + 1
+                    );
+                }
+            }
+        }
+        return matrix[b.length][a.length];
+    }
+
+   function findMatches(input, list) {
+        let results = [];
+        let lowerInput = input.toLowerCase();
+
+        list.forEach(word => {
+            let lowerWord = word.toLowerCase();
+
+            // Direct substring check
+            if (lowerWord.includes(lowerInput)) {
+                results.push(word);
+            } else if (lowerInput.length >= 3) {
+                // Fuzzy substring check
+                let found = false;
+                for (let i = 0; i <= lowerWord.length - lowerInput.length; i++) {
+                    let sub = lowerWord.substring(i, i + lowerInput.length);
+                    let dist = levenshtein(lowerInput, sub);
+                    if (dist <= 2) {   // tolerance
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    results.push(word);
+                }
+            }
+        });
+
+        return results;
+    }
+
+
+     function openmodal(cmvEntityName){
+        document.getElementById("cmvEntityName").value = cmvEntityName;
+        var myModal = new bootstrap.Modal(document.getElementById('busModuleModalDialog'));
+        myModal.show();
+    }
+
+      
+     function toggleCreateLink(checkbox) {
+        let container = document.getElementById("dynamicFieldContainer");
+        let busmoduleName = document.getElementById("busmoduleName");
+        let moduleAutocomplete = document.getElementById("modAutocomplete");
+        let didYouMean = document.getElementById("didYouMean");
+        moduleAutocomplete.style.display = "none";
+        if (checkbox.checked) {
+            busmoduleName.value = "";
+            busmoduleName.style.display = "none";
+            didYouMean.style.display = "none";
+            moduleAutocomplete.style.display = "block";        
+            document.getElementById("isCreateLink").value = "1";       
+        } else {
+            busmoduleName.style.display = "block"; 
+            moduleAutocomplete.style.display = "none";       
+            document.getElementById("isCreateLink").value = "0";
+        }
+    }
+
+    function checkExistingBusinessModuleName(moduleName){
+        let exists = false;
+		$.ajax({
+            async: false,
+            type: "POST",
+            dataType: "text",
+            url: contextPath + apiPath + "/ebmn",
+            data: {
+                moduleName: moduleName,
+            },
+            success: function(data) {
+                if (data != "") {
+                   exists = true;
+                }    
+            },
+            error: function(xhr, error) {
+                showMessage("Error occurred while saving", "error");
+            },
+        });
+        return exists;
+    } 
+
+    function saveModuleDetails(moduleName,entityId,moduleId,isEdit,moduleIdList,deleteModuleIdList,isShowCreateLinkChkBox,cmvEntityName) {
+        $.ajax({
+            url: contextPath + apiPath + "/smd",
+            async: false,
+            type: "POST",
+            dataType: "text",
+            data: {
+                entityId: entityId,
+                moduleName: moduleName,
+                moduleId: moduleId,
+                isEdit: isEdit,
+                moduleIdList: JSON.stringify(moduleIdList),
+                deleteModuleIdList: JSON.stringify(deleteModuleIdList),
+                isShowCreateLinkChkBox: isShowCreateLinkChkBox,
+				cmvEntityName:cmvEntityName
+            },
+            success: function(data) {
+                
+            },
+            error: function(jqXHR, exception) {
+                showMessage("Error Occured while fetching data", "error");
+            }
+        });
+    }
+
+function resetBusModuleModal() {
+    // Clear inputs
+    $("#busmoduleName").val("");
+    $("#cmvEntityName").val("");
+
+    // Reset toggle 
+    $("#showCreateLinkChkBox").prop("checked", false);  // default Create
+    $("#isCreateLink").val("0");
+    
+    // Clear did-you-mean area
+    $("#didYouMean").empty();
+
+}
+
+</script>

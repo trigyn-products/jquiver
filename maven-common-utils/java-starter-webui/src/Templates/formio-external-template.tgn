@@ -86,6 +86,19 @@
 							// form.reset();  // Reset the form fields
 							// window.location.href = '/home';  // Optionally redirect to another page
                         });
+                        form.ready.then(() => {
+                            let buttonElement = '<div class="row"><div class="col-12"><div class="text-end"><div class="btn-group dropup custom-grp-btn"><span id="savedAction"><button type="button" id="save" class="btn btn-primary" >Save </button></span></div><span ><input id="cancelBtn" class="btn btn-secondary spacingclss" name="cancelBtn" value="Cancel" type="button"></span></div></div></div>';
+
+                            $("#jqFmioSaveButton").html(buttonElement);
+
+                            $("#save").on("click", function () {
+                                  form.submit(); 
+                             });
+
+                            $("#cancelBtn").on("click", function (event) {
+                               form.setValue({});
+                            });
+                        });
                     });
                 },
                 error: function (xhr, error) {
@@ -169,13 +182,11 @@
                         form.submission = { data: {} }; // Clear all values
                         form.setValue({}); // Force clear values in all fields
                     }                    
-                    form.redraw(); // Rerender form to reflect changes
-                    form.refresh();
+                    loadFormIo();
                 },
                 error: function (xhr, error) {
 					showMessage("Error occurred while saving the data", "error");
-					form.redraw();
-                    form.refresh();
+					loadFormIo();
 					return false;
                 },
             });

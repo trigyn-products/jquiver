@@ -1,0 +1,35 @@
+var System = Java.type("java.lang.System");
+
+// === Start Workflow API entrypoint ===
+function startWorkflow() {
+    var definitionId = requestDetails["definitionId"];
+    var entityId = requestDetails["entityId"];
+    var assignedTo = requestDetails["assignedTo"];
+    var loggedInUser = requestDetails["loggedInUserName"];
+
+    if (!definitionId) {
+        throw "definitionId is required in requestDetails";
+    }
+    if (!entityId) {
+        throw "entityId is required in requestDetails";
+    }
+
+    var requestObj = {
+        entityId: entityId,
+        assignedTo: assignedTo
+    };
+
+    // Call the library method
+    var result = startWorkflowProcess(definitionId, requestObj, loggedInUser);
+
+    return {
+        status: "success",
+        processInstanceId: result.processInstanceId,
+        initialStatusId: result.initialStatusId,
+        version: result.version,
+        taskId: result.taskId
+    };
+}
+
+// Run if this script is triggered directly
+startWorkflow();

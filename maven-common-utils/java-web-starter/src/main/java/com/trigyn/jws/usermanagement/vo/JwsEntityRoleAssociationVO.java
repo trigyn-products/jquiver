@@ -25,6 +25,8 @@ public class JwsEntityRoleAssociationVO {
 	private Integer	moduleTypeId	= 0;
 	
 	private Integer	roleTypeId	= 1;
+	
+	private Integer	isCustomUpdated	= 1;
 
 	public String getEntityRoleId() {
 		return entityRoleId;
@@ -106,6 +108,16 @@ public class JwsEntityRoleAssociationVO {
 		this.roleTypeId = roleTypeId;
 	}
 
+	
+	
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
 	public JwsEntityRoleAssociation convertVOtoEntity(JwsEntityRoleAssociation entityRoleAssociation, JwsEntityRoleAssociationVO entityRoleAssociationVO) {
 		if(entityRoleAssociation == null) {
 			entityRoleAssociation = new JwsEntityRoleAssociation();
@@ -118,6 +130,9 @@ public class JwsEntityRoleAssociationVO {
 		entityRoleAssociation.setIsActive(entityRoleAssociationVO.getIsActive());
 		entityRoleAssociation.setModuleTypeId(entityRoleAssociationVO.getModuleTypeId());
 		entityRoleAssociation.setRoleTypeId(1);
+		entityRoleAssociation.setLastUpdatedBy(entityRoleAssociationVO.getLastUpdatedBy());
+		entityRoleAssociation.setLastUpdatedDate(entityRoleAssociationVO.getLastUpdatedDate());
+		entityRoleAssociation.setIsCustomUpdated(1);
 		return entityRoleAssociation;
 	}
 
@@ -131,6 +146,9 @@ public class JwsEntityRoleAssociationVO {
 		association.setIsActive(entityRoleAssociation.getIsActive());
 		association.setModuleTypeId(entityRoleAssociation.getModuleTypeId());
 		association.setRoleTypeId(1);
+		association.setLastUpdatedBy(entityRoleAssociation.getLastUpdatedBy());
+		association.setLastUpdatedDate(entityRoleAssociation.getLastUpdatedDate());
+		association.setIsCustomUpdated(entityRoleAssociation.getIsCustomUpdated());
 		return association;
 	}
 

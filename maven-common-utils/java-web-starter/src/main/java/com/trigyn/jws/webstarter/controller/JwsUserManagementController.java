@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.devtools.restart.FailureHandler;
 import org.springframework.boot.devtools.restart.Restarter;
@@ -41,7 +41,6 @@ import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 import com.trigyn.jws.usermanagement.security.config.LdapConfigService;
-import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
@@ -50,7 +49,6 @@ import com.trigyn.jws.usermanagement.vo.JwsRoleMasterModulesAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.usermanagement.vo.JwsUserVO;
 import com.trigyn.jws.usermanagement.vo.UserManagementVo;
-import com.trigyn.jws.webstarter.service.OtpService;
 import com.trigyn.jws.webstarter.service.UserManagementService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -78,12 +76,6 @@ public class JwsUserManagementController {
 
 	@Autowired
 	private FilesStorageService			filesStorageService			= null;
-
-	@Autowired
-	private OtpService					otpService					= null;
-
-	@Autowired
-	private UserConfigService			userConfigService			= null;
 
 	@Autowired
 	private JwsRoleRepository			jwsRoleRepository			= null;
@@ -145,7 +137,12 @@ public class JwsUserManagementController {
 		/* Method called for implementing Activity Log */
 		logActivity(roleData.getRoleName(), roleData.getRoleId());
 		JwsRole jwsRole = userManagementService.saveRoleData(roleData);
-		userManagementService.updateEntityRole(roleData, jwsRole);
+		/*
+		 * This code is commented because whenever a new role is created its
+		 * automatically applied to all the system and custom entities irrespective of
+		 * the requirement
+		 */
+		// userManagementService.updateEntityRole(roleData, jwsRole);
 		return true;
 	}
 
@@ -225,22 +222,6 @@ public class JwsUserManagementController {
 		userManagementService.saveUserData(userData);
 		/* Method called for implementing Activity Log */
 		logActivity(userData.getEmail(), userData.getUserId());
-		if (userData.getFormData() != null) {
-			List<Map<String, String>> formData = new Gson().fromJson(userData.getFormData(), List.class);
-			for (Map<String, String> formEntry : formData) {
-				if (formEntry.containsKey("valueType") && formEntry.get("valueType").equalsIgnoreCase("fileBin")) {
-					filesStorageService.commitChanges(formEntry.get("FileBinID"), formEntry.get("fileAssociationID"));
-				}
-			}
-		}
-		return true;
-	}
-
-	@PostMapping(value = "/supd")
-	public Boolean saveUserProdifle(@RequestBody JwsUserVO userData) throws Exception {
-
-		userManagementService.saveUserProdifleData(userData);
-
 		if (userData.getFormData() != null) {
 			List<Map<String, String>> formData = new Gson().fromJson(userData.getFormData(), List.class);
 			for (Map<String, String> formEntry : formData) {
@@ -353,7 +334,7 @@ public class JwsUserManagementController {
 		activitylog.activitylog(requestParams);
 	}
 
-	@RequestMapping(value = "/sat", consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/sat", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Boolean saveAuthenticationType(@RequestBody UserManagementVo userManagementData) throws Exception {
 		userManagementService.updateAuthProperties(userManagementData);
 		applicationSecurityDetails.resetApplicationSecurityDetails();

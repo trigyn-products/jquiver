@@ -1,0 +1,23 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+
+function getAllModuleNames(){ 
+    var map = new HashMap();
+    var queryResult ={};
+    map.put("entityId", requestDetails.entityId);
+    map.put("moduleId", requestDetails.moduleId);
+     var moduleList = [];
+    queryResult = jq_getDBResult("SELECT DISTINCT jbm.module_name as moduleName FROM `jq_business_module` jbm LEFT JOIN `jq_business_module_entity_details` jbmed ON jbm.`business_module_id` = jbmed.`business_module_id`",null,map);
+
+    for (var i = 0; i < queryResult.data_list.length; i++) {
+        if (queryResult.data_list.length > 0) {
+            moduleList.push({
+                moduleName: queryResult.data_list[i].moduleName
+            });
+        }
+    }    
+
+    queryResult.allModuleList = JSON.stringify(moduleList);
+    return queryResult.allModuleList;
+}
+getAllModuleNames();

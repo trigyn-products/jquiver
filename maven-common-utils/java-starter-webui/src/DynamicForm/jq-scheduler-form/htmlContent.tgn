@@ -3,6 +3,7 @@
 <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
         
 </head>
 
@@ -2912,8 +2913,9 @@
      </div>
 
                <div class="row">
-                              <div class="col-12">
-                                             <div class="text-end">
+                   <div class="d-flex justify-content-end align-items-center gap-2">
+			            <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_job_scheduler')">Create/Link Module</button>
+						<!-- <div class="text-end"> -->
                                                             <div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="submitAction('${formId}', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
@@ -2929,9 +2931,13 @@
                                                             <span onclick="backToPreviousPage();">
                                                                            <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
                                                             </span> 
-                                             </div>
+                                             <!-- </div> -->
                               </div>
                </div>
+    <input id="moduleId" value="fcd0df1f-783f-11eb-94ed-f48e38ab8cd6" name="moduleId"  type="hidden">
+    <div id="moduleAutocomplete">
+        <@templateWithoutParams "common-modal-template"/>
+    </div>  
 </div>
 <script>
 	document.title = "Manage Scheduler Details";
@@ -2944,7 +2950,11 @@
    
 let savedHeaderJson = "";
 let savedRequestParamJson = "";
-
+let moduleIdList = [];
+let deleteModuleIdList = [];
+let newAddedModuleIdList = [];
+let existingModuleIdList = [];
+let allModuleList = []; 
   
   $(function(){
       $('#crontabs').tabs();
@@ -3003,7 +3013,12 @@ let savedRequestParamJson = "";
       </#if>
           
       <#if (resultSet)?? && resultSet?has_content>
-               isEdit = 1;
+        isEdit = 1;
+        getModuleNames($("#schedulerid").val(),$("#moduleId").val());
+         /** Added for resetting the values of BusinessModule Dialog after save and edit. **/
+	    document.getElementById("saveAndEdit").addEventListener("click", function () {
+	        resetBusModuleModal();
+	    });
       <#else>
         let schedulerId = uuidv4();
         $("#schedulerid").val(schedulerId);
@@ -3040,6 +3055,7 @@ let savedRequestParamJson = "";
     createRequestParamTable();
     savedAction(formId, isEdit);
     hideShowActionButtons();
+
   });
   
   function updateReceipents(){
@@ -3097,20 +3113,24 @@ let savedRequestParamJson = "";
                               position: {
                                              my: "center", at: "center"
                               },
-                              buttons : [{
-                                                            text                       :"Cancel",
-                                                            click       : function() { 
-                                                                           $(this).dialog('close');
-                                                            },
-                                             },
-                                             {
-                                                            text                       : "Delete",
-                                                            click       : function(){
-                                                                           $(this).dialog('close');
-                                                                           let rowId = $(rowElement).attr('id').split("_")[1];
-                                                                           $('#'+rowId).remove();
-                                                            }
-               },
+                              buttons : [
+                               {
+	                                text   : "${messageSource.getMessage('jws.deleteBtnText')}",
+	                                "class": 'btn btn-primary',
+	                                click  : function(){
+	                                   $(this).dialog('close');
+	                                   let rowId = $(rowElement).attr('id').split("_")[1];
+	                                   $('#'+rowId).remove();
+	                                }
+               					},
+                              
+                              {
+                                    text    :"${messageSource.getMessage('jws.cancel')}",
+                                    "class" : 'btn btn-secondary',
+                                    click   : function() { 
+                                       $(this).dialog('close');
+                                    },
+                     			}
        ],     
                   open: function( event, ui ) {
                                              $('.ui-dialog-titlebar')
@@ -3553,6 +3573,9 @@ function validateMultipleEmails(emailInput) {
 function submitAction(formId, thisObj){
     let isToEnable = false;
     isToEnable = $("#chkResponseCode").is(":checked");
+    if (saveModDetails(isEdit,$('#schedulerid').val()) == false) {
+        return false;
+    }
     if(isToEnable==true){
     var returnval = validateMultipleEmails($('#txtRecipients').val());
     if (returnval){
@@ -3566,5 +3589,24 @@ function submitAction(formId, thisObj){
     else{
         typeOfActionWithIsEdit(formId, thisObj, isEdit);
     }
+}
+
+ function saveModDetails(isEdit,entityId){
+    var busmoduleName = $("#busmoduleName").val();
+	var cmvEntityName = document.getElementById("cmvEntityName").value;    
+    if(checkExistingBusinessModuleName(busmoduleName) == true){
+        showMessage("Module Name already exists","warn");
+        $("#busmoduleName").val("");
+        return false;
+    }
+    var isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked;  
+    if (existingModuleIdList.includes(busmoduleName)) {
+        showMessage("Module Name already exists for this entity.", "info");
+        return false;
+    }
+    if(busmoduleName != "" || moduleIdList.length > 0 || deleteModuleIdList.length > 0){
+        saveModuleDetails(busmoduleName,entityId,$("#moduleId").val(),isEdit,moduleIdList,deleteModuleIdList,isShowCreateLinkChkBox,cmvEntityName);
+    }
+    return true;
 }
 </script>

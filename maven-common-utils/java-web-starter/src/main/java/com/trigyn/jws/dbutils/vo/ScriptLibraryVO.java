@@ -3,7 +3,7 @@ package com.trigyn.jws.dbutils.vo;
 import java.util.Date;
 
 public class ScriptLibraryVO {
-	private String				scriptlibId				= null;
+	private String				scriptLibId				= null;
 
 	private String				createdBy				= null;
 
@@ -17,7 +17,7 @@ public class ScriptLibraryVO {
 	
 	private String				scriptType				= null;
 	
-	private Integer				iscustomUpdated			= null;
+	private Integer				iscustomUpdated			= 1;
 
 	private String				updatedBy				= null;
 	
@@ -29,13 +29,6 @@ public class ScriptLibraryVO {
 	
 	private Integer 			isEdit 					= null;
 
-	public String getScriptlibId() {
-		return scriptlibId;
-	}
-
-	public void setScriptlibId(String scriptlibId) {
-		this.scriptlibId = scriptlibId;
-	}
 
 	public String getCreatedBy() {
 		return createdBy;
@@ -131,6 +124,14 @@ public class ScriptLibraryVO {
 
 	public void setIsEdit(Integer isEdit) {
 		this.isEdit = isEdit;
+	}
+
+	public String getScriptLibId() {
+		return scriptLibId;
+	}
+
+	public void setScriptLibId(String scriptLibId) {
+		this.scriptLibId = scriptLibId;
 	}
 	
 }

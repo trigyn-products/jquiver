@@ -1,0 +1,119 @@
+function businessModuleData() {
+    var System = Java.type("java.lang.System");
+    var HashMap =  Java.type('java.util.HashMap');
+    var params = new HashMap();
+    var queryResult = {};
+
+    var getParentModules = jq_getDBResult(
+        "SELECT business_module_id, module_name AS business_module_name " +
+        " FROM jq_business_module ORDER BY module_name",
+        null,
+        null
+    );
+
+    var businessModuleData = {};
+    var firstBusinessModuleId = null;
+    var firstBusinessModuleName = null;
+
+    for (var i = 0; i < getParentModules.data_list.length; i++) {
+        var row = getParentModules.data_list[i];
+        var businessModuleId = row.business_module_id + "";
+        var businessModuleName = row.business_module_name + "";
+
+        // Set the first module for child lookup
+        if (i === 0) {
+            firstBusinessModuleId = businessModuleId;
+            firstBusinessModuleName = businessModuleName;
+        }
+
+        businessModuleData[businessModuleName] = {
+            "businessModuleId": businessModuleId,
+            "businessModuleName": businessModuleName,
+            "children": []
+        };
+    }
+
+    if (firstBusinessModuleId !== null) {
+        var getChildEntities = jq_getDBResult(
+            "SELECT emd.business_module_entity_details_id, emd.module_id, mm.module_name AS child_module_name, " +
+            " emd.entity_id, era.entity_name AS child_entity_name, emd.created_by, emd.cmv_entity_name " +
+            " FROM jq_business_module_entity_details emd " +
+            " LEFT JOIN jq_master_modules mm ON emd.module_id = mm.module_id " +
+            " LEFT JOIN jq_entity_role_association era ON emd.entity_id = era.entity_id " +
+            " WHERE emd.business_module_id = '" + firstBusinessModuleId + "' " + 
+            " GROUP BY emd.module_id,emd.entity_id " +
+            " ORDER BY mm.module_name",
+            null,
+            null
+        );
+        for (var j = 0; j < getChildEntities.data_list.length; j++) {
+            var row = getChildEntities.data_list[j];
+            var childEntityName = row.child_entity_name;
+            var cmvEntityName = row.cmv_entity_name;
+            var entityNameResult = null;
+
+            if (childEntityName == null || childEntityName == "null" || childEntityName.trim() === "") {
+                params.put("childEntityId", row.entity_id);
+                switch (cmvEntityName) {
+                    case "jq_resource_bundle":
+                        entityNameResult = jq_getDBResult(
+                            "SELECT resource_key AS child_entity_name FROM jq_resource_bundle WHERE resource_key = :childEntityId",
+                            null,
+                            params
+                        );
+                        break;
+
+                    case "jq_api_client_details":
+                        entityNameResult = jq_getDBResult(
+                            "SELECT client_name AS child_entity_name FROM jq_api_client_details WHERE client_id = :childEntityId",
+                            null,
+                            params
+                        );
+                        break;
+
+                    case "jq_property_master":
+                        entityNameResult = jq_getDBResult(
+                            "SELECT property_name AS child_entity_name FROM jq_property_master WHERE property_master_id = :childEntityId",
+                            null,
+                            params
+                        );
+                        break;
+
+                    case "jq_job_scheduler":
+                        entityNameResult = jq_getDBResult(
+                            "SELECT scheduler_name AS child_entity_name FROM jq_job_scheduler WHERE scheduler_id = :childEntityId",
+                            null,
+                            params
+                        );
+                        break;
+
+                    default:
+                        System.out.println("No specific handler for cmvEntityName: " + cmvEntityName);
+                }
+
+                if (entityNameResult != null && entityNameResult.data_list.length > 0) {
+                    childEntityName = entityNameResult.data_list[0].child_entity_name;
+                } else {
+                    // fallback: if still null, use entity_id
+                    childEntityName = row.entity_id + "";
+                }
+            }
+             // Construct the child object
+            var child = {
+                "businessModuleEntityDetailsId": row.business_module_entity_details_id + "",
+                "moduleId": row.module_id + "",
+                "childModuleName": row.child_module_name + "",
+                "entityId": row.entity_id + "",
+                "childEntityName": childEntityName + "",
+                "createdBy": row.created_by + "",
+                "cmvEntityName": cmvEntityName + ""
+            };
+            businessModuleData[firstBusinessModuleName].children.push(child);
+        }
+    }
+
+    queryResult.businessModuleData = businessModuleData;
+    return queryResult;
+}
+
+businessModuleData();

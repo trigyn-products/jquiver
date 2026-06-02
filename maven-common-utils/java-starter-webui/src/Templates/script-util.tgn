@@ -59,11 +59,11 @@ function jq_deleteSessionKey(a_strKey){
 }
 	
 function jq_getCreationTime(){
-	return jq_scriptUtilObject.getCreationTime();
+//	return jq_scriptUtilObject.getCreationTime();
 }
 	
 function jq_getLastAccessedTime(){
-	return jq_scriptUtilObject.getLastAccessedTime();
+//	return jq_scriptUtilObject.getLastAccessedTime();
 }
 		
 function jq_getAllFiles(a_filePath){
@@ -126,6 +126,10 @@ function jq_sendMail(a_strMailXML){
 	return jq_scriptUtilObject.sendMail(a_strMailXML);
 }
 
+function jq_sendMailWithMap(a_strMailXML, a_requestParams){
+	return jq_scriptUtilObject.sendMail(a_strMailXML, a_requestParams);
+}
+
 function jq_evalTemplateByName(a_strTemplateName, a_requestParams){
 	return jq_scriptUtilObject.evalTemplateByName(a_strTemplateName, a_requestParams);
 }
@@ -150,4 +154,10 @@ function jq_addNotifications(a_requestParams){
 }
 function jq_sendError(a_statuscode, a_message){
 	return jq_scriptUtilObject.sendError(a_statuscode, a_message);
+}
+function jq_getPathVariableSet() {
+	return jq_scriptUtilObject.getPathVariableSet();
+}
+function jq_getPathVariable() {
+	return jq_scriptUtilObject.getPathVariable();
 }

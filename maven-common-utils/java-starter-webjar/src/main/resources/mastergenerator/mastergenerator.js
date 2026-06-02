@@ -168,6 +168,11 @@ function createTable(columns) {
 
 function addRemoveToGridDetails(element) {
 	const counter = element.id.split("_")[1];
+	var listingPageFieldCount = $("#listingPageFieldCount").val();
+	if (element.checked && counter >= listingPageFieldCount) {
+		openProceedConfirmation();
+	}
+	
 	$("#thidden_" + counter).prop("disabled", !element.checked);
 	$("#tdisplay_" + counter).prop("disabled", !element.checked);
 	$("#tdisplay_" + counter + "_i18n").prop("disabled", !element.checked);
@@ -184,6 +189,43 @@ function addRemoveToGridDetails(element) {
 	} else {
 		removeByAttribute(gridDetails, "index", counter);
 	}
+
+}
+
+function openProceedConfirmation() {
+	$("#proceedHeader").html("Maximum No. of fields should be 5. If you want to proceed, then some UI changes needs to be done, manually.");
+	$("#proceedHeader").dialog({
+		bgiframe: true,
+		autoOpen: true,
+		modal: true,
+		closeOnEscape: true,
+		draggable: true,
+		resizable: false,
+		title: "Proceed",
+		position: {
+			my: "center", at: "center"
+		},
+		buttons: [{
+			text: "Ok",
+			class: 'btn btn-primary',
+			click: function() {
+				$(this).dialog('close');
+			},
+		},
+		{
+			text: "Cancel",
+			class: 'btn btn-secondary',
+			click: function() {
+				$(this).dialog('close');
+			}
+		},
+		],
+		open: function(event, ui) {
+			$('.ui-dialog-titlebar')
+				.find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+				.prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+		}
+	});
 
 }
 

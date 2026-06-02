@@ -1,0 +1,77 @@
+var HashMap = Java.type("java.util.HashMap");
+var System = Java.type("java.lang.System");
+var UUID = Java.type("java.util.UUID");
+var ObjectMapper = Java.type("com.fasterxml.jackson.databind.ObjectMapper");
+var LinkedHashMap = Java.type("java.util.LinkedHashMap");
+var JSONObject = Java.type("org.json.JSONObject");
+var JSONArray = Java.type("org.json.JSONArray");
+
+function saveTagWithEntities() {
+    var result = new HashMap();
+    try {
+        var tagName = requestDetails.tagName;
+        var entityMappingsJson = requestDetails.entityMappings;
+        var contextPath = requestDetails["contextPath"];
+
+        // === Step 1 Check for Duplicate Tag Name ===
+        var checkQuery = "SELECT COUNT(*) AS tagCount FROM jq_tag_data WHERE LOWER(tag_name) = LOWER(:tagName)";
+        var checkParams = new HashMap();
+        checkParams.put("tagName", tagName);
+
+        var checkResult = jq_getDBResult(checkQuery, null,checkParams);
+        var tagCount = checkResult.data_list[0].tagCount;
+
+        if (tagCount > 0) {
+            result.put("status", "error");
+            result.put("message", "Tag name '" + tagName + "' already exists. Please choose a different name.");
+            return result;
+        }
+
+        // === Step 2 Prepare request JSON ===
+        var requestJson = new JSONObject();
+        requestJson.put("tagName", tagName);
+        requestJson.put("entityMappings", new JSONArray(entityMappingsJson));
+
+        // === Step 3 Fetch Base URL from DB ===
+        var baseUrlResult = jq_getDBResult(
+            "SELECT property_value AS baseUrl FROM jq_property_master WHERE property_name='base-url'",
+            null,
+            new HashMap()
+        );
+        var baseUrl = baseUrlResult.data_list[0].baseUrl;
+
+        // === Step 4 Prepare Parameters ===
+        var params = new HashMap();
+        params.put("url", baseUrl + contextPath + "/cf/st");
+        params.put("body", requestJson.toString());
+
+        // === Step 5 Load REST XML Template ===
+        var restXML = jq_evalTemplateByName("fetchEntityDetailsTemplate", params);
+
+        // === Step 6 Execute REST Call ===
+        var response = jq_executeRESTCall(restXML);
+
+        // === Step 7 Handle Response ===
+        var responseText = response.toString();
+        if (responseText.indexOf("responseStatusCode=200") !== -1) {
+            var bodyMatch = responseText.match(/responseBody=([^,}]*)/);
+            var responseBody = (bodyMatch && bodyMatch[1]) ? bodyMatch[1].trim() : "";
+
+            result.put("status", "success");
+            result.put("message", " Tag '" + tagName + "' saved successfully!");
+            result.put("responseBody", responseBody);
+        } else {
+            result.put("status", "error");
+            result.put("message", " Failed to save tag. Response: " + responseText);
+        }
+
+    } catch (e) {
+       // System.err.println(" Error saving tag: " + e);
+        result.put("status", "error");
+        result.put("message", e.message || e.toString());
+    }
+
+    return result;
+}
+
+saveTagWithEntities();

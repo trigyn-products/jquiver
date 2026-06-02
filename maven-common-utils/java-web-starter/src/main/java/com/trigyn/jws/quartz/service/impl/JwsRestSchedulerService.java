@@ -25,6 +25,7 @@ import com.trigyn.jws.quartz.service.IJwsJobService;
 import com.trigyn.jws.quartz.service.IJwsQuartzJobService;
 
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Transactional
 public class JwsRestSchedulerService implements IJwsJobService {
@@ -97,7 +98,7 @@ public class JwsRestSchedulerService implements IJwsJobService {
 		if (sra != null) {
 
 			UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-			jakarta.servlet.http.HttpServletRequest					request								= sra.getRequest();
+			HttpServletRequest					request								= sra.getRequest();
 			UsernamePasswordAuthenticationToken	usernamePasswordAuthenticationToken	= new UsernamePasswordAuthenticationToken(
 					userDetails, null, userDetails.getAuthorities());
 			usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

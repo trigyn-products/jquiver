@@ -2,7 +2,7 @@
 
 /**This method was initially present in home.js */
 
-const resourceBundleData = function(resourceKeys) {
+var resourceBundleData = function(resourceKeys) {
 	let resourceBundleDataMap;
 	$.ajax({
 		async: false,

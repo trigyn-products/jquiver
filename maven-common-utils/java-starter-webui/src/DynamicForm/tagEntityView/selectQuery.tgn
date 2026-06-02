@@ -1,0 +1,63 @@
+function tagEntityData() {
+    var System = Java.type("java.lang.System");
+    var queryResult = {};
+
+    var getParentModules = jq_getDBResult("SELECT tag_id, tag_name AS tag_name FROM jq_tag_data " + " ORDER BY tag_name",null,null);
+
+    var tagData = {};
+    var firstTagId = null;
+    var firstTagName = null;
+
+    for (var i = 0; i < getParentModules.data_list.length; i++) {
+        var row = getParentModules.data_list[i];
+        var tagId = row.tag_id + "";
+        var tagName = row.tag_name + "";
+
+        // Set the first module for child lookup
+        if (i === 0) {
+            firstTagId = tagId;
+            firstTagName = tagName;
+        }
+
+        tagData[tagName] = {
+            "tagId": tagId,
+            "tagName": tagName,
+            "children": []
+        };
+    }
+
+    if (firstTagId !== null) {
+        var getChildEntities = jq_getDBResult(
+            "SELECT ted.tag_entity_details_id, ted.module_id, mm.module_name AS child_module_name,ted.module_json as moduleJson, ted.permissions as permissionJson," +
+            " ted.entity_id, era.entity_name AS child_entity_name " +
+            " FROM jq_tag_entity_details ted " +
+            " LEFT JOIN jq_master_modules mm ON ted.module_id = mm.module_id " +
+            " LEFT JOIN jq_entity_role_association era ON ted.entity_id = era.entity_id " +
+            " WHERE ted.tag_id = '" + firstTagId + "' " + 
+            " GROUP BY ted.module_id,ted.entity_id " +
+            " ORDER BY mm.module_name",
+            null,
+            null
+        );
+        for (var j = 0; j < getChildEntities.data_list.length; j++) {
+            var row = getChildEntities.data_list[j];
+            var child = {
+                "tagEntityDetailsId": row.tag_entity_details_id + "",
+                "moduleId": row.module_id + "",
+                "childModuleName": row.child_module_name + "",
+                "entityId": row.entity_id + "",
+                "childEntityName": (row.child_entity_name === null || row.child_entity_name.trim() === "") ? (row.entity_id + "") : (row.child_entity_name + ""),
+                "createdBy": row.created_by + "",
+                "moduleJson": row.moduleJson + "",
+                "permissionJson": row.permissionJson + ""
+            };
+
+            tagData[firstTagName].children.push(child);
+        }
+    }
+
+    queryResult.tagData = tagData;
+    return queryResult;
+}
+
+tagEntityData();

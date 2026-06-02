@@ -1,0 +1,17 @@
+var HashMap = Java.type("java.util.HashMap");
+var System = Java.type("java.lang.System");
+
+function updateModuleName() {
+     var updatedModuleName = requestDetails.moduleName;
+    var moduleId = requestDetails.moduleId;
+    
+    var map = new HashMap();
+    map.put("updatedModuleName", updatedModuleName);
+    map.put("moduleId", moduleId);
+
+    var queryUpdate = "UPDATE jq_business_module SET module_name = :updatedModuleName WHERE business_module_id = :moduleId";
+
+    jq_updateDBQuery(queryUpdate, null, map);
+}
+
+updateModuleName();

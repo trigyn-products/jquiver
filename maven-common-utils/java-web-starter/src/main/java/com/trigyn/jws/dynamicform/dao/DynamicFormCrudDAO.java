@@ -2,7 +2,9 @@ package com.trigyn.jws.dynamicform.dao;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLXML;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.trigyn.jws.dbutils.entities.AdditionalDatasourceRepository;
 import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.dbutils.service.DataSourceFactory;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.DBExtractor;
 import com.trigyn.jws.dbutils.vo.DataSourceVO;
@@ -51,12 +55,15 @@ public class DynamicFormCrudDAO extends DBConnection {
 
 	@Autowired
 	private AdditionalDatasourceRepository	additionalDatasourceRepository	= null;
-	
+
 	@Autowired
-	private IUserDetailsService		detailsService							= null;
-	
+	private IUserDetailsService				detailsService					= null;
+
 	@Autowired
 	private JwsDynarestDAO					dynarestDAO						= null;
+	
+	@Autowired
+	private PropertyMasterService			propertyMasterService	= null;
 
 	public DynamicForm findDynamicFormById(String formId) {
 		DynamicForm dynamicForm = getCurrentSession().get(DynamicForm.class, formId);
@@ -88,21 +95,35 @@ public class DynamicFormCrudDAO extends DBConnection {
 
 	public List<Map<String, Object>> executeQueries(String dataSourceId, String query, Map<String, Object> parameterMap)
 			throws Exception {
-		NamedParameterJdbcTemplate namedParameterJdbcTemplate = updateNamedParameterJdbcTemplateDataSource(
+		List<Map<String, Object>>	list						= null;
+		NamedParameterJdbcTemplate	namedParameterJdbcTemplate	= updateNamedParameterJdbcTemplateDataSource(
 				dataSourceId);
-		return namedParameterJdbcTemplate.queryForList(query, parameterMap);
+		parameterMap.get("schedulerid");
+		list = namedParameterJdbcTemplate.queryForList(query, parameterMap);
+		for (Map<String, Object> row : list) {
+			for (Map.Entry<String, Object> entry : row.entrySet()) {
+				if (entry.getValue() instanceof SQLXML) {
+					try {
+						entry.setValue(((SQLXML) entry.getValue()).getString());
+					} catch (SQLException e) {
+						throw new RuntimeException("Failed to convert SQLXML to String", e);
+					}
+				}
+			}
+		}
+		return list;
 	}
 
-	//@Transactional(readOnly = false)
+	// @Transactional(readOnly = false)
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveDynamicForm(DynamicForm dynamicForm) {
 		List<DynamicFormSaveQuery> dynamicFormSaveQueries = dynamicForm.getDynamicFormSaveQueries();
 		dynamicForm.setDynamicFormSaveQueries(null);
 		if (dynamicForm.getFormId() == null || findDynamicFormByIdWithEvict(dynamicForm.getFormId()) == null) {
-		//	getCurrentSession().clear();
+			// getCurrentSession().clear();
 			getCurrentSession().persist(dynamicForm);
 		} else {
-	//		getCurrentSession().clear();
+			// getCurrentSession().clear();
 			getCurrentSession().merge(dynamicForm);
 		}
 
@@ -112,10 +133,10 @@ public class DynamicFormCrudDAO extends DBConnection {
 				if (dfsq.getDynamicFormQueryId() != null) {
 					findDynamicForSaveQriesByIdWithEvict(dfsq.getDynamicFormQueryId());
 				}
-//				getCurrentSession().clear();
+				// getCurrentSession().clear();
 				getCurrentSession().persist(dfsq);
 			}
-			
+
 		}
 	}
 
@@ -126,10 +147,11 @@ public class DynamicFormCrudDAO extends DBConnection {
 			getCurrentSession().evict(dynamicFormSaveQuery);
 		return dynamicFormSaveQuery;
 	}
-	
+
 	public List<DynamicFormSaveQuery> findDynamicFormQueriesById(String formId) {
 		Query query = getCurrentSession().createQuery(
-				"FROM DynamicFormSaveQuery AS dfs WHERE dfs.dynamicFormId = :formId ORDER BY dfs.sequence ASC ", DynamicFormSaveQuery.class);
+				"FROM DynamicFormSaveQuery AS dfs WHERE dfs.dynamicFormId = :formId ORDER BY dfs.sequence ASC ",
+				DynamicFormSaveQuery.class);
 		query.setParameter("formId", formId);
 		return query.list();
 	}
@@ -144,7 +166,7 @@ public class DynamicFormCrudDAO extends DBConnection {
 	public void deleteFormQueriesByIds(String formId) {
 		StringBuilder	deleteFormQuery	= new StringBuilder(
 				"DELETE FROM DynamicFormSaveQuery AS dfs WHERE dfs.dynamicFormId = :formId ");
-		MutationQuery			query			= getCurrentSession().createMutationQuery(deleteFormQuery.toString());
+		MutationQuery	query			= getCurrentSession().createMutationQuery(deleteFormQuery.toString());
 		query.setParameter("formId", formId);
 		query.executeUpdate();
 	}
@@ -158,13 +180,15 @@ public class DynamicFormCrudDAO extends DBConnection {
 	}
 
 	public List<DynamicForm> getAllDynamicForms(Integer formTypeId) {
-		Query query = getCurrentSession().createQuery("FROM DynamicForm AS df WHERE df.formTypeId = :formTypeId", DynamicForm.class);
+		Query query = getCurrentSession().createQuery("FROM DynamicForm AS df WHERE df.formTypeId = :formTypeId",
+				DynamicForm.class);
 		query.setParameter("formTypeId", formTypeId);
 		return query.list();
 	}
 
 	public DynamicForm getFormDetailsByName(String formName) {
-		Query query = getCurrentSession().createQuery(" FROM DynamicForm  WHERE lower(formName) = lower(:formName)", DynamicForm.class);
+		Query query = getCurrentSession().createQuery(" FROM DynamicForm  WHERE lower(formName) = lower(:formName)",
+				DynamicForm.class);
 		query.setParameter("formName", formName);
 		DynamicForm data = (DynamicForm) query.uniqueResult();
 		return data;
@@ -175,15 +199,16 @@ public class DynamicFormCrudDAO extends DBConnection {
 
 		DataSourceVO	dataSourceVO				= additionalDatasourceRepository
 				.getDataSourceConfiguration(additionalDataSourceId);
-		Connection		additionalDataSourceConn	= jdbcTemplate.getDataSource().getConnection();
+		Connection		additionalDataSourceConn	= DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
 		if (dataSourceVO != null) {
-			additionalDataSourceConn = DataSourceFactory.getDataSource(dataSourceVO).getConnection();
+			additionalDataSourceConn = DataSourceUtils.getConnection(DataSourceFactory.getDataSource(dataSourceVO));
 		}
 		List<Map<String, Object>> resultSet = new ArrayList<>();
 		resultSet = DBExtractor.getDBStructure(tableName, additionalDataSourceConn);
-		if(additionalDataSourceConn.isClosed() == false) {
-			additionalDataSourceConn.close();
-		}
+//		Below code is commented as we were getting hikari pool timeout issues, when multiple datasource is connected.
+//		if (additionalDataSourceConn.isClosed() == false) {
+//			additionalDataSourceConn.close();
+//		}
 		return resultSet;
 	}
 
@@ -224,7 +249,7 @@ public class DynamicFormCrudDAO extends DBConnection {
 				+ "CHARACTER_MAXIMUM_LENGTH as characterMaximumLength from information_schema.COLUMNS where TABLE_NAME = :tableName "
 				+ "and TABLE_SCHEMA = :schemaName ORDER BY ORDINAL_POSITION ASC ";
 		List<Map<String, Object>>	resultSet	= new ArrayList<>();
-		try (Connection connection = jdbcTemplate.getDataSource().getConnection();) {
+		try (Connection connection = DataSourceUtils.getConnection(jdbcTemplate.getDataSource());) {
 			String				schemaName		= connection.getCatalog();
 			Map<String, Object>	parameterMap	= new HashMap<>();
 			parameterMap.put("tableName", tableName);
@@ -243,54 +268,58 @@ public class DynamicFormCrudDAO extends DBConnection {
 		query.setParameter("formId", formId);
 		return (Long) query.uniqueResult();
 	}
-	
+
 	public final List<Object> scriptLibExecution(String formQueryId) {
-		Query scriptLibQuery = getCurrentSession().createNativeQuery("SELECT jqsl.`template_id` "
-				+ "FROM `jq_script_lib_connect` jqs LEFT JOIN `jq_dynamic_form_save_queries` jqf "
-				+ "ON jqf.`dynamic_form_query_id` = jqs.`entity_id` "
-				+ "LEFT JOIN `jq_script_lib_details` jqsl "
-				+ "ON jqs.`script_lib_id` = jqsl.`script_lib_id` "
-				+ "LEFT JOIN `jq_dynamic_form` jqd "
-				+ "ON jqf.`dynamic_form_id` = jqd.`form_id`  "
-				+ "WHERE jqs.`module_type_id` = :moduleId AND jqf.`dynamic_form_query_id` = :formQueryId ", Object.class);
-		
+		Query scriptLibQuery = getCurrentSession().createNativeQuery(
+				"SELECT jqsl.`template_id` "
+						+ "FROM `jq_script_lib_connect` jqs LEFT JOIN `jq_dynamic_form_save_queries` jqf "
+						+ "ON jqf.`dynamic_form_query_id` = jqs.`entity_id` "
+						+ "LEFT JOIN `jq_script_lib_details` jqsl " + "ON jqs.`script_lib_id` = jqsl.`script_lib_id` "
+						+ "LEFT JOIN `jq_dynamic_form` jqd " + "ON jqf.`dynamic_form_id` = jqd.`form_id`  "
+						+ "WHERE jqs.`module_type_id` = :moduleId AND jqf.`dynamic_form_query_id` = :formQueryId ",
+				Object.class);
+
 		scriptLibQuery.setParameter("moduleId", Constant.DYNAFORM_MOD_ID);
 		scriptLibQuery.setParameter("formQueryId", formQueryId);
-		
-		List<Object[]> scriptLibList = scriptLibQuery.list();
-		List<Object>		resultMap	= new ArrayList<>();
-		
-		for(int iCounter=0;iCounter<scriptLibList.size();iCounter++){
-			Query roleQuery = getCurrentSession().createNativeQuery("SELECT COUNT(*) FROM `jq_entity_role_association`"
-					+ " WHERE `role_id` = :roleId AND `is_active` = :isActive AND entity_id = :entityId ", Integer.class);
-			roleQuery.setParameter("roleId",   Constant.ANONYMOUS_ROLE_ID);
+
+		List<Object[]>	scriptLibList	= scriptLibQuery.list();
+		List<Object>	resultMap		= new ArrayList<>();
+
+		for (int iCounter = 0; iCounter < scriptLibList.size(); iCounter++) {
+			Query roleQuery = getCurrentSession().createNativeQuery(
+					"SELECT COUNT(*) FROM `jq_entity_role_association`"
+							+ " WHERE `role_id` = :roleId AND `is_active` = :isActive AND entity_id = :entityId ",
+					Integer.class);
+			roleQuery.setParameter("roleId", Constant.ANONYMOUS_ROLE_ID);
 			roleQuery.setParameter("isActive", Constant.IS_ACTIVE);
 			roleQuery.setParameter("entityId", scriptLibList.get(iCounter));
-			if(roleQuery.list().get(0).toString().equalsIgnoreCase("0")) {
-				Query templateQuery = getCurrentSession().createNativeQuery("SELECT template FROM jq_template_master"
-						+ " WHERE template_id = :templateId ", String.class);
+			if (roleQuery.list().get(0).toString().equalsIgnoreCase("0")) {
+				Query templateQuery = getCurrentSession().createNativeQuery(
+						"SELECT template FROM jq_template_master" + " WHERE template_id = :templateId ", String.class);
 				templateQuery.setParameter("templateId", scriptLibList.get(iCounter));
 				List<String> listTemplate = templateQuery.list();
 				resultMap.add(listTemplate.get(0));
 			}
 		}
-		 
+
 		return resultMap;
 	}
-	
-	public void scriptLibSave(List<String> formSaveQueryIdList,List<String> scriptLibInsertList,List<ScriptLibraryConnection>	scriptLibInsert,String moduleId,Integer sourceTypeId) { 
+
+	public void scriptLibSave(List<String> formSaveQueryIdList, List<String> scriptLibInsertList,
+			List<ScriptLibraryConnection> scriptLibInsert, String moduleId, Integer sourceTypeId) {
 		UserDetailsVO detailsVO = detailsService.getUserDetails();
-		if(null != scriptLibInsertList && scriptLibInsertList.size() != 0 && scriptLibInsertList.isEmpty() == false) {
-			for(int iScrInsertCounter=0; iScrInsertCounter<scriptLibInsertList.size(); iScrInsertCounter++) {
+		if (null != scriptLibInsertList && scriptLibInsertList.size() != 0 && scriptLibInsertList.isEmpty() == false) {
+			for (int iScrInsertCounter = 0; iScrInsertCounter < scriptLibInsertList.size(); iScrInsertCounter++) {
 				String[] scriptLibId = scriptLibInsertList.get(iScrInsertCounter).split(",");
-				if(null != scriptLibId && scriptLibId.length != 0) {
-					for(int iscrLibIdCount = 0;iscrLibIdCount<scriptLibId.length;iscrLibIdCount++) {
-						ScriptLibraryConnection scriptlibrary = new ScriptLibraryConnection();
-						String scriptLibID = scriptLibId[iscrLibIdCount];
-						if(sourceTypeId == Constant.REVISION_SOURCE_VERSION_TYPE || sourceTypeId == Constant.IMPORT_SOURCE_VERSION_TYPE) {
+				if (null != scriptLibId && scriptLibId.length != 0) {
+					for (int iscrLibIdCount = 0; iscrLibIdCount < scriptLibId.length; iscrLibIdCount++) {
+						ScriptLibraryConnection	scriptlibrary	= new ScriptLibraryConnection();
+						String					scriptLibID		= scriptLibId[iscrLibIdCount];
+						if (sourceTypeId == Constant.REVISION_SOURCE_VERSION_TYPE
+								|| sourceTypeId == Constant.IMPORT_SOURCE_VERSION_TYPE) {
 							dynarestDAO.scriptLibDeleteById(formSaveQueryIdList.get(iScrInsertCounter));
 						}
-						if(scriptLibID.isEmpty() == false) {
+						if (scriptLibID.isEmpty() == false) {
 							scriptlibrary.setScriptLibId(scriptLibID.trim());
 							scriptlibrary.setModuletypeId(moduleId);
 							scriptlibrary.setEntityId(formSaveQueryIdList.get(iScrInsertCounter));
@@ -306,7 +335,7 @@ public class DynamicFormCrudDAO extends DBConnection {
 			}
 		}
 	}
-	
+
 	@Transactional
 	public ScriptLibraryDetails findDynamicRestById(String scriptLibraryId) {
 		ScriptLibraryDetails scriptLibrary = getCurrentSession().get(ScriptLibraryDetails.class, scriptLibraryId);
@@ -317,24 +346,26 @@ public class DynamicFormCrudDAO extends DBConnection {
 
 	@Transactional
 	public ScriptLibraryConnection findScriptLibraryById(String scriptLibId) {
-		ScriptLibraryConnection scriptlibrary =  getCurrentSession().get(ScriptLibraryConnection.class, scriptLibId);
-		if(scriptlibrary != null) getCurrentSession().evict(scriptlibrary);
+		ScriptLibraryConnection scriptlibrary = getCurrentSession().get(ScriptLibraryConnection.class, scriptLibId);
+		if (scriptlibrary != null)
+			getCurrentSession().evict(scriptlibrary);
 		return scriptlibrary;
 	}
-	
-	public void scriptLibDelete(List<String> formSaveQueryIdList,List<String> scriptLibDeleteList,String moduleId) { 
+
+	public void scriptLibDelete(List<String> formSaveQueryIdList, List<String> scriptLibDeleteList, String moduleId) {
 		MutationQuery deleteScriptLibQuery = null;
-		
-		if(null != scriptLibDeleteList && scriptLibDeleteList.size() != 0 && scriptLibDeleteList.isEmpty() == false) {
-			for(int iScrDeleteCounter=0; iScrDeleteCounter<scriptLibDeleteList.size(); iScrDeleteCounter++) {
+
+		if (null != scriptLibDeleteList && scriptLibDeleteList.size() != 0 && scriptLibDeleteList.isEmpty() == false) {
+			for (int iScrDeleteCounter = 0; iScrDeleteCounter < scriptLibDeleteList.size(); iScrDeleteCounter++) {
 				String[] scriptLibId = scriptLibDeleteList.get(iScrDeleteCounter).split(",");
-				
-				if(null != scriptLibId && scriptLibId.length != 0) {
-					for(int iscrLibIdCount = 0;iscrLibIdCount<scriptLibId.length;iscrLibIdCount++) {
+
+				if (null != scriptLibId && scriptLibId.length != 0) {
+					for (int iscrLibIdCount = 0; iscrLibIdCount < scriptLibId.length; iscrLibIdCount++) {
 						String scriptLibID = scriptLibId[iscrLibIdCount];
-						if(scriptLibID.isEmpty() == false) {
-							deleteScriptLibQuery = getCurrentSession().createNativeMutationQuery("delete from jq_script_lib_connect"
-									+ " where entity_id=:entityid and script_lib_id =  :scriptlibid ");
+						if (scriptLibID.isEmpty() == false) {
+							deleteScriptLibQuery = getCurrentSession()
+									.createNativeMutationQuery("delete from jq_script_lib_connect"
+											+ " where entity_id=:entityid and script_lib_id =  :scriptlibid ");
 							deleteScriptLibQuery.setParameter("scriptlibid", scriptLibID);
 							deleteScriptLibQuery.setParameter("entityid", formSaveQueryIdList.get(iScrDeleteCounter));
 							int resultSetDelete = deleteScriptLibQuery.executeUpdate();
@@ -344,39 +375,50 @@ public class DynamicFormCrudDAO extends DBConnection {
 			}
 		}
 	}
-	
+
 	public List<Map<String, Object>> getScriptLibDetatils(String formQueryId) throws Exception {
-		Query selectScriptConnQuery = null;
-		Query selectScriptLibQuery = null;
-		List<Map<String, Object>> scriptLibList = new ArrayList<>();
-		selectScriptConnQuery =  getCurrentSession().createNativeQuery("SELECT script_lib_id AS scriptId"
-				+ " FROM jq_script_lib_connect WHERE entity_id = :entityid ", Object.class);
+		Query						selectScriptConnQuery	= null;
+		Query						selectScriptLibQuery	= null;
+		List<Map<String, Object>>	scriptLibList			= new ArrayList<>();
+		selectScriptConnQuery = getCurrentSession().createNativeQuery(
+				"SELECT script_lib_id AS scriptId" + " FROM jq_script_lib_connect WHERE entity_id = :entityid ",
+				Object.class);
 		selectScriptConnQuery.setParameter("entityid", formQueryId);
 		List<Object[]> scriptLibConnList = selectScriptConnQuery.list();
-		for(int iCounter=0; iCounter<scriptLibConnList.size();iCounter++) {
+		for (int iCounter = 0; iCounter < scriptLibConnList.size(); iCounter++) {
 			Map<String, Object> scriptLibMap = new LinkedHashMap<>();
-			selectScriptLibQuery =  getCurrentSession().createNativeQuery("SELECT script_lib_id AS scriptId,"
-					+ " library_name AS libraryName FROM jq_script_lib_details"
-					+ " WHERE script_lib_id = :scriptlibid ", Object.class);
+			selectScriptLibQuery = getCurrentSession().createNativeQuery(
+					"SELECT script_lib_id AS scriptId," + " library_name AS libraryName FROM jq_script_lib_details"
+							+ " WHERE script_lib_id = :scriptlibid ",
+					Object.class);
 			selectScriptLibQuery.setParameter("scriptlibid", scriptLibConnList.get(iCounter));
 			List<Object[]> scriptLibDetList = selectScriptLibQuery.list();
-			scriptLibMap.put("scriptId", scriptLibDetList.get(0)[0].toString()+"");
-			scriptLibMap.put("libraryName", scriptLibDetList.get(0)[1].toString()+"");	
+			scriptLibMap.put("scriptId", scriptLibDetList.get(0)[0].toString() + "");
+			scriptLibMap.put("libraryName", scriptLibDetList.get(0)[1].toString() + "");
 			scriptLibList.add(scriptLibMap);
 		}
-	
+
 		return scriptLibList;
 	}
-	
-	@Transactional(propagation = Propagation.REQUIRED)
-	public void deleteOldRecords() {
-		Query query = getCurrentSession() 
-				.createQuery("DELETE FROM SaltDetails AS s WHERE TIMESTAMPDIFF(MINUTE,s.requestTime,NOW()) > 1");
-		query.executeUpdate();
+
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void deleteOldRecords() throws NumberFormatException, Exception {
+		if (propertyMasterService != null && propertyMasterService.findPropertyMasterValue("otp_expiry_time") != null) {
+			Integer	otpExpiryTime	= Integer.valueOf(propertyMasterService.findPropertyMasterValue("otp_expiry_time"));
+
+			Query	query			= getCurrentSession().createNativeQuery("DELETE FROM jq_salt_details "
+					+ "WHERE request_time < DATE_SUB(NOW(), INTERVAL " + otpExpiryTime + " MINUTE)");
+
+			query.executeUpdate();
+		}
 	}
-	
+
 	public void saveDynamicFormData(DynamicForm dynamicForm) {
-		List<DynamicFormSaveQuery> dynamicFormSaveQueries = dynamicForm.getDynamicFormSaveQueries();
+		 List<DynamicFormSaveQuery> dynamicFormSaveQueries = 
+			        new ArrayList<>(dynamicForm.getDynamicFormSaveQueries() != null 
+			                        ? dynamicForm.getDynamicFormSaveQueries() 
+			                        : Collections.emptyList());
+
 		dynamicForm.setDynamicFormSaveQueries(null);
 		if (dynamicForm.getFormId() == null || findDynamicFormByIdWithEvict(dynamicForm.getFormId()) == null) {
 			getCurrentSession().persist(dynamicForm);
@@ -391,9 +433,9 @@ public class DynamicFormCrudDAO extends DBConnection {
 				}
 				getCurrentSession().persist(dfsq);
 			}
-			
+
 		}
-	
+
 	}
-	
+
 }

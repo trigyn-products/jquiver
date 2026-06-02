@@ -188,9 +188,24 @@ public class MasterCreatorService {
 		if (insideMenu.equals(Constant.IS_INSIDE_MENU)) {
 			menuData = processMenu(inputDetails.getFirst("menuDetails"));
 		}
+		String fileBinId = null;
+		// Saving File Bin if file Bin is selected
+		if (null!=formData.get(TOGGLE_FILEBIN).toString() && "1".equalsIgnoreCase(formData.get(TOGGLE_FILEBIN).toString())) {
+			fileBinId = formData.get(FILE_BIN_ID).toString();
+			FileUploadConfig existingfileUploadConfig = fileUploadConfigService.getFileUploadConfigByBinId(fileBinId);
+			if (existingfileUploadConfig == null) {
+				FileUploadConfig fileUploadConfig = saveFileUploadConfigDetails(formData);
+				createdMasterDetails.put("fileUploadConfig", fileUploadConfig);
+				//activitylog.activitylog(requestParams);
+			} else {
+				logger.error("Error in master.", fileBinId);
+				throw new RuntimeException(HttpStatus.PRECONDITION_FAILED.toString());
+			}
+
+		}
 		boolean isFormIo = Integer.parseInt((String) formData.get("isFormIo")) == 1;
 		if(isFormIo == true) {
-			fmio = formIOMasterCreatorService.updateFormIoDetails(inputDetails, formData, dataSourceId);
+			fmio = formIOMasterCreatorService.updateFormIoDetails(inputDetails, formData, dataSourceId, fileBinId);
 		}
 		ModuleDetailsVO dynamicFormModuleDetails = new ModuleDetailsVO();
 		dynamicFormModuleDetails = processMenu(inputDetails.getFirst("dynamicFormModuleDetails"));
@@ -226,20 +241,6 @@ public class MasterCreatorService {
 		requestParams.put("masterModuleType", Constants.Modules.MASTERGENERATOR.getModuleName());
 		activitylog.activitylog(requestParams);
 
-		// Saving File Bin if file Bin is selected
-		if (null!=formData.get(TOGGLE_FILEBIN).toString() && "1".equalsIgnoreCase(formData.get(TOGGLE_FILEBIN).toString())) {
-			String fileBinId = formData.get(FILE_BIN_ID).toString();
-			FileUploadConfig existingfileUploadConfig = fileUploadConfigService.getFileUploadConfigByBinId(fileBinId);
-			if (existingfileUploadConfig == null) {
-				FileUploadConfig fileUploadConfig = saveFileUploadConfigDetails(formData);
-				createdMasterDetails.put("fileUploadConfig", fileUploadConfig);
-				activitylog.activitylog(requestParams);
-			} else {
-				logger.error("Error in master.", fileBinId);
-				throw new RuntimeException(HttpStatus.PRECONDITION_FAILED.toString());
-			}
-
-		}
 		createdMasterDetails.put("dynamicForm", dynamicForm);
 		createdMasterDetails.put("gridDetails", gridDetails);
 		createdMasterDetails.put("templateMaster", templateMaster);
@@ -472,11 +473,12 @@ public class MasterCreatorService {
 				toggleCsrf = true;
 				dynamicForm.setIsCsrfEnabled(1);
 			}
-			if (formData.get(TOGGLE_FILEBIN).toString().equalsIgnoreCase("1")) {
-				toggleFileBin = true;
-				fileBinId = formData.get(FILE_BIN_ID).toString();
-				fileAssociationId = primaryKey;
-			}
+		}
+		//Taken outside of isFormIo if because i have to set fileBin Condition in formio-default-html-template otherwise file bin would not work
+		if (formData.get(TOGGLE_FILEBIN).toString().equalsIgnoreCase("1")) {
+			toggleFileBin = true;
+			fileBinId = formData.get(FILE_BIN_ID).toString();
+			fileAssociationId = primaryKey;
 		}
 		String moduleName = formData.get("moduleName") + "-form";
 		String description = formData.get("moduleName") + " Form";

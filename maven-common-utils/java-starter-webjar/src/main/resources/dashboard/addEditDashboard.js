@@ -37,6 +37,7 @@ AddEditDashboard.prototype.fn = {
 	            });
 		    	dashboardHTMLEditor.onDidChangeModelContent( function (){
 		    		$('#errorMessage').hide();
+					userActivityDetected(); // for salt refresh
 				});
 	        	$("#htmlContent").remove();
     	});
@@ -67,8 +68,7 @@ AddEditDashboard.prototype.fn = {
 		dashboardDetails.isExportable = $("#isExportableId").val();
 		dashboardDetails.dashletIdList = dashletIdArray;
 		dashboardDetails.dashboardBody = dashboardHTMLEditor.getValue();
-				  
-		if(validData === true){
+		if(validData === true && saveModDetails(isEdit,$("#dashboardId").val()) == true){
 			$.ajax({
 				type : "POST",
 				async : false,
@@ -81,6 +81,9 @@ AddEditDashboard.prototype.fn = {
 					context.saveEntityRoleAssociation(data);
 					isDataSaved = true;
 					showMessage("Information saved successfully", "success");
+					if(isEdit == 0){
+						saveModDetails(isEdit,data); 
+					}
 		       	},
 	        	error : function(xhr, error){
 					showMessage("Error occurred while saving", "error");

@@ -1,0 +1,33 @@
+var System = Java.type("java.lang.System");
+
+// === transition Task API entrypoint ===
+function transition() {
+  System.out.println("Starting transition...");
+
+    var taskId = requestDetails["taskId"];
+    var assignedId = requestDetails["assignedTo"]; 
+    var loggedInUser = requestDetails["loggedInUserName"] ;
+    var action = requestDetails["action"] ; // approve/reject
+
+    if (!taskId) {
+        throw "taskId is required in requestDetails";
+    }
+
+    // Call library method
+   
+    var result = moveWorkflowInstance(taskId, loggedInUser, assignedId, action);
+
+     if (result != null) {
+      return { 
+          status: "success", 
+          nextTaskId: result.newTaskId, 
+          nextStatusId: result.nextStatusId, 
+          isFinal: result.isFinal 
+      };
+  } else {
+      return { status: "success", nextTaskId: null, isFinal: true };
+  }
+}
+
+// Run if this script is triggered directly
+transition();

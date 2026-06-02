@@ -1,0 +1,84 @@
+SELECT form_id AS entityId,form_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_dynamic_form LEFT OUTER JOIN
+jq_master_modules AS jmm ON jmm.module_name = :targetLookupId 
+where form_id = :targetTypeId
+UNION ALL
+SELECT jml.module_id AS entityId,jmm.module_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_module_listing AS jml LEFT OUTER JOIN
+jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE jml.module_id = :targetTypeId
+UNION ALL
+SELECT template_id AS entityId,template_name AS entityName,jmm.auxiliary_data AS
+formData FROM jq_template_master
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE template_id = :targetTypeId
+UNION ALL
+SELECT jws_dynamic_rest_url AS entityId,jws_dynamic_rest_url AS entityName,
+jmm.auxiliary_data AS formData FROM jq_dynamic_rest_details
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE jws_dynamic_rest_url = :targetTypeId
+UNION ALL
+SELECT dashboard_id AS entityId,dashboard_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_dashboard
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE dashboard_id = :targetTypeId
+UNION ALL
+SELECT dashlet_id AS entityId,dashlet_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_dashlet
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE dashlet_id = :targetTypeId
+UNION ALL
+SELECT grid_id AS entityId,grid_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_grid_details
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE grid_id = :targetTypeId and jmm.module_name = :targetLookupId
+UNION ALL
+SELECT form_io_id AS entityId,form_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_form_io
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE form_io_id = :targetTypeId
+UNION ALL
+SELECT file_bin_id AS entityId,file_bin_id AS entityName,jmm.auxiliary_data AS formData
+FROM jq_file_upload_config
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE file_bin_id = :targetTypeId
+UNION ALL
+SELECT resource_key AS entityId,resource_key AS entityName,jmm.auxiliary_data AS formData
+FROM jq_resource_bundle
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE resource_key = :targetTypeId
+UNION ALL
+SELECT additional_datasource_id AS entityId,datasource_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_additional_datasource
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE additional_datasource_id = :targetTypeId
+UNION ALL
+SELECT ac_id AS entityId,ac_id AS entityName,jmm.auxiliary_data AS formData
+FROM jq_autocomplete_details
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE ac_id = :targetTypeId
+UNION ALL
+SELECT client_id AS entityId,client_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_api_client_details
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE client_id = :targetTypeId
+UNION ALL
+SELECT scheduler_id AS entityId,scheduler_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_job_scheduler
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE scheduler_id = :targetTypeId and jmm.module_name = :targetLookupId
+UNION ALL
+SELECT property_master_id AS entityId,property_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_property_master
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE property_master_id = :targetTypeId and jmm.module_name = :targetLookupId
+UNION ALL
+SELECT notification_id AS entityId,MESSAGE_TEXT AS entityName,jmm.auxiliary_data AS formData
+FROM jq_generic_user_notification
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE notification_id = :targetTypeId and jmm.module_name = :targetLookupId
+UNION ALL
+SELECT script_lib_id AS entityId,library_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_script_lib_details
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE script_lib_id = :targetTypeId and jmm.module_name = :targetLookupId

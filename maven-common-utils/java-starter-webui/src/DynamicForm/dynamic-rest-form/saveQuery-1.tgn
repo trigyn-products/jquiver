@@ -2,6 +2,24 @@ var System = Java.type("java.lang.System");
 var HashMap = Java.type("java.util.HashMap");
 
 function saveRestDetails(){
+	var newURL = requestDetails.dynarestUrl[0];
+    var isEdit = requestDetails.isEdit[0] == 1;
+    var dynarestId = requestDetails.dynarestId[0];  
+
+    var dynaRestUrlQuery = "SELECT jws_dynamic_rest_url FROM jq_dynamic_rest_details";
+    if (isEdit) {
+        dynaRestUrlQuery += " WHERE jws_dynamic_rest_id != '" + dynarestId  + "'";
+    }
+    var existingUrls = jq_getDBResult(dynaRestUrlQuery, null,null).data_list; 
+        
+    for each (var record in existingUrls) {
+        var existingURL = record.jws_dynamic_rest_url;
+        /* Skip pattern conflict check if in edit mode AND editing same URL*/
+        if (pathConflicts(newURL, existingURL)) {
+            jq_sendError("412", "URL with same path variable already exists");
+        }
+    }
+    
     var map = new HashMap();
     map.put('dynarestId', requestDetails.dynarestId);
     map.put('dynarestUrl', requestDetails.dynarestUrl);
@@ -71,4 +89,52 @@ function saveRestDetails(){
             }
         }
     }
+    
+    /* Converts Ant-style pattern (with * and **) into a regex pattern string*/
+	function antPatternToRegex(pattern) {
+	    var regex = '^';
+	    var iVar = 0;
+	    while (iVar < pattern.length) {
+	        var c = pattern.charAt(iVar);
+	        if (c === '*') {
+	            if (iVar + 1 < pattern.length && pattern.charAt(iVar + 1) === '*') {
+	                regex += '.*';
+	                iVar += 2;
+	            } else {
+	                regex += '[^/]*';
+	                iVar++;
+	            }
+	        } else if ("\\.[]{}()+-^$|".indexOf(c) !== -1) {
+	            regex += '\\' + c;
+	            iVar++;
+	        } else {
+	            regex += c;
+	            iVar++;
+	        }
+	    }
+	    regex += '$';
+	    return regex;
+	}
+	
+	/* Check if two paths conflict based on Ant-style pattern matching*/
+	function pathConflicts(newPath, existingPath) {
+	    if (Array.isArray(newPath)) {
+	        newPath = newPath[0]; 
+	    }
+	    if (Array.isArray(existingPath)) {
+	        existingPath = existingPath[0];
+	    }
+	
+	    newPath = String(newPath).trim().replace(/\/+$/, ''); /** trims and then removes / **/
+	    existingPath = String(existingPath).trim().replace(/\/+$/, '');
+	    var newPathRegex = new RegExp(antPatternToRegex(newPath));
+	    var existingPathRegex = new RegExp(antPatternToRegex(existingPath));
+	
+	    /* Conflict if newPath matches existingPath pattern OR existingPath matches newPath pattern*/
+	    if (newPathRegex.test(existingPath) || existingPathRegex.test(newPath)) {
+	        return true;
+	    }
+	    return false;
+	}
+
 saveRestDetails();

@@ -34,33 +34,62 @@ public class IVCipherMode implements ICipherUtil {
 
 	Integer			keyLength;
 
-	static byte[]	initVector	= new byte[] {};
+	byte[]	initVector	= new byte[] {};
 
 	public IVCipherMode() {
 		super();
 	}
 
-	public IVCipherMode(String algorithm, String mode, String padding, Integer keyLength) {
-		super();
-		this.fullAlgorithm	= algorithm;
+	public IVCipherMode(String algorithm, String mode, String padding, Integer keyLength) throws Exception {
+		//this.fullAlgorithm	= algorithm;
 		this.mode			= mode;
 		this.padding		= padding;
 		this.keyLength		= keyLength;
-		initVector 	=  new byte[keyLength / Byte.SIZE];
-		Arrays.fill(initVector, (byte) 0x0);
+		this.fullAlgorithm = algorithm + "/" + mode + "/" + padding;
+		Cipher cipher = Cipher.getInstance(this.fullAlgorithm);
+		this.initVector = new byte[cipher.getBlockSize()];
+		//initVector 	=  new byte[keyLength / Byte.SIZE];
+		Arrays.fill(this.initVector, (byte) 0x0);
+	}
+	
+	// Manual padding if NoPadding
+	private byte[] padNoPadding(String input, int blockSize) throws UnsupportedEncodingException {
+	    byte[] bytes = input.getBytes("UTF-8");
+	    int paddedLength = ((bytes.length + blockSize - 1) / blockSize) * blockSize;
+	    byte[] padded = new byte[paddedLength];
+	    System.arraycopy(bytes, 0, padded, 0, bytes.length);
+	    // remaining bytes are 0x00
+	    return padded;
 	}
 
+	// Remove 0x00 padding after decrypt (for NoPadding only)
+    private String trimNoPadding(byte[] decrypted) throws UnsupportedEncodingException {
+        int i = decrypted.length;
+        while (i > 0 && decrypted[i - 1] == 0x00) {
+            i--;
+        }
+        return new String(Arrays.copyOf(decrypted, i), "UTF-8");
+    }
+    
 	public String encrypt(String strToEncrypt, String secret, String algorithm) throws NoSuchAlgorithmException,
 			NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
 			BadPaddingException, UnsupportedEncodingException {
 
 		SecretKeySpec secretKeySpec = setEncryptionKey(secret, algorithm, this.keyLength);
-		fullAlgorithm += "/" + this.mode + "/" + this.padding;
-		Cipher			cipher	= Cipher.getInstance(fullAlgorithm);
+		//fullAlgorithm += "/" + this.mode + "/" + this.padding;
+		Cipher			cipher	= Cipher.getInstance(this.fullAlgorithm);
 		//byte[]			ivBytes	= CipherUtil.generateIvBytes(cipher.getBlockSize());
-		IvParameterSpec	iv		= new IvParameterSpec(initVector);
+		IvParameterSpec	iv		= new IvParameterSpec(this.initVector);
 		cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, iv);
-		String encString = Base64.encodeBase64String(cipher.doFinal(strToEncrypt.getBytes("UTF-8")));
+		
+		byte[] inputBytes;
+        if ("NoPadding".equalsIgnoreCase(this.padding)) {
+            inputBytes = padNoPadding(strToEncrypt, cipher.getBlockSize());
+        } else {
+            inputBytes = strToEncrypt.getBytes("UTF-8");
+        }
+        
+		String encString = Base64.encodeBase64String(cipher.doFinal(inputBytes));
 		return encString;
 	}
 
@@ -68,13 +97,19 @@ public class IVCipherMode implements ICipherUtil {
 			throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException,
 			NoSuchPaddingException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
 		SecretKeySpec secretKeySpec = setEncryptionKey(secret, algorithm, this.keyLength);
-		fullAlgorithm += "/" + this.mode + "/" + this.padding;
-		Cipher			cipher	= Cipher.getInstance(fullAlgorithm);
+		//fullAlgorithm += "/" + this.mode + "/" + this.padding;
+		Cipher			cipher	= Cipher.getInstance(this.fullAlgorithm);
 		//byte[]			ivBytes	= CipherUtil.generateIvBytes(cipher.getBlockSize());
-		IvParameterSpec	iv		= new IvParameterSpec(initVector);
+		IvParameterSpec	iv		= new IvParameterSpec(this.initVector);
 		cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, iv);
-		String decString = new String(cipher.doFinal(Base64.decodeBase64(strToDecrypt.getBytes("UTF-8"))));
-		return decString;
+		//String decString = new String(cipher.doFinal(Base64.decodeBase64(strToDecrypt.getBytes("UTF-8"))));
+		byte[] decryptedBytes = cipher.doFinal(Base64.decodeBase64(strToDecrypt.getBytes("UTF-8")));
+		  if ("NoPadding".equalsIgnoreCase(this.padding)) {
+	            return trimNoPadding(decryptedBytes);
+	        } else {
+	            return new String(decryptedBytes, "UTF-8");
+	        }
+		
 	}
 	
 	

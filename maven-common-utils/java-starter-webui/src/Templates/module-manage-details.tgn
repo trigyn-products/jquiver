@@ -2,6 +2,7 @@
     <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
     <script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
     <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+    <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
 
 </head>
 
@@ -251,6 +252,9 @@
                     </table>
                     </div>
             </div>
+             <input type="hidden" id="isCustomUpdated" name="isCustomUpdated" value="1">
+            <input type="hidden" id="updatedDate" name="updatedDate">
+             <input type="hidden" id="lastUpdatedBy" name="lastUpdatedBy" value="${fullName  !''}">
             <div class="col-4">
                 <input id="masterModuleId" value="c6cc466a-0ed3-11eb-94b2-f48e38ab9348" name="masterModuleId"  type="hidden">
                 <@templateWithoutParams "role-autocomplete"/> 
@@ -258,7 +262,8 @@
         </div>      
 
         <div class="row">
-            <div class="col-12">
+           <div class="d-flex justify-content-end align-items-center gap-2">
+                <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_module_listing')">Create/Link Module</button>
                 <div id="buttons" class="text-end">
                     <div class="btn-group dropup custom-grp-btn">
                         <div id="savedAction">
@@ -275,7 +280,9 @@
                     <input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage('jws.cancel')}" onclick="addEditModule.backToModuleListingPage();">
                 </div>
             </div>
-         
+            <div id="moduleAutocomplete">
+                <@templateWithoutParams "common-modal-template"/>
+            </div>
         </div>
         
     <div id="deleteHeader"></div>
@@ -290,6 +297,11 @@ let sequence = "${(moduleDetailsVO?api.getSequence())!''}";
 let savedHeaderJson = "";
 let savedRequestParamJson = "";
 let selectedLanguageId = getCookie("locale");
+let moduleIdList = [];
+let deleteModuleIdList = [];
+let newAddedModuleIdList = [];
+let existingModuleIdList = [];
+let allModuleList = [];
 let moduleId = "${(moduleDetailsVO?api.getModuleId())!''}";
     let isEdit = 0;
     if(moduleId!="") {
@@ -373,9 +385,39 @@ $(function() {
             multiselect.setSelectedObject(defaultAdminRole);
     <#else>
         addEditModule.getEntityRoles();
+        getModuleNames(moduleId,$("#masterModuleId").val());
+        /** Added for resetting the values of BusinessModule Dialog after save and edit. **/
+	    document.getElementById("saveAndEdit").addEventListener("click", function () {
+	        resetBusModuleModal();
+	    });
     </#if>
-     
+    
+      const now = new Date();
+      const formattedDate = now.toISOString();  
+        $("#updatedDate").val(formattedDate);
+
 });
+
+function saveModDetails(isEdit,entityId){
+    var busmoduleName = $("#busmoduleName").val();
+    var cmvEntityName = document.getElementById("cmvEntityName").value;
+    if(checkExistingBusinessModuleName(busmoduleName) == true){
+        showMessage("Module Name already exists","warn");
+        $("#busmoduleName").val("");
+        return false;
+    }
+    if(entityId != ""){
+        var isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked;  
+        if (existingModuleIdList.includes(busmoduleName)) {
+            showMessage("Module Name already exists for this entity.", "info");
+            return false;
+        }
+        if(busmoduleName != "" || moduleIdList.length > 0 || deleteModuleIdList.length > 0){
+            saveModuleDetails(busmoduleName,entityId,$("#masterModuleId").val(),isEdit,moduleIdList,deleteModuleIdList,isShowCreateLinkChkBox,cmvEntityName);
+        }
+    }
+    return true;
+}
 
 </script>
 <script src="${(contextPath)!''}/webjars/1.0/menu/addEditModule.js"></script>

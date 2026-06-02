@@ -1,56 +1,130 @@
 const HTMLComponent = Formio.Components.components.htmlelement;
-/**
- * Create a File Bin compoennt and extend from the HTMLComponent.
- */
+
 class JQFormIOFileBin extends HTMLComponent {
 
-	/**
-	 * Define the default schema to change the type and tag and label. 
-	 */
-	static schema(...extend) {
-		return HTMLComponent.schema({
-			type: 'filebincomponent',
-			customType: 'filebincomponent',
-			placeholder: 'File Bin',
-			tag: 'div',
-			//attrs: [{
-				//attr: 'id',
-				//value: 'fileUploadMaster'
-			//}],
-			label: '',
-			content: "<input type=\"text\" id=\"copyFilePathInput\" name=\"copyFilePathInput\" style=\"display:none\">\r\n<div class=\"clearfix\"></div>\r\n<div class=\"col-12\">\r\n\t<div id=\"fileUploadMaster\" class=\"col-8 fileupload dropzone\"></div>\r\n</div>", 
-			//className: '',
-			//customClass: 'fileupload dropzone',
-			//styles: '',
-			hidden: false,
-			disabled: false,
-		}, ...extend);
-	}
+    static schema(...extend) {
+        return super.schema({
+            type: 'filebincomponent',
+            label: 'File Bin',
+            key: 'filebin_' + Math.random().toString(36).substr(2, 9),
+            input: true, // important for attach() to be called in render
+            persistent: false,
+            clearOnHide: false,
+            validate: { required: false },
+            content: `
+<div class="dragpasteblock">
+    <div class="fileuploadmaster dropzone"></div>
+    <div class="jqFmioFileUploadImg" style="display:flex; justify-content:flex-start;">
+        <img class="fileUploadIcon"
+             src="../webjars/1.0/images/fileupload.png"
+             style="cursor:pointer;"
+             height="50px" />
+    </div>
+</div>`
+        }, ...extend);
+    }
 
-	static get builderInfo() {
-	//	console.log('Inside Builder Info : ');
-		return {
-			title: 'File Bin',
-			group: 'jquiver',
-			icon: 'fa fa-file',
-			weight: 2,
-			documentation: '/userguide/#html-element-component',
-			schema: JQFormIOFileBin.schema()
-		};
-	}
+    static get builderInfo() {
+        return {
+            title: 'File Bin',
+            group: 'jquiver',
+            icon: 'bi bi-folder2-open',
+            weight: 2,
+            schema: this.schema()
+        };
+    }
 
-	static render(content) {
-		return super.render('<div ref="jqFormIOFileBin" placeholder="File Upload" class="col-12"><div id="fileUploadMaster" class="col-8 fileupload dropzone"></div></div>');
-	}
+    render() {
+        return super.render(this.component.content);
+    }
 
-	static build() {
-		super.build();
-		let ele = super.renderTemplate("<div id='custom'>name</div>", {});
-		let element = super.getElement();
-		element.appendChild(ele);
-	}
+    attach(element) {
+        const attached = super.attach(element);
+
+        // Only initialize Shadow DOM in render mode
+        if (!this.builderMode) {
+            console.log("FileBin attach running in render mode");
+            setTimeout(() => {
+                this.initializeShadowInput(element);
+            }, 100);
+        }
+
+        return attached;
+    }
+
+    initializeShadowInput(element) {
+        const compEl = element.querySelector(".dragpasteblock");
+        if (!compEl || compEl.querySelector(".shadow-host")) return;
+
+        const shadowHost = document.createElement("div");
+        shadowHost.className = "shadow-host";
+        compEl.appendChild(shadowHost);
+        const shadow = shadowHost.attachShadow({ mode: 'open' });
+
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.className = "fileUploadInput";
+        fileInput.style.display = "none";
+        shadow.appendChild(fileInput);
+
+        const fileUploadIcon = compEl.querySelector(".fileUploadIcon");
+        if (fileUploadIcon) {
+            fileUploadIcon.addEventListener("click", () => fileInput.click());
+        }
+
+        fileInput.addEventListener("change", (e) => {
+            const files = e.target.files;
+            if (files.length) {
+                $(compEl).fileUpload("addFiles", files);
+            }
+            e.target.value = "";
+        });
+    }
+
+    // Non-data overrides
+    isDataComponent() { return false; }
+    checkConditions() { return true; }
+    setConditionFlags() { }
+    getValue() { return null; }
+    setValue() { }
 }
 
+// -------------------------------------------------------------
+// File Bin dropdown in Builder
+JQFormIOFileBin.editForm = (...args) => {
+    const HTMLComponent = Formio.Components.components.htmlelement;
+    const editForm = HTMLComponent.editForm(...args);
+
+    let displayTab = Formio.Utils.getComponent(editForm.components, "display", true);
+    const existing = displayTab.components;
+
+    displayTab.components = [];
+
+    displayTab.components.push({
+        type: 'select',
+        label: 'File Bin',
+        key: 'fileBinType',
+        dataSrc: 'values',
+        data: { values: JSON.parse(getFileBins().responseText) },
+        enableSearch: true,
+        persistent: true,
+        validate: { required: false }
+    });
+
+    existing.forEach(c => displayTab.components.push(c));
+    return editForm;
+};
+
+// -------------------------------------------------------------
+// Fetch file bins
+function getFileBins() {
+    return $.ajax({
+        type: "GET",
+        url: contextPath + apiPath + "/loadallfilebins",
+        async: false,
+        error: () => showMessage("Error fetching File Bins", "error")
+    });
+}
 
 function getFileBinJsContent(fileBinId) {
 	return $.ajax({
@@ -72,91 +146,6 @@ function getFileBinJsContent(fileBinId) {
 	});
 }
 
-function getFileBins() {
-	return $.ajax({
-		type: "GET",
-		url: contextPath+apiPath+"/loadallfilebins",
-		async: !1,
-		error: function() {
-			showMessage("Error occurred while Fetching the File Bins.", "error");
-		}
-	});
-}
-
-function onSelectFileBinChange() {
-	//$("input[name='data[className]']").val("fileupload dropzone");
-	//$("input[name='data[attrs][0][attr]']").val("id");
-	//$("input[name='data[attrs][0][value]']").val("fileUploadMaster");
-	//$("input[name='data[logic][0][name]']").val("fileupload");
-	//var selectedFileBinVal = $("select[name='data[fileBinType]'] option:selected").val();
-	//document.querySelector(".choices__item[data-value='javascript']").dispatchEvent(new Event('mousedown'));
-	//var jsContent = getFileBinJsContent(selectedFileBinVal);
-	//$("input[name='data[logic][0][name]']").val(selectedFileBinVal);
-	//JQFormIOFileBin.schema(selectedFileBinVal, jsContent.responseText);
-}
-
-
-/**
- * Change the edit form to add the "File Bin" component a select dropdown
- * instead of a textfield so that they can only configure the "file bins" fields.
- */
-
-/*
-JQFormIOFileBin.editForm = (...args) => {
-	const baseForm = HTMLComponent.editForm(...args);
-	//console.log(JSON.stringify(baseForm));
-	let displayTab = Formio.Utils.getComponent(baseForm.components, "display", true);
-	displayTab.components.push(
-		{
-			type: 'select',
-			label: 'File Bin',
-			class: "required",
-			dataSrc: 'values',
-			placeholder: 'Select File Bin',
-			data: {
-				values: getFileBins().responseText
-			},
-			key: "fileBin".toLowerCase(),
-			onChange: function() {
-				onSelectFileBinChange();
-			}
-		}, {
-		type: 'textfield',
-		label: 'Content',
-		key: 'content',
-		input: true,
-		defaultValue: "<input type=\"text\" id=\"copyFilePathInput\" name=\"copyFilePathInput\" style=\"display:none\">\r\n<div class=\"clearfix\"></div>\r\n<div class=\"col-12\">\r\n\t<div id=\"fileUploadMaster\" class=\"col-8 fileupload dropzone\"></div>\r\n</div>",
-		description: 'Modify : Your File BIn HTML COntent If Required.',
-	});
-
-	return baseForm;
-};
-*/
-
-JQFormIOFileBin.editForm = (...args) => {
-	const HTMLComponent = Formio.Components.components.htmlelement;
-	const editForm = HTMLComponent.editForm(...args);
-	let displayTab = Formio.Utils.getComponent(editForm.components, "display", true);
-	var displayTabComponents = displayTab.components;
-	displayTab.components = [];
-	displayTab.components.push({
-		type: 'select',
-		label: 'File Bin',
-		key: 'fileBinType',
-		class: "required",
-		dataSrc: 'values',
-		data: {
-			values: getFileBins().responseText
-		},
-		onChange: function() {
-			onSelectFileBinChange();
-		}
-	});
-	Formio.Utils.eachComponent(displayTabComponents, function(component) {
-		displayTab.components.push(component);
-	})
-	return editForm;
-};
-
+// -------------------------------------------------------------
+// Register
 Formio.Components.addComponent('filebincomponent', JQFormIOFileBin);
-

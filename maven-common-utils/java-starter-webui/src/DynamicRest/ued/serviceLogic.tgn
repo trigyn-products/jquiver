@@ -1,0 +1,490 @@
+var HashMap = Java.type("java.util.HashMap");
+var LinkedHashMap = Java.type("java.util.LinkedHashMap");
+var System = Java.type("java.lang.System");
+var ECBCipherMode = Java.type("com.trigyn.jws.dbutils.cipher.modes.ECBCipherMode");
+var MessageDigest = Java.type("java.security.MessageDigest");
+var ArrayList = Java.type("java.util.ArrayList");
+var GsonBuilder = Java.type("com.google.gson.GsonBuilder");
+var ToNumberPolicy = Java.type("com.google.gson.ToNumberPolicy");
+var gson = new GsonBuilder().serializeNulls().setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE).create();
+var queryParam = new HashMap();
+
+
+function formatDate(dateStr) {
+    var d = new Date(dateStr);
+
+    function pad(n) {
+        return (n < 10 ? "0" : "") + n;
+    }
+
+    return d.getFullYear() + "-" +
+        pad(d.getMonth() + 1) + "-" +
+        pad(d.getDate()) + " " +
+        pad(d.getHours()) + ":" +
+        pad(d.getMinutes()) + ":" +
+        pad(d.getSeconds());
+}
+
+function formatModuleJsonDate(dateStr) {
+    var d = new Date(dateStr);
+    function pad(n) {
+        return (n < 10 ? "0" : "") + n;
+    }
+    return pad(d.getDate()) + "-" +
+        pad(d.getMonth() + 1) + "-" +
+        d.getFullYear() + " " +
+        pad(d.getHours()) + ":" +
+        pad(d.getMinutes()) + ":" +
+        pad(d.getSeconds());
+}
+
+function formatRestModuleJsonDate(dateStr){
+    var d = new Date(dateStr);
+    var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+    function pad(n){
+        return (n < 10 ? "0" : "") + n;
+    }
+
+    var hours = d.getHours();
+    var ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+
+    return months[d.getMonth()] + " " +
+        d.getDate() + ", " +
+        d.getFullYear() + ", " +
+        hours + ":" +
+        pad(d.getMinutes()) + ":" +
+        pad(d.getSeconds()) + " " +
+        ampm;
+}
+
+function buildResponse(result) {
+    var success = result && result.affectedRowCount > 0;
+
+    return JSON.stringify({
+        success: success,
+        message: success
+            ? "Updated successfully"
+            : "Please fetch first, record was modified recently",
+        affectedRows: result ? result.affectedRowCount : 0
+    });
+}
+
+function getLatestModuleVersion(entityId, entityName) {
+
+    var param = new HashMap();
+    param.put("entityId", entityId);
+    param.put("entityName", entityName);
+
+    var query =
+        "SELECT * FROM jq_module_version " +
+        "WHERE entity_id=:entityId " +
+        "AND entity_name=:entityName " +
+        "ORDER BY updated_date DESC LIMIT 1";
+
+    var result = jq_getDBResult(query, null, param);
+
+    if(result && result.data_list.length > 0){
+        return result.data_list[0];
+    }
+    return null;
+}
+
+function createModuleVersionFromExisting(
+    entityId,
+    entityName,
+    updatedBy,
+    sourceTypeId,
+    moduleJsonObj
+) {
+
+    var checksumResult =
+        prepareModuleChecksum(
+            entityId,
+            entityName,
+            moduleJsonObj
+        );
+
+    if(checksumResult.checksumChanged){
+
+        var versionId =
+            getNextVersionNumber(
+                entityId,
+                entityName
+            );
+
+        moduleVersionUpdate(
+            entityId,
+            entityName,
+            updatedBy,
+            sourceTypeId,
+            versionId,
+            checksumResult.generatedChecksum,
+            checksumResult.moduleJson
+        );
+    }
+}
+
+function generateUUID() {
+    return java.util.UUID.randomUUID().toString();
+}
+
+function getNextVersionNumber(entityId, entityName) {
+
+    var param = new HashMap();
+    param.put("entityId", entityId);
+    param.put("entityName", entityName);
+
+    var result = jq_getDBResult(
+        "SELECT MAX(version_id) AS version FROM jq_module_version WHERE entity_id=:entityId AND entity_name=:entityName",
+        null,
+        param
+    );
+
+    var currentVersion = result.data_list[0].version;
+
+    var MAX_DECIMAL = 99;
+    var INITIAL_VERSION = "1.00";
+
+    if (currentVersion != null) {
+
+        var parts = currentVersion.toString().split(".");
+        var major = parseInt(parts[0]);
+        var minor = parseInt(parts[1]);
+
+        if (minor === MAX_DECIMAL) {
+            major = major + 1;
+            minor = 0;
+        } else {
+            minor = minor + 1;
+        }
+
+        // format back to 2 decimal places
+        return major + "." + (minor < 10 ? "0" + minor : minor);
+
+    } else {
+        return INITIAL_VERSION;
+    }
+}
+
+function generateJsonChecksum(content) {
+    var messageDigest = MessageDigest.getInstance("SHA-256");
+    var stringContent = content.toString();
+    messageDigest.update(
+        new java.lang.String(stringContent).getBytes()
+    );
+    var checksum = "";
+    var digest = messageDigest.digest();
+    for (var dl = 0; dl < digest.length; dl++) {
+        var hex = java.lang.String.format(
+            "%02x",
+            java.lang.Byte.valueOf(digest[dl])
+        );
+        checksum += hex;
+    }
+    return checksum;
+}
+
+function getLatestJsonChecksum(entityId, entityName) {
+    var param = new HashMap();
+    param.put("entityId", entityId);
+    param.put("entityName", entityName);
+
+    var query ="SELECT module_json_checksum FROM jq_module_version " +
+        "WHERE entity_id=:entityId AND entity_name=:entityName " +
+        "ORDER BY updated_date DESC LIMIT 1";
+    var result =jq_getDBResult(query,null,param);
+    if (result && result.data_list && result.data_list.length > 0
+    ) {
+        return result.data_list[0]
+            .module_json_checksum;
+    }
+    return null;
+}
+
+function compareChecksum(entityId,entityName,generatedChecksum) {
+    var previousChecksum = getLatestJsonChecksum(entityId, entityName);
+    var isChecksumChanged = true;
+    if (previousChecksum != null && previousChecksum === generatedChecksum
+    ) {
+        isChecksumChanged = false;
+    }
+    return isChecksumChanged;
+}
+
+function prepareModuleChecksum(entityId, entityName,moduleJsonObj) {
+    var moduleJson = gson.toJson(moduleJsonObj);
+    var generatedChecksum = generateJsonChecksum(moduleJson);
+    var checksumChanged = compareChecksum(entityId, entityName, generatedChecksum);
+    return {
+        moduleJson: moduleJson,
+        generatedChecksum: generatedChecksum,
+        checksumChanged: checksumChanged
+    };
+}
+
+function moduleVersionUpdate(entityId,entityName, updatedBy, sourceTypeId,versionId,generatedChecksum,moduleJson) {
+    var versionParam = new HashMap();
+    versionParam.put("entityName", entityName);
+    versionParam.put("entityId", entityId);
+    versionParam.put("sourceTypeId", sourceTypeId);
+    versionParam.put("updatedBy", updatedBy);
+    versionParam.put("versionId", versionId);
+    versionParam.put("moduleVersionId", generateUUID());
+    versionParam.put("moduleJson", moduleJson);
+    versionParam.put("generatedChecksum", generatedChecksum);
+
+
+    var versionQuery = "INSERT INTO jq_module_version " +
+        "(module_version_id,entity_name, entity_id, source_type_id, version_id,module_json, updated_by, updated_date,module_json_checksum) " +
+        "VALUES (:moduleVersionId, :entityName, :entityId, :sourceTypeId, :versionId,:moduleJson, :updatedBy, NOW(), :generatedChecksum)";
+
+    jq_updateDBQuery(versionQuery, null, versionParam);
+}
+
+
+function updateEntityDetails(userId) { 
+	
+    queryParam.put("entityId", requestDetails["entityId"]);
+    queryParam.put("module", requestDetails["module"]);
+    queryParam.put("columnName", requestDetails["columnName"]);
+    queryParam.put("innerQuery", requestDetails["innerQuery"]);
+    queryParam.put("id", requestDetails["id"]);
+    queryParam.put("data", requestDetails["data"]);
+    var lastUpdatedDate = requestDetails["updatedDate"];
+    var formattedDate = formatDate(lastUpdatedDate);
+    queryParam.put("updatedDate", formattedDate);
+    
+    //Extract User details
+    queryParam.put("userId", userId);
+    var updatedBy = null;   
+    if("anonymous-user".equals(userId))
+    {
+        updatedBy = "anonymous";
+    }
+    else{
+        updatedBy = jq_getDBResult("SELECT email FROM jq_user WHERE user_id=:userId",null,queryParam).data_list[0].email;
+    }
+    queryParam.put("updatedBy", updatedBy);
+    //Done Extract User Details
+    
+
+    // Check module type and adjust the query accordingly
+    if (requestDetails["module"] === "Template") {
+        var updateQuery = "UPDATE jq_template_master SET template=:data, updated_date= NOW(),updated_by=:updatedBy  WHERE template_id=:entityId AND (updated_date IS NULL OR DATE_FORMAT(updated_date, '%Y-%m-%d %H:%i:%s') =:updatedDate)";
+        var result = jq_updateDBQuery(updateQuery, null, queryParam);
+        //Module Version Update....
+        if(result && result.affectedRowCount > 0) {
+    var latestVersion = getLatestModuleVersion(requestDetails["entityId"], "jq_template_master");
+
+        if(latestVersion){
+            var moduleJson = gson.fromJson(latestVersion.module_json,
+                                 LinkedHashMap.class);
+
+            moduleJson.put("template", requestDetails["data"]);
+            moduleJson.put("updatedBy", updatedBy);
+            moduleJson.put("updatedDate", formatModuleJsonDate(new Date()));
+
+            createModuleVersionFromExisting(requestDetails["entityId"], "jq_template_master", updatedBy, 1, moduleJson);
+        }
+    }
+        return buildResponse(result);
+
+    } else if (requestDetails["module"] === "DynamicForm") {
+        var innerQuery = requestDetails["innerQuery"] || 0;
+        if(innerQuery == 1){
+            // update parent updated_date
+            var updateParentQuery = "UPDATE jq_dynamic_form SET last_updated_ts= NOW(), last_updated_by=:updatedBy WHERE form_id=:entityId AND (last_updated_ts IS NULL OR DATE_FORMAT(last_updated_ts, '%Y-%m-%d %H:%i:%s') = :updatedDate)";
+            var result = jq_updateDBQuery(updateParentQuery, null, queryParam);
+            if (result && result.affectedRowCount > 0) {
+                //Dao Table
+            var updateQuery = "UPDATE jq_dynamic_form_save_queries SET dynamic_form_save_query =:data  WHERE dynamic_form_query_id=:id";
+            jq_updateDBQuery(updateQuery, null, queryParam);
+            //Module Version
+            //dynamicFormModuleVersionCreation(requestDetails["entityId"],updatedBy);
+        var latestVersion = getLatestModuleVersion(requestDetails["entityId"],"jq_dynamic_form");
+
+        if(latestVersion){
+            var moduleJson = gson.fromJson(latestVersion.module_json,LinkedHashMap.class);
+            var saveQueries = moduleJson.get("dynamicFormSaveQueries");
+
+            for(var sl=0; sl<saveQueries.size(); sl++){
+                var child = saveQueries.get(sl);
+
+                if(String(child.get("dynamicFormId")) === String(requestDetails["id"])){
+                    child.put("formSaveQuery",requestDetails["data"]);
+                    break;
+                }
+            }
+
+            moduleJson.put("lastUpdatedBy",updatedBy);
+            moduleJson.put("lastUpdatedTs",formatModuleJsonDate(new Date()));
+
+            createModuleVersionFromExisting(requestDetails["entityId"],"jq_dynamic_form",updatedBy,1,moduleJson);
+        }
+            //Module Version
+            }
+            return buildResponse(result);           
+        }
+        else{
+        // Main Table
+            var updateQuery = "UPDATE jq_dynamic_form SET " +  requestDetails["columnName"] + "=:data, last_updated_ts= NOW(), last_updated_by=:updatedBy  WHERE form_id=:entityId AND (last_updated_ts IS NULL OR DATE_FORMAT(last_updated_ts, '%Y-%m-%d %H:%i:%s')  = :updatedDate)";
+           var result = jq_updateDBQuery(updateQuery, null, queryParam);
+           if(result && result.affectedRowCount > 0){
+                var latestVersion = getLatestModuleVersion(requestDetails["entityId"], "jq_dynamic_form");
+
+                if(latestVersion){
+                    var moduleJson = gson.fromJson(latestVersion.module_json,
+                                 LinkedHashMap.class);
+
+                    if(requestDetails["columnName"] === "form_body"){
+                            moduleJson.put("formBody", requestDetails["data"]);
+                        } else if(requestDetails["columnName"] === "form_select_query"){
+                            moduleJson.put("formSelectQuery", requestDetails["data"]);
+                    }
+                    moduleJson.put("lastUpdatedBy", updatedBy);
+                    moduleJson.put("lastUpdatedTs", formatModuleJsonDate(new Date()));
+
+                    createModuleVersionFromExisting(requestDetails["entityId"], "jq_dynamic_form", updatedBy, 1, moduleJson);
+                }
+            }
+           return buildResponse(result);
+        
+    } 
+     
+    } else if (requestDetails["module"] === "RestAPI") {
+        var innerQuery = requestDetails["innerQuery"] || 0;       
+        if(innerQuery == 1){           
+            // update parent updated_date
+          var updateParentQuery = "UPDATE jq_dynamic_rest_details SET last_updated_ts= NOW(), last_updated_by=:updatedBy  WHERE jws_dynamic_rest_id=:entityId AND (last_updated_ts IS NULL OR DATE_FORMAT(last_updated_ts, '%Y-%m-%d %H:%i:%s') = :updatedDate)";
+          var result = jq_updateDBQuery(updateParentQuery, null, queryParam);
+          if (result && result.affectedRowCount > 0) {
+           //dao table  
+            var updateQuery = "UPDATE jq_dynamic_rest_dao_details SET jws_dao_query_template =:data  WHERE jws_dao_details_id=:id";       
+            jq_updateDBQuery(updateQuery, null, queryParam);  
+
+            // module version
+            var latestVersion = getLatestModuleVersion(requestDetails["entityId"],"jq_dynamic_rest_details");
+
+            if(latestVersion){
+                var moduleJson = gson.fromJson(latestVersion.module_json,LinkedHashMap.class);
+
+                var daoQueries = gson.fromJson(String(moduleJson.get("daoQueryDetails")),Java.type("java.util.ArrayList").class);
+
+                var seqResult = jq_getDBResult(
+                    "SELECT jws_query_sequence FROM jq_dynamic_rest_dao_details WHERE jws_dao_details_id=:id",
+                    null,
+                    queryParam
+                ).data_list;
+
+                if(seqResult != null && seqResult.length > 0 && daoQueries != null){
+                    var seq = parseInt(seqResult[0].jws_query_sequence) - 1;
+
+                    if(seq >= 0 && seq < daoQueries.size()){
+                        daoQueries.set(seq,requestDetails["data"]);
+                    }
+                }
+
+                moduleJson.put("daoQueryDetails",gson.toJson(daoQueries));
+                moduleJson.put("updatedby",updatedBy);
+                moduleJson.put("updatedDate",formatRestModuleJsonDate(new Date()));
+
+                createModuleVersionFromExisting(requestDetails["entityId"],"jq_dynamic_rest_details",updatedBy,1,moduleJson);
+            }
+            //Done Module version
+            } 
+            return buildResponse(result);       
+        }
+        else{
+            //main table
+            var updateQuery = "UPDATE jq_dynamic_rest_details SET jws_service_logic =:data, last_updated_ts= NOW(), last_updated_by=:updatedBy WHERE jws_dynamic_rest_id=:entityId AND (last_updated_ts IS NULL OR DATE_FORMAT(last_updated_ts, '%Y-%m-%d %H:%i:%s') = :updatedDate)";       
+            var result = jq_updateDBQuery(updateQuery, null, queryParam);
+
+            //Module version
+            if(result && result.affectedRowCount > 0){
+                var latestVersion = getLatestModuleVersion(requestDetails["entityId"], "jq_dynamic_rest_details");
+
+                if(latestVersion){
+                    var moduleJson = gson.fromJson(latestVersion.module_json,
+                                 LinkedHashMap.class);
+
+                    moduleJson.put("serviceLogic", requestDetails["data"]);
+                    moduleJson.put("updatedby", updatedBy);
+                    moduleJson.put("updatedDate", formatRestModuleJsonDate(new Date()));
+
+                    createModuleVersionFromExisting(requestDetails["entityId"], "jq_dynamic_rest_details", updatedBy, 1, moduleJson);
+                }
+            }
+            //Done module Version
+            return buildResponse(result);
+        }
+       
+    } else if (requestDetails["module"] === "Dashboard") {
+        var updateQuery = "UPDATE jq_dashboard SET "+ requestDetails["columnName"]+"=:data, last_updated_ts= NOW() WHERE dashboard_id=:entityId AND (last_updated_ts IS NULL OR DATE_FORMAT(last_updated_ts, '%Y-%m-%d %H:%i:%s') =:updatedDate)";
+        var result = jq_updateDBQuery(updateQuery, null, queryParam);
+        // for module versioning
+        if(result && result.affectedRowCount > 0) {
+            var latestVersion = getLatestModuleVersion(requestDetails["entityId"], "jq_dashboard");
+
+            if(latestVersion){
+                var moduleJson = gson.fromJson(latestVersion.module_json,
+                                 LinkedHashMap.class);
+
+                moduleJson.put("dashboardBody", requestDetails["data"]);
+                moduleJson.put("lastUpdatedTs", formatModuleJsonDate(new Date()));
+
+                createModuleVersionFromExisting(requestDetails["entityId"], "jq_dashboard", updatedBy, 1, moduleJson);
+            }
+        }
+       //Module versioning done
+        return buildResponse(result);
+
+    }else if (requestDetails["module"] === "Dashlet") {
+        var updateQuery = "UPDATE jq_dashlet SET "+ requestDetails["columnName"]+"=:data, last_updated_ts= NOW(), updated_by=:updatedBy  WHERE dashlet_id=:entityId AND (last_updated_ts IS NULL OR DATE_FORMAT(last_updated_ts, '%Y-%m-%d %H:%i:%s') =:updatedDate)";
+        var result = jq_updateDBQuery(updateQuery, null, queryParam);
+        //For Module Versioning...
+        if(result && result.affectedRowCount > 0) {
+            var latestVersion = getLatestModuleVersion(requestDetails["entityId"], "jq_dashlet");
+
+            if(latestVersion){
+                var moduleJson = gson.fromJson(latestVersion.module_json,
+                                 LinkedHashMap.class);
+
+                if(requestDetails["columnName"] === "form_body"){
+                            moduleJson.put("dashletBody", requestDetails["data"]);
+                        } else if(requestDetails["columnName"] === "form_select_query"){
+                            moduleJson.put("dashletQuery", requestDetails["data"]);
+                }                 
+
+                moduleJson.put("lastUpdatedTs", formatModuleJsonDate(new Date()));
+                moduleJson.put("updatedBy", updatedBy);
+
+                createModuleVersionFromExisting(requestDetails["entityId"], "jq_dashlet", updatedBy, 1, moduleJson);
+            }
+        }
+        //Done Module versioning
+        return buildResponse(result);
+
+    }else if (requestDetails["module"] === "FileBin") {
+        var updateQuery = "UPDATE jq_file_upload_config SET "+ requestDetails["columnName"]+"=:data, last_updated_ts= NOW(), last_updated_by=:updatedBy  WHERE file_bin_id=:entityId AND (last_updated_ts IS NULL OR DATE_FORMAT(last_updated_ts, '%Y-%m-%d %H:%i:%s') =:updatedDate)";
+        var result = jq_updateDBQuery(updateQuery, null, queryParam);
+        return buildResponse(result);
+
+    }
+}
+
+
+function updateEntityDetailsContent() {
+    var authResult = checkAuthentication();
+    if(authResult.status === 200){
+    return updateEntityDetails(authResult.userId);
+    }
+    else{
+        return authResult;
+    }
+}
+
+
+updateEntityDetailsContent();

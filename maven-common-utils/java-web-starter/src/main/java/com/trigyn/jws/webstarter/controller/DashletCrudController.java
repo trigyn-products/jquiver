@@ -1,6 +1,8 @@
 package com.trigyn.jws.webstarter.controller;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +27,7 @@ import com.trigyn.jws.dashboard.service.DashletService;
 import com.trigyn.jws.dashboard.utility.Constants;
 import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
@@ -65,6 +68,9 @@ public class DashletCrudController {
 	
 	@Autowired
 	private FileUtilities 			fileUtilities 			= null;
+	
+	@Autowired
+	private PropertyMasterService	propertyMasterService	= null;
 
 	@GetMapping(value = "/dlm", produces = MediaType.TEXT_HTML_VALUE)
 	public String dashletMasterListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
@@ -157,6 +163,13 @@ public class DashletCrudController {
 			throws Exception {
 		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
 		ObjectMapper	objectMapper	= new ObjectMapper();
+		String			dbDateFormat	= propertyMasterService.getDateFormatByName(
+				com.trigyn.jws.dbutils.utils.Constant.PROPERTY_MASTER_OWNER_TYPE,
+				com.trigyn.jws.dbutils.utils.Constant.PROPERTY_MASTER_OWNER_ID,
+				com.trigyn.jws.dbutils.utils.Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
+				com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+		DateFormat		dateFormat		= new SimpleDateFormat(dbDateFormat);
+		objectMapper.setDateFormat(dateFormat);
 		DashletVO		dashletVO		= objectMapper.readValue(modifiedContent, DashletVO.class);
 		dashboardCrudService.saveDashlet(dashletVO, Constant.REVISION_SOURCE_VERSION_TYPE);
 	}

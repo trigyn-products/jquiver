@@ -2,9 +2,13 @@
     <script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
     <script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
     <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
-
-    
-   
+<style>
+    input.form-control,
+    select.form-control {
+        height: 38px;
+        padding: 6px 12px;
+    }
+</style>
 </header>  
 <div class="container">
 <form id="manual-add-edit" action="${(contextPath)!''}/${(viewPath)!'/view'}/cht" method="get" target="_blank">
@@ -12,7 +16,7 @@
         <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.manualdetails')}</h2> 
      </div>
     <div class="row">
-        <div class="col-12">
+        <div class="col-6">
             <input type="hidden" id="manualId" name="manualId"  value="" maxlength="10" class="form-control">
             
             <div class="col-inner-form full-form-fields">
@@ -25,11 +29,19 @@
                     <input type="text" id="manualName" name="name"  value="" maxlength="50" disabled class="form-control">
                 </#if>
             </div>
+        </div>
+        <div class="col-6">
+             <div class="col-inner-form full-form-fields">
+                 <label for="editorName" ><span class="asteriskmark">*</span>Editor Name</label>
+                    <select id="editorName" name="editorName" class="form-control" onchange="">
+                        <option value="-1">--Select--</option>
+                    </select>
+            </div>
             <input type="hidden" id="issystemmanual" name="issystemmanual" value="0">
         </div>
     </div>
 
-          <div class="row margin-t-b">
+    <div class="row margin-t-b">
 		<div class="col-12">
 			<h3 class="titlename"><span class="asteriskmark">*</span>Help Manual Header</h3>
 			<div class="html_script">
@@ -41,21 +53,36 @@
 			</div>
 		</div> 
 	</div>
+
     <div class="row">
         <div class="col-3">   
             <input id="moduleId" value="fcd0df1f-783f-11eb-94ed-f48e38ab8cd7" name="moduleId" type="hidden">
             <@templateWithoutParams "role-autocomplete"/>
         </div>
     </div>
-        
-    <div class="row">
-        <div class="col-12">
-            <div class="float-right">
-                <input id="saveBtn" class="btn btn-primary" name="saveBtn" onclick="validateFields()" value="${messageSource.getMessage('jws.save')}" type="button">
-                <input id="backBtn" class="btn btn-secondary" name="backBtn" onclick="cancelForm()" value="${messageSource.getMessage('jws.cancel')}" type="button">
-            </div>
-        </div>
-    </div>
+
+   	<div class="row">
+		<div class="col-12">
+			<div class="text-end">
+              <div class="btn-group dropup custom-grp-btn">
+                    <div id="savedAction">
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('help-manual-header-template', this, isEdit, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </div>
+                        <button id="actionDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" > </button>
+                        <div class="dropdown-menu action-cls"  id="actionDiv">
+                            <ul class="dropdownmenu">
+                                <li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('help-manual-header-template', this, isEdit, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                                <li id="saveAndEdit" onclick="typeOfActionWithIsEdit('help-manual-header-template', this, isEdit, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                            </ul>
+                        </div>  
+                    </div>
+				<span >
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" onclick="backToPreviousPage()" type="button">
+				</span> 
+			</div>
+		</div>
+	</div>
+
     <textarea id="htmlContent" style="display: none">
 	</textarea>
 </form>
@@ -71,6 +98,7 @@
      
 	$(function() {
         getEntityRoles();
+        getEditorName();
         if(isEdit == '1'){
             getTemplateData();      
         } else{
@@ -94,15 +122,50 @@
 	            });
 		    	customHTMLEditor.onDidChangeModelContent( function (){
 		    		$('#errorMessage').hide();
+		    		userActivityDetected(); // for salt refresh
 				});
 	        	$("#htmlContent").remove();
     	});	 
+
         if(isEdit == 0){
             getHmCssDefaultContent();
         }
-               
+        savedAction("e382cbad-95b8-4bc7-95e4-f531efcc07d6", isEdit);
+	    hideShowActionButtons();              
 	});  
 
+    function getEditorName(){  
+        $.ajax({
+            type : "GET",
+            async: false,
+            url : contextPath+apiPath+"/gen",
+            data: {               
+            },
+            success : function(data) {				
+                appendEditorName(data);					
+            },
+            error : function(xhr, error){				
+                showMessage("Error occurred while fetching Editor Name", "error");
+            },
+        }); 
+	}
+
+    function appendEditorName(options) {
+	    var editorName = $("#editorName").val();
+        var editorId = $("#editorId").val();
+		for (let property in options) {
+			if(options[property].editorId != undefined){
+				if(options[property].editorId != undefined ){
+					if(options[property].editorId == editorId){
+						$("#editorName").append("<option value="+options[property].editorId+" selected>"+options[property].editorName+"</option>");
+					} else {
+						$("#editorName").append("<option value="+options[property].editorId+">"+options[property].editorName+"</option>");
+					}
+																		
+				} 
+            }
+        }
+	}
 
     function getHmCssDefaultContent() {
         $.ajax({
@@ -117,44 +180,58 @@
 			});
     }
   
-
    function validateFields(){
        if($("#manualName").val() == ""){
            $("#manualName").closest("div").parent().effect("highlight", {}, 3000);
 		   $("#manualName").focus();
            showMessage("Please enter manual name.", "warn");
            return false;
-       } else{
-           saveData();
-       }
+        } 
+
+        if($("#editorName").val() == "-1") {
+           $("#editorName").closest("div").parent().effect("highlight", {}, 3000);
+		   $("#editorName").focus();
+           showMessage("Please select editor name.", "warn");
+           return false;
+       }     
+        return true;    
    }
+   
     function saveData() {
+        let isDataSaved = false;
+        if(validateFields() == false){   
+            return false;
+        }
         // save function
-        $.ajax({
-            type: "POST",
-            url: contextPath+"/cf/shmt",
-            dataType: "text",
-            data: {
-                mt: manualId,
-                ie: isEdit,
-                name: $("#manualName").val(),
-                headerTemplate: customHTMLEditor.getValue(),
-            },
-            success: function(data) {
-                 if(data=="exist")
-                {
-                    showMessage("Manual Type Already exist", "error");
-                    return false;
+            $.ajax({
+                type: "POST",
+                url: contextPath+"/cf/shmt",
+                dataType: "text",
+                async: false,
+                data: {
+                    mt: manualId,
+                    ie: isEdit,
+                    name: $("#manualName").val(),
+                    headerTemplate: customHTMLEditor.getValue(),
+                    editorName: $("#editorName").find('option:selected').val()
+                },
+                success: function(data) {
+                    if(data=="exist"){
+                        showMessage("Manual Type Already exist", "error");
+                        isDataSaved = false;
+                        return false;
+                    }            
+                    $("#manualId").val(data);
+                    saveEntityRoleAssociation();          
+                    showMessage("Information saved successfully", "success");
+                    isDataSaved = true;
+                },
+                error: function(xhr, data) {
+                    showMessage("Error occured while saving data", "error");
+                    isDataSaved = false;
                 }
-            	$("#manualId").val(data);
-                saveEntityRoleAssociation();
-                showMessage("Information saved successfully", "success");
-                $("#manual-typeGrid").pqGrid("refreshDataAndView")
-            },
-            error: function(xhr, data) {
-                showMessage("You do not have enough privilege", "error");
-            }
-        })
+            })
+        return isDataSaved;     
     }
 
 	function saveEntityRoleAssociation(){
@@ -211,7 +288,8 @@
                 },
                 success: function (data) {
                     $("#manualName").val(data.name);
-                    $("#htmlContent").text(data.header_template);                                        
+                    $("#htmlContent").text(data.header_template); 
+                    $("#editorName").val(data.editorId);                                       
                 },
                 error: function (xhr, error) {
                     showMessage("Error occurred while loading the data", "error");
@@ -222,9 +300,8 @@
         }
     }
 
-     function cancelForm() {
+     function backToPreviousPage() {
         location.href = contextPath+"/cf/help";
     }
 
-	
 </script>

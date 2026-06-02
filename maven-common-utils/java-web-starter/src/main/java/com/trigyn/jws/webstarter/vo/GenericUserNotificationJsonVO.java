@@ -14,7 +14,7 @@ public class GenericUserNotificationJsonVO implements Serializable {
 
 	private String				formId				= null;
 
-	private Date				fromDate			= null;
+	private Date				messageValidFrom			= null;
 
 	private String				messageFormat		= null;
 
@@ -30,7 +30,22 @@ public class GenericUserNotificationJsonVO implements Serializable {
 
 	private String				targetPlatform		= null;
 
-	private Date				toDate				= null;
+	private Date				messageValidTill	= null;
+	
+	private Date				updatedDate			= null;
+
+	private String				updatedBy			= null;
+
+	private String				createdBy			= null;
+
+	private Date				creationDate		= null;
+
+	private Integer				isCustomUpdated		= 1;
+
+	private String				datasourceId		= null;
+	
+	private Integer				displayOnce			= null;
+
 
 	public String getEntityName() {
 		return entityName;
@@ -46,14 +61,6 @@ public class GenericUserNotificationJsonVO implements Serializable {
 
 	public void setFormId(String formId) {
 		this.formId = formId;
-	}
-
-	public Date getFromDate() {
-		return fromDate;
-	}
-
-	public void setFromDate(Date fromDate) {
-		this.fromDate = fromDate;
 	}
 
 	public String getMessageFormat() {
@@ -112,11 +119,77 @@ public class GenericUserNotificationJsonVO implements Serializable {
 		this.targetPlatform = targetPlatform;
 	}
 
-	public Date getToDate() {
-		return toDate;
+	public Date getMessageValidFrom() {
+		return messageValidFrom;
 	}
 
-	public void setToDate(Date toDate) {
-		this.toDate = toDate;
+	public void setMessageValidFrom(Date messageValidFrom) {
+		this.messageValidFrom = messageValidFrom;
 	}
+
+	public Date getMessageValidTill() {
+		return messageValidTill;
+	}
+
+	public void setMessageValidTill(Date messageValidTill) {
+		this.messageValidTill = messageValidTill;
+	}
+
+	public Date getUpdatedDate() {
+		return updatedDate;
+	}
+
+	public void setUpdatedDate(Date updatedDate) {
+		this.updatedDate = updatedDate;
+	}
+
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
+	public String getDatasourceId() {
+		return datasourceId;
+	}
+
+	public void setDatasourceId(String datasourceId) {
+		this.datasourceId = datasourceId;
+	}
+
+	public Integer getDisplayOnce() {
+		return displayOnce;
+	}
+
+	public void setDisplayOnce(Integer displayOnce) {
+		this.displayOnce = displayOnce;
+	}
+
+	
 }

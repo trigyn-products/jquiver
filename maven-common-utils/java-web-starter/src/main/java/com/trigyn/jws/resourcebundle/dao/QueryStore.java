@@ -3,7 +3,7 @@ package com.trigyn.jws.resourcebundle.dao;
 public final class QueryStore {
 
 	public static final String	JPA_QUERY_TO_GET_MESSAGE_DETAILS_BY_RESOURCE_KEY	= (" SELECT new com.trigyn.jws.resourcebundle.vo.ResourceBundleVO ")
-			+ (" (rb.id.languageId AS languageId, rb.id.resourceKey AS resourceKey, rb.text AS text,rb.createdBy as createdBy,rb.createdDate as createdDate) ")
+			+ (" (rb.id.languageId AS languageId, rb.id.resourceKey AS resourceKey, rb.text AS text,rb.createdBy as createdBy,rb.createdDate as createdDate,rb.updatedBy as updatedBy,rb.updatedDate as updatedDate) ")
 			+ (" FROM ResourceBundle AS rb WHERE rb.id.resourceKey =:resourceBundleKey ");
 
 	public static final String	JPA_QUERY_TO_GET_ALL_LANGUAGES						= (" SELECT new com.trigyn.jws.resourcebundle.vo.LanguageVO ")

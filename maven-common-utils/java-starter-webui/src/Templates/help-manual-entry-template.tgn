@@ -2,7 +2,7 @@
 <head>
 <link rel="icon" type="image/x-icon" href="${(contextPath)!''}/cf/files/a1ecae13-f784-4121-b7bf-1e64a339d7af"/>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></su> 
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
 <script src="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.css" />
@@ -13,6 +13,8 @@
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/simplemde/simplemde.min.css">
 <script src="${(contextPath)!''}/webjars/1.0/simplemde/simplemde.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css"/>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/ckEditor/ckeditor.js"></script>
+
 <style>
 
 	.Helpmanualblock .container{
@@ -23,6 +25,7 @@
     .Helpmanualblock .container-fluid {
         margin-top:0px !important;
     }
+
     .leftrideblock{
         display:flex;
         width:100%;
@@ -42,9 +45,7 @@
     .resapiactionbtn ul.restaction > li:hover .expandalliconsls{
      	background-color: #fff !important;
     }
-
     
-
     .resapiactionbtn .restaction{
         margin:1px 3px 0px 0px !important;
     }
@@ -53,20 +54,19 @@
         display:none !important;
     }
 
-     .restapiiconhover {
+    .restapiiconhover {
   		background:#fff;}
-     }
+    }
 
     .restapiiconhover:hover{
         background:#033a62;
     }
-
-    
-
+  
     .logosize {
 	    width: 45px;
 	    margin-left: 10px;
-}
+    }
+
     .helphomelink a{
         color:#fff !important;
     }
@@ -102,8 +102,8 @@
         width: 135px;
     }
 
-     .jstree-default .jstree-anchor{
-             white-space: nowrap;
+    .jstree-default .jstree-anchor{
+        white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         width: 160px;
@@ -127,40 +127,72 @@
     }
 
     .comnbtncls {
-    background: #fff;
-    color: #013b91;
-    border-radius: 3px;
-    padding: 3px 6px;
-    margin: 0px 5px 0;
-    border: 1px solid #ccc;
-    cursor: pointer;
-}
+        background: #fff;
+        color: #013b91;
+        border-radius: 3px;
+        padding: 3px 6px;
+        margin: 0px 5px 0;
+        border: 1px solid #ccc;
+        cursor: pointer;
+    }
 
-.expandbutton {
-    display: flex;
-}
+    .expandbutton {
+        display: flex;
+    }
 
     .comnbtncls:hover{
             background: #033a62;
             color:#fff;
     }
+
     .rightnavbuttons > span:hover{
             background: #033a62;
             color:#fff;
     }
 
     .Helpmanualblock .spiralbinding {
-    left: 246px;
-    height: calc(88vh - 15px) ! Important;
- }
+        left: 246px;
+        height: calc(88vh - 15px) ! Important;
+    }
+
+    /* Fixed height for CKEditor content area */
+    .ck-editor__editable {
+        min-height: 450px;   /* fixed visible height */
+        max-height: 450px;
+        overflow-y: auto;    /* vertical scrollbar */
+        resize: none;        /* prevent manual resize */
+    }
+
+    /* Optional: smoother scroll */
+    .ck-editor__editable::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .ck-editor__editable::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+    }
+
+    /* Hide toolbar in view mode */
+    .ck-editor__top {
+        display: none;
+    }
+    .textellipsis{
+      width: 150px;
+      overflow: hidden;
+      position: relative;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .titlenameebo{
+       display:flex;
+       align-items: center;
+       gap:4px;
+    }
 
 </style>
 </head>
-
-<body>
-  
-     
-</body>
 
 <div class="container">
     <div class="topband">
@@ -196,14 +228,17 @@
                     <img class="logosize" src="${(contextPath)!''}/webjars/1.0/images/White_Trans_Logo.png" alt="logo">
                 </#if></a> </span>
 
-               
-
             </div>
 
             <div class="righttopcontecntcls">
                     <div class="rightsearhblock">
-                        <span><i id="titleSpan" class="fa fa-book" aria-hidden="true"></i>
+                      
+                      <span class="titlenameebo">
+                           <i class="fa fa-book"></i>
+                        <span class="textellipsis" id="titleSpan">
                         </span>
+                      </span>
+                       
                         <div class="searchhelp">
                             <input type="text" id="tree_search" placeholder="Search" class="searchinputbox">
                             <span id ="searchClose" class="serchclose"><i class="fa fa-times" aria-hidden="true"></i>
@@ -213,27 +248,17 @@
                         </div>
                     </div>
 
-                  
+                    <div class="righttopbuttons">
+                        <div class="resapiactionbtn">
+                            <ul class="restaction">
+                            <li id="expand" title = "Expand/Collapse" class=" restapiiconhover expandcls " onclick="expandCollapse();"><span class="expandalliconsls"></span> </li>
+                            </ul>
+                        </div>
 
-                     <div class="righttopbuttons">
-
-                   <!-- <div class="expandbutton">
-                      
-                        <span class="comnbtncls"onclick="expandAll();"><i class="fa " aria-hidden="true "><i class="fa fa-plus-circle" aria-hidden="true"></i>
-                            Expand all</i></span>
-                              <span class="comnbtncls" onclick="collapseAll();"><i class="fa " aria-hidden="true" ><i class="fa fa-minus-circle" aria-hidden="true"></i>
-                    Collape all</i></span>
-                    </div>-->
-                    <div class="resapiactionbtn">
-                        <ul class="restaction">
-                        <li id="expand" title = "Expand/Collapse" class=" restapiiconhover expandcls " onclick="expandCollapse();"><span class="expandalliconsls"></span> </li>
-                         </ul>
-                    </div>
-
-                                <span class="" title = "First" onclick="first();"><i class="fa fa-fast-backward" aria-hidden="true"></i></span>
-                                <span  onclick="backward();"class="" title = "Previous"><i class="fa fa-step-backward" aria-hidden="true"></i></span>
-                                <span class="" onclick="forward();" title = "Next"><i class="fa fa-step-forward" aria-hidden="true" ></i></span>
-                                <span class="" onclick="last();" title = "Last"><i class="fa fa-fast-forward" aria-hidden="true" ></i></span>
+                                <span id="firstBtn" class="" title = "First" onclick="first();"><i class="fa fa-fast-backward" aria-hidden="true"></i></span>
+                                <span  id="backwardBtn" onclick="backward();"class="" title = "Previous"><i class="fa fa-step-backward" aria-hidden="true"></i></span>
+                                <span id="forwardBtn" class="" onclick="forward();" title = "Next"><i class="fa fa-step-forward" aria-hidden="true" ></i></span>
+                                <span id="lastBtn" class="" onclick="last();" title = "Last"><i class="fa fa-fast-forward" aria-hidden="true" ></i></span>
                     </div>
             </div>
             <div>${headerTemplate!''}</div>
@@ -246,6 +271,7 @@
         </div>
         <div id="contentDiv" class="cm-right-wrapper helpmanual_right">
             <div id="previews" class="previews  cm-scrollbar" ></div>
+            <div id="editor"></div>
         </div>
        <div class="rightcontecntcls" id="previewDiv" class="cm-right-wrapper helpmanual_right">            
             <textarea id="previewContent" style="display:none;"></textarea>
@@ -276,14 +302,14 @@ document.addEventListener("click", function(event) {
         overlayDiv.classList.remove("fixedcls");
     }
 });
-
-
-
-
     document.title = "JQuvier Help Manual";
     contextPath = "${(contextPath)!''}";
     let manual = new HelpManual();
     let manualTypes = manual.getManualDetails();
+    var manualName;
+    let manualId = "${mt!''}";
+    let editorName = "${editorName!''}";
+ 
     $("#title").html(manualTypes.find(manual => {
         return manual["manual_id"] == "${mt!''}"
     })["name"]); 
@@ -291,71 +317,175 @@ document.addEventListener("click", function(event) {
     $("#titleSpan").text("  " + manualTypes.find(manual => {
         return manual["manual_id"] == "${mt!''}"
     })["name"]);
+
     const treeViewMap = new Map();  
+    const treeHeaderMap = new Map();
     let isEdit;
     var i = 1;
-     var search_res = '';
-    let simplemde = new SimpleMDE({ 
-                                    toolbar:false,
-                                    status : false,
-                                    renderingConfig: {
-                                    codeSyntaxHighlighting: true,
-                                    }
-                                  });
-
+    var search_res = '';
+    let ckEditorInstance;
+    let ckEditorReady = false;
+    let simplemde;
 
     function responsivefun() {
-    var helplinks = document.getElementById("responsive-help");
-    
-    // Toggle the class instead of manipulating display property
-    helplinks.classList.toggle("active");
-
-     if (!responsive-help.contains(event.target) && event.target !== menuButton) {
-        responsive-help.classList.add("hidden");
+        var helplinks = document.getElementById("responsive-help");    
+        // Toggle the class instead of manipulating display property
+        helplinks.classList.toggle("active");
+        if (!responsive-help.contains(event.target) && event.target !== menuButton) {
+            responsive-help.classList.add("hidden");
         }
     }
 
     $(function () {
-        //$( document ).tooltip({track: true});
+        if(editorName == "1"){
+            simplemde = new SimpleMDE({ 
+                toolbar:false,
+                status : false,
+                renderingConfig: {
+                codeSyntaxHighlighting: true,
+                }
+            });
+        } else {
+            class MyBase64UploadAdapter {
+                constructor( loader ) {
+                    this.loader = loader;
+            }
+
+            upload() {
+                return this.loader.file.then( file => new Promise( ( resolve, reject ) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        resolve({
+                            default: reader.result
+                        });
+                    };
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(file);
+            }));
+        }
+        abort() {}
+    }
+
+    function MyCustomUploadAdapterPlugin( editor ) {
+        editor.plugins.get( 'FileRepository' ).createUploadAdapter = ( loader ) => {
+            return new MyBase64UploadAdapter( loader );
+        };
+    }
+
+     const editorElement = document.querySelector('#editor');
+    
+    if (editorElement) {
+        ClassicEditor
+            .create(document.querySelector('#editor'), {         
+                // Includes features compatible with Word's formatting
+                toolbar: {
+                    items: [
+                        'findAndReplace', 'selectAll', '|',
+                        'heading', '|',
+                        'bold', 'italic', 'strikethrough', 'underline', 'code', 'subscript', 'superscript', '|',
+                        'bulletedList', 'numberedList', '|',
+                        'outdent', 'indent', '|',
+                        'undo', 'redo', '-',
+                        'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+                        'alignment', '|',
+                        'link', 'insertImage', 'blockQuote', 'insertTable', 'mediaEmbed', 'codeBlock', '|',
+                         'horizontalLine',  '|',
+                        
+                    ],
+                    shouldNotGroupWhenFull: true
+                },
+                 mediaEmbed: {
+                    previewsInData: true
+                },
+                // Support for Microsoft Word paste behavior
+                pasteFromOffice: {
+                    removeMessageAfter: 1000
+                },
+                table: {
+                    contentToolbar: [
+                        'tableColumn', 'tableRow', 'mergeTableCells', 'tableCellProperties', 'tableProperties'
+                    ]
+                },
+            })
+            .then(editor => {
+                ckEditorInstance = editor;
+                ckEditorReady = true;
+                // View mode
+                editor.enableReadOnlyMode('help-manual-view');
+                // If you want to hide the toolbar border entirely:
+                const toolbarElement = editor.ui.view.toolbar.element;
+                toolbarElement.style.display = 'none';
+            })
+            .catch(error => {
+                console.error("CKEditor init failed", error);
+            });
+
+    } else {
+        console.error("Error: Element #editor not found in the DOM.");
+    }
+
+    function setEditorContentSafely(html) {
+        if (ckEditorInstance) {
+            // CKEditor expects HTML strings
+            ckEditorInstance.setData(html || '');
+        } else {
+            // If editor isn't ready, try again in 100ms
+            setTimeout(() => setEditorContentSafely(html), 100);
+        }
+    }
+}
+      
         //Lazy Loading- Initally Parents will be loaded later child node loading on click
-         var result;
-        
+        var result;
         $("#tree_container").jstree({
             "core": {                        
-                       "data": {                          
-                            'url' : contextPath+"/cf/hmfn", 
-                            'data' : function (node) { 
-                                    return { 'id' : node.id,'mt' : '${mt}' }; 
-                                   },
-                           'dataFilter' : function (treeData) {  
-                                                                 
-                                      
-                                        $.each(JSON.parse(treeData), function(i, data) {
-                                            treeViewMap.set(data.id, data.entryContent);
-                                        });
-                                       if (document.readyState === 'complete') {
-                                            // The page is fully loaded
-                                        var content;
-                                        var selected_node = $('#tree_container').jstree('get_selected', false);
-                                        if( typeof selected_node != "undefined" && selected_node != null &&   selected_node.length != null && selected_node.length > 0) {
-                                               content=treeViewMap.get(selected_node[0]);
-                                            }
-                                        else{
-                                               const [firstValue] = treeViewMap.values();
-                                               content=firstValue;
-                                            }
-                                            if(content!=null){
-                                               const  finalcontent= content.replaceAll("/cf/files/", contextPath + "/cf/files/");
-                                                $("#previewDiv").css('display', 'none');
-                                                    $('#previews').html("");
-                                                   // $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));
-                                                    $('#previews').wrapInner(simplemde.options.previewRender(finalcontent));
-                                                    $("#previews").scrollTop(0);
-                                            }
-                                       }
-                                         return  treeData;
-                                        }
-                                 }
+            "data": {                          
+                'url' : contextPath+"/cf/hmfn", 
+                'data' : function (node) { 
+                        return { 'id' : node.id,'mt' : '${mt}' }; 
+                        },
+                'dataFilter' : function (treeData) {                               
+                            $.each(JSON.parse(treeData), function(i, data) {
+                                treeViewMap.set(data.id, data.entryContent);
+                                treeHeaderMap.set(data.id, data.text);
+                            });
+                            if (document.readyState === 'complete') {
+                                // The page is fully loaded
+                            var content;
+                            var headerTxt;
+                            var selected_node = $('#tree_container').jstree('get_selected', false);
+                            if( typeof selected_node != "undefined" && selected_node != null &&   selected_node.length != null && selected_node.length > 0) {
+                                    content=treeViewMap.get(selected_node[0]);
+                                    headerTxt = treeHeaderMap.get(selected_node[0]);                 
+                            } else {
+                                const [firstValue] = treeViewMap.values();
+                                content=firstValue;
+                            }
+                            if(content!=null) {
+                                const  finalcontent= content.replaceAll("/cf/files/", contextPath + "/cf/files/");
+                                let finalEntryContent = finalcontent;
+                                if(editorName == "1"){
+                                    // Check if content already starts with a header
+                                    const hasHeader = finalcontent.trim().toLowerCase().startsWith("# " + headerTxt.toLowerCase());
+                                    if (hasHeader == false) {
+                                        // No header at all → add it
+                                        finalEntryContent = "# " + headerTxt + "\n\n" + finalcontent;
+                                    } 
+                                    simplemde.value(finalEntryContent);
+                                    $("#previewDiv").css('display', 'none');
+                                    $('#previews').html("");
+                                    $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));  
+                                    $("#previews").scrollTop(0);
+                                } else {
+                                    document.getElementById("previews").style.display = "none";
+                                    const finalEntryContent ="<h2>" + headerTxt + "</h2>" + finalcontent;
+                                    setEditorContentSafely(finalEntryContent);
+                                }
+                            }
+                            }
+                                return  treeData;
+                            }
+                        }
                        
                     },
             "types":{ 
@@ -384,8 +514,7 @@ document.addEventListener("click", function(event) {
                                 "success": function (data) {
                                     if(data.length!=0) {
                                         search_res = data;
-                                    }
-                                    else {
+                                    } else {
                                         showMessage("${messageSource.getMessage('jws.noRecordFound')}", "info");
                                     }                                              
                                 }
@@ -402,8 +531,6 @@ document.addEventListener("click", function(event) {
             $("#"+data.node.id).prop('title', data.node.text);
          }).on('close_node.jstree', function (event, data) {
                 data.instance.set_type(data.node, 'closed');
-                data.instance.deselect_all();
-                data.instance.select_node(data.node.id);
          });   
 
       $("#searchClose").click(function () {
@@ -413,30 +540,96 @@ document.addEventListener("click", function(event) {
 
       var to = false;
       $(".searchclick").click(function () {
-           // if (to) { clearTimeout(to); }
-            //to = setTimeout(function () {
-                 var searchString =  $(".searchinputbox").val();
-                $('#tree_container').jstree(true).search(searchString);
-            //}, 250);
-        });
+            var searchString =  $(".searchinputbox").val();
+            $('#tree_container').jstree(true).search(searchString);
+      });
 
-        $('#tree_container').on("changed.jstree", function (e, data) {
+       $('#tree_container').on("changed.jstree", function (e, data) {
+                    var headerTxt;
                     var id=data.selected;
+                    if(data.node!=null){
+                        headerTxt = data.node.text;
+                    }  else{
+                        headerTxt = treeHeaderMap.get(id[0]);
+                    }   
                     if(id.length===0) {
                         return false;
                     }
+                    
+        // --- Check for "How Can I?" Child Nodes ---
+        const jstreeInstance = $('#tree_container').jstree(true);
+        // Safety checks
+        if (data == false || !data.node || data.node.parent == false) {
+            return; // Exit safely if node is not available
+        }
+        const parentNode = jstreeInstance.get_node(data.node.parent);
+
+        if (parentNode && parentNode.text && parentNode.text.trim().toLowerCase() === "how can i?") {
+            const actionText = data.node.text.trim();
+
+            // Map child nodes to [Target Node Name, Text to find in content]
+            const navigationMap = {
+                "Embed a Template?": ["Templating", "How To Embed a Template"],
+                "Handle CSP Issue?": ["CSP Compliance", "How can I handle CSP Issue"],
+                "Clear Multiselect values?": ["AutoComplete", "Use enableClearAll"],
+                "Prefetch values in Autocomplete?": ["AutoComplete", "How can I Fetch AutoComplete"],
+                "Enable MariaDB in Docker?": ["Docker", "Enable MariaDB in Docker"],
+                "Handle Import and Export of Files in Server?": ["Import Export of Files", "How Can I Configure File Storage Properties"],
+                "Enable Mail Configuration?": ["Application Configurations", "To enable mail configuration"],
+                "Enable User Management?": ["User Management", "enable User Management"],
+                "Reset values in Autocomplete?": ["AutoComplete", "How can I Reset AutoComplete"],
+                "Enable Monaco Suggestions?": ["Monaco Suggestions", "Monaco Smart Suggestions are triggered"],
+                "Use Additional Parameter in Autocomplete?": ["AutoComplete", "How can I use Additional Parameters"],
+                "Use Dependent Autocomplete?": ["AutoComplete", "How can I use Dependent AutoComplete"],
+                "Import and Export Resource Keys?": ["Internationalization", "Import Export"],
+                "Enable Java Melody?": ["Java Melody", "YAML Configuration Overview"],
+                "Send custom errors from client-side?": ["ScriptUtil", "The jq_sendError function"],
+                "Handle Custom exception messages?": ["Stop Exception", "How to handle custom exception messages"],
+                "Enable Caching in application.yml?": ["Caching", "Enable Redis Caching in application.yml"],
+                "Use Custom File Storage?": ["Custom File Storage", "This module is a programmatic solution"],
+                "Use Favourites (add / remove)?": ["Others", "Favorites"],
+                "Use Logical Operators in Grid Utils?": ["Grid Utils", "Build Logical Query Flows (AND / OR)"],
+                "Include CK Editor?": ["CK Editor", "Follow the steps below to use CKEditor."],
+                "Filter Grid Data Using Equal To (=) Operator?": ["Grid Utils", "Configure Conditional Expressions :"],
+                "Filter Records Between Two Values Using Between Operator?": ["Grid Utils", "Code snippet :"],
+                "Use contain Operator in Grid Filtering?": ["Grid Utils", "Apply Pattern Matching Filters:"],
+                "Refresh Grid Data After Applying Filters?": ["Grid Utils", "gridNew.pqGrid"],
+                "Use Custom Filter Criteria in Grid Utils?": ["Grid Utils", "How can I use Custom Filter Criteria"]
+            };
+
+            const target = navigationMap[actionText];
+            if (target) {
+                // Trigger the custom navigation logic
+                navigateToManual(target[0], target[1]);
+                return; // Stop standard execution for these special nodes
+            }
+        }
+        // --- END NEW SECTION ---
                     const flag=treeViewMap.has(id[0]);  
                     if(flag) {
                         const content=treeViewMap.get(id[0]);
                         if(content!=null) {
-                           const  finalcontent= content.replaceAll("/cf/files/", contextPath + "/cf/files/")
-                           simplemde.value(finalcontent);
-                            $("#previewDiv").css('display', 'none');
-                            $('#previews').html("");
-                            $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));
+                          const  finalcontent= content.replaceAll("/cf/files/", contextPath + "/cf/files/")
+                          let finalEntryContent = finalcontent;
+                          if(editorName == "1"){  
+                                let finalEntryContent = finalcontent;
+                                // Check if content already starts with a header
+                                const hasHeader = finalcontent.trim().toLowerCase().startsWith("# " + headerTxt.toLowerCase());
+                                if (hasHeader == false) {
+                                    // No header at all → add it
+                                    finalEntryContent = "# " + headerTxt + "\n\n" + finalcontent;
+                                } 
+                              simplemde.value(finalEntryContent); 
+                              $("#previewDiv").css('display', 'none');
+                              $('#previews').html("");
+                              $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));
+                          } else {
+                              document.getElementById("previews").style.display = "none";
+                              const finalEntryContent ="<h2>" + headerTxt + "</h2>" + finalcontent; 
+                              setEditorContentSafely(finalEntryContent);                 
+                          }
                             $("#contentDiv").scrollTop(0);
-                        }
-                       else{
+                        } else {
                             $.ajax({
                                 async: true,
                                 type: "Get",
@@ -444,19 +637,29 @@ document.addEventListener("click", function(event) {
                                 data:{"id":id[0]},
                                 success: function (data) {
                                    treeViewMap.set(id[0], data); 
-                                  const  finalcontent1= data.replaceAll("/cf/files/", contextPath + "/cf/files/")
-                                      simplemde.value(finalcontent1);
-                                       $("#previewDiv").css('display', 'none');
-                                       $('#previews').html("");
-                                       $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));
-                                       $("#contentDiv").scrollTop(0);
-                                       
+                                    const  finalContent= data.replaceAll("/cf/files/", contextPath + "/cf/files/")
+                                    let finalEntryContent = finalContent;
+                                    if(editorName == "1"){     
+                                        // Check if content already starts with a header
+                                        const hasHeader = finalContent.trim().toLowerCase().startsWith("# " + headerTxt.toLowerCase());
+                                        if (hasHeader == false) {
+                                            // No header at all → add it
+                                            finalEntryContent = "# " + headerTxt + "\n\n" + finalContent;
+                                        } 
+                                        simplemde.value(finalEntryContent);
+                                        $("#previewDiv").css('display', 'none');
+                                        $('#previews').html("");
+                                        $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));    
+                                    } else{
+                                        document.getElementById("previews").style.display = "none";
+                                        const finalEntryContent ="<h2>" + headerTxt + "</h2>" + finalContent;
+                                        setEditorContentSafely(finalEntryContent);
+                                    }
+                                       $("#contentDiv").scrollTop(0);                           
                                 }
                         });
-                        }
-                          
-                    }
-                    else {
+                        }                        
+                    } else {
                         $.ajax({
                                 async: true,
                                 type: "Get",
@@ -466,171 +669,312 @@ document.addEventListener("click", function(event) {
                                    treeViewMap.set(id[0], data); 
                                 }
                         });
-                    }
-                   
-        }); 
+                    }                
+                }); 
+        
+       $('#tree_container').on('ready.jstree', function () {
+            var tree = $('#tree_container').jstree(true);
+            // Select ROOT explicitly
+            tree.select_node('#');
+            // Disable because root is selected
+            disableFirstBtn(true);
+            disableBackwardBtn(true);
+        });
+
+        $("#tree_container").on("click", ".jstree-icon", function (e) {
+            var tree = $('#tree_container').jstree(true);
+            tree.deselect_all();
+            tree.select_node(this);
+        });
+
+        $('#tree_container').on('select_node.jstree', function (e, data) {
+
+            var tree = $('#tree_container').jstree(true);
+            var firstNodeId = tree.get_node('#').children[0];
+            var lastNodeId = getLastNodeId(tree);
+
+            if (data.node.id === firstNodeId) {
+                disableFirstBtn(true);
+                disableBackwardBtn(true);
+            } else {
+                disableFirstBtn(false);
+                firstMsgShown = false; // allow message again later
+                disableBackwardBtn(false);
+                backwardMsgShown = false;
+            }
+            if (data.node.id === lastNodeId) {
+                disableLastBtn(true);
+                disableForwardBtn(true);
+            } else {
+                disableLastBtn(false);
+                disableForwardBtn(false);
+                lastMsgShown = false;
+            }
+        });
     });
 
-  function first() {
-    var tree = $('#tree_container').jstree(true),
-    curr = tree.get_selected (false) ; 
-    tree.deselect_all();
-    $('#tree_container').jstree('select_node', 'ul > li:first'); 
-    var  sn = tree.get_selected (false) ; 
-     $("#"+sn+"_anchor").focus();
-    showMessage("${messageSource.getMessage('jws.firstTopic')}", "info"); 
+    function navigateToManual(nodeName, contentSearch) {
+    const tree = $('#tree_container').jstree(true);
+    const roots = tree.get_json('#', { flat: true });
+    let found = false;
+
+    function searchInNode(index) {
+        if (index >= roots.length || found) return;
+
+        const parent = roots[index];
+        tree.open_node(parent.id, function () {
+            setTimeout(function () {
+                const allNodes = tree.get_json('#', { flat: true });
+                // Look for the documentation node (e.g., 'Templating')
+                const targetNode = allNodes.find(n => 
+                    n.text && n.text.trim().toLowerCase() === nodeName.trim().toLowerCase()
+                );
+
+                if (targetNode) {
+                    found = true;
+                    // Switch selection to the documentation node
+                    tree.deselect_all();
+                    tree.select_node(targetNode.id);
+
+                    // Scroll content to the specific phrase
+                    if (contentSearch) {
+                        scrollToPhraseInPreview(contentSearch);
+                    }
+                    return;
+                }
+                searchInNode(index + 1);
+            }, 250);
+        });
+    }
+    searchInNode(0);
 }
- 
-//code for last
+
+function scrollToPhraseInPreview(phrase) {
+    setTimeout(() => {
+        // Based on your screenshot, the preview ID is 'previews'
+        const previewArea = document.getElementById('previews');
+        if (!previewArea) return;
+
+        // Search for the specific text in headings or paragraphs
+        const elements = previewArea.querySelectorAll('h1, h2, h3, h4, p, li');
+        let targetEl = null;
+
+        for (const el of elements) {
+            if (el.textContent.toLowerCase().includes(phrase.toLowerCase())) {
+                targetEl = el;
+                break;
+            }
+        }
+
+        if (targetEl) {
+            targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+            
+            // Apply highlight
+            targetEl.style.backgroundColor = "#fff3cd";
+            targetEl.style.transition = "background 1s";
+            setTimeout(() => { targetEl.style.backgroundColor = "transparent"; }, 3000);
+        }
+    }, 800); // Wait for AJAX content to load and render
+}
+
+    function disableFirstBtn(disable) {
+        $('#firstBtn').css({
+            'pointer-events': disable ? 'none' : 'auto',
+            'opacity': disable ? '0.4' : '1'
+        }); 
+    }
+
+    function disableBackwardBtn(disable) {
+        $('#backwardBtn').css({
+            'pointer-events': disable ? 'none' : 'auto',
+            'opacity': disable ? '0.4' : '1'
+        });
+    }
+
+    function disableLastBtn(disable) {
+        $('#lastBtn').css({
+            'pointer-events': disable ? 'none' : 'auto',
+            'opacity': disable ? '0.4' : '1'
+        });
+    }
+
+    function disableForwardBtn(disable) {
+        $('#forwardBtn').css({
+            'pointer-events': disable ? 'none' : 'auto',
+            'opacity': disable ? '0.4' : '1'
+        });
+    }
+
+    function getLastNodeId(tree) {
+        return tree.get_node('#').children.slice(-1)[0];
+    }
+
+    var firstMsgShown = false;
+    function first() {
+        var tree = $('#tree_container').jstree(true);
+        // Get currently selected node
+        var curr = tree.get_selected(false)[0];
+        // Get first node
+        var firstNodeId = tree.get_node('#').children[0];
+        // Reset flag when moving away
+        firstMsgShown = false;
+        // Move selection to first node
+        tree.deselect_all();
+        tree.select_node(firstNodeId);
+        // Focus anchor
+        $("#" + firstNodeId + "_anchor").focus();
+        // Disable button now (since we're at first)
+        disableFirstBtn(true);
+    }
+
 function last() {
-    var tree = $('#tree_container').jstree(true),
-    curr = tree.get_selected (false); 
+    var tree = $('#tree_container').jstree(true);
+    var curr = tree.get_selected(false)[0];
+    var lastNodeId = getLastNodeId(tree);
+    lastMsgShown = false;
     tree.deselect_all();
- 
-    $('#tree_container').jstree('select_node', 'ul > li:last');
-    curr = tree.get_selected (false);
-     if(tree.is_parent(curr)){   
-                    var flag=tree.is_open(curr);
-                    if(!flag)
-                    {
-                        
-                       tree.deselect_all();
-                       $('#tree_container').jstree("open_node", curr, function (e,data) {
-                           $('#tree_container').jstree('select_node', 'ul > li:last'); 
-                           showMessage("${messageSource.getMessage('jws.lastTopic')}", "info");
-    },false); 
-                   
- 
-                    }
-                    else{
-                         tree.deselect_all();
-                        $('#tree_container').jstree('select_node', 'ul > li:last'); 
-                        showMessage("${messageSource.getMessage('jws.lastTopic')}", "info"); 
-                    }
-     } else
-     {
-                         tree.deselect_all();
-                        $('#tree_container').jstree('select_node', 'ul > li:last'); 
-                        showMessage("${messageSource.getMessage('jws.lastTopic')}", "info"); 
-                          
-                    }
- 
-                    var  sn = tree.get_selected (false) ; 
-                          $("#"+sn+"_anchor").focus();
-    
+    tree.select_node(lastNodeId);
+    // Open if parent
+    if (tree.is_parent(lastNodeId) && !tree.is_open(lastNodeId)) {
+        tree.open_node(lastNodeId);
+    }
+    $("#" + lastNodeId + "_anchor").focus();
+    disableLastBtn(true);
+    disableForwardBtn(true);
 }
- 
- 
- /* var isOpen = $('#tree_container').jstree(true).get_json('#', { flat: true })
-    .some(function(node) {
-        return node.state.opened;
-    });*/
-   // expand="1";
+
 //code for collapse-all
 function expandCollapse() {
-    if (expand=="1") {
-     $('#tree_container').jstree("close_all");
-      expand="0";
-       document.getElementById("expand").title = "Expand"; 
+    var tree = $('#tree_container').jstree(true);
+    // Get first/root node
+    var rootNode = tree.get_node('#').children[0];
+    if (expand === "1") {
+        // COLLAPSE ALL
+        tree.close_all();
+        expand = "0";
+        document.getElementById("expand").title = "Expand";
     } else {
-      $('#tree_container').jstree("open_all");
-      expand="1";
-      document.getElementById("expand").title = "Collapse"; 
+        // EXPAND ALL
+        tree.open_all();
+        expand = "1";
+        document.getElementById("expand").title = "Collapse";
     }
-  }
+    // Reset selection & focus
+    tree.deselect_all(true);
+    tree.select_node(rootNode, true);
+//    var selected_node = $('#tree_container').jstree('get_selected', false);
+    if( typeof rootNode != "undefined" && rootNode != null &&   rootNode.length != null && rootNode.length > 0) {
+            finalContent=treeViewMap.get(rootNode);
+            headerTxt = treeHeaderMap.get(rootNode);
+            if(editorName == "1"){     
+                let finalEntryContent = finalContent;
+                // Check if content already starts with a header
+                const hasHeader = finalContent.trim().toLowerCase().startsWith("# " + headerTxt.toLowerCase());
+                if (hasHeader == false) {
+                    // No header at all → add it
+                    finalEntryContent = "# " + headerTxt + "\n\n" + finalContent;
+                }
+                simplemde.value(finalContent);
+                $("#previewDiv").css('display', 'none');
+                $('#previews').html("");
+                $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));    
+            } else{
+                document.getElementById("previews").style.display = "none";
+                const finalEntryContent ="<h2>" + headerTxt + "</h2>" + finalContent;
+                ckEditorInstance.setData(finalContent || '');
+            }
+                $("#contentDiv").scrollTop(0);    
+    }
+    // Focus selected node
+    var sn = tree.get_selected(false)[0];
+    $("#" + sn + "_anchor").focus();
+  
+}
+
  
 //code for expand-all
 function expandAll() {
-     $('#tree_container').jstree("open_all");
-     document.getElementById("expandAll").style.display = "none";
-document.getElementById("collapseAll").style.display = "block";
+    $('#tree_container').jstree("open_all");
+    document.getElementById("expandAll").style.display = "none";
+    document.getElementById("collapseAll").style.display = "block";
 }
  
- 
- 
-//Code for backward
+var backwardMsgShown = false;
 function backward() {
-        var tree = $('#tree_container').jstree(true),
-        curr = tree.get_selected(false);
-        tree.deselect_all();
-        var p = tree.get_prev_dom(curr);
-        if(p==false) {
-              
-                $('#tree_container').jstree('select_node', 'ul > li:first').focus(); 
-                
-                 showMessage("${messageSource.getMessage('jws.firstTopic')}", "info"); 
-            }
-        else {
-                if(tree.is_parent(p)){   
-                    var flag=tree.is_open(p);
-                       $('#tree_container').jstree("open_node", p); 
- 
-                       
-                if(!flag){                     
-                      $('#tree_container').jstree("open_node",  p, function (e,data) {
-                               
-                                 var node = $("#tree_container").jstree("get_node", p);
-                                  if(node.children.length>0){
-                            $('#tree_container').jstree('select_node', node.children[node.children.length-1]);
-                            
-                            
-                            //break;
-                           }
-                           else
-                           {
-                               $('#tree_container').jstree("select_node", p);  
-                           }
-                        },true); 
-                    }
-                    else{
-                       $('#tree_container').jstree("select_node", p); 
-                    } 
-                    }
-                    else{
-                          tree.select_node(p);
-                    }
-            }
- 
-            var  sn = tree.get_selected (false) ; 
-            $("#"+sn+"_anchor").focus();
+    var tree = $('#tree_container').jstree(true);
+    var curr = tree.get_selected(false)[0];
+    // Get first node
+    var firstNodeId = tree.get_node('#').children[0];
+
+    // Reset when moving away
+    backwardMsgShown = false;
+    disableBackwardBtn(false);
+    tree.deselect_all();
+    var p = tree.get_prev_dom(curr);
+
+    // No previous → move to first
+    if (p === false) {
+        tree.select_node(firstNodeId);
+        $("#" + firstNodeId + "_anchor").focus();
+        disableBackwardBtn(true);
+        return;
+    }
+
+    // Normal backward navigation
+    if (tree.is_parent(p)) {
+        var wasOpen = tree.is_open(p);
+        tree.open_node(p);
+
+        if (!wasOpen) {
+            tree.open_node(p, function () {
+                var node = tree.get_node(p);
+                if (node.children.length > 0) {
+                    tree.select_node(node.children[node.children.length - 1]);
+                } else {
+                    tree.select_node(p);
+                }
+            }, true);
+        } else {
+            tree.select_node(p);
+        }
+
+    } else {
+        tree.select_node(p);
+    }
+
+    // Focus selected node
+    var sn = tree.get_selected(false)[0];
+    $("#" + sn + "_anchor").focus();
 }
- 
-//Code for forward
+
 function forward() {
-        var tree = $('#tree_container').jstree(true),
-        curr = tree.get_selected (false);     
-        tree.deselect_all ();
-        if(tree.is_parent(curr))
-        {
-            var flag=tree.is_open(curr);
-            if(flag)
-            {
-                   var n = tree.get_next_dom(curr);
-                $('#tree_container').jstree('select_node', n); 
-            }
-           else{ $('#tree_container').jstree("open_node", curr);
-             $('#tree_container').jstree('select_node', curr); 
-           }
-        }
-        else{
-                var n = tree.get_next_dom(curr);
-                if(n.length!=0) {
-                    $('#tree_container').jstree('select_node', n); 
-                    if(tree.is_parent(n))
-                    {
-                       $('#tree_container').jstree("open_node", n);
-                    }
-                }
-                else{
-                    showMessage("${messageSource.getMessage('jws.lastTopic')}", "info");
-                    $('#tree_container').jstree('select_node', curr);  
-                }
-                
-        }
- 
-        var  sn = tree.get_selected (false) ; 
-                          $("#"+sn+"_anchor").focus();
-     }
+    var tree = $('#tree_container').jstree(true);
+    var curr = tree.get_selected(false)[0];
+    var lastNodeId = getLastNodeId(tree);
+
+    lastMsgShown = false;
+    disableForwardBtn(false);
+    disableLastBtn(false);
+
+    tree.deselect_all();
+
+    var n = tree.get_next_dom(curr);
+
+    if (!n || n.length === 0) {
+        tree.select_node(curr);
+        disableForwardBtn(true);
+        disableLastBtn(true);
+        return;
+    }
+    tree.select_node(n);
+    if (tree.is_parent(n) && !tree.is_open(n)) {
+        tree.open_node(n);
+    }
+
+    $("#" + n + "_anchor").focus();
+}
+
+
 function jstree_ajax_search(str, node) {
   //  console.log("search  "+node.id);
     return $.inArray(node.id, search_res) >= 0;
@@ -648,7 +992,5 @@ function print() {
 function pdf() {
     showMessage("${messageSource.getMessage('jws.comingSoon')}", "info");
 }
-
-
 
 </script>

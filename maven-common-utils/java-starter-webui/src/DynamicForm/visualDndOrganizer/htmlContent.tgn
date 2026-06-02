@@ -206,7 +206,7 @@
                                     <div class="secondrow">
                                         <div class="leftsection">
                                             <strong>${parentData.targetLookupId}:</strong>
-                                            <span onclick ="submitFormData('${parentData.targetLookupId}','${parentData.targetTypeId}')"><#if environment=="dev" && (parentData.targetLookupId == "Template" || parentData.targetLookupId == "Form Builder")>${parentData.targetTypeId}<#else><a href="#">${parentData.targetTypeId}</a></#if></span>
+                                            <span onclick ="submitFormData('${parentData.targetLookupId}','${parentData.targetTypeId}')"><a href="#">${parentData.targetTypeId}</a></span>
                                         </div>     
                                             <div class="rightsection">
                                                 <a href="${(contextPath)!''}${(viewPath)!''}/${parentData.moduleURL}"
@@ -246,7 +246,7 @@
                                                     <div class="secondrow">
                                                         <div class="leftsection">
                                                             <strong>${childData.targetLookupId}:</strong>
-                                                            <span onclick ="submitFormData('${childData.targetLookupId}','${childData.targetTypeId}')"><#if environment=="dev" && (childData.targetLookupId == "Template" || childData.targetLookupId == "Form Builder")>${childData.targetTypeId}<#else><a href="#">${childData.targetTypeId}</a></#if></span>
+                                                            <span onclick ="submitFormData('${childData.targetLookupId}','${childData.targetTypeId}')"><a href="#">${childData.targetTypeId}</a></span>
                                                         </div>
                                                             <div class="rightsection">
                                                                 <a href="${(contextPath)!''}${(viewPath)!''}/${childData.moduleURL}"
@@ -370,9 +370,7 @@
     });
           
 function submitFormData(targetLookupId,targetTypeId) {
-	if(env == "dev" && (targetLookupId == "Template" || targetLookupId == "Form Builder")){
-		targetLookupId = "";
-	}
+
     if( targetLookupId == "Template"){
         targetLookupId = "Templating"
     }

@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,10 +16,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -32,6 +36,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileCopyUtils;
@@ -237,59 +242,55 @@ public class ScriptUtil {
 	}
 
 	public void updateSession(String a_strKey, String a_strValue) {
-		if (StringUtils.isBlank(a_strKey) == false && StringUtils.isBlank(a_strValue) == false) {
-			ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-			if (sra != null && sra.getRequest() != null && sra.getRequest().getSession() != null) {
-				sra.getRequest().getSession().setAttribute(a_strKey, a_strValue);
-			}
-		}
+		updateCookies(a_strKey, a_strValue, null, null); // Removed session dependency so why using cookies method
 	}
 
 	public <T> T getValueFromSession(String a_strKey) {
-		if (StringUtils.isBlank(a_strKey) == false) {
+		if (StringUtils.isNotBlank(a_strKey)) {
 			ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-			if (sra != null && sra.getRequest() != null && sra.getRequest().getSession() != null) {
-				return (T) sra.getRequest().getSession().getAttribute(a_strKey);
+			if (sra != null && sra.getRequest() != null) {
+				Cookie[] cookies = sra.getRequest().getCookies();
+				if (cookies != null) {
+					for (Cookie cookie : cookies) {
+						if (a_strKey.equals(cookie.getName())) {
+							String decodedValue = URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8);
+							return (T) decodedValue;
+						}
+					}
+				}
 			}
 		}
 		return null;
+
 	}
 
 	public boolean haveSessionKey(String a_strKey) {
-		if (StringUtils.isBlank(a_strKey) == false) {
-			ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-			if (sra != null && sra.getRequest() != null && sra.getRequest().getSession() != null
-					&& sra.getRequest().getSession().getAttribute(a_strKey) != null) {
-				return true;
-			}
-		}
-		return false;
+		return haveCookie(a_strKey); // Removed session dependency so why using cookies method inside
 	}
 
 	public void deleteSessionKey(String a_strKey) {
-		if (StringUtils.isBlank(a_strKey) == false) {
-			ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-			if (sra != null && sra.getRequest() != null && sra.getRequest().getSession() != null) {
-				sra.getRequest().getSession().removeAttribute(a_strKey);
-			}
-		}
+		deleteCookie(a_strKey); // Removed session dependency so why using cookies method inside
 	}
 
-	public Long getCreationTime() {
-		ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		if (sra != null && sra.getRequest() != null && sra.getRequest().getSession() != null) {
-			return sra.getRequest().getSession().getCreationTime();
-		}
-		return null;
-	}
+	// public Long getCreationTime() {
+	// ServletRequestAttributes sra = (ServletRequestAttributes)
+	// RequestContextHolder.getRequestAttributes();
+	// if (sra != null && sra.getRequest() != null && sra.getRequest().getSession()
+	// != null) {
+	// return sra.getRequest().getSession().getCreationTime();
+	// }
+	// return null;
+	// }
 
-	public Long getLastAccessedTime() {
-		ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		if (sra != null && sra.getRequest() != null && sra.getRequest().getSession() != null) {
-			return sra.getRequest().getSession().getLastAccessedTime();
-		}
-		return null;
-	}
+	// public Long getLastAccessedTime() {
+	// ServletRequestAttributes sra = (ServletRequestAttributes)
+	// RequestContextHolder.getRequestAttributes();
+	// if (sra != null && sra.getRequest() != null && sra.getRequest().getSession()
+	// != null) {
+	// return sra.getRequest().getSession().getLastAccessedTime();
+	// }
+	// return null;
+	// }
 
 	public final Map<String, Object> getAllFiles(String a_filePath) {
 		Map<String, Object> returnObject = new HashMap<String, Object>();
@@ -838,7 +839,7 @@ public class ScriptUtil {
 			JdbcTemplate jdbcTemplate = jwsDynarestDAO.updateJdbcTemplateDataSource(a_strdataSourceID);
 			// if a_strdataSourceID is null then take default connection
 			SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName(spName);
-			try (Connection connection = jdbcTemplate.getDataSource().getConnection();) {
+			try (Connection connection = DataSourceUtils.getConnection(jdbcTemplate.getDataSource());) {
 				simpleJdbcCall.setCatalogName(connection.getCatalog());
 			} catch (SQLException a_sqlException) {
 				logger.error(
@@ -1083,6 +1084,116 @@ public class ScriptUtil {
 			returnObject.put("_error", "Error while executing insert query : " + ExceptionUtils.getStackTrace(e));
 			return returnObject;
 		}
+	}
+	
+	public Set<String> getPathVariableSet() {
+		Set<String>					pathVariableSet	= new LinkedHashSet<String>();
+
+		String						requestUri		= null;
+		ServletRequestAttributes	sra				= (ServletRequestAttributes) RequestContextHolder
+				.getRequestAttributes();
+		if (sra != null && sra.getRequest() != null) {
+			if ((sra.getRequest().getRequestURI() != null && sra.getRequest().getRequestURI().isBlank() == false)
+					&& (sra.getRequest().getContextPath() != null
+							&& sra.getRequest().getContextPath().isBlank() == false)) {
+
+				requestUri = sra.getRequest().getRequestURI().substring(sra.getRequest().getContextPath().length());
+				if (requestUri != null && requestUri.startsWith("/api/")) {
+					requestUri = requestUri.substring("/api/".length());
+				} else if (requestUri != null && requestUri.startsWith("/japi/")) {
+					requestUri = requestUri.substring("/japi/".length());
+				}
+
+				// Matching the request URI with the record stored in DB.
+				String	reuestURI		= jwsDynarestDAO.matchDynaRestUrl(requestUri);
+
+				String staticPrefix = reuestURI.split("/\\*\\*|/\\*", 2)[0] + "/";
+
+				// Normalize both to avoid mismatch
+				if (requestUri.startsWith("/")) {
+					requestUri = requestUri.substring(1);
+				}
+
+				if (staticPrefix.endsWith("/")) {
+					staticPrefix = staticPrefix.substring(0, staticPrefix.length() - 1);
+				}
+
+				// Check if the request URL matches the dynamic pattern
+				String regex = "^" + staticPrefix + "(?:/.*)?$";
+				if (requestUri.matches(regex)) {
+					String[]	uriParts	= requestUri.split("/");
+
+					// Get static path segments to know how many to skip
+					String[]	staticParts	= staticPrefix.split("/");
+
+					for (int iCount = staticParts.length; iCount < uriParts.length; iCount++) {
+						if (uriParts[iCount].isBlank() == false) {
+							pathVariableSet.add(uriParts[iCount]);
+						}
+					}
+				}
+			}
+		}
+		return pathVariableSet;
+	}
+
+	public String getPathVariable() {
+		String						requestUri			= null;
+		StringBuilder				pathVariableBuilder	= new StringBuilder();
+
+		ServletRequestAttributes	sra					= (ServletRequestAttributes) RequestContextHolder
+				.getRequestAttributes();
+		if (sra != null && sra.getRequest() != null) {
+			if ((sra.getRequest().getRequestURI() != null && sra.getRequest().getRequestURI().isBlank() == false)
+					&& (sra.getRequest().getContextPath() != null
+							&& sra.getRequest().getContextPath().isBlank() == false)) {
+
+				requestUri = sra.getRequest().getRequestURI().substring(sra.getRequest().getContextPath().length());
+
+				// Remove "/api/"
+				if (requestUri != null && requestUri.startsWith("/api/")) {
+					requestUri = requestUri.substring("/api/".length());
+				} else if (requestUri != null && requestUri.startsWith("/japi/")) {
+					requestUri = requestUri.substring("/japi/".length());
+				}
+
+				// Matching the request URI with the record stored in DB.
+				String matchedDynamicUrl = jwsDynarestDAO.matchDynaRestUrl(requestUri);
+
+				if (matchedDynamicUrl != null) {
+					
+					String staticPrefix = matchedDynamicUrl.split("/\\*\\*|/\\*", 2)[0] + "/";
+
+					// Normalize both to avoid mismatch
+					if (requestUri.startsWith("/")) {
+						requestUri = requestUri.substring(1);
+					}
+					if (staticPrefix.endsWith("/")) {
+						staticPrefix = staticPrefix.substring(0, staticPrefix.length() - 1);
+					}
+
+					// Check if the request URL matches the dynamic pattern
+					String regex = "^" + staticPrefix + "(?:/.*)?$";
+					if (requestUri.matches(regex)) {
+						String[]	requestParts	= requestUri.split("/");
+
+						// Get static path segments to know how many to skip
+						String[]	staticParts		= staticPrefix.split("/");
+
+						for (int iCounter = staticParts.length; iCounter < requestParts.length; iCounter++) {
+							if (requestParts[iCounter].isBlank() == false) {
+								if (pathVariableBuilder.length() > 0) {
+									pathVariableBuilder.append("/");
+								}
+								pathVariableBuilder.append(requestParts[iCounter]);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return pathVariableBuilder.toString();
 	}
 }
 

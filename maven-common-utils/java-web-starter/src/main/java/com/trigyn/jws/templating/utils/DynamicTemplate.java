@@ -40,11 +40,11 @@ public class DynamicTemplate {
 		String errorMessage = MessageFormat.format(Constant.REGEX_INVALID_VALUE, fieldName);
 
 		if (dataType.equalsIgnoreCase("xml")) { // Validation required for Postgress
-			if (templatingUtils.isValidXML(fieldValue.toString()) == false) {
+			if (isValidXML(fieldValue.toString()) == false) {
 				throw new JwsCustomException(errorMessage, HttpStatus.BAD_REQUEST, Constant.REGEXERROR);
 			}
 		} else if (dataType.equalsIgnoreCase("json")) { // Validation required for Postgress
-			if (!templatingUtils.isValidJSON(fieldValue.toString()) == false) {
+			if (isValidJSON(fieldValue.toString()) == false) {
 				throw new JwsCustomException(errorMessage, HttpStatus.BAD_REQUEST, Constant.REGEXERROR);
 			}
 		} else {
@@ -56,4 +56,33 @@ public class DynamicTemplate {
 
 		return true;
 	}
+
+	public boolean isValidJSON(String json) {
+		if (json == null || json.trim().isEmpty()) {
+			return false;
+		}
+
+		try {
+			com.fasterxml.jackson.databind.JsonNode node = new com.fasterxml.jackson.databind.ObjectMapper()
+					.readTree(json);
+
+			// Accept only JSON Object or Array
+			return node.isObject() || node.isArray();
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	public boolean isValidXML(String xml) {
+	    try {
+	        javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+	        factory.setNamespaceAware(true);
+	        javax.xml.parsers.DocumentBuilder builder = factory.newDocumentBuilder();
+	        builder.parse(new org.xml.sax.InputSource(new java.io.StringReader(xml)));
+	        return true;
+	    } catch (Exception exec) {
+	        return false;
+	    }
+	}
+
 }

@@ -38,34 +38,34 @@
       <p class="divdeform">   
          <label for="password" class="formlablename">Password</label>    
          <span class="formicosn"><i class="fa-solid fa-key" aria-hidden="true"></i></span>  
-         <input type="password" id="password" name="password" class="form-control ldappassword" placeholder="<@resourceBundleWithDefault "jws.enterpwd" "Enter Password"/>" required>   
+         <input type="password" id="textPassword" name="textPassword" class="form-control ldappassword" placeholder="<@resourceBundleWithDefault "jws.enterpwd" "Enter Password"/>" required>   
          <span class="passview" onclick="showHidePassword(this);"><i class="fa fa-eye" aria-hidden="true"></i></span>    
       </p> 
-      <#if innerTemplateObj.requestId?? && innerTemplateObwj.requestId?has_content> 
+      <#if innerTemplateObj.requestId?? && innerTemplateObj.requestId?has_content> 
 		<input type="hidden" id="requestId" name="requestId" value="${innerTemplateObj.requestId}"/>  
 	  </#if>    
-	  
-      <span class="remebermeblock">   
-      <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me"><@resourceBundleWithDefault "jws.rememberme" "Remember Me"/></label>  
-      </span>                                   
-                    
+	  <div class="blockpass" style="    flex-direction: column;gap: 14px;">
+      <input type="hidden" id="password" name="password" class="ldapencryptpassword"/>              
       <div class="loginbtn"><button class="btn btn-lg btn-primary btn-block" type="submit" onclick="encryptLDAPPassword()"><@resourceBundleWithDefault "jws.signin" "Sign In"/></button> </div>
 	  <input type="hidden" id="enableAuthenticationType" name="enableAuthenticationType" value="3"/>
+	  </div>
    </form>
 </div>
 <script>
    function showHidePassword(thisObj){
-   	var element = $(thisObj).parent().find("input[name='password']");
+   	var element = $(thisObj).parent().find("input[name='textPassword']");
    	if (element.prop("type") === "password") {
    		element.prop("type","text");
    		$(thisObj).find("i").removeClass("fa-eye");
    		 $(thisObj).find("i").addClass("fa-eye-slash");
    		 $("#password").focus();
+   		 $("#textPassword").focus();
    	} else {
    		 element.prop("type","password");
    		 $(thisObj).find("i").removeClass("fa-eye-slash");
    		 $(thisObj).find("i").addClass("fa-eye");
    		 $("#password").focus();
+   		 $("#textPassword").focus();
    	}
    
    }		
@@ -78,12 +78,12 @@
    });
 
    function encryptLDAPPassword(){
-        var password = $(".ldappassword").val(); 
+        var password = $(".ldappassword").val();
         <#if innerTemplateObj.salt?? && innerTemplateObj.salt?has_content> 
             var encryptionKey = "${innerTemplateObj.salt}";
         </#if>
         var encryptedPassword = encryptPassword(password, encryptionKey);
-        $(".ldappassword").val(encryptedPassword);  
+        $(".ldapencryptpassword").val(encryptedPassword); 
     }
 
     function padOrTruncateKey(key, length) {

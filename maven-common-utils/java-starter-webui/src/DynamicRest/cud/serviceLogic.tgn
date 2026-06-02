@@ -1,0 +1,127 @@
+var HashMap = Java.type("java.util.HashMap");
+var System = Java.type("java.lang.System");
+var params = new HashMap();
+
+function getLastUpdated() {
+
+    params.put("entityId", requestDetails["entityId"]);
+    params.put("module", requestDetails["module"]);
+    params.put("columnName", requestDetails["columnName"]);
+    params.put("innerQuery", requestDetails["innerQuery"]);
+    params.put("id", requestDetails["id"]);
+
+    if (requestDetails["module"] === "Template") {
+
+        return jq_getDBResult(
+            "SELECT updated_date AS lastUpdateDate FROM jq_template_master WHERE template_id=:entityId",
+            null,
+            params
+        );
+
+    } else if (requestDetails["module"] === "DynamicForm") {
+
+        var columnName = requestDetails["columnName"] || "form_body";
+        var innerQuery = requestDetails["innerQuery"] || 0;
+
+        if(innerQuery == 1){
+
+            return jq_getDBResult(
+                "SELECT last_updated_ts AS lastUpdateDate FROM jq_dynamic_form_save_queries dfsq INNER JOIN jq_dynamic_form df ON df.form_id = dfsq.dynamic_form_id WHERE dynamic_form_query_id=:id",
+                null,
+                params
+            );
+
+        } else {
+
+            return jq_getDBResult(
+                "SELECT COALESCE(last_updated_ts, created_date) AS lastUpdateDate FROM jq_dynamic_form WHERE form_id=:entityId",
+                null,
+                params
+            );
+        }
+
+    } else if (requestDetails["module"] === "RestAPI") {
+        var innerQuery = requestDetails["innerQuery"] || 0;
+        if(innerQuery == 1){
+
+            return jq_getDBResult(
+                "SELECT last_updated_ts AS lastUpdateDate FROM jq_dynamic_rest_dao_details drdd INNER JOIN jq_dynamic_rest_details dr ON dr.jws_dynamic_rest_id = jws_dynamic_rest_details_id WHERE jws_dao_details_id=:id",
+                null,
+                params
+            );
+
+        } else {
+
+            return jq_getDBResult(
+                "SELECT COALESCE(last_updated_ts, created_date) AS lastUpdateDate FROM jq_dynamic_rest_details WHERE jws_dynamic_rest_id=:entityId",
+                null,
+                params
+            );
+        }
+
+    } else if (requestDetails["module"] === "Dashboard") {
+
+        return jq_getDBResult(
+            "SELECT last_updated_ts AS lastUpdateDate FROM jq_dashboard WHERE dashboard_id=:entityId",
+            null,
+            params
+        );
+
+    } else if (requestDetails["module"] === "Dashlet") {
+
+        return jq_getDBResult(
+            "SELECT last_updated_ts AS lastUpdateDate FROM jq_dashlet WHERE dashlet_id=:entityId",
+            null,
+            params
+        );
+
+    } else if (requestDetails["module"] === "FileBin") {
+
+        return jq_getDBResult(
+            "SELECT last_updated_ts AS lastUpdateDate FROM jq_file_upload_config WHERE file_bin_id=:entityId",
+            null,
+            params
+        );
+    }
+
+    return null;
+}
+
+function checkUpdatedDate() {
+
+    var authResult = checkAuthentication();
+
+    if(authResult.status !== 200){
+        return authResult;
+    }
+
+    var dbResult = getLastUpdated();
+
+    if(dbResult == null || dbResult.data_list.length === 0){
+        return {
+            changed: false
+        };
+    }
+
+
+    var newDate =
+        dbResult.data_list[0].lastUpdateDate;
+
+    var oldDate =
+        requestDetails["updatedDate"];
+
+    var newDateMillis =
+        new Date(newDate).getTime();
+
+    var oldDateMillis =
+        new Date(oldDate).getTime();    
+
+    return {
+        changed: newDateMillis !== oldDateMillis,
+        serverLastUpdated: newDate
+    };
+  
+
+}
+
+checkUpdatedDate();

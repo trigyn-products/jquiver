@@ -129,7 +129,7 @@
            if(liId == itemData.scriptId+"_li"){     
                 let itemSpan = $('<span class="ml-selected-item" id="'+itemData.scriptId+'">'+encodedName+'</span>');
                 listscriptElement.append(itemSpan);
-                let deleteItemcontext = $('<span class="float-right closeicon"><i class="fa fa-times-circle-o" aria-hidden="true"></i></span>');
+                let deleteItemcontext = $('<span class="float-right closeicon"><i class="fa-regular fa-circle-xmark" aria-hidden="true"></i></span>');
                 deleteItemcontext.data("selected-item", itemData);
                 listscriptElement.append(deleteItemcontext);
                 $("#scriptlibid_selectedOptions_ul").append(listscriptElement);

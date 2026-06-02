@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
@@ -25,7 +25,6 @@ import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
-import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
@@ -63,15 +62,12 @@ public class HomeController {
 	private JwsUserRegistrationController	jwsUserRegistrationController	 	= null;
 	
 	@Autowired
-	private FileUtilities 					fileUtilities 						= null;
-	
-	@Autowired
 	private PropertyMasterDAO 				propertyMasterDAO 	  				= null;
 	
 	@Autowired
 	private ApplicationContext context;
 
-	@RequestMapping(value = { "", "/", "/home" }, produces = MediaType.TEXT_HTML_VALUE)
+	@GetMapping(value = { "", "/", "/home" }, produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
 	public String homePage(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
 			throws IOException, CustomStopException {
@@ -98,7 +94,7 @@ public class HomeController {
 					return menuService.getTemplateWithSiteLayout("control-panel", modelMap);
 				}else if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == true) && 
 						roleNameList.contains("anonymous") && CollectionUtils.isEmpty(homePageURLList) == true){
-					return jwsUserRegistrationController.userLoginPage(httpServletRequest, httpServletRequest.getSession(), httpServletResponse);
+					return jwsUserRegistrationController.userLoginPage(httpServletRequest, httpServletResponse);
 				} else if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == true) && 
 						roleNameList.contains("ADMIN") == false) {
 					if(CollectionUtils.isEmpty(homePageURLList) == false) {
@@ -121,7 +117,7 @@ public class HomeController {
 					}
 				} else if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == true) && 
 						roleNameList.contains("anonymous")){
-					return jwsUserRegistrationController.userLoginPage(httpServletRequest, httpServletRequest.getSession(), httpServletResponse);
+					return jwsUserRegistrationController.userLoginPage(httpServletRequest, httpServletResponse);
 				} else if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == true) && 
 						roleNameList.contains("ADMIN") == false &&CollectionUtils.isEmpty(homePageURLList) == true) {
 					httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "Home Page is not defined");

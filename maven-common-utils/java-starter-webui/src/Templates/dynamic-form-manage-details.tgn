@@ -228,8 +228,11 @@
      	 </div>
      	  
 		<div class="row margin-t-10">
-			<div class="col-12">
-				<div class="text-end">
+			<div class="d-flex justify-content-end align-items-center gap-2">
+                <#if (dynamicForm?api.getFormTypeId())?? && (dynamicForm?api.getFormTypeId())?has_content && dynamicForm?api.getFormTypeId() != 2 >	
+                    <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_dynamic_form')">Create/Link Module</button>
+                </#if>
+				<!-- <div class="text-end"> -->
 					<div class="btn-group dropup custom-grp-btn">
 						<div id="savedAction">
 							<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('dynamic-form-manage-details', this, isEdit, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );">${messageSource.getMessage("jws.saveAndReturn")}</button>
@@ -245,18 +248,22 @@
 					<span onclick="addEdit.backToDynamicFormListing();">
 						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 					</span> 
-				</div>
-        <div id="dialogTitle" style="display:none;"></div>
-        <div id="btnDelete" style="display:none;"></div>
-        <div id="btnCancel" style="display:none;"></div>
-        <div id="scriptDetails" style="display:none;"></div>
-	    <div id="addEditDialog" class="addEditDialogclass"></div>
+				<!-- </div> -->
+       
 			</div>
 		</div>
             <input type="hidden" name="formSelectQuery" id="formSelectQuery">
             <input type="hidden" name="formBody" id="formBody">
             <input type="hidden" name="formSaveQueryId" id="formSaveQueryId">
-            <input type="hidden" name="formSaveQuery" id="formSaveQuery">                     
+            <input type="hidden" name="formSaveQuery" id="formSaveQuery">
+            <div id="dialogTitle" style="display:none;"></div>
+            <div id="btnDelete" style="display:none;"></div>
+            <div id="btnCancel" style="display:none;"></div>
+            <div id="scriptDetails" style="display:none;"></div>
+            <div id="addEditDialog" class="addEditDialogclass"></div>
+             <div id="moduleAutocomplete">
+                <@templateWithoutParams "common-modal-template"/>
+            </div>                    
         </form>
     </div>
 
@@ -291,7 +298,11 @@
     let jsSugg;
     let selectQueryType;
 	let isEdit = 0;
-
+    let moduleIdList = [];
+    let deleteModuleIdList = [];
+    let newAddedModuleIdList = [];
+    let existingModuleIdList = [];
+    let allModuleList = [];
 	const addEdit = new AddEditDynamicForm();
     /*For Updating Monaco Suggestions*/
     selectQueryType = document.getElementById("selectQueryType").value;
@@ -308,8 +319,7 @@
     }
     formName = $.trim(formName);
      </#outputformat>
-  	$(function () {
-      
+  	$(function () {      
   		 $("#selectQueryType option[value='${(dynamicForm?api.getSelectQueryType())!''}']").prop("selected", "selected");
   		 let isFormIo = $('#formIoChkBox').is(':checked');
 		 if(isFormIo == false) {
@@ -347,6 +357,7 @@
 		        additionalParamaters: {},
 		        requestParameters: {
 		        	dbProductName: $("#dataSource").find(":selected").data("product-name"),
+                	datasourceId: $("#dataSource").find(":selected").val()
 		        },
 		        extractText: function(item) {
 		            return item.tableName;
@@ -375,9 +386,31 @@
         } else {
             $("#formIoChkBox").prop("checked",false).trigger("change");
         }		
-		
+		if(isEdit == 1){
+            getModuleNames(formId,$("#moduleId").val());
+            /** Added for resetting the values of BusinessModule Dialog after save and edit. **/
+	        document.getElementById("saveAndEdit").addEventListener("click", function () {
+	            resetBusModuleModal();
+	        });
+        } 
         
+	    //Calling attachMonacoListener for refreshing Salt
+	    setTimeout(function(){
+	        attachMonacoListeners();
+	    }, 1000);      
   	});
+  	
+  	function attachMonacoListeners() {
+            if (window.dashletSQLEditor) {
+                dashletSQLEditor.onDidChangeModelContent(userActivityDetected);
+            }
+            if (window.dashletHTMLEditor) {
+                dashletHTMLEditor.onDidChangeModelContent(userActivityDetected);
+            }
+            if (window.dashletSAVESQLEditor) {
+                dashletSAVESQLEditor.onDidChangeModelContent(userActivityDetected);
+            }
+    }
 
 	function updateSelectDataSource(element) {
 		let isFormIo = $('#formIoChkBox').is(':checked');
@@ -447,8 +480,7 @@
 		
 	}
 
-  
-  function addNewScript(element,jsonArray) {
+    function addNewScript(element,jsonArray) {
         var jsonObj = "";
         var index = (element.id).split('_')[1];
         for(var icount = 0; icount < jsonArray.length; icount++){
@@ -505,6 +537,29 @@
             }
         });
         $("#" + dialogDiv).dialog("open");
+    }
+
+
+  
+   function saveModDetails(isEdit,entityId){
+        var busmoduleName = $("#busmoduleName").val();
+        var cmvEntityName = document.getElementById("cmvEntityName").value;
+        if(checkExistingBusinessModuleName(busmoduleName) == true){
+            showMessage("Module Name already exists","warn");
+            $("#busmoduleName").val("");
+            return false;
+        }
+       if(entityId != ""){
+            var isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked;  
+            if (existingModuleIdList.includes(busmoduleName)) {
+                showMessage("Module Name already exists for this entity.", "info");
+                return false;
+            }
+            if(busmoduleName != "" || moduleIdList.length > 0 || deleteModuleIdList.length > 0){
+                saveModuleDetails(busmoduleName,entityId,$("#moduleId").val(),isEdit,moduleIdList,deleteModuleIdList,isShowCreateLinkChkBox,cmvEntityName);
+            }
+        }
+        return true;
     }
 
     function showMethodSignature(value){

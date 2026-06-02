@@ -1,0 +1,197 @@
+<head>
+  <#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
+  <style>
+    .fixed-save-btn {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+    }
+
+        /* Toggle button wrapper */
+    .switch-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 15px;
+        }
+
+    /* Align buttons properly */
+    .text-right {
+        text-align: right;
+        }
+
+    /* Input box full width inside modal */
+    #busmoduleName {
+        width: 100%;
+        padding: 8px;
+        }
+
+    .toggle-input {
+        display: none;
+    }
+
+    .toggle-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: var(--bluebgcolor);
+        border-radius: 20px;
+        position: relative;
+        user-select: none;
+        padding: 0;
+        overflow: hidden;
+        height: 100%;
+        width:230px;
+        box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-option {
+        flex: 1;
+        text-align: center;
+        z-index: 2;
+        color: white;
+        font-weight: 600;
+        line-height: 40px;
+        transition: color 0.3s ease;
+    }
+
+    
+
+    /* Checked state */
+  
+
+    .toggle-input:checked + .toggle-label .option-left {
+        color: white;
+    }
+
+    .toggle-input:checked + .toggle-label .option-right {
+        color: white;
+    }
+
+    .suggestion-item {
+        cursor: pointer;
+        padding: 3px;
+    }
+
+    .suggestion-item:hover {
+        background-color: #eee;
+    }
+
+ /* Fix modal width */
+.modal-dialog {
+    max-width: 600px;   /* fixed width for all modals */
+    width: 600px;       /* ensures it does not shrink */
+}
+
+
+
+
+/* Optional: improve look */
+#modAutocomplete .multiselect-container {
+    max-height: inherit;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+
+
+/* Align buttons nicely */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;  /* all buttons right aligned */
+    gap: 10px;  /* spacing between buttons */
+}
+
+.didyoublock{
+       color: black;
+    display: none;
+    cursor: pointer;
+    height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 20px 0px 20px;
+    margin-top: -2px;
+    border-radius: 0px 0px 5px;
+    border-top: 0px;
+ }
+
+.usermanagment-model {
+    height:550px !important;
+}
+
+.usermanagment-model .modal-content {
+    height:250px !important;
+}
+
+
+
+</style>
+   
+ </head>
+ <div class="modal usermanagment-model fade" id="busModuleModalDialog" aria-labelledby="busModuleModalDialog" tabindex="-1">
+          <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="ui-dialog-titlebar">Create Tag</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form role="form">
+                  <div class="form-group">
+                    <div class="row">
+                      <!--  <div class="switch-wrapper mb-3">
+                         <input type="hidden" id="isCreateLink" name="isCreateLink" value="0">
+                       <input type="checkbox" id="showCreateLinkChkBox" name ="showCreateLinkChkBox" class="toggle-input" >
+                        <label for="showCreateLinkChkBox" class="toggle-label">
+                            <span class="toggle-option option-left">Create</span>
+                        </label>
+                        </div>-->
+
+                        <!-- Module name input -->
+                        <div class="col-12 mb-3" >
+                            <label for="tagName" class="form-label">${messageSource.getMessage('jws.tagName')} </label> 
+                        <input type="text" id="tagName" name="tagName" class="form-control" placeholder="Enter Tag Name" autocomplete="off"  maxlength="250">
+                        <div id="didYouMean" class="didyoublock" style=""></div>
+                        </div>
+                        <input type="hidden" id="cmvEntityName" name="cmvEntityName" value="">
+                  </div>
+                   </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" id="modalSaveBtn" class="btn btn-primary" >Save</button>
+                <button type="button" id="modalCloseBtn"  class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script ${scriptNonce}>
+    $(function () {
+       const closeBtn = document.getElementById("modalCloseBtn");
+    const textField = document.getElementById("tagName");
+
+    closeBtn.addEventListener("click", function() {
+      // Clear the text field
+      textField.value = "";
+      // Dismiss the modal (Bootstrap 5)
+      const modal = bootstrap.Modal.getInstance(document.getElementById("busModuleModalDialog"));
+      if (modal) {
+       
+        modal.hide();
+      }
+    });
+    });
+
+   
+
+
+     function openmodal(cmvEntityName){
+        document.getElementById("cmvEntityName").value = cmvEntityName;
+        var myModal = new bootstrap.Modal(document.getElementById('busModuleModalDialog'));
+        myModal.show();
+    }
+
+</script>

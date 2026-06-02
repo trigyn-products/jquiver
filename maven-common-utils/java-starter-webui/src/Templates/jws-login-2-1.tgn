@@ -20,12 +20,13 @@
       <p class="divdeform">   
          <label for="password" class="formlablename">Password</label>    
          <span class="formicosn"><i class="fa-solid fa-key" aria-hidden="true"></i></span>  
-         <input type="password" id="password" name="password" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enterpwd" "Password"/>" required>   
+         <input type="password" id="textPassword" name="textPassword" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enterpwd" "Password"/>" required>   
          <span class="passview" onclick="showHidePassword(this);"><i class="fa fa-eye" aria-hidden="true"></i></span>    
       </p>
       <#if innerTemplateObj.requestId?? && innerTemplateObj.requestId?has_content> 
-		<input type="hidden" id="requestId" name="requestId" value="${innerTemplateObj.requestId}"/>  
+			<input type="hidden" id="requestId" name="requestId" value="${innerTemplateObj.requestId}"/>  
 	  </#if>
+             
       <#if innerTemplateObj.enableCaptcha == "true">     
       <div class="captchablock"> 
          <img id="imgCaptcha" name="imgCaptcha" src="">   
@@ -34,16 +35,14 @@
          <input type="text" id="captcha" name="captcha" class="form-control" placeholder="<@resourceBundleWithDefault "jws.entercaptcha" "Enter Captcha"/>" required autofocus >    
       </div>
       </#if>
-      <div class="blockpass">  
-      <span class="remebermeblock">   
-      <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me"><@resourceBundleWithDefault "jws.rememberme" "Remember Me"/></label>  
-      </span>     
+      <div class="blockpass">      
       <span class="forgotpassword">   
       <a href="${(contextPath)!''}/cf/resetPasswordPage"><@resourceBundleWithDefault "jws.forgotpassword" "Forgot Password"/>?</a>     
       </span>                           
       </#if> 
       </div>
-      <input type="hidden" id="enableAuthenticationType" name="enableAuthenticationType" value="2"/>               
+      <input type="hidden" id="enableAuthenticationType" name="enableAuthenticationType" value="2"/>  
+      <input type="hidden" id="password" name="password"/>             
       <div class="loginbtn"><button class="btn btn-lg btn-primary btn-block" type="submit" onclick="encryptPasswordOnSubmit()"><@resourceBundleWithDefault "jws.signin" "Sign In"/></button> </div>
       <#if innerTemplateObj.enableRegistration?? && innerTemplateObj.enableRegistration?string == "true" >  
       <p class="registerlink"><@resourceBundleWithDefault "jws.newuser" "New User"/>?   
@@ -55,52 +54,52 @@
 <script>
     localStorage.setItem('r', null);
     contextPath = "${(contextPath)!''}";
-
+    
    function showHidePassword(thisObj){
-   	var element = $(thisObj).parent().find("input[name='password']");
+   	var element = $(thisObj).parent().find("input[name='textPassword']");
    	if (element.prop("type") === "password") {
    		element.prop("type","text");
    		$(thisObj).find("i").removeClass("fa-eye");
    		 $(thisObj).find("i").addClass("fa-eye-slash");
-   		 $("#password").focus();
+   		 $("#textPassword").focus();
    	} else {
    		 element.prop("type","password");
    		 $(thisObj).find("i").removeClass("fa-eye-slash");
    		 $(thisObj).find("i").addClass("fa-eye");
-   		 $("#password").focus();
+   		 $("#textPassword").focus();
    	}
    
-   }		
+   }	
+		
    $(function(){
    	<#if innerTemplateObj.enableCaptcha == "true">
     var imagesrc=contextPath+"/cf/captcha/lc";
        generateCaptch(imagesrc);
    	</#if>
    });
-   
+  
     $("#reloadCaptcha").click(function(event){
        var imagesrc=contextPath+"/cf/captcha/lc"+"#";
        generateCaptch(imagesrc);
    	});
 
-   function encryptPasswordOnSubmit(){
-        var password = $("#password").val();
+    function encryptPasswordOnSubmit(){
+        var password = $("#textPassword").val();
          <#if innerTemplateObj.salt?? && innerTemplateObj.salt?has_content> 
             var encryptionKey = "${innerTemplateObj.salt}";
         </#if>
         var encryptedPassword = encryptPassword(password, encryptionKey);
         $("#password").val(encryptedPassword);  
-
     }
 
     function padOrTruncateKey(key, length) {
-	if (key.length < length) {
-		return key.padEnd(length, '0');
-	} else if (key.length > length) {
-		return key.substring(0, length);
-	}
-	return key;
-}
+        if (key.length < length) {
+            return key.padEnd(length, '0');
+        } else if (key.length > length) {
+            return key.substring(0, length);
+        }
+        return key;
+    }
 
 	function encryptPassword(password, encryptKey) {
 		const paddedKey = padOrTruncateKey(encryptKey, 16); 
@@ -112,78 +111,48 @@
 		return encrypted.toString();
 	}
    
-  /* function generateCaptch(imagesrc) {
-       // alert("generate Captch");
-     const imgElement = document.getElementById('imgCaptcha');    
-     fetch(imagesrc, {
+document.getElementById('loginForm').addEventListener('submit', (event) => {
+    event.preventDefault(); // Prevent full form submit
+    const formData = new FormData(event.target);
+
+    fetch(event.target.action, {
+        method: 'POST',
         headers: {
+            'r': localStorage.getItem('r')
+        },
+        body: formData
+    })
+    .then(response => {
+        // Get HTML text + the final response URL
+        return response.text().then(html => ({ html, url: response.url }));
+    })
+    .then(({ html, url }) => {
+        // Convert HTML string into DOM
+        let tempDiv = document.createElement("div");
+        tempDiv.innerHTML = html;
+        // Get exception message from response HTML
+        let exceptionMessage = tempDiv.querySelector("#exceptionMessage")?.innerText;
 
-        'r':  localStorage.getItem('r')
+        if (exceptionMessage) {
+            $("#LoginFormError").show().html(exceptionMessage);
+            var imagesrc = contextPath + "/cf/captcha/lc" + "#";
+            generateCaptch(imagesrc);
+            return;
         }
-      }) // Fetch the image using its 'src' attribute
-     .then(response => {
-      // Access the desired header
-       localStorage.setItem('r', response.headers.get('r'));
-	    if (response.ok) {
-	      return response.blob();
-	     // console.log('Image URL is valid');
-	    } else {
-	     // console.log('Image URL is invalid');
-	      return null;
-	    }	
-       
-	     })
-	    .then((blob) => {
-	       if(blob!=null){
-	             //set image to image Src
-	              const objectURL = URL.createObjectURL(blob);
-	              imgElement.src = objectURL;
-                      
-                         if ($('#captcha').prop('disabled')) {
-                           $("#captcha").removeAttr('disabled');
-			}
-		   }
-		else{
-		     //set path and show error Message and disable text
-		      imgElement.src = "${(contextPath)!''}/webjars/1.0/images/noimg.png";
-		      $("#captcha").attr('disabled','disabled');
-              $("#captchaGenerationError").attr("style","display:block");
-              $("#captchaGenerationError").html("<@resourceBundle "jws.captchGenerationFailed"/>");
-             // alert(resourceBundleData("jws.clearTxt"));
-		    }
-	     })
-      .catch(error => {
-       $("#captchaGenerationError").attr("style","display:block");
-       $("#captchaGenerationError").html("<@resourceBundle "jws.fetchCaptchError"/>");
-
-     });
-    }*/
-
-
-    document.getElementById('loginForm').addEventListener('submit', (event)=> {
-            event.preventDefault(); // Prevent default form submission
-            const formData = new FormData(event.target); // Access form data
-
-            fetch(event.target.action, { // Use form's action attribute
-                method: 'POST',
-                headers: {
-                    'r': localStorage.getItem('r')
-                },
-                body: formData
-            })
-            .then(response => {return response.text();
-                            })
-            .then(html => {  //Seting Html content 
-                            document.open();
-                            document.write(html);
-                            document.close();
-            })
-            .catch(error => {
-               $("#LoginFormError").attr("style","display:block");
-               $("#LoginFormError").html("<@resourceBundle "jws.loginFormFailed"/>");
-           });
+        document.open();
+        document.write(html);
+        document.close();
         
+        if (url !== null && url !== undefined && url !== '') {
+            window.history.pushState({}, '', url);
+        }
+    })
+    .catch(error => {
+        console.error("Login error", error);
+        $("#LoginFormError").attr("style", "display:block");
+        $("#LoginFormError").html(exceptionMessage);
     });
+});
   
 </script>
 </#compress>

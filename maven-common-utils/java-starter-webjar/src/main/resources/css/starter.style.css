@@ -1999,6 +1999,10 @@ div.pq-grid * {
 	box-shadow: none !important;
 }
 
+.form-control {
+    -webkit-appearance: auto;
+}
+
 .margin-t-20 {
 	margin-top: 33px;
 }
@@ -2158,6 +2162,22 @@ div.pq-grid * {
 	opacity: 0.5;
 	cursor: no-drop;
 }
+
+.input_disable_cls{
+	opacity: 0.5;
+	cursor: no-drop;
+	background-color: #ccc;
+}
+
+.input_disable_cls:foucs{
+	background-color: #ccc !important;
+}
+
+.input_disable_cls.form-control:focus {
+	background-color: #ccc !important;
+}
+
+ 
 
 /* .multiselectcount {
 	border: 1px solid #005da3;
@@ -3322,8 +3342,9 @@ p.divdeform {
 	width: 100%;
 	color: white;
 	text-align: center;
-	line-height: 3;
+	line-height: inherit !important;
 	z-index: 99999;
+	padding: 4px 0px !important;
 }
 
 .footer.bg-dark{
@@ -3479,14 +3500,15 @@ p.divdeform {
 .search-select-block {
     display: flex;
     align-items: center;
-	width: 74%;
+	width: 75%;
 }
 
 .actionbtnblock {
     display: flex;
     align-items: center;
     justify-content: end;
-    width: 26%;
+    width: 50%;
+    gap:10px;
 }
 
 .actionbtnblock .importbtn {
@@ -6518,13 +6540,14 @@ table.customtblecls tr:nth-child(odd) {
 
 .profilepic img {
 	height: 150px;
-	width: 160px;
-	border-radius: 100px;
-	border: 5px solid #fff;
-	margin-top: -50px;
-	position: absolute;
-	top: 105px;
-	left: 65px;
+    width: 160px;
+    border-radius: 100px;
+    border: 5px solid #fff;
+    margin-top: -50px;
+    position: absolute;
+    top: 105px;
+    left: 50%;
+    margin-left: -80px;
 }
 
 .profilepic a{
@@ -6995,6 +7018,7 @@ table.customtblecls tr:nth-child(odd) {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	padding: 5px 0px;
 }
 
 .pq-grid-footer .pq-ui-button {
@@ -10228,4 +10252,18 @@ input.searchinputbox {
 .dragaction:hover .fa{
 	    background: var(--bluebgcolor) !important;
     color: #fff !important;
+}
+
+.ui-dialog-titlebar-close:after {
+    content: "\f057";
+    position: relative;
+    font-family: "Font Awesome 6 Free";
+}
+
+.formicosn .fa-key {
+    transform: rotate(-135deg) translate(1px, 2px);
+}
+
+.expanded-multiselect:before{
+    content:"" !important;
 }

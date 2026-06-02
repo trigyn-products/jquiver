@@ -103,13 +103,27 @@
   
 	//Add logic to save form data
 	function saveData (){
-    let roleData = new Object();
-    roleData.roleId = $("#roleId").val();
-    roleData.roleName =  $("#roleName").val();
-    roleData.roleDescription = $("#roleDescription").val();
-    roleData.rolePriority = $("#rolePriority").val();
-    roleData.isActive = ($("#isActive").is(":checked") ? 1 : 0);
-    
+        let roleData = new Object();
+        roleData.roleId = $("#roleId").val();
+        if($("#roleName").val() != ""){
+            roleData.roleName =  $("#roleName").val();
+        } else {
+            $("#roleName").closest("div").parent().effect("highlight", {}, 3000);
+            $("#roleName").focus();
+            showMessage("Please enter Role Name","warn");
+            return false;
+        }  
+        roleData.roleDescription = $("#roleDescription").val();
+        if($("#rolePriority").val() != ""){
+            roleData.rolePriority = $("#rolePriority").val();
+        }else{
+            $("#rolePriority").closest("div").parent().effect("highlight", {}, 3000);
+            $("#rolePriority").focus();
+            showMessage("Please enter Role Priority","warn");
+            return false;
+        }
+        roleData.isActive = ($("#isActive").is(":checked") ? 1 : 0);
+        
 		$.ajax({
 		    type : "POST",
             contentType : "application/json",

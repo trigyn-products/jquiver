@@ -87,13 +87,17 @@ public class TypeAheadService {
 			throws Exception {
 		logger.debug("Inside TypeAheadService.saveAutocompleteDetails(formDataMap: {}, sourceTypeId: {})", formDataMap,
 				sourceTypeId);
-
+		String					autoCompleteSelectQuery;
 		Autocomplete			autocomplete			= new Autocomplete();
 		UserDetailsVO			userDetailsVO			= userDetailsService.getUserDetails();
 		Date					date					= new Date();
 		String					autoCompleteId			= formDataMap.getFirst("autocompleteId");
 		String					autoCompleteDesc		= formDataMap.getFirst("autocompleteDesc");
-		String					autoCompleteSelectQuery	= formDataMap.getFirst("autocompleteQuery");
+		if (formDataMap.getFirst("autocompleteSelectQuery") == null) {
+			autoCompleteSelectQuery = formDataMap.getFirst("autocompleteQuery");
+		} else {
+			autoCompleteSelectQuery = formDataMap.getFirst("autocompleteSelectQuery");
+		}
 		String					dataSourceId			= formDataMap.getFirst("dataSourceId");
 		Optional<Autocomplete>	autocompleteOptional	= typeAheadRepository.findById(autoCompleteId);
 		String					action					= "";
@@ -110,15 +114,17 @@ public class TypeAheadService {
 			autocomplete.setAutocompleteId(autoCompleteId);
 			autocomplete.setCreatedBy(userDetailsVO.getUserName());
 			autocomplete.setCreatedDate(date);
-			if (StringUtils.isBlank(dataSourceId) == false) {
-				autocomplete.setDatasourceId(dataSourceId);
-			}
+		}
+		if (StringUtils.isBlank(dataSourceId) == false) {
+			autocomplete.setDatasourceId(dataSourceId);
+		} else {
+			autocomplete.setDatasourceId(null);
 		}
 		autocomplete.setAutocompleteDesc(autoCompleteDesc);
 		autocomplete.setAutocompleteSelectQuery(autoCompleteSelectQuery);
 		autocomplete.setLastUpdatedTs(date);
 		Integer			typeSelect		= autocomplete.getAcTypeId();
-		AutocompleteVO	autocompleteVO	= convertEntityToVO(autoCompleteId, autoCompleteDesc, autoCompleteSelectQuery);
+		AutocompleteVO	autocompleteVO	= convertEntityToVO(autocomplete);
 		typeAheadRepository.save(autocomplete);
 		moduleVersionService.saveModuleVersion(autocompleteVO, null, autoCompleteId, "jq_autocomplete_details",
 				sourceTypeId);
@@ -157,16 +163,22 @@ public class TypeAheadService {
 		activitylog.activitylog(requestParams);
 	}
 
-	public AutocompleteVO convertEntityToVO(String autoCompleteId, String autoCompleteDesc,
-			String autoCompleteSelectQuery) {
+	public AutocompleteVO convertEntityToVO(Autocomplete autocomplete) {
 		logger.debug(
 				"Inside TypeAheadService.convertEntityToVO(autoCompleteId: {}, autoCompleteDesc: {}, autoCompleteSelectQuery: {})",
-				autoCompleteId, autoCompleteDesc, autoCompleteSelectQuery);
+				autocomplete.getAutocompleteId(), autocomplete.getAutocompleteDesc(), autocomplete.getAutocompleteSelectQuery());
 
 		AutocompleteVO autocompleteVO = new AutocompleteVO();
-		autocompleteVO.setAutocompleteId(autoCompleteId);
-		autocompleteVO.setAutocompleteDesc(autoCompleteDesc);
-		autocompleteVO.setAutocompleteQuery(autoCompleteSelectQuery);
+		autocompleteVO.setAutocompleteId(autocomplete.getAutocompleteId());
+		autocompleteVO.setAutocompleteDesc(autocomplete.getAutocompleteDesc());
+		autocompleteVO.setAutocompleteSelectQuery(autocomplete.getAutocompleteSelectQuery());
+		autocompleteVO.setAcTypeId(autocomplete.getAcTypeId());
+		autocompleteVO.setCreatedBy(autocomplete.getCreatedBy());
+		autocompleteVO.setCreatedDate(autocomplete.getCreatedDate());
+		autocompleteVO.setDataSourceId(autocomplete.getDatasourceId());
+		autocompleteVO.setIsCustomUpdated(autocomplete.getIsCustomUpdated());
+		autocompleteVO.setLastUpdatedBy(autocomplete.getLastUpdatedBy());
+		autocompleteVO.setLastUpdatedTs(autocomplete.getLastUpdatedTs());
 		return autocompleteVO;
 	}
 
@@ -190,8 +202,7 @@ public class TypeAheadService {
 			autocomplete.setLastUpdatedTs(date);
 			autocomplete.setDatasourceId(StringUtils.isBlank(dataSourceId) == true ? null : dataSourceId);
 
-			AutocompleteVO autocompleteVO = convertEntityToVO(autoCompleteId, autocomplete.getAutocompleteDesc(),
-					autocomplete.getAutocompleteSelectQuery());
+			AutocompleteVO autocompleteVO = convertEntityToVO(autocomplete);
 
 			typeAheadRepository.save(autocomplete);
 			moduleVersionService.saveModuleVersion(autocompleteVO, null, autoCompleteId, "jq_autocomplete_details",

@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>2.3-SNAPSHOT</version>
+		<version>2.10-SNAPSHOT</version>
 	</parent>
 	<artifactId>java-web-starter</artifactId>
 
@@ -44,13 +44,13 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>webjars</artifactId>
-			<version>2.3-SNAPSHOT</version>
+			<version>2.10-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>webui</artifactId>
-			<version>2.3-SNAPSHOT</version>
+			<version>2.10-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -147,7 +147,18 @@
 			<artifactId>jjwt-api</artifactId>
 			<version>0.12.6</version>
 		</dependency>
-
+		<dependency>
+		    <groupId>io.jsonwebtoken</groupId>
+		    <artifactId>jjwt-impl</artifactId>
+		    <version>0.12.6</version>
+		    <scope>runtime</scope>
+		</dependency>
+		<dependency>
+		    <groupId>io.jsonwebtoken</groupId>
+		    <artifactId>jjwt-jackson</artifactId> <!-- or jjwt-gson if Gson is preferred -->
+		    <version>0.12.6</version>
+		    <scope>runtime</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.ldap</groupId>
 			<artifactId>spring-ldap-core</artifactId>
@@ -206,6 +217,13 @@
 			<version>20250107</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.freehep</groupId>
+			<artifactId>freehep-graphicsio-emf</artifactId>
+			<version>2.4</version>
+		</dependency>
+
+
 		<!-- https://mvnrepository.com/artifact/io.soluble.pjb/php-java-bridge -->
 		<dependency>
 			<groupId>io.soluble.pjb</groupId>
@@ -261,6 +279,46 @@
 			<artifactId>javax.persistence-api</artifactId>
 			<version>2.2</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.17.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>5.2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml-full</artifactId>
+			<version>5.2.5</version>
+		</dependency>
+		<!-- Flexmark (Markdown -> HTML) -->
+		<dependency>
+			<groupId>com.vladsch.flexmark</groupId>
+			<artifactId>flexmark-all</artifactId>
+			<version>0.64.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+			<version>4.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.xmlbeans</groupId>
+			<artifactId>xmlbeans</artifactId>
+			<version>5.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency> 
 
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
@@ -282,7 +340,21 @@
 			<groupId>net.minidev</groupId>
 			<artifactId>json-smart</artifactId>
 		</dependency>
-
+		
+		<dependency>
+		  <groupId>org.projectlombok</groupId>
+		  <artifactId>lombok</artifactId>
+		</dependency>
+		
+		<dependency>
+		  <groupId>org.slf4j</groupId>
+		  <artifactId>slf4j-api</artifactId>
+		</dependency>
+		
+		<dependency>
+		  <groupId>org.slf4j</groupId>
+		  <artifactId>slf4j-simple</artifactId>
+		</dependency>
 
 	</dependencies>
 

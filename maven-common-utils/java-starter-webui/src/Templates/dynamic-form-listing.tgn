@@ -30,15 +30,6 @@
                  <button type='button' onclick="location.href='${contextPath}${viewPath}/jq-script-lib-details'" class="addonicons scriptlibraryicon" title="${messageSource.getMessage('jws.addscriptlibrary')}">
                     </button>
                 </span>   
-				
-			<#if environment == "dev">
-
-             <button  id="downloadForm" name="downloadForm"  type='button' onclick= "downloadForm();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.downloadforms')}">${messageSource.getMessage('jws.downloadforms')}                  
-                </button>
-
-                 <button  id="uploadForm" name="uploadForm"  type='button' onclick= "uploadForm();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.uploadforms')}">${messageSource.getMessage('jws.uploadforms')}                  
-                </button> 
-			</#if> 
 
               <button  name="addNewDynamicForm"  type='button'  onclick="submitForm(this)" class="spacingclss btn btn-primary " title="${messageSource.getMessage('jws.addform')}">${messageSource.getMessage('jws.addform')}               
                 </button> 
@@ -144,19 +135,12 @@
         const updatedDate = uiObject.rowData.lastUpdatedTs;
         const revisionCount = uiObject.rowData.revisionCount;
 		let actionElement;
-		<#if environment == "dev">
-			actionElement = "<span id='"+dynamicFormId+"' class= 'grid_action_icons'><i class='fa fa-pencil'></i></span>";
-      		actionElement = actionElement + "<span id='"+dynamicFormId+"' class= 'grid_action_icons' onclick='downloadFormById(this)'><i class='fa fa-download'></i></span>";
-			actionElement = actionElement + "<span id='"+dynamicFormId+"_upload' name='"+dynamicFormName+"' class= 'grid_action_icons' onclick='uploadFormById(this)'><i class='fa fa-upload'></i></span>";
-		<#else>
 			actionElement = '<span id="'+dynamicFormId+'" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>';
 			if(revisionCount > 1){
 				actionElement = actionElement + '<span id="'+dynamicFormId+'_entity" name="'+dynamicFormName+'" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
 			}else{
 				actionElement = actionElement + '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
-			}
-	
-		</#if>	
+			}	
             		if(uiObject.rowData.formTypeId == 1) { 
 		        <#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>
 		        	<#list loggedInUserRoleList as loggedInUserRole>
@@ -223,38 +207,5 @@
 	function backToHome() {
 		location.href = contextPath+"/cf/home";
 	}
-	<#if environment == "dev">
-		function downloadForm(){
-		     $.ajax({
-		        url:contextPath+"/cf/ddf",
-		        type:"POST",
-				success : function(data) {
-				  showMessage("Dynamic Forms downloaded successfully", "success");
-				},
-				error : function(xhr, error){
-				  showMessage("Error occurred while downloading dynamic forms", "error");
-				}, 
-		        
-		    });
-		}
-		function uploadForm(){
-			var formTypeID = $("#typeSelect").val();
-		     $.ajax({
-		        url:contextPath+"/cf/udf",
-		        type:"POST",
-		        data:{
-	        		formTypeID : formTypeID,
-	        	}, 
-		        success : function(data) {
-				  showMessage("Dynamic Forms uploaded successfully", "success");
-				},
-				error : function(xhr, error){
-				  showMessage("Error occurred while uploading dynamic forms", "error");
-				},
-		        
-		    });
-		}
-	</#if>
-	
 	
 </script>

@@ -80,7 +80,7 @@ public class DashletDAO extends DBConnection {
 	public List<Object[]> getUserPreferences(String userId, String dashletId, String dashboardId) throws Exception {
 		String	sql		= "SELECT dp.propertyId AS property, COALESCE(dpc.propertyValue, dp.defaultValue) AS value, dp.validation AS validation "
 				+ " FROM DashletProperties dp LEFT OUTER JOIN DashletPropertyConfiguration dpc ON dp.propertyId = dpc.id.propertyId "
-				+ "AND dpc.id.userId=:userId  WHERE dp.isDeleted = 0 AND dp.dashletId = :dashletId AND dpc.id.dashboardId =:dashboardId ";
+				+ "AND dpc.id.userId=:userId AND dpc.id.dashboardId =:dashboardId WHERE dp.isDeleted = 0 AND dp.dashletId = :dashletId ";
 
 		Query	query	= getCurrentSession().createQuery(sql, Object[].class);
 		query.setParameter("userId", userId);
@@ -93,7 +93,7 @@ public class DashletDAO extends DBConnection {
 	public List<Object[]> getUserDashletCoordinates(String userId, String dashletId, String dashboardId) throws Exception {
 		String	sql		= "SELECT COALESCE(dc.xCoordinate,dsh.xCoordinate) AS xCoordinate,COALESCE(dc.yCoordinate,dsh.yCoordinate) AS yCoordinate "
 				+ "FROM Dashlet dsh LEFT OUTER JOIN DashletConfiguration dc ON dsh.dashletId = dc.id.dashletId "
-				+ "AND dc.id.userId=:userId where dsh.dashletId=:dashletId AND dc.id.dashboardId=:dashboardId ";
+				+ "AND dc.id.userId=:userId AND dc.id.dashboardId =:dashboardId where dsh.dashletId=:dashletId ";
 		Query	query	= getCurrentSession().createQuery(sql, Object[].class);
 		query.setParameter("userId", userId);
 		query.setParameter("dashletId", dashletId);

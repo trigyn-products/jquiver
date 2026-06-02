@@ -3,6 +3,7 @@
 	<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
 	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+    <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
 
 </head>
 
@@ -138,8 +139,9 @@
 
 	</form>
 	<div class="row">
-		<div class="col-12">
-			<div class="text-end">
+		<div class="d-flex justify-content-end align-items-center gap-2">
+            <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_api_client_details')">Create/Link Module</button>
+			<!-- <div class="text-end"> -->
 				<div class="btn-group dropup custom-grp-btn">
 					<div id="keyPairGeneratorDiv" style="display:none;">
 						<input id="keyPairGeneratorBtn" style="margin-right:2.5px;" onclick="generateKeyPair();" class="btn btn-primary" name="keyPairGeneratorBtn" value="Generate Key Pair" type="button">
@@ -160,9 +162,13 @@
 					<span onclick="backToPreviousPage();">
 					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 				</span>
-				</div>
+				<!-- </div> -->
 			</div>
 		</div>
+        <input id="moduleId" value="ded49cbd-ed7c-40ce-b1f8-c2e34ad33473" name="moduleId"  type="hidden">
+        <div id="moduleAutocomplete">
+            <@templateWithoutParams "common-modal-template"/>
+        </div> 
 	</div>
 	<script>
 	document.title = "Manage API Client Details";
@@ -173,6 +179,13 @@
 	let selectedAlgo;
 	let keyLength = 0;
 	let encLookup ;
+    let moduleIdList = [];
+    let deleteModuleIdList = [];
+    let newAddedModuleIdList = [];
+    let existingModuleIdList = [];
+    let allModuleList = []; 
+    var isEncrypt=false;
+
 
   $(function(){
       let obj;
@@ -192,7 +205,12 @@
       </#if>
     
       <#if (resultSet)?? && resultSet?has_content>
-      	isEdit = 1;			
+      	isEdit = 1;	
+        getModuleNames($("#clientid").val(),$("#moduleId").val());	
+        /** Added for resetting the values of BusinessModule Dialog after save and edit. **/
+	    document.getElementById("saveAndEdit").addEventListener("click", function () {
+	        resetBusModuleModal();
+	    });	
       </#if>	
       if(obj != null && obj["encryptionAlgoName"] == "RSA") {
         $("#publicKeyDiv").show();
@@ -201,7 +219,7 @@
         $("#keyPairGeneratorDiv").show();
       }
 
-      if(isEdit == 0) {
+      if(isEdit == 0) {    
         const clientid = uuidv4();
 		$("#clientid").val(clientid);
 		$("#primaryKey").val(clientid);
@@ -209,7 +227,7 @@
 		$("#clientkey").val(clientkey);
         obj = new Object();
         obj["encryptionAlgoName"] = 'NA';
-        obj["encryptionAlgoId"] = '0';
+        obj["encryptionAlgoId"] = '0';   
       }
 
 	if(obj != null && obj["encryptionAlgoName"] == "NA") {
@@ -223,7 +241,6 @@
 	savedAction(formId, isEdit);	
 	getAlgoModes(obj["encryptionAlgoId"], obj["modeId"], obj["paddingId"], obj["keyLength"]);		
 	hideShowActionButtons();
-	
 	
   });
 
@@ -249,8 +266,15 @@
 	}
 
 	function encrypt() {
-      if(validateTestEncDec($("#clientsecret").val())) {
-		var secretKey = $("#clientsecret").val();
+       let secretKey;    
+       isEncrypt=true;   
+      let selectedAlgText = $("#algoAutocomplete").find('option:selected').text();
+      if(selectedAlgText == "RSA") {
+          secretKey = $("#publicKey").val();
+      } else {
+          secretKey = $("#clientsecret").val();
+      }
+      if(validateTestEncDec(secretKey,isEncrypt)) {
         $.ajax({
             type : "GET",
             async: false,
@@ -275,14 +299,10 @@
 
 
   function decrypt() {
-      let secretKey;
       let selectedAlgText = $("#algoAutocomplete").find('option:selected').text();
-      if(selectedAlgText == "RSA") {
-          secretKey = $("#publicKey").val();
-      } else {
-          secretKey = $("#clientsecret").val();
-      }
-      if(validateTestEncDec(secretKey)) {
+      var secretKey = $("#clientsecret").val();
+      var isEncrypt=false;
+      if(validateTestEncDec(secretKey,isEncrypt)) {
         $.ajax({
             type : "GET",
             async: false,
@@ -305,34 +325,45 @@
       }
   }
 
-  function validateTestEncDec(secretKey) {
+function validateTestEncDec(secretKey,isEncrypt) {
       let selectedAlgText = $("#algoAutocomplete").find('option:selected').val();
 	  let algMode = $("#algoAutoModes").find('option:selected').val();
 	  let algPadding = $("#algoPadding").find('option:selected').val();	  	
 	  if(selectedAlgText == "-1") {
             showMessage("No algorithm is selected", "error");
             return false;   
-      } else if(algPadding == "-1") {
-            showMessage("No padding is selected", "error");
-            return false;   
       } else if(algMode == "-1") {
             showMessage("No mode is selected", "error");
             return false;   
-      }  else if($("#inputText").val() == null || $("#inputText").val() == undefined || $("#inputText").val() == "") {
+      } else if(algPadding == "-1") {
+            showMessage("No padding is selected", "error");
+            return false;   
+      } else if($("#keyLength").val() <= 0) {
+            showMessage("Key Lenght must be greater than zero", "error");
+            return false;   
+      }  else if(secretKey == null || secretKey == undefined || secretKey == "") {
+           if(selectedAlgText == "3") {
+               if(isEncrypt) {
+                showMessage("Public Key is required to test", "error");
+                return false;
+                } else {
+                    showMessage("Private Key is required to test", "error");
+                    return false; 
+                }
+           } else {
+                showMessage("Client secret key is required to test", "error");
+                return false;
+           }
+           
+      } else if($("#inputText").val() == null || $("#inputText").val() == undefined || $("#inputText").val() == "") {
             showMessage("Test input is empty.", "error");
-            return false;
-      } else if(secretKey == null || secretKey == undefined || secretKey == "") {
-            showMessage("Client secret key is required to test", "error");
             return false;
       } else if(selectedAlgText == "DES" && secretKey.length <= 25) {
           	showMessage("Client secret key should be more than 25 characters for DES", "error");
             return false;
       }
-	  let keyLength = $("#keyLength").val();
-	  if(keyLength <= 0) {
-            showMessage("Key Lenght must be greater than zero", "error");
-            return false;   
-      }
+	 // let keyLength = $("#keyLength").val();
+	 
       return true;
   }
 
@@ -385,6 +416,7 @@
         } else {
             selectedAlgo = $("#algoAutocomplete").val();
         }
+       
 		let formData = validateData();	
 		if(formData === undefined){
 			$("#errorMessage").html("All fields are mandatory");
@@ -421,6 +453,9 @@
 	
 	//Basic validation for form fields
     function validateData(){
+        if (saveModDetails(isEdit,$('#clientid').val()) == false) {
+            return false;
+        }
 		let serializedForm = $("#addEditForm").serializeArray();
 		for(let iCounter =0, length = serializedForm.length;iCounter<length;iCounter++){
 			let fieldValue = $.trim(serializedForm[iCounter].value);
@@ -588,5 +623,24 @@
 			}
 		}
 	}
+
+    function saveModDetails(isEdit,entityId){
+        var busmoduleName = $("#busmoduleName").val();
+		var cmvEntityName = document.getElementById("cmvEntityName").value;        
+        if(checkExistingBusinessModuleName(busmoduleName) == true){
+            showMessage("Module Name already exists","warn");
+            $("#busmoduleName").val("");
+            return false;
+        }
+        var isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked;  
+        if (existingModuleIdList.includes(busmoduleName)) {
+            showMessage("Module Name already exists for this entity.", "info");
+            return false;
+        }
+        if(busmoduleName != "" || moduleIdList.length > 0 || deleteModuleIdList.length > 0){
+            saveModuleDetails(busmoduleName,entityId,$("#moduleId").val(),isEdit,moduleIdList,deleteModuleIdList,isShowCreateLinkChkBox,cmvEntityName);
+        }
+        return true;
+    }
 	
 	</script>

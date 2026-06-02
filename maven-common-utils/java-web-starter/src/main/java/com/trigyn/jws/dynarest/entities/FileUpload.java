@@ -46,12 +46,13 @@ public class FileUpload {
 	}
 
 	public FileUpload(String fileUploadId, String physicalFileName, String originalFileName, String filePath,
-			String updatedBy, String fileBinId, String fileAssociationId) {
+			String updatedBy, Date lastUpdatedTs, String fileBinId, String fileAssociationId) {
 		this.fileUploadId		= fileUploadId;
 		this.physicalFileName	= physicalFileName;
 		this.originalFileName	= originalFileName;
 		this.filePath			= filePath;
 		this.updatedBy			= updatedBy;
+		this.lastUpdatedTs		= lastUpdatedTs;
 		this.fileBinId			= fileBinId;
 		this.fileAssociationId	= fileAssociationId;
 	}

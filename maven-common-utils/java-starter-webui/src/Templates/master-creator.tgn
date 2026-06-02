@@ -105,6 +105,7 @@
         <input type="hidden" id="columns" name="columns" value="" maxlength="1000">
         <input type="hidden" id="primaryKey" name="primaryKey" value="" maxlength="100">
         <input type="hidden" id="baseUrl" name="baseUrl" value="">
+        <input type="hidden" id="listingPageFieldCount" name="listingPageFieldCount" value="">
 
 
         <div class="row">
@@ -354,6 +355,7 @@
 					<input type="hidden" id="initialFileSizeScale" value="1">
 					<input type="hidden" id="previousFileSize" value="">
       </fieldset>
+      
       </div>            
         </div>
         </div>      
@@ -379,6 +381,7 @@
 	</div>
     </div>
     </div>
+    <div id="proceedHeader"></div>	
 	<div id="snackbar"></div>
 </div>
 </div>
@@ -397,12 +400,21 @@
 	let resourceKeyMap = new Map();
     let  fileBinMaster;
     var fileBinDisplayTexts = null;
+    var profile = "prod";
+    var listingPageFieldCount = "";
 	<#list systemProperties as key, value>    
         <#if key.propertyName == "base-url">
             baseUrl = "${value}";
         </#if>
+        <#if key.propertyName == "profile">
+            profile = "${value}";
+        </#if>
+        <#if key.propertyName == "listing-page-field-count">
+            listingPageFieldCount = "${value}";
+        </#if>
     </#list>
     $("#baseUrl").val(baseUrl);
+    $("#listingPageFieldCount").val(listingPageFieldCount);
     function toggleCaptchaVal() {
 		let isChecked = $('#toggleCaptchaChkBox').is(':checked')? 1 : 0;
         let isCsrfChecked = $('#toggleCsrfChkBox').is(':checked')? 1 : 0;		
@@ -434,6 +446,7 @@
 	        additionalParamaters: {},
 		        requestParameters: {
 		        	dbProductName: $("#dataSource").find(":selected").data("product-name"),
+                	datasourceId: $("#dataSource").find(":selected").val()
 		        },
 	        extractText: function(item) {
 	            return item.tableName;
@@ -581,10 +594,8 @@
 		let formIoChkBox = $('#formIoChkBox').is(':checked')? 1 : 0;
         $("#isFormIo").val(formIoChkBox);  
         if(formIoChkBox == 1) {
-        	$("#filebindiv").hide();
         	$("#csrfdiv").hide();
         } if(formIoChkBox == 0) {
-        	$("#filebindiv").show();
         	$("#csrfdiv").show();
         }
      }

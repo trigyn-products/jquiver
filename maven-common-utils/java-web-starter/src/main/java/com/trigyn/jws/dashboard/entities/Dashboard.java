@@ -18,6 +18,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 @Entity
 @EntityListeners(value = { UUIDEntityListener.class })
@@ -64,13 +65,14 @@ public class Dashboard implements Serializable {
 	private String								dashboardBody				= null;
 
 	@OneToMany(mappedBy = "dashboard", fetch = FetchType.EAGER)
+	@XmlTransient
 	private List<DashboardRoleAssociation>		dashboardRoles				= new ArrayList<>();
 
-	@JsonIgnore
 	@OneToMany(mappedBy = "dashboard", fetch = FetchType.LAZY)
 	private List<DashboardDashletAssociation>	dashboardDashlets			= new ArrayList<>();
 
 	@OneToMany(mappedBy = "dashboard", fetch = FetchType.LAZY)
+	@XmlTransient 
 	private List<DashboardRoleAssociation>		dashboardRoleAssociations	= new ArrayList<>();
 
 	public Dashboard() {

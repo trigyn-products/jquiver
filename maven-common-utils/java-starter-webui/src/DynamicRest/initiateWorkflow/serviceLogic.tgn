@@ -1,0 +1,86 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+var UUID = Java.type("java.util.UUID");
+
+function initiateWorkflow(requestDetails) {
+    try {
+        // Validate input
+        if (!requestDetails || !requestDetails["initialStatusId"] || !requestDetails["entityId"]) {
+            throw new Error("initialStatusId or entityId is missing");
+        }
+
+        // Prepare params for DB query
+        var params = new HashMap();
+        params.put("initialStatusId", requestDetails["initialStatusId"]);
+        params.put("definitionName", requestDetails["definitionName"]);
+
+        // Fetch workflow definition
+        var workFlowDefinationQuery = "SELECT definition_id, version FROM jq_workflow_definition " +
+                                      "WHERE definition_name = :definitionName " +
+                                      "ORDER BY version DESC LIMIT 1";
+        var workFlowDefinationResult = jq_getDBResult(workFlowDefinationQuery, null, params);
+
+        var definition_id = null;
+        var version = null;
+
+        if (workFlowDefinationResult != null && workFlowDefinationResult.containsKey("data_list")) {
+            var dataList = workFlowDefinationResult.get("data_list");
+            if (dataList != null && dataList.size() > 0) {
+                var defData = dataList.get(0);
+                definition_id = defData.get("definition_id");
+                version = defData.get("version");
+            }
+        }
+
+        // Throw error if no definition_id found
+        if (!definition_id) {
+            throw new Error("No workflow definition found for: " + requestDetails["definitionName"]);
+        }
+
+        // Fetch status_id from DB
+        var statusQuery = "SELECT status_id, definition_id, version FROM jq_workflow_status WHERE status_id = :initialStatusId";
+        var statusResultList = jq_getDBResult(statusQuery, null, params);
+
+        var status_id = null;
+        if (statusResultList != null && statusResultList.containsKey("data_list")) {
+            var dataList = statusResultList.get("data_list");
+            if (dataList != null && dataList.size() > 0) {
+                var statusData = dataList.get(0);
+                status_id = statusData.get("status_id");
+            }
+        }
+
+        if (!status_id) {
+            throw new Error("No status found for initialStatusId: " + requestDetails["initialStatusId"]);
+        }
+
+        // Generate UUID for instance_id
+        var instanceId = UUID.randomUUID().toString();
+
+        // Prepare parameters
+        var insertParams = new HashMap();
+        insertParams.put("instance_id", instanceId);
+        insertParams.put("definition_id", definition_id);
+        insertParams.put("current_status_id", status_id);
+        insertParams.put("started_by", requestDetails["loggedInUserName"]);
+        insertParams.put("last_updated_by", requestDetails["loggedInUserName"]);
+        insertParams.put("entity_id", requestDetails["entityId"]);
+        insertParams.put("version", version);
+
+        // Insert jq_workflow_instance
+        var insertQuery = "INSERT INTO jq_workflow_instance " +
+                          "(instance_id, definition_id, current_status_id, started_by, started_at, last_updated_by, last_updated_ts, is_active, entity_id) " +
+                          "VALUES (:instance_id, :definition_id, :current_status_id, :started_by, NOW(), :last_updated_by, NOW(), 1, :entity_id)";
+
+        jq_updateDBQuery(insertQuery, null, insertParams);
+
+        return instanceId;
+
+    } catch (e) {
+        System.out.println("Error in initiateWorkflow: " + e.message);
+        return null; // Stop execution on any error
+    }
+}
+
+// Call the function
+initiateWorkflow(requestDetails);

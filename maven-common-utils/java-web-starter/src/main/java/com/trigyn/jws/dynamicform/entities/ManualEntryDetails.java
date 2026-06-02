@@ -211,4 +211,13 @@ public class ManualEntryDetails {
 		this.action = action;
 	}
 
+	@Override
+	public String toString() {
+		return "ManualEntryDetails [manualEntryId=" + manualEntryId + ", manualId=" + manualId + ", entryName="
+				+ entryName + ", entryContent=" + entryContent + ", sortIndex=" + sortIndex + ", createdBy=" + createdBy
+				+ ", createdDate=" + createdDate + ", lastUpdatedBy=" + lastUpdatedBy + ", lastModifiedOn="
+				+ lastModifiedOn + ", isCustomUpdated=" + isCustomUpdated + ", parentId=" + parentId + ", action="
+				+ action + "]";
+	}
+
 }

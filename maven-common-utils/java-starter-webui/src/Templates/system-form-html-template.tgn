@@ -1,4 +1,5 @@
 <#assign optionalClass=" optional ">
+<#assign index = 0>
 <#noparse>
 <#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
 </#noparse>
@@ -82,7 +83,7 @@
 	    		<div class="col-lg-3 col-12">
 					<div class="col-inner-form full-form-fields">
 						<#if (columnDetailsList.i18NPresent)?? && (columnDetailsList.i18NPresent) == true>
-							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "date"  && (columnDetailsList.columnType) != "datetime" && (columnDetailsList.columnType) != "boolean">
+							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "date"  && (columnDetailsList.columnType) != "datetime" && (columnDetailsList.columnType) != "boolean" && (columnDetailsList.columnType) != "JSON" >
                                     
 						            <label for="${(columnDetailsList.columnName)}" >
 						            <#if (columnDetailsList.isMandatory)>
@@ -103,6 +104,8 @@
 										<input id="${(columnDetailsList.columnName)}" readonly name="${(columnDetailsList.columnName)}" class="form-control" placeholder=<#noparse><@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/></#noparse> />
 				                        <button id="${(columnDetailsList.columnName)}-trigger" class="calender_icon" type="button" aria-label="calendar button"><i class="fa fa-calendar" aria-hidden="true"></i></button>
 									</span>
+                           
+                        
 							<#else>
 								<#if (columnDetailsList.isMandatory)>
 						            <span class="asteriskmark">*</span>
@@ -113,8 +116,7 @@
 							</#if>
 							
 						<#else>	
-							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "date" && (columnDetailsList.columnType) != "datetime" && (columnDetailsList.columnType) != "boolean">
-                             
+							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "date" && (columnDetailsList.columnType) != "datetime" && (columnDetailsList.columnType) != "boolean" && (columnDetailsList.columnType) != "enum"  && (columnDetailsList.columnType) != "set" && (columnDetailsList.columnType) != "JSON" >
 						            <label for="${(columnDetailsList.columnName)}" >
 									<#if (columnDetailsList.isMandatory)>
 						            <span class="asteriskmark">*</span>
@@ -128,20 +130,28 @@
                                     <div class="displayflex">
 										<label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
 										<label class="newswitch">
-											<input type="hidden"
-											       id="toggleBoolean"
+                                        <#noparse><#if resultSetObject?? && resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>??></#noparse>
+											    <input type="hidden"
+											       id="toggleBoolean_${index}"
+											       name="${(columnDetailsList.columnName)}"
+											       value=<#noparse>${resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse></#noparse>}>
+                                        <#noparse> <#else> </#noparse>
+                                                <input type="hidden"
+											       id="toggleBoolean_${index}"
 											       name="${(columnDetailsList.columnName)}"
 											       value="0">
-											       <#assign colName = columnDetailsList.tableColumnName>
+                                       <#noparse></#if></#noparse>
+									   <#assign colName = columnDetailsList.tableColumnName>
 												<input type="checkbox"
-												   name="toggleBooleanChkBox"
+												   name="toggleBooleanChkBox_${index}"
 												   class="onoffswitch-checkbox"
-												   id="toggleBooleanChkBox"												   
+												   id="toggleBooleanChkBox_${index}"												   
 												   <#noparse><#if resultSetObject?? && resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>?? && resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>?number != 0>checked</#if></#noparse>>
 													
 													<span class="slider round"/>
 												</label>
-									</div>                  
+									</div>  
+                                     <#assign index = index + 1>                
 				            <#elseif (columnDetailsList.columnType) == "date" || (columnDetailsList.columnType) == "datetime">
 				                    <#if (columnDetailsList.isMandatory)>
 						            <span class="asteriskmark">*</span>
@@ -152,6 +162,21 @@
 										<input id="${(columnDetailsList.columnName)}" readonly name="${(columnDetailsList.columnName)}" class="form-control ${optionalClass!''}" placeholder="${(columnDetailsList.fieldName)!''}">
 				                        <button id="${(columnDetailsList.columnName)}-trigger" class="calender_icon" type="button" aria-label="calendar button"><i class="fa fa-calendar" aria-hidden="true"></i></button>
 									</span>
+                            <#elseif (columnDetailsList.columnType) == "enum" || (columnDetailsList.columnType) == "set">
+                            
+				                   <#if (columnDetailsList.isMandatory)>
+							            <span class="asteriskmark">*</span>
+							            <#assign optionalClass="">
+						            </#if>
+                                   <label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
+                                      
+                                        <select id="${(columnDetailsList.columnName)}"
+                                                name="${(columnDetailsList.columnName)}"
+                                                class="form-control ${optionalClass!''}">
+                                            <#list columnDetailsList.dbValues as val>
+                                                <option value="${val}">${val}</option>${val}
+                                            </#list>
+                                        </select>
 							<#else>
 								<#if (columnDetailsList.isMandatory)>
 						            <span class="asteriskmark">*</span>
@@ -170,11 +195,11 @@
                 <div class="col-lg-3 col-12" title="Auto Increment">
 					<div class="col-inner-form full-form-fields">
                         <label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
-						<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control  ${optionalClass!''}"placeholder="Auto Increment">
+						<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control input_disable_cls ${optionalClass!''}"placeholder="Auto Increment">
 					</div>
 				</div>
 			  <#else>
-                  <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control  ${optionalClass!''}"placeholder="Auto Increment">
+                  <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control input_disable_cls ${optionalClass!''}"placeholder="Auto Increment">
               </#if>
             <#elseif (columnDetailsList.autoIncrement) == false>
 				<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" > 
@@ -246,7 +271,18 @@
   
     const actionDropdownBtn = document.getElementById("actionDropdownBtn");	
 	const backBtn = document.getElementById("backBtn");
-	const toggleBooleanChkBox = document.getElementById("toggleBooleanChkBox");
+	//const toggleBooleanChkBox = document.getElementById("toggleBooleanChkBox");
+    const toggleBooleanChkBox = document.querySelectorAll('.onoffswitch-checkbox');
+    if(toggleBooleanChkBox){
+        toggleBooleanChkBox.forEach(function(checkbox) {
+            checkbox.addEventListener("change", function (event) {
+                const idParts = checkbox.id.split("_")[1]; 
+                const index = idParts[idParts.length - 1]; 
+                toggleBooleanVal(index);
+            });
+        });
+    }
+
 	
 	actionDropdownBtn.addEventListener("click", function (event) {
 	    actionOptions();
@@ -256,7 +292,7 @@
 	    backToPreviousPage();
 	});
 	
-	if (toggleBooleanChkBox) {
+	/*if (toggleBooleanChkBox) {
 		toggleBooleanChkBox.addEventListener("change", function (event) {
 		    toggleBooleanVal();
 		});
@@ -264,7 +300,15 @@
   function toggleBooleanVal() {
 		let isChecked = $('#toggleBooleanChkBox').is(':checked')? 1 : 0;		
         $("#toggleBoolean").val(isChecked);  
-    }  
+    }  */
+  function toggleBooleanVal(index) {
+        const checkbox = document.getElementById('toggleBooleanChkBox_'<#noparse>+index</#noparse>);
+        const hiddenField = document.getElementById('toggleBoolean_'<#noparse>+index</#noparse>);
+        if (checkbox && hiddenField) {
+            const isChecked = checkbox.checked ? 1 : 0;
+            hiddenField.value = isChecked;
+        }
+    }
   
   $("#reloadCaptcha").click(function(event){
      var imagesrc=contextPath+"/cf/captcha/"+formId+"_captcha"+"#";
@@ -272,7 +316,6 @@
     $("#formCaptcha").val("");
 });
   $(function(){
-  
     Object.keys(saveFunctionMap).forEach(actionId => {
 		const $el = $('#' + actionId);
 		if ($el.length) {
@@ -312,6 +355,10 @@
                     try{
                        $("#"+"${(columnDetailsList.columnName)}") .val(Calendar.printDate(Calendar.parseDate('<#noparse>${(resultSetList</#noparse>.${(columnDetailsList.tableColumnName!'')}<#noparse>)!""}</#noparse>',false),"%d-%B-%Y"));
                     }catch(excp){}
+                    <#elseif (columnDetailsList.columnType) == "enum" || (columnDetailsList.columnType) == "set">
+                        try{
+                            $("#${(columnDetailsList.columnName)} option[value='<#noparse>${(resultSetList</#noparse>.${(columnDetailsList.tableColumnName!'')}<#noparse>)!""}</#noparse>']").attr("selected", "selected");
+                        }catch(excp){}
                     </#if>
                 </#list>    
             </#if>
@@ -394,7 +441,7 @@
 	            let regex = new RegExp(pattern);
 	             if (regex.test(fieldValue) == false) {
 	                 var errorMessage = "Invalid value";
-                   let labelText = $("input[name='" + fieldName + "']")
+                   let labelText = $("[name='" + fieldName + "']")
 							    .parents(".col-inner-form")
 							    .find("label")
 							    .text()

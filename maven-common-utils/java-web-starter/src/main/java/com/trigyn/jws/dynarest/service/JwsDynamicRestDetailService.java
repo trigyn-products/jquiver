@@ -35,10 +35,10 @@ import javax.script.ScriptException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.quartz.DateBuilder;
 import org.quartz.JobDataMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
@@ -74,6 +74,7 @@ import org.springframework.web.reactive.function.client.WebClient.RequestHeaders
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
@@ -111,6 +112,7 @@ import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 import com.trigyn.jws.usermanagement.security.config.JwsUserDetailsService;
 import com.trigyn.jws.usermanagement.security.config.JwtUtil;
 import com.trigyn.jws.usermanagement.vo.JwsAuthenticationType;
+import com.trigyn.jws.usermanagement.vo.JwtRequestDetails;
 import com.trigyn.jws.usermanagement.vo.MultiAuthSecurityDetailsVO;
 import com.trigyn.jws.webstarter.utils.JQuiverProperties;
 
@@ -273,7 +275,8 @@ public class JwsDynamicRestDetailService {
 					}
 				}
 				requestParameterMap.put("requestHeaders", headerMap);
-				requestParameterMap.put("session", httpServletRequest.getSession());
+				String username = jwtUtil.extractUserNameFromRequest(httpServletRequest);
+				requestParameterMap.put("username", username); 
 				StringBuilder resultStringBuilder = new StringBuilder();
 				resultStringBuilder.append(restApiDetails.getServiceLogic());
 				return templatingUtils.processTemplateContents(resultStringBuilder.toString(), "service",
@@ -413,7 +416,8 @@ public class JwsDynamicRestDetailService {
 		
 		scriptEngine.put("httpRequestObject", httpServletRequest);
 		scriptEngine.put("requestHeaders", headerMap);
-		scriptEngine.put("session", httpServletRequest.getSession());
+		String username = jwtUtil.extractUserNameFromRequest(httpServletRequest);
+		scriptEngine.put("username", username);
 
 		if (files != null && files.size() > 0) {
 			scriptEngine.put("files", files);
@@ -434,7 +438,7 @@ public class JwsDynamicRestDetailService {
 	        		return result;
 	        	}
 	        }else if(scriptEngine.getFactory().getLanguageName().equalsIgnoreCase("php")) {
-	        	System.out.println("Sys Out is necessary for PHP"+scriptResult);
+	        	logger.info("Script Result obtained during execution using PHP" + scriptResult);
 		        String result = stringWriter.toString();
 		        return result;
 	        } else {
@@ -568,8 +572,24 @@ public class JwsDynamicRestDetailService {
 			JobDataMap jobDataMap = new JobDataMap();
 			jobDataMap.put("dynamicRestUrl", requestParams.get("dynamicRestUrl"));
 			jobDataMap.put("mailSenderGroupId", mailSenderGroupId);
-			//String paramJson = mapper.writeValueAsString(requestParams);
-			//jobDataMap.put("requestParams", paramJson);
+			// Create a new map to hold just the parameters
+			Map<String, String[]> paramsMap = new HashMap<>();
+			// Iterate over the original map and cast values safely
+			requestParams.forEach((key, value) -> {
+			    // Check if the value is an array of strings before putting it into the new map
+			    if (value instanceof String[]) {
+			        paramsMap.put(key, (String[]) value);
+			    } else {
+			        // Handle cases where the value isn't a String[]
+			        // For example, convert it to a String[] if it's a single String
+			        if (value instanceof String) {
+			            paramsMap.put(key, new String[]{(String) value});
+			        }
+			    }
+			});
+			ObjectMapper mapper = new ObjectMapper();
+			String paramJson = mapper.writeValueAsString(paramsMap);
+			jobDataMap.put("requestParams", paramJson);
 			String jobGroup = mailSenderGroupId;
 			boolean status = jobService.scheduleOneTimeJob("sendMail", jobGroup, JwsMailScheduleJob.class,
 					DateBuilder.evenMinuteDateAfterNow(), jobDataMap);
@@ -817,7 +837,7 @@ public class JwsDynamicRestDetailService {
 					if (fileInfoObject.getMimeType() != null) {
 						mimeType = fileInfoObject.getMimeType();
 					} else {
-						mimeType = httpServletRequest.getSession().getServletContext().getMimeType(filePathStr);
+						mimeType = httpServletRequest.getServletContext().getMimeType(filePathStr);
 
 					}
 				}
@@ -1058,9 +1078,12 @@ public class JwsDynamicRestDetailService {
 				&& (authType == com.trigyn.jws.usermanagement.utils.Constants.AuthType.DAO.getAuthType()
 						|| authType == com.trigyn.jws.usermanagement.utils.Constants.AuthType.LDAP.getAuthType()
 						|| authType == com.trigyn.jws.usermanagement.utils.Constants.AuthType.OAUTH.getAuthType())) {
-
-			webClientBuilder.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtUtil.generateToken(
-					userDetailsService.loadUserByUsername(jwsUserDetailsService.getUserDetails().getUserName())));
+			JwtRequestDetails token = jwtUtil.generateToken(
+					userDetailsService.loadUserByUsername(jwsUserDetailsService.getUserDetails().getUserName()));
+			webClientBuilder.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " +token.getToken());
+			webClientBuilder.defaultCookie("auth_token", token.getToken());
+			webClientBuilder.defaultCookie("r", token.getRequestId());
+			
 
 		}
 

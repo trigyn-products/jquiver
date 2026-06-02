@@ -1,6 +1,7 @@
 package com.trigyn.jws.formio.vo;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class FormIOVO implements Serializable{
 
@@ -10,7 +11,7 @@ public class FormIOVO implements Serializable{
 
 	private String	createdBy		= null;
 
-	private String	createdDate		= null;
+	private Date	createdDate		= null;
 
 	private String	formDescription	= null;
 
@@ -28,7 +29,11 @@ public class FormIOVO implements Serializable{
 
 	private String	lastUpdatedBy	= null;
 
-	private String	lastUpdatedTs	= null;
+	private Date	lastUpdatedTs	= null;
+	
+	private Integer	multiSubmit	= null;
+	
+	private String	routeName	= null;
 
 	public String getFormIoId() {
 		return this.formIoId;
@@ -46,11 +51,12 @@ public class FormIOVO implements Serializable{
 		this.createdBy = createdBy;
 	}
 
-	public String getCreatedDate() {
-		return this.createdDate;
+	
+	public Date getCreatedDate() {
+		return createdDate;
 	}
 
-	public void setCreatedDate(String createdDate) {
+	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
 
@@ -110,14 +116,6 @@ public class FormIOVO implements Serializable{
 		this.lastUpdatedBy = lastUpdatedBy;
 	}
 
-	public String getLastUpdatedTs() {
-		return this.lastUpdatedTs;
-	}
-
-	public void setLastUpdatedTs(String lastUpdatedTs) {
-		this.lastUpdatedTs = lastUpdatedTs;
-	}
-
 	public String getPersistenceType() {
 		return persistenceType;
 	}
@@ -125,5 +123,31 @@ public class FormIOVO implements Serializable{
 	public void setPersistenceType(String persistenceType) {
 		this.persistenceType = persistenceType;
 	}
+
+	public Integer getMultiSubmit() {
+		return multiSubmit;
+	}
+
+	public void setMultiSubmit(Integer multiSubmit) {
+		this.multiSubmit = multiSubmit;
+	}
+
+	public String getRouteName() {
+		return routeName;
+	}
+
+	public void setRouteName(String routeName) {
+		this.routeName = routeName;
+	}
+
+	public Date getLastUpdatedTs() {
+		return lastUpdatedTs;
+	}
+
+	public void setLastUpdatedTs(Date lastUpdatedTs) {
+		this.lastUpdatedTs = lastUpdatedTs;
+	}
+	
+	
 
 }

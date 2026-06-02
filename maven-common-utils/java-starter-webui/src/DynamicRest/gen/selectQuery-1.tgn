@@ -1,0 +1,1 @@
+select editor_id as editorId, editor_name as editorName from jq_manual_editor_lookup

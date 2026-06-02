@@ -32,8 +32,6 @@ public class DynamicFormExportVO {
 
 	private Date					lastUpdatedTs			= null;
 
-	private Map<Integer, String>	scriptLibId				= null;
-
 	private Map<Integer, String>	formQueryIdMap			= null;
 
 	private Integer					isCaptchaEnabled		= 0;
@@ -42,6 +40,8 @@ public class DynamicFormExportVO {
 
 	private String					formIoId				= null;
 
+	private Integer					isCustomUpdated			= 1;
+
 	public DynamicFormExportVO() {
 
 	}
@@ -49,7 +49,8 @@ public class DynamicFormExportVO {
 	public DynamicFormExportVO(String formId, String formName, String formDescription, Integer formTypeId,
 			String selectQueryFileName, String htmlBodyFileName, String dataSourceId,
 			Map<Integer, String> saveFileNameMap, Integer selectQueryType, Map<Integer, String> variableNameMap,
-			Map<Integer, String> datasourceDetailsMap, Map<Integer, Integer> queryTypeMap, Date lastUpdatedTs, Map<Integer, String> scriptLibMap) {
+			Map<Integer, String> datasourceDetailsMap, Map<Integer, Integer> queryTypeMap, Date lastUpdatedTs,
+			Integer isCustomUpdated) {
 		this.formId					= formId;
 		this.formName				= formName;
 		this.formDescription		= formDescription;
@@ -63,15 +64,15 @@ public class DynamicFormExportVO {
 		this.datasourceDetailsMap	= datasourceDetailsMap;
 		this.queryTypeMap			= queryTypeMap;
 		this.lastUpdatedTs			= lastUpdatedTs;
-		this.scriptLibId			= scriptLibMap;
+		this.isCustomUpdated		= isCustomUpdated;
 	}
 
 	public DynamicFormExportVO(String formId, String formName, String formDescription, Integer formTypeId,
 			String selectQueryFileName, String htmlBodyFileName, String dataSourceId,
 			Map<Integer, String> saveFileNameMap, Integer selectQueryType, Map<Integer, String> variableNameMap,
 			Map<Integer, String> datasourceDetailsMap, Map<Integer, Integer> queryTypeMap, Date lastUpdatedTs,
-			Map<Integer, String> scriptLibMap, Map<Integer, String> formQueryIdMap, Integer isCaptchaEnabled,
-			Integer isCsrfEnabled, String formIoId) {
+			Map<Integer, String> formQueryIdMap, Integer isCaptchaEnabled, Integer isCsrfEnabled, String formIoId,
+			Integer isCustomUpdated) {
 		super();
 		this.formId					= formId;
 		this.formName				= formName;
@@ -86,11 +87,11 @@ public class DynamicFormExportVO {
 		this.datasourceDetailsMap	= datasourceDetailsMap;
 		this.queryTypeMap			= queryTypeMap;
 		this.lastUpdatedTs			= lastUpdatedTs;
-		this.scriptLibId			= scriptLibMap;
 		this.formQueryIdMap			= formQueryIdMap;
 		this.isCaptchaEnabled		= isCaptchaEnabled;
 		this.isCsrfEnabled			= isCsrfEnabled;
 		this.formIoId				= formIoId;
+		this.isCustomUpdated		= isCustomUpdated;
 	}
 
 	public String getFormId() {
@@ -242,14 +243,6 @@ public class DynamicFormExportVO {
 		this.formQueryIdMap = formQueryIdMap;
 	}
 
-	public Map<Integer, String> getScriptLibId() {
-		return scriptLibId;
-	}
-
-	public void setScriptLibId(Map<Integer, String> scriptLibId) {
-		this.scriptLibId = scriptLibId;
-	}
-
 	public Integer getIsCaptchaEnabled() {
 		return isCaptchaEnabled;
 	}
@@ -274,4 +267,11 @@ public class DynamicFormExportVO {
 		this.formIoId = formIoId;
 	}
 
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
 }

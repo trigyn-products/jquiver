@@ -1,0 +1,17 @@
+var HashMap = Java.type("java.util.HashMap");
+var System = Java.type("java.lang.System");
+
+function updateTagName() {
+    var updatedTagName = requestDetails.tagName;
+    var tagId = requestDetails.tagId;
+    
+    var map = new HashMap();
+    map.put("updatedTagName", updatedTagName);
+    map.put("tagId", tagId);
+
+    var queryUpdate = "UPDATE jq_tag_data SET tag_name = :updatedTagName WHERE tag_id = :tagId";
+
+    jq_updateDBQuery(queryUpdate, null, map);
+}
+
+updateTagName();

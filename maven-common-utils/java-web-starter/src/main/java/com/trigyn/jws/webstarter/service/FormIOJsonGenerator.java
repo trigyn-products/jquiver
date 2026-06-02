@@ -33,7 +33,6 @@ public class FormIOJsonGenerator {
         jsonOutput.put("components", List.of(mainColumns));
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonOutput);
-      //  System.out.println(json);
         return json;
     }
     private static Map<String, Object> createColumn(List<Map<String, Object>> components, int width) {

@@ -1,0 +1,18 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+
+function checkExistingHelpManualName(){ 
+    var map = new HashMap();
+    var queryResult ={};
+    var manualId = "";
+    map.put("manualName", requestDetails.manualName);
+    if(requestDetails.manualName != ""){
+        queryResult = jq_getDBResult("SELECT manual_id as manualId FROM jq_manual_type WHERE name = :manualName",null,map);
+        if (queryResult.data_list !== undefined && queryResult.data_list.length > 0) {
+            manualId = queryResult.data_list[0].manualId;
+        }
+       
+    }  
+    return manualId;  
+}
+checkExistingHelpManualName();

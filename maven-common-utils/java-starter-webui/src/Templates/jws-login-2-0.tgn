@@ -26,34 +26,28 @@
 				id="btnSendOtp" class="otplink" name="btnSendOtp"
 				value="<@resourceBundleWithDefault "jws.sendotp" "Send OTP"/>"
 			type="submit" onclick="saveOtpAndSendMail();"> <input type="text"
-				id="password" name="password" class="form-control"
+				id="textPassword" name="textPassword" class="form-control"
 				placeholder="<@resourceBundleWithDefault "jws.enterotp" "Enter OTP"/>"
 		required autofocus > 	   
 		</#if>
 		</p>
+		<input type="hidden" id="password" name="password"/>
 		<#if innerTemplateObj.requestId?? && innerTemplateObj.requestId?has_content> 
 			<input type="hidden" id="requestId" name="requestId" value="${innerTemplateObj.requestId}"/>  
 		 </#if>
-		
+      		
 		<#if innerTemplateObj.enableCaptcha == "true">
-		<p>
-			<img id="imgCaptcha" name="imgCaptcha"
-				src=""> <span
-				id="reloadCaptcha"><i class="fa fa-refresh"
-				aria-hidden="true"></i></span> <label for="captcha" class="sr-only"><@resourceBundleWithDefault
-				"jws.entercaptcha" "Enter Captcha"/></label> <input type="text" id="captcha"
-				name="captcha" class="form-control"
-				placeholder="<@resourceBundleWithDefault " jws.entercaptcha" "Enter Captcha"/>"
-			required autofocus >
-		</p>
+		 <div class="captchablock"> 
+         <img id="imgCaptcha" name="imgCaptcha" src="">   
+         <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>    
+         <label for="captcha" class="sr-only"><@resourceBundleWithDefault "jws.entercaptcha" "Enter Captcha"/></label>  
+         <input type="text" id="captcha" name="captcha" class="form-control" placeholder="<@resourceBundleWithDefault "jws.entercaptcha" "Enter Captcha"/>" required autofocus >    
+          </div>
 		
 		</#if> 
 		<div class="blockpass">
 		<input type="hidden" id="enableAuthenticationType" name="enableAuthenticationType" value="2"/> 
-		<span class="remebermeblock"> <input type="checkbox"
-			name="remember-me" id="remember-me"> <label for="remember-me"><@resourceBundleWithDefault
-				"jws.rememberme" "Remember Me"/></label>
-		</span> <#--span class="forgotpassword"> <a href="#">Not
+		 <#--span class="forgotpassword"> <a href="#">Not
 			Received? Resend</a> </span></#if-->
 		
 		<#if innerTemplateObj.enableRegistration?? && innerTemplateObj.enableRegistration?string == "true" >  
@@ -100,6 +94,14 @@ function saveOtpAndSendMail() {
 		$("#email").focus();
 		return false;
 	}
+
+    const emailExpression =  /[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,3}$/;       
+    if( !emailExpression.test(email)){
+        $("#validemailError").show();
+        $("#email").focus();
+        return false;
+    }
+
 	$.ajax({
 	  type : "GET",
 	  async: false,
@@ -113,7 +115,10 @@ function saveOtpAndSendMail() {
       error : function(xhr, error){
       	if (xhr != undefined && xhr.status == 404) {
 			$("#userNotFoundError").show();
-		}if (xhr != undefined && xhr.status == 503) {
+		} else if(xhr != undefined && xhr.status == 401) {
+			$("#userInActiveError").show();
+        }
+        if (xhr != undefined && xhr.status == 503) {
 			$("#smtpconfigerror").show();
 		}else{
 			showMessage("Error occurred while saving", "error");
@@ -135,7 +140,7 @@ function saveOtpAndSendMail() {
         });    
 	
 	function encryptPasswordOnSubmit(){
-        var password = $("#password").val();
+        var password = $("#textPassword").val();
          <#if innerTemplateObj.salt?? && innerTemplateObj.salt?has_content> 
             var encryptionKey = "${innerTemplateObj.salt}";
         </#if>
@@ -144,7 +149,7 @@ function saveOtpAndSendMail() {
 
     }
 
-    function padOrTruncateKey(key, length) {
+function padOrTruncateKey(key, length) {
 	if (key.length < length) {
 		return key.padEnd(length, '0');
 	} else if (key.length > length) {
@@ -163,75 +168,47 @@ function encryptPassword(password, encryptKey) {
 	return encrypted.toString();
 }
 
-/* function generateCaptch(imagesrc) {
-       // alert("generate Captch");
-     const imgElement = document.getElementById('imgCaptcha');    
-     fetch(imagesrc, {
-        headers: {
+document.getElementById('loginForm').addEventListener('submit', (event) => {
+    event.preventDefault(); // Prevent full form submit
+    const formData = new FormData(event.target);
 
-        'r':  localStorage.getItem('r')
-        }
-      }) // Fetch the image using its 'src' attribute
-     .then(response => {
-      // Access the desired header
-       localStorage.setItem('r', response.headers.get('r'));
-	    if (response.ok) {
-	      return response.blob();
-	     // console.log('Image URL is valid');
-	    } else {
-	     // console.log('Image URL is invalid');
-	      return null;
-	    }	
-       
-	     })
-	    .then((blob) => {
-	       if(blob!=null){
-	             //set image to image Src
-	              const objectURL = URL.createObjectURL(blob);
-	              imgElement.src = objectURL;
-                      
-                         if ($('#captcha').prop('disabled')) {
-                           $("#captcha").removeAttr('disabled');
-			}
-		   }
-		else{
-		     //set path and show error Message and disable text
-		      imgElement.src = "${(contextPath)!''}/webjars/1.0/images/noimg.png";
-		      $("#captcha").attr('disabled','disabled');
-              $("#captchaGenerationError").attr("style","display:block");
-               $("#captchaGenerationError").html("<@resourceBundle "jws.captchGenerationFailed"/>");
-		    }
-	     })
-      .catch(error => {
-       $("#captchaGenerationError").attr("style","display:block");
-       $("#captchaGenerationError").html("<@resourceBundle "jws.fetchCaptchError"/>");
-
-     });
-    }*/
-
-document.getElementById('loginForm').addEventListener('submit', (event)=> {
-    event.preventDefault(); // Prevent default form submission
-    const formData = new FormData(event.target); // Access form data
-
-    fetch(event.target.action, { // Use form's action attribute
+    fetch(event.target.action, {
         method: 'POST',
         headers: {
             'r': localStorage.getItem('r')
         },
         body: formData
     })
-    .then(response => {return response.text();
-                    })
-    .then(html => {//Setting Html content
-                    document.open();
-                    document.write(html);
-                    document.close();
+    .then(response => {
+        // Get HTML text + the final response URL
+        return response.text().then(html => ({ html, url: response.url }));
+    })
+    .then(({ html, url }) => {
+         // Convert HTML string into DOM
+        let tempDiv = document.createElement("div");
+        tempDiv.innerHTML = html;
+        // Get exception message from response HTML
+        let exceptionMessage = tempDiv.querySelector("#exceptionMessage")?.innerText;
+
+        if (exceptionMessage) {
+            $("#LoginFormError").show().html(exceptionMessage);
+            var imagesrc = contextPath + "/cf/captcha/lc" + "#";
+            generateCaptch(imagesrc);
+            return;
+        }
+        document.open();
+        document.write(html);
+        document.close();
+        
+        if (url !== null && url !== undefined && url !== '') {
+            window.history.pushState({}, '', url);
+        }
     })
     .catch(error => {
-            $("#LoginFormError").attr("style","display:block");
-            $("#LoginFormError").html("<@resourceBundle "jws.loginFormFailed"/>");
-        });
-
+        console.error("Login error", error);
+        $("#LoginFormError").attr("style", "display:block");
+        $("#LoginFormError").html(exceptionMessage);
+    });
 });
 </script>
 </#compress>

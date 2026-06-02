@@ -46,8 +46,6 @@ public class DynaRestExportVO {
 	
 	private Integer					isCustomUpdated				= 0;
 	
-	private String					scriptLibraryId				= null;
-
 	public DynaRestExportVO() {
 
 	}
@@ -79,36 +77,6 @@ public class DynaRestExportVO {
 		this.hideDaoQuery = hideDaoQuery;
 		this.isSecured = isSecured;
 		this.isCustomUpdated = isCustomUpdated;
-	}
-
-	public DynaRestExportVO(String jwsDynamicRestId, String jwsDynamicRestUrl, String jwsMethodDescription,
-			String jwsMethodName, Integer jwsPlatformId, Integer jwsRbacId, String serviceLogicFileName,
-			Integer jwsRequestTypeId, Integer jwsResponseProducerTypeId, Integer jwsAllowFiles,
-			Integer jwsDynamicRestTypeId, String jwsHeaderJson, Map<Integer, String> daoDetailsFileNameMap,
-			Map<Integer, String> daoDetailsVariableNameMap, Map<Integer, Integer> daoDetailsQueryTypeMap,
-			Map<Integer, String> daoDetailsDatasourceIdMap, Date lastUpdatedTs, Integer hideDaoQuery, Integer isSecured,
-			Integer isCustomUpdated, String scriptLibraryId) {
-		this.jwsDynamicRestId = jwsDynamicRestId;
-		this.jwsDynamicRestUrl = jwsDynamicRestUrl;
-		this.jwsMethodDescription = jwsMethodDescription;
-		this.jwsMethodName = jwsMethodName;
-		this.jwsPlatformId = jwsPlatformId;
-		this.jwsRbacId = jwsRbacId;
-		this.serviceLogicFileName = serviceLogicFileName;
-		this.jwsRequestTypeId = jwsRequestTypeId;
-		this.jwsResponseProducerTypeId = jwsResponseProducerTypeId;
-		this.jwsAllowFiles = jwsAllowFiles;
-		this.jwsDynamicRestTypeId = jwsDynamicRestTypeId;
-		this.jwsHeaderJson = jwsHeaderJson;
-		this.daoDetailsFileNameMap = daoDetailsFileNameMap;
-		this.daoDetailsVariableNameMap = daoDetailsVariableNameMap;
-		this.daoDetailsQueryTypeMap = daoDetailsQueryTypeMap;
-		this.daoDetailsDatasourceIdMap = daoDetailsDatasourceIdMap;
-		this.lastUpdatedTs = lastUpdatedTs;
-		this.hideDaoQuery = hideDaoQuery;
-		this.isSecured = isSecured;
-		this.isCustomUpdated = isCustomUpdated;
-		this.scriptLibraryId = scriptLibraryId;
 	}
 
 	public String getJwsDynamicRestId() {
@@ -273,11 +241,4 @@ public class DynaRestExportVO {
 		this.isCustomUpdated = isCustomUpdated;
 	}
 
-	public String getScriptLibraryId() {
-		return scriptLibraryId;
-	}
-
-	public void setScriptLibraryId(String scriptLibraryId) {
-		this.scriptLibraryId = scriptLibraryId;
-	}
 }

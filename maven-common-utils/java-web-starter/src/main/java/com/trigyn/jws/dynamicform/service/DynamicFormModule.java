@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -33,20 +32,17 @@ import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
 import com.trigyn.jws.dbutils.vo.xml.Modules;
 import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
-import com.trigyn.jws.dynamicform.dao.IDynamicFormQueriesRepository;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
 import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.dynamicform.vo.DynamicFormSaveQueryVO;
 import com.trigyn.jws.dynamicform.vo.DynamicFormVO;
-import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.service.DynaRestModule;
 import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationRepository;
 import com.trigyn.jws.webstarter.utils.ImportExportUtility;
 import com.trigyn.jws.webstarter.utils.XMLUtil;
 import com.trigyn.jws.webstarter.xml.PermissionXMLVO;
-import com.trigyn.jws.webstarter.xml.ScriptLibraryXMLVO;
 
 @Component("dynamic-form")
 public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
@@ -56,9 +52,6 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 
 	@Autowired
 	private PropertyMasterDAO					propertyMasterDAO				= null;
-
-	@Autowired
-	private IDynamicFormQueriesRepository		dynamicFormQueriesRepository	= null;
 
 	@Autowired
 	private FileUtilities						fileUtilities					= null;
@@ -75,9 +68,6 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 	private IUserDetailsService					detailsService					= null;
 
 	@Autowired
-	private JwsDynarestDAO						jwsDynarestDAO					= null;
-
-	@Autowired
 	private DynamicFormCrudDAO					dynamicFormCrudDAO				= null;
 	
 	@Autowired
@@ -91,7 +81,6 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 	
 	Map<String, String> moduleListMap = null;
 	String htmlTableJSON;
-	private ScriptLibraryXMLVO scriptLibraryXMLVO;
 
 	@Override
 	public void downloadCodeToLocal(DynamicForm a_dynamicForm, String folderLocation) throws Exception {
@@ -213,8 +202,8 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 			Map<Integer, String>	variableNameMap			= new HashMap<>();
 			Map<Integer, String>	datasourceDetailsMap	= new HashMap<>();
 			Map<Integer, Integer>	queryTypeMap			= new HashMap<>();
-			Map<Integer, String> scriptLibMap = new LinkedHashMap<>();
 
+			List<DynamicFormSaveQuery> formSaveQueries = new ArrayList<>();
 			for (DynamicFormSaveQuery formSaveQuery : dynamicForm.getDynamicFormSaveQueries()) {
 				Integer	sequenceNum	= formSaveQuery.getSequence();
 				String	sequence	= saveQuery + sequenceNum;
@@ -228,8 +217,9 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 					isCheckSumChanged = true;
 					formSaveQuery.setChecksum(checksum);
 				}
-				
+				formSaveQueries.add(formSaveQuery);
 			}
+			dynamicForm.setDynamicFormSaveQueries(formSaveQueries);
 
 			// save checksum
 			if (isCheckSumChanged) {
@@ -241,7 +231,7 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 						dynamicForm.getFormName(), dynamicForm.getFormDescription(), dynamicForm.getFormTypeId(),
 						selectQuery + ftlCustomExtension, htmlBody + ftlCustomExtension, dynamicForm.getDatasourceId(),
 						saveQueryFileNameMap, dynamicForm.getSelectQueryType(), variableNameMap, datasourceDetailsMap,
-						queryTypeMap, dynamicForm.getLastUpdatedTs(), scriptLibMap);
+						queryTypeMap, dynamicForm.getLastUpdatedTs(), dynamicForm.getIsCustomUpdated());
 				map.put("moduleName", formName);
 				map.put("moduleObject", dynamicFormExportVO);
 				moduleDetailsMap.put(dynamicForm.getFormId(), map);
@@ -400,7 +390,7 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 												fileUtilities.readContentsOfFile(saveQueryFile.getAbsolutePath()));
 
 										if (variableNameMap != null)
-											formSaveQuery.setDatasourceId(variableNameMap.get(sequence));
+											formSaveQuery.setResultVariableName(variableNameMap.get(sequence));
 										if (datasourceDetailsMap != null)
 											formSaveQuery.setDatasourceId(datasourceDetailsMap.get(sequence));
 										if (queryTypeMap != null)
@@ -481,10 +471,8 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 			Map<Integer, String>	variableNameMap			= new HashMap<>();
 			Map<Integer, String>	datasourceDetailsMap	= new HashMap<>();
 			Map<Integer, Integer>	queryTypeMap			= new HashMap<>();
-			Map<Integer, String>	scriptLibMap			= new HashMap<>();
 			Map<Integer, String>	formQueryIdsMap			= new HashMap<>();
 			for (DynamicFormSaveQuery formSaveQuery : dynamicForm.getDynamicFormSaveQueries()) {
-				List<String>	scriptLibList	= new ArrayList<>();
 				Integer			sequenceNum		= formSaveQuery.getSequence();
 				String			sequence		= saveQuery + sequenceNum;
 				String			checksum		= fileUtilities.checkFileContents(sequence, formFolder,
@@ -496,13 +484,6 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 				if (checksum != null) {
 					isCheckSumChanged = true;
 					formSaveQuery.setChecksum(checksum);
-				}
-				List<String> scriptLibIdList = jwsDynarestDAO.getscriptLibId(formSaveQuery.getDynamicFormQueryId());
-
-				for (int iScriptUploadCounter = 0; iScriptUploadCounter < scriptLibIdList
-						.size(); iScriptUploadCounter++) {
-					scriptLibList.add(scriptLibIdList.get(iScriptUploadCounter) + "");
-					scriptLibMap.put(sequenceNum, scriptLibList.toString());
 				}
 				formQueryIdsMap.put(sequenceNum, formSaveQuery.getDynamicFormQueryId());
 			}
@@ -517,8 +498,8 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 					dynamicForm.getFormName(), dynamicForm.getFormDescription(), dynamicForm.getFormTypeId(),
 					selectQuery + ftlCustomExtension, htmlBody + ftlCustomExtension, dynamicForm.getDatasourceId(),
 					saveQueryFileNameMap, dynamicForm.getSelectQueryType(), variableNameMap, datasourceDetailsMap,
-					queryTypeMap, dynamicForm.getLastUpdatedTs(), scriptLibMap, formQueryIdsMap,
-					dynamicForm.getIsCaptchaEnabled(), dynamicForm.getIsCsrfEnabled(), dynamicForm.getFormIoId());
+					queryTypeMap, dynamicForm.getLastUpdatedTs(),formQueryIdsMap,
+					dynamicForm.getIsCaptchaEnabled(), dynamicForm.getIsCsrfEnabled(), dynamicForm.getFormIoId(), dynamicForm.getIsCustomUpdated());
 
 			Map<String, Object>	map					= new HashMap<>();
 			map.put("moduleName", formName);
@@ -541,7 +522,6 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 		Map<Integer, String>	variableNameMap			= dynamicFormExportVO.getVariableNameMap();
 		Map<Integer, String>	datasourceDetailsMap	= dynamicFormExportVO.getDatasourceDetailsMap();
 		Map<Integer, Integer>	queryTypeMap			= dynamicFormExportVO.getQueryTypeMap();
-		Map<Integer, String>	scriptLibMap			= dynamicFormExportVO.getScriptLibId();
 		Map<Integer, String>	formQueryIdsMap			= dynamicFormExportVO.getFormQueryIdMap();
 		String					ftlCustomExtension		= "."
 				+ dynamicFormExportVO.getHtmlBodyFileName().split("\\.")[1];
@@ -637,12 +617,6 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 									if (queryTypeMap != null)
 										formSaveQuery.setDaoQueryType(queryTypeMap.get(sequence));
 
-									if (scriptLibMap != null && scriptLibMap.isEmpty() == false) {
-										String	scriptLibId		= scriptLibMap.get(sequence);
-										String	scriptLibIDs	= scriptLibId.replaceAll("\\[", "").replaceAll("\\]",
-												"");
-										formSaveQuery.setScriptLibraryId(scriptLibIDs);
-									}
 									if (formQueryIdsMap != null) {
 										formSaveQuery.setDynamicFormQueryId(formQueryIdsMap.get(sequence));
 									}
@@ -697,7 +671,6 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 		JSONArray	queryDetails		= new JSONArray();
 		JSONArray	variableNameDetails	= new JSONArray();
 		JSONArray	queryTypes			= new JSONArray();
-		JSONArray	scripLibIds			= new JSONArray();
 		JSONArray	formQueryIds		= new JSONArray();
 		if (dynamicForm.getDynamicFormSaveQueries() != null)
 			for (DynamicFormSaveQuery dao : dynamicForm.getDynamicFormSaveQueries()) {
@@ -705,13 +678,11 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 				queryDetails.put(dao.getDynamicFormSaveQuery());
 				variableNameDetails.put(dao.getResultVariableName());
 				queryTypes.put(dao.getDaoQueryType());
-				scripLibIds.put(dao.getScriptLibraryId());
 				formQueryIds.put(dao.getDynamicFormQueryId());
 			}
 		
 		dynamicFormVO.setVariableName(variableNameDetails.toString());
 		dynamicFormVO.setQueryType(queryTypes.toString());
-		dynamicFormVO.setScriptLibId(scripLibIds.toString());
 		dynamicFormVO.setFormQueryId(formQueryIds.toString());
 		dynamicFormVO.setDatasourceDetails(daoDetailsId.toString());
 		List<DynamicFormSaveQuery>		formSaveQueries		= dynamicForm.getDynamicFormSaveQueries();
@@ -732,6 +703,7 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 		formSaveQueryVO.setDatasourceId(dynamicFormSaveQuery.getDatasourceId());
 		formSaveQueryVO.setResultVariableName(dynamicFormSaveQuery.getResultVariableName());
 		formSaveQueryVO.setDaoQueryType(dynamicFormSaveQuery.getDaoQueryType());
+		formSaveQueryVO.setDynamicFormQueryId(dynamicFormSaveQuery.getDynamicFormQueryId());
 		return formSaveQueryVO;
 	}
 

@@ -106,6 +106,7 @@ public interface IMonacoSuggestion {
 			{ "jq_updateDBQuery", "jq_updateDBQuery(a_strQuery, a_strdataSourceID, a_requestParams);" },
 			{ "jq_executeRESTCall", "jq_executeRESTCall(a_strRestXML);" },
 			{ "jq_sendMail", "jq_sendMail(a_strMailXML);" },
+			{ "jq_sendMailWithMap", "jq_sendMailWithMap(a_strMailXML, a_requestParams);" },
 			{ "jq_evalTemplateByName", "jq_evalTemplateByName(a_strTemplateName, a_requestParams);" },
 			{ "jq_evalTemplateByContent", "jq_evalTemplateByContent(a_strTemplateContent, a_requestParams);" },
 			{ "jq_convertToPDFFromTemplate",
@@ -113,8 +114,10 @@ public interface IMonacoSuggestion {
 			{ "jq_convertToPDFFromString", "jq_convertToPDFFromString(a_strSourceBody, a_strImageFolder);" },
 			{ "jq_logActivity", "jq_logActivity(a_requestParams);" },
 			{ "jq_addNotifications", "jq_addNotifications(a_requestParams);" },
-			{ "jq_sendError", "jq_sendError(a_statuscode, a_message);" }};
-
+			{ "jq_sendError", "jq_sendError(a_statuscode, a_message);" },
+			{ "jq_getPathVariableSet", "jq_getPathVariableSet();" },
+			{ "jq_getPathVariable", "jq_getPathVariable();" } };
+	
 	static String getTemplateDynamicFormSuggestion() {
 
 		return getSuggestion(templateDynamicFormSuggestion);

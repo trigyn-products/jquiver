@@ -20,7 +20,7 @@
       <p class="divdeform">   
          <label for="password" class="formlablename">Password</label>    
          <span class="formicosn"><i class="fa-solid fa-key" aria-hidden="true"></i></span>  
-         <input type="password" id="password" name="password" class="form-control" placeholder="<@resourceBundleWithDefault "jws.entertotp" "Enter TOTP"/>" required>   
+         <input type="password" id="textPassword" name="textPassword" class="form-control" placeholder="<@resourceBundleWithDefault "jws.entertotp" "Enter TOTP"/>" required>   
          <span class="passview" onclick="showHidePassword(this);"><i class="fa fa-eye" aria-hidden="true"></i></span>    
       </p>
       <#if innerTemplateObj.requestId?? && innerTemplateObj.requestId?has_content> 
@@ -35,15 +35,13 @@
       </div>
       </#if>  
       <div class="blockpass">
-      <span class="remebermeblock">   
-      <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me"><@resourceBundleWithDefault "jws.rememberme" "Remember Me"/></label>  
-      </span>     
       <span class="forgotpassword">   
       	<a href="${(contextPath)!''}/cf/configureTOTP"><@resourceBundleWithDefault "jws.notconfclickhere" "Not Configured? Click Here"/></a>    
       </span>                           
       </#if> 
       </div>
-      <input type="hidden" id="enableAuthenticationType" name="enableAuthenticationType" value="2"/>               
+      <input type="hidden" id="enableAuthenticationType" name="enableAuthenticationType" value="2"/> 
+      <input type="hidden" id="password" name="password"/>                           
       <div class="loginbtn"><button class="btn btn-lg btn-primary btn-block" type="submit" onclick= "encryptPasswordOnSubmit();"><@resourceBundleWithDefault "jws.signin" "Sign In"/></button></div> 
       <#if innerTemplateObj.enableRegistration?? && innerTemplateObj.enableRegistration?string == "true" >  
       <p class="registerlink"><@resourceBundleWithDefault "jws.newuser" "New User"/>?   
@@ -56,17 +54,17 @@
  localStorage.setItem('r', null);
  contextPath = "${(contextPath)!''}";
    function showHidePassword(thisObj){
-   	var element = $(thisObj).parent().find("input[name='password']");
+   	var element = $(thisObj).parent().find("input[name='textPassword']");
    	if (element.prop("type") === "password") {
    		element.prop("type","text");
    		$(thisObj).find("i").removeClass("fa-eye");
    		 $(thisObj).find("i").addClass("fa-eye-slash");
-   		 $("#password").focus();
+   		 $("#textPassword").focus();
    	} else {
    		 element.prop("type","password");
    		 $(thisObj).find("i").removeClass("fa-eye-slash");
    		 $(thisObj).find("i").addClass("fa-eye");
-   		 $("#password").focus();
+   		 $("#textPassword").focus();
    	}
    
    }		
@@ -83,13 +81,12 @@
           
     });
     function encryptPasswordOnSubmit(){
-        var password = $("#password").val();
+        var password = $("#textPassword").val();
          <#if innerTemplateObj.salt?? && innerTemplateObj.salt?has_content> 
             var encryptionKey = "${innerTemplateObj.salt}";
         </#if>
         var encryptedPassword = encryptPassword(password, encryptionKey);
-        $("#password").val(encryptedPassword); 
-
+        $("#password").val(encryptedPassword);
     }
 
     function padOrTruncateKey(key, length) {
@@ -157,31 +154,48 @@
      });
 }*/
 
-document.getElementById('loginForm').addEventListener('submit', (event)=> {
-    event.preventDefault(); // Prevent default form submission
-    const formData = new FormData(event.target); // Access form data
+document.getElementById('loginForm').addEventListener('submit', (event) => {
+    event.preventDefault(); // Prevent full form submit
 
-    fetch(event.target.action, { // Use form's action attribute
-    method: 'POST',
-    headers: {
-        'r': localStorage.getItem('r')
-    },
-    body: formData
+    const formData = new FormData(event.target);
+
+    fetch(event.target.action, {
+        method: 'POST',
+        headers: {
+            'r': localStorage.getItem('r')
+        },
+        body: formData
     })
-    .then(response => {return response.text();
-                })
-    .then(html => {//Seting Html content
-                document.open();
-                document.write(html);
-                document.close();
+    .then(response => {
+        // Get HTML text + the final response URL
+        return response.text().then(html => ({ html, url: response.url }));
+    })
+    .then(({ html, url }) => {
+       // Convert HTML string into DOM
+        let tempDiv = document.createElement("div");
+        tempDiv.innerHTML = html;
+        // Get exception message from response HTML
+        let exceptionMessage = tempDiv.querySelector("#exceptionMessage")?.innerText;
+
+        if (exceptionMessage) {
+            $("#LoginFormError").show().html(exceptionMessage);
+            var imagesrc = contextPath + "/cf/captcha/lc" + "#";
+            generateCaptch(imagesrc);
+            return;
+        }
+        document.open();
+        document.write(html);
+        document.close();
+        
+        if (url !== null && url !== undefined && url !== '') {
+            window.history.pushState({}, '', url);
+        }
     })
     .catch(error => {
-    // showMessage("Error While loading Login form", "error");
-    //console.log('Error:', error)
-    $("#LoginFormError").attr("style","display:block");
-    $("#LoginFormError").html("<@resourceBundle "jws.loginFormFailed"/>");
+        console.error("Login error", error);
+        $("#LoginFormError").attr("style", "display:block");
+        $("#LoginFormError").html(exceptionMessage);
     });
-        
 });
 </script>
 </#compress>

@@ -1,18 +1,25 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/formio/bootstrap-icons.css">  
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/formio/bootstrap.min.css"> 
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.css">
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/crypto-js/aes.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/crypto-js/mode-ecb.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/crypto-js/enc-utf16.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/crypto-js/pbkdf2.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/formio/bootstrap.min.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/formio/formio.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/formio/jqFormIO.js"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/formio/formio.full.min.css">
+  <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.css">
+
+  <!-- JavaScript Libraries -->
+  <script src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+  <script src="${(contextPath)!''}/webjars/1.0/crypto-js/aes.js"></script>
+  <script src="${(contextPath)!''}/webjars/1.0/crypto-js/mode-ecb.js"></script>
+  <script src="${(contextPath)!''}/webjars/1.0/crypto-js/enc-utf16.js"></script>
+  <script src="${(contextPath)!''}/webjars/1.0/crypto-js/pbkdf2.js"></script>
+  <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+  <script src="${(contextPath)!''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
+  <script src="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.js"></script>
+  <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.js"></script>
+  <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/fileupload/fileupload.js"></script>
+  <script src="${(contextPath)!''}/webjars/1.0/formio/formio.full.min.js"></script>
+  <script src="${(contextPath)!''}/webjars/1.0/formio/jqFormIO.js"></script>
+  <script src="${(contextPath)!''}/webjars/1.0/formio/JQFormIOFileBin.js"></script>
+  <script src="${(contextPath)!''}/webjars/1.0/formio/JQFormIoAutocomplete.js"></script>
+
 
 <style>
     .displayflex{
@@ -50,7 +57,69 @@
          height: 28px;
     }
 
-    </style>
+    .toggle-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ccc;
+  border-radius: 20px;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  padding: 0;
+  overflow: hidden;
+  height: 118%;
+  width:230px;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
+}
+ 
+.toggle-option {
+  flex: 1;
+  text-align: center;
+  z-index: 2;
+  color: white;
+  font-weight: 600;
+  line-height: 40px;
+  transition: color 0.3s ease;
+}
+ 
+.toggle-slider {
+  position: absolute;
+  height: 100%;
+  width: 50%;
+  top: 0;
+  left: 0;
+  background-color: var(--bluebgcolor);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+ 
+/* Checked state */
+.toggle-input:checked + .toggle-label .toggle-slider {
+  left: 50%;
+}
+ 
+.toggle-input:checked + .toggle-label .option-left {
+  color: white;
+}
+ 
+.toggle-input:checked + .toggle-label .option-right {
+  color: white;
+}
+ 
+.switch-wrapper {
+  position: relative;
+  width: 220px;
+  height:35px;
+  font-family: sans-serif;
+  margin-top: 25px;
+}
+ 
+.toggle-input {
+  display: none;
+}	
+</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 
@@ -93,10 +162,59 @@
                   </label>
                   <select class="form-control drpodowncls" id="persistenceType" name="persistenceType" onchange="changePersistenceTypeSection()">
 					<option value="1">Default</option>
-					<option value="2">Custom</option>					
+					<option value="2">Custom</option>	
+                    <option value="3">Custom Pluggable</option>				
 				  </select>
                </div>
             </div>
+              <div class="col-4" id="routeNameDiv" style="display:none">
+				<div class="col-inner-form full-form-fields">
+                	<label for="routeName" >
+		            	<span class="asteriskmark">*</span>
+							 ${messageSource.getMessage("jws.moduleURL")}
+					</label>
+					<input type="text" data-type="text" id="routeName" name="routeName"  value="${(resultSetObject.route_name)!""}" maxlength="50" placeholder="Route URL" class="form-control ">
+				</div>                       
+			</div>
+            <div class="col-4" id="templateDiv" style="display:none" >
+                <div class="col-inner-form full-form-fields">
+                    <label for="flammableState">Template
+                    </label>
+                    <input type="hidden" data-type="hidden" id="templateId" name="templateId" value="24f87d0c-6121-495c-9f3a-bbe07e5602cf">
+                    <span onclick="openFile()">
+                    <a href="#" name="open_file" class="form-control disable-bg-cls resumelink">
+                        <div id="formiolabel" class="overflowtext">custom-pluggable-template</div>
+                    </a>						
+                    <button class="inputactionbtn" title="Open File" id="open_file" name="open_file" type="button">
+                        <i class="fa fa-external-link" aria-hidden="true"></i>
+                    </button>
+                    </span>
+                </div>
+            </div>
+            <div class="switch-wrapper" id="multiSubmitdiv" style="display:none">
+                <label for="flammableState">
+                    </label>
+                <input type="hidden" id="multiSubmit" name="multiSubmit" value="${(resultSetObject.multi_submit)!'0'}">
+                <input type="checkbox" id="multiSubmitChkBox"  name="multiSubmitChkBox" class="toggle-input" >
+                <label for="multiSubmitChkBox" class="toggle-label">
+                   <span class="toggle-option option-left">Single Submit</span>
+                   <span class="toggle-option option-right">Multi Submit</span>
+                   <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+           <!-- <div class="displayflex col-4 " id="multiSubmitdiv" style="display:none">
+                <label for="multiSubmitChkBox">Multi Submit</label>
+                <label class="newswitch">
+                    <input type="hidden" id="multiSubmit" name="multiSubmit" value="${(resultSetObject.multi_submit)!'0'}">
+                    <input type="checkbox"
+                        name="multiSubmitChkBox"
+                        class="onoffswitch-checkbox"
+                        id="multiSubmitChkBox"
+                        <#if (resultSetObject.multi_submit?? && resultSetObject.multi_submit?string == "1")>checked</#if>>
+                    <span class="slider round"></span>
+                </label>
+            </div>-->
 			
 			<input type="hidden" id="formIoJson" name="formIoJson"> 
 
@@ -113,69 +231,73 @@
 			<input type="hidden" id="lastUpdatedBy" name="lastUpdatedBy"  value="${(resultSetObject.last_updated_by)!""}" > 
 
 			<input type="hidden" id="lastUpdatedTs" name="lastUpdatedTs"  value="${(resultSetObject.last_updated_ts)!""}" > 
-    	      
-        <div id="builder" class="customformio"></div>	
-		<div id="tabs" style="display:none">
-			<ul>
-                <li><a href="#htmlContent" data-target="htmlContent">${messageSource.getMessage("jws.htmlContent")}</a></li>
-			   
-                <li><a href="#selectContent" data-target="selectContent">${messageSource.getMessage("jws.selectscript")}</a>
-				</li>
-				 <li><a href="#jsContent" data-target="jsContent">${messageSource.getMessage("jws.saveScriptContent")}</a>
-				</li>
-            </ul>
-            <div id="htmlContent">
-				<div class="cm-main-wrapper preview cm-scrollbar clearfix">
-					<div id="contentDiv">
-						<span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('htmlPreview');">
-						${messageSource.getMessage("jws.copyhtml")} 				 
-						<i class="fa fa-regular fa-copy" aria-hidden="true"></i>
-						</span>
-						<div id="htmlPreview" class="default-previews cm-scrollbar"></div>
-					</div>
-				</div>
-			</div>
-            <div id="selectContent">
-				<div class="cm-main-wrapper preview cm-scrollbar clearfix">
-					<div id="contentDiv">
-						<span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('selectPreview');">
-						${messageSource.getMessage("jws.copyjavascript")} 				 
-						<i class="fa fa-regular fa-copy" aria-hidden="true"></i>
-						</span>
-						<div id="selectPreview" class="default-previews cm-scrollbar"></div>
-					</div>
-				</div>
-			</div>			
-			<div id="jsContent">
-				<div class="cm-main-wrapper preview cm-scrollbar clearfix">
-					<div id="contentDiv">
-						<span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('jsPreview');">
-						${messageSource.getMessage("jws.copyjavascript")} 				 
-						<i class="fa fa-regular fa-copy" aria-hidden="true"></i>
-						</span>
-						<div id="jsPreview" class="default-previews cm-scrollbar"></div>
-					</div>
-				</div>
-			</div>
-			<div id="manual-container" class="cm-rightbar">
-				<div class="row">
-					<div class="col-md-3">
-						<div id="previewDiv" style="display:none;">
-							<textarea id="previewContent" style="display:none;"></textarea>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>	
+    	    
+        <div id="builder" class="customformio" style="margin-bottom: 2rem;"></div>	
+		<div class="container">
+                <div id="tabs" style="display:none">
+                    <ul>
+                        <li><a href="#htmlContent" data-target="htmlContent">${messageSource.getMessage("jws.htmlContent")}</a></li>
+                    
+                        <li><a href="#selectContent" data-target="selectContent">${messageSource.getMessage("jws.selectscript")}</a>
+                        </li>
+                        <li><a href="#jsContent" data-target="jsContent">${messageSource.getMessage("jws.saveScriptContent")}</a>
+                        </li>
+                    </ul>
+                    
+                    <div id="htmlContent">
+                        <div class="cm-main-wrapper preview cm-scrollbar clearfix">
+                            <div id="contentDiv">
+                                <span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('htmlPreview');">
+                                ${messageSource.getMessage("jws.copyhtml")} 				 
+                                <i class="fa fa-regular fa-copy" aria-hidden="true"></i>
+                                </span>
+                                <div id="htmlPreview" class="default-previews cm-scrollbar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="selectContent">
+                        <div class="cm-main-wrapper preview cm-scrollbar clearfix">
+                            <div id="contentDiv">
+                                <span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('selectPreview');">
+                                ${messageSource.getMessage("jws.copyjavascript")} 				 
+                                <i class="fa fa-regular fa-copy" aria-hidden="true"></i>
+                                </span>
+                                <div id="selectPreview" class="default-previews cm-scrollbar"></div>
+                            </div>
+                        </div>
+                    </div>			
+                    <div id="jsContent">
+                        <div class="cm-main-wrapper preview cm-scrollbar clearfix">
+                            <div id="contentDiv">
+                                <span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('jsPreview');">
+                                ${messageSource.getMessage("jws.copyjavascript")} 				 
+                                <i class="fa fa-regular fa-copy" aria-hidden="true"></i>
+                                </span>
+                                <div id="jsPreview" class="default-previews cm-scrollbar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="manual-container" class="cm-rightbar">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div id="previewDiv" style="display:none;">
+                                    <textarea id="previewContent" style="display:none;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>	
+    	</div>
 	
 	<div class="row">
 		<div class="col-3"> 
 			<input id="moduleId" value="1faee99c-021c-11ef-a019-7c8ae1bb24d8" name="moduleId" type="hidden">
 			<@templateWithoutParams "role-autocomplete"/>
 		</div>
-		<div class="col-12">
-			<div class="text-end">
+		<div class="d-flex justify-content-end align-items-center gap-2">
+            <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('FormIO')">Create/Link Module</button>
+			<!-- <div class="text-end"> -->
 				<div class="btn-group dropup custom-grp-btn">
                     <span id="savedAction">
                     <button type="button" id="saveAndReturn" class="btn btn-primary" >${messageSource.getMessage("jws.saveAndReturn")}</button>
@@ -191,8 +313,11 @@
 				<span >
 					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 				</span> 
-			</div>
+			<!-- </div> -->
 		</div>
+        <div id="moduleAutocomplete">
+            <@templateWithoutParams "common-modal-template"/>
+        </div>
 	</div>
 	
 	
@@ -205,30 +330,37 @@
     formId = "${formId}";
     localStorage.setItem('r', null);
   	let isEdit = 0;
-	
+	let moduleIdList = [];
+    let deleteModuleIdList = [];
+    let newAddedModuleIdList = [];
+    let existingModuleIdList = [];
+    let allModuleList = [];
 
 	$(function(){
         
-            const actionDropdownBtn = document.getElementById("actionDropdownBtn");	
-            const backBtn = document.getElementById("backBtn");
-            const toggleBooleanChkBox = document.getElementById("toggleBooleanChkBox");
+        const actionDropdownBtn = document.getElementById("actionDropdownBtn");	
+        const backBtn = document.getElementById("backBtn");
+        const toggleBooleanChkBox = document.getElementById("toggleBooleanChkBox");
+        
+		actionDropdownBtn.addEventListener("click", function (event) {
+            actionOptions();
+        });
             
-            actionDropdownBtn.addEventListener("click", function (event) {
-                actionOptions();
-            });
-            
-            backBtn.addEventListener("click", function (event) {
-                backToPreviousPage();
-            });
-            Object.keys(saveFunctionMap).forEach(actionId => {
+        backBtn.addEventListener("click", function (event) {
+            backToPreviousPage();
+        });
+
+        Object.keys(saveFunctionMap).forEach(actionId => {
             const $el = $('#' + actionId);
-                if ($el.length) {
-                    $el.on("click", () => {
-                        onSaveButtonClick(saveFunctionMap[actionId], isEdit);
-                    });
-                }
-            });
-    // setting value on edit.
+            if ($el.length) {
+                $el.on("click", () => {
+                    var formIoJson = $('#formIoJson').val();
+                    checkAndUpdateCustomLogic(formIoJson);
+                    onSaveButtonClick(saveFunctionMap[actionId], isEdit);
+                });
+            }
+        });
+        // setting value on edit.
         const urlParams = new URLSearchParams(window.location.search);
         const formioid = urlParams.get('formioid');
         // formIOMaster = new JQFormIO();
@@ -246,14 +378,17 @@
 			getFormIoEntityRoles();
 			changePersistenceTypeSection(formioid);
             jqFormIO.loadFormIoDetails(formioid);
+            getModuleNames(formioid,$("#moduleId").val());
   		<#else>
 			const random_uuid = uuidv4();			
 			$("#formIoId").val(random_uuid);
+			$("#primaryKey").val(random_uuid);
 			let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
         	multiselect.setSelectedObject(defaultAdminRole);
         	$("#persistenceType").val(1).trigger("change");
             jqFormIO.loadFormIoDetails(formioid);
   		</#if>
+
 		changeDefaultAction()
 		hideShowActionButtons();
 		jqFormIO.setQueryContent();
@@ -262,20 +397,33 @@
 		
 		 const builderOptions = {
 		  noDefaultSubmitButton: true,
-		  builder: {		
+		  builder: {
+		  	jquiver: {
+                title: 'JQuiver',                
+                weight: 100,
+                collapsed: true,
+                components: {
+                    filebincomponent: true, // ? Add your JQuiver custom components here
+                    typeautocompletecomponent: true
+                }
+            },		
 			premium: false
 			// Exclude the Premium group by not defining it or setting it to false
 		  }
 		};
-		
-		
-		var jsnStr = {"components":[{"input":false,"columns":[{"pull":0,"components":[],"offset":0,"size":"md","currentWidth":12,"width":12,"push":0},{"pull":0,"components":[{"label":"JQFmioSaveButton","attrs":[{"attr":"","value":""}],"content":"<div id=\"jqFmioSaveButton\" style=\"display: flex; justify-content: flex-end;\"><img src=\"../webjars/1.0/images/Savendsubmit.png\" style=\"float:right;\" height=\"50px\" /></div>","refreshOnChange":false,"key":"jqFmioSaveButton","type":"htmlelement","input":false,"tableView":false}],"offset":0,"size":"md","currentWidth":12,"width":12,"push":0}],"tableView":false,"label":"Columns","type":"columns","key":"columns1"}]};
+				
+		var jsnStr = {"components":[{"input":false,"columns":[{"pull":0,"components":[],"offset":0,"size":"md","currentWidth":12,"width":12,"push":0},{"pull":0,"components":[{"label":"JQFmioSaveButton","attrs":[{"attr":"","value":""}],"content":"<div id=\"jqFmioSaveButton\" style=\"display: flex; justify-content: flex-end;\"><img src=\"../webjars/1.0/images/Savendsubmit.png\" style=\"float: right;width: 241px;/* height: auto; */\" /></div>","refreshOnChange":false,"key":"jqFmioSaveButton","type":"htmlelement","input":false,"tableView":false}],"offset":0,"size":"md","currentWidth":12,"width":12,"push":0}],"tableView":false,"label":"Columns","type":"columns","key":"columns1"}]};
+
 		<#if (resultSetObject)?? && resultSetObject.form_io_json?has_content>          
 		        jsnStr = ${resultSetObject.form_io_json};
-		        $('#isEdit').val("1");
-		        
-		</#if>
+		        $('#isEdit').val("1");	
+		        /** Added for resetting the values of BusinessModule Dialog after save and edit. **/
+	            document.getElementById("saveAndEdit").addEventListener("click", function () {
+	                resetBusModuleModal();
+	            });	        
+		</#if> 
 		$('#formIoJson').val(JSON.stringify(jsnStr));
+       
 		Formio.builder(document.getElementById('builder'), jsnStr, builderOptions).then(function(form) {
 	
 			form.on("change", function(e){
@@ -299,7 +447,66 @@
 				//triggerFunction('remove', component);
 			});
 	        //$(".card form-builder-panel").hide();
+
 		});
+         const persistenceInput = document.getElementById('persistenceType');
+        const multiDiv = document.getElementById('multiSubmitdiv');
+        const templateDiv = document.getElementById('templateDiv');
+        const routeNameDiv = document.getElementById('routeNameDiv');
+        
+
+        const multiChk = document.getElementById('multiSubmitChkBox');
+        const multiHidden = document.getElementById('multiSubmit');
+
+        function updateVisibility() {
+            const value = persistenceInput?.value?.trim();
+            const shouldShow = (value === '3' || value === 'Custom Pluggable');
+
+            // Default values 
+            let multiSubmitResult = '0';
+
+            <#if (resultSetObject)??>
+                multiSubmitResult = '${(resultSetObject.multi_submit)!'0'}';
+            </#if>
+
+            if (shouldShow) {
+                multiDiv.style.display = '';
+                templateDiv.style.display = '';
+                routeNameDiv.style.display = '';
+
+                if (isEdit) {
+                    const multiValue = multiSubmitResult === '1';
+
+                    multiChk.checked = multiValue;
+                    multiHidden.value = multiValue ? '1' : '0';
+                } else {
+                    // Default: single selected
+                    multiChk.checked = false;
+                    multiHidden.value = '0';
+                }
+            } else {
+                multiDiv.style.display = 'none';
+                templateDiv.style.display = 'none';
+                routeNameDiv.style.display = 'none';
+                multiChk.checked = false;
+                multiHidden.value = '0';
+            }
+        }
+
+
+         multiChk.addEventListener('change', () => {
+            if (multiChk.checked) {
+                multiHidden.value = '1';
+            }
+        }); 
+
+        // Initial setup
+        updateVisibility();
+
+        // If it's a <select>, listen to changes
+        persistenceInput.addEventListener('change', updateVisibility);
+
+
 	
   	});
   
@@ -310,7 +517,7 @@
 			  async: false,
 			  url : contextPath+"/cf/cucl",
 	          data : {
-			    formIoJson : formIoJson
+			    formiojson : formIoJson
 		      },			 
 			  success : function(data) {    
 				//$('#formIoJson').val(JSON.parse(data));	
@@ -332,9 +539,15 @@
 			if(persistenceType == "2"){
 				$('a[data-target="selectContent"]').hide();
 				$('a[data-target="jsContent"]').hide();
+                $('a[data-target="customPluggableContent"]').hide();
 			} else if(persistenceType == "1") {
 				$('a[data-target="selectContent"]').show();
 				$('a[data-target="jsContent"]').show();
+                $('a[data-target="customPluggableContent"]').hide();
+			} else if(persistenceType == "3") {
+                $('a[data-target="customPluggableContent"]').show();
+				$('a[data-target="selectContent"]').hide();
+				$('a[data-target="jsContent"]').hide();
 			}
 			
 		} else {			
@@ -434,12 +647,32 @@
 	*		a_valueType			: Data type of the parameter, which will be saved/updated to DB.
 	*
 	*/
-	function onValidation(a_serializedFormData){
-		if(validateSaveData()== true){
-            return a_serializedFormData;
-		}  
-	    
-	}
+	function onValidation(a_serializedFormData) {
+        console.log("inside validation");
+    if (!saveModDetails(isEdit, $("#formIoId").val())) return false;
+
+    return a_serializedFormData;
+}
+
+
+     function saveModDetails(isEdit,entityId){
+        var busmoduleName = $("#busmoduleName").val();
+        var cmvEntityName = document.getElementById("cmvEntityName").value;
+        if(checkExistingBusinessModuleName(busmoduleName) == true){
+            showMessage("Module Name already exists","warn");
+            $("#busmoduleName").val("");
+            return false;
+        }
+        var isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked;  
+        if (existingModuleIdList.includes(busmoduleName)) {
+            showMessage("Module Name already exists for this entity.", "info");
+            return false;
+        }
+        if(busmoduleName != "" || moduleIdList.length > 0 || deleteModuleIdList.length > 0){
+            saveModuleDetails(busmoduleName,entityId,$("#moduleId").val(),isEdit,moduleIdList,deleteModuleIdList,isShowCreateLinkChkBox,cmvEntityName);
+        }
+        return true;
+    }
 	
   /**
 	* this method is called when there is a successful response from server.
@@ -447,10 +680,22 @@
 	* message will be shown before calling this method. 
 	* you can define getSuccessMessage() function and return string for custom success message
 	*/
+
 	function onSuccess(a_serverResponse){
-		sfioera();					
-		let formIoData = $("#addEditForm").serialize() + "&formId="+formId;
-		enableVersioning(formIoData);		
+		sfioera();						
+        let formIoId = $("#formIoId").val();
+       
+        $.ajax({
+            type : "POST",
+            async: false,
+            url : contextPath+"/cf/safiov",
+            data: {
+                formIoId: formIoId
+            },
+            error : function(xhr, error){	
+                showMessage(xhr.responseText, "error");
+            },
+		});
 	}
 	
   /**
@@ -482,6 +727,21 @@
 		$("#formCaptcha").val("");
 	});
 	
-	
+    		function openFile(){
+		var templateId = $('#templateId').val();		
+		window.open(contextPath+"/cf/aet?vmMasterId="+templateId, '_blank');		
+	}
+    $("#routeName").on("input", function () {
+       checkAndLoadTab();
+    });
+    function checkAndLoadTab() {
+        let selectedTabIndex = $("#tabs").tabs("option", "active");
+        let selectedTab = $("#tabs ul li a").eq(selectedTabIndex).data("target");
+
+        if (selectedTab === 'customPluggableContent') {
+            $("a[href='#customPluggableContent']").click();
+            jqFormIO.loadFormIoDetails($("#formIoId").val());
+        }
+    }
 	
 </script>

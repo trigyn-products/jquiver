@@ -22,10 +22,6 @@ public class NotificationDAO extends DBConnection {
 		super(dataSource);
 	}
 
-	public void getNotificationDetails() throws Exception {
-		System.out.println();
-	}
-
 	public GenericUserNotification getNotificationDetails(String notificationId) {
 		GenericUserNotification genericUserNotificationDetails =  getCurrentSession().get(GenericUserNotification.class, notificationId);
 		if(genericUserNotificationDetails != null) getCurrentSession().evict(genericUserNotificationDetails);

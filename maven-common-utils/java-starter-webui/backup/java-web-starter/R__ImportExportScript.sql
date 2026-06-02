@@ -302,7 +302,6 @@ let selectDateCal;
 let profile;
 
 function selectAsperDate() {
-    debugger;
     if($("#chkDatePicker")[0].checked) {
         isSelectAsPerDate = true;
         if($("#modifiedAfter").val() != null && $("#modifiedAfter").val() != "") {
@@ -334,7 +333,7 @@ $(function () {
 			dateFormat : "%d-%b-%Y",
 			weekNumbers: true,
             showTime: false,
-			onSelect   : function() { debugger;
+			onSelect   : function() { 
 				let selectedDate = this.selection.get();
 				let date = Calendar.intToDate(selectedDate);
 				date = Calendar.printDate(date, "%d-%b-%Y");

@@ -102,18 +102,80 @@ function openTab(evt, gridID, moduleType) {
 		tablinks[i].className = tablinks[i].className.replace(" active", "");
 	}
 	$("#permissionChkBx").removeAttr('disabled');
+	$("#roleChkBx").removeAttr('disabled');
 	if (moduleType == "Dashboard") {
 		$("#dashletChkBx").removeAttr('disabled');
+		$("#dashletLi").removeClass("disble");
+		$("#moduleChkBx").removeAttr('disabled');
+		$("#busimoduleLi").removeClass("disble");
+		$("#formioChkBx").attr("disabled", "disabled");
+		$("#formioLi").addClass("disble");
+		$("#addDataSourceChkBx").attr("disabled", "disabled");
+		$("#addDataSourceLi").addClass("disble");
 	} else if (moduleType == "DynamicForm") {
 		$("#formioChkBx").removeAttr('disabled');
-	} else if (moduleType == "DynamicForm") {
-		$("#formioChkBx").removeAttr('disabled');
+		$("#formioLi").removeClass("disble");
+		$("#scriptLibChkBx").removeAttr('disabled');
+		$("#scriptLibLi").removeClass("disble");
+		$("#addDataSourceChkBx").removeAttr('disabled');
+		$("#addDataSourceLi").removeClass("disble");
+		$("#moduleChkBx").removeAttr('disabled');
+		$("#busimoduleLi").removeClass("disble");
+	} else if (moduleType == "DynaRest" || moduleType == "FileManager") {
+		$("#scriptLibChkBx").removeAttr('disabled');
+		$("#scriptLibLi").removeClass("disble");
+		$("#addDataSourceChkBx").removeAttr('disabled');
+		$("#addDataSourceLi").removeClass("disble");
+		$("#moduleChkBx").removeAttr('disabled');
+		$("#busimoduleLi").removeClass("disble");
+		$("#formioChkBx").attr("disabled", "disabled");
+		$("#formioLi").addClass("disble");
+	} else if (moduleType == "Grid" || moduleType == "Dashlets" || moduleType == "Autocomplete") {
+		$("#addDataSourceChkBx").removeAttr('disabled');
+		$("#addDataSourceLi").removeClass("disble");
+		$("#moduleChkBx").removeAttr('disabled');
+		$("#busimoduleLi").removeClass("disble");
+		$("#formioChkBx").attr("disabled", "disabled");
+		$("#formioLi").addClass("disble");
+	} else if(moduleType == "Notification"){
+		$("#addDataSourceChkBx").removeAttr('disabled');
+		$("#addDataSourceLi").removeClass("disble");
+		$("#moduleChkBx").removeAttr('disabled');
+		$("#busimoduleLi").removeClass("disble");
+		$("#formioChkBx").attr("disabled", "disabled");
+		$("#formioLi").addClass("disble");
+		$("#dashletLi").addClass("disble");
+		$("#dashletChkBx").attr("disabled", "disabled");
 	} else if (moduleType == "Files") {
 		$("#permissionChkBx").attr("disabled", "disabled");
+		$("#moduleChkBx").attr("disabled", "disabled");
+		$("#busimoduleLi").addClass("disble");
+		$("#formioChkBx").attr("disabled", "disabled");
+		$("#formioLi").addClass("disble");
+	} else if (moduleType == "Templates" || moduleType == "FormIO" || moduleType == "ResourceBundle" || moduleType == "ApplicationConfiguration" || moduleType == "Router" || moduleType == "ApiClientDetails" || moduleType == "Scheduler") {
+		$("#moduleChkBx").removeAttr('disabled');
+		$("#busimoduleLi").removeClass("disble");
+		$("#scriptLibChkBx").attr("disabled", "disabled");
+		$("#scriptLibLi").addClass("disble");
+		$("#addDataSourceChkBx").attr("disabled", "disabled");
+		$("#addDataSourceLi").addClass("disble");
+		$("#formioChkBx").attr("disabled", "disabled");
+		$("#formioLi").addClass("disble");
+		$("#dashletChkBx").attr("disabled", "disabled");
+		$("#dashletLi").addClass("disble");
 	} else {
+		$("#dashletLi").addClass("disble");
 		$("#dashletChkBx").attr("disabled", "disabled");
 		$("#formioChkBx").attr("disabled", "disabled");
-	} 
+		$("#scriptLibChkBx").attr("disabled", "disabled");
+		$("#addDataSourceChkBx").attr("disabled", "disabled");
+		$("#addDataSourceLi").addClass("disble");
+		$("#scriptLibLi").addClass("disble");
+		$("#moduleChkBx").attr("disabled", "disabled");
+		$("#busimoduleLi").addClass("disble");
+		$("#formioChkBx").attr("disabled", "disabled");
+		$("#formioLi").addClass("disble");
+	}
 	let isSelectTypeApplicable;
 	let additionalParameterKey;
 	let additionalParameterValue;
@@ -128,7 +190,6 @@ function openTab(evt, gridID, moduleType) {
 				if (systemConfigIncludeList == null) {
 					systemConfigIncludeList = [];
 				}
-
 				customConfigExcludeList = exportObj.getCustomConfigExcludeList();
 				if (customConfigExcludeList == null) {
 					customConfigExcludeList = [];
@@ -673,7 +734,8 @@ function openTab(evt, gridID, moduleType) {
 					{
 						title: "File Bin Id", width: 130, dataIndx: "file_bin_id", align: "left", halign: "center",
 						filter: { type: "textbox", condition: "contain", listeners: ["change"] }
-					}
+					},
+					{ title: "Updated Date", width: 200, align: "center", sortable: true, dataIndx: "last_update_ts", align: "left", halign: "center", render: filesDateRenderer }
 				];
 				isSelectTypeApplicable = false;
 				additionalParameterKey = "";
@@ -732,7 +794,66 @@ function openTab(evt, gridID, moduleType) {
 						}
 					});
 				}
-			}
+			} else if (moduleType == "BusinessModule") {
+				colM = [
+					{
+						title: "<button type='button' class='select_btn_new'  onclick='selectAll(\"" + moduleType + "\",true)'><i class='fa fa-check-square selectallcls' ></i></button>"
+							+ "<button type='button' class='select_btn_new'  onclick='selectAll(\"" + moduleType + "\",false)'><i class='fa fa-window-close deslectcls' ></i></button> ", width: 90, maxWidth: 90, align: "center", sortable: false, render: updateBusinessModuleFormatter, dataIndx: ""
+					},
+					{ title: "", hidden: true, sortable: false, dataIndx: "business_module_id" },
+					{
+						title: "Module Name", width: 130, align: "center", sortable: true, dataIndx: "module_name", align: "left", halign: "center",
+						filter: { type: "textbox", condition: "contain", listeners: ["change"] }
+					},
+					{ title: "Created By", width: 160, align: "center", sortable: true, dataIndx: "created_by", align: "left", halign: "center" },
+					{ title: "Created Date", width: 200, align: "center", sortable: true, dataIndx: "created_date", align: "left", halign: "center", render: businessModuleDateRenderer }
+				];
+				sortIndex = 2;
+				isSelectTypeApplicable = true;
+				if (selectedType != 0) {
+					grid = $("#" + moduleType + "").grid({
+						gridId: gridID,
+						colModel: colM,
+						height: 300,
+						pageModel: { type: "remote", rPP: 10, strRpp: "{0}", rPPOptions: [10, 20, 50, 100, 500] },
+						dataModel: {
+							url: contextPath + "/cf/pq-grid-data",
+							sortIndx: sortIndex,
+							sortDir: "up"
+						},
+					});
+				}
+			} 	else if (moduleType == "Workflow") {
+				      colM = [  {
+								   title: "<button type='button' class='select_btn_new'  onclick='selectAll(\"" + moduleType + "\",true)'><i class='fa fa-check-square selectallcls' ></i></button>"
+								+ "<button type='button' class='select_btn_new'  onclick='selectAll(\"" + moduleType + "\",false)'><i class='fa fa-window-close deslectcls' ></i></button> ", width: 90, maxWidth: 90, align: "center", sortable: false, render: updateWorkflowFormatter, dataIndx: ""
+								},
+								{ title: "", hidden: true, sortable: false, dataIndx: "definitionId" },
+				            	{ title: "Definition Id", hidden : false, width: 130, dataIndx: "definitionId", align: "left", halign: "center",  
+				                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+				            	{ title: "Definition Name", hidden : false, width: 130, dataIndx: "definitionName", align: "left", halign: "center",  
+				                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+				            	{ title: "Version", hidden : false, width: 130, dataIndx: "version", align: "left", halign: "center",  
+				                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+								{ title: "Created By", width: 160, align: "center", sortable: true, dataIndx: "uploadedBy", align: "left", halign: "center" },
+								{ title: "Created Date", width: 200, align: "center", sortable: true, dataIndx: "uploadedAt", align: "left", halign: "center", render: WorkflowDateRenderer }
+				        ];
+							sortIndex = 2;
+							isSelectTypeApplicable = true;
+							if (selectedType != 0) {
+								grid = $("#" + moduleType + "").grid({
+									gridId: gridID,
+									colModel: colM,
+									height: 300,
+									pageModel: { type: "remote", rPP: 10, strRpp: "{0}", rPPOptions: [10, 20, 50, 100, 500] },
+									dataModel: {
+										url: contextPath + "/cf/pq-grid-data",
+										sortIndx: sortIndex,
+										sortDir: "up"
+									},
+								});
+							}
+						}
 			exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, gridID,
 				colM, moduleType, exportableDataListMap, isSelectTypeApplicable, additionalParameterKey);
 			map.set(moduleType, exportObj);
@@ -789,6 +910,18 @@ function resourceBundleDateRenderer(uiObject) {
 function scriptLibraryDateRenderer(uiObject) {
 	return formatDate(uiObject.rowData.updated_date);
 }
+function businessModuleDateRenderer(uiObject) {
+	return formatDate(uiObject.rowData.created_date);
+}
+
+function WorkflowDateRenderer(uiObject) {
+	return formatDate(uiObject.rowData.uploadedAt);
+}
+
+function filesDateRenderer(uiObject) {
+	return formatDate(uiObject.rowData.last_update_ts);
+}
+
 function messageTypeRenderer(uiObject) {
 	if (uiObject.rowData.messageType == 0) {
 		return "Informative";
@@ -867,12 +1000,15 @@ function updateExportGridFormatter(uiObject) {
 
 	const isSystemVariable = uiObject.rowData.gridTypeId;
 	const moduleType = "Grid";
+	const datasourceId = uiObject.rowData.datasourceId;
+	let dataSourceList = [];
+	dataSourceList.push(datasourceId);
 
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,dataSourceList);
 
 }
 
@@ -888,7 +1024,7 @@ function updateExportTemplateFormatter(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 
@@ -907,7 +1043,7 @@ function updateRBRenderer(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 
@@ -919,11 +1055,14 @@ function updateExportAutocompleteFormatter(uiObject) {
 	let version = getVersion(uiObject);
 	const isSystemVariable = uiObject.rowData.autocompleteTypeId;
 	const moduleType = "Autocomplete";
+	const datasourceId = uiObject.rowData.datasourceId;
+	let dataSourceList = [];
+	dataSourceList.push(datasourceId);
 
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,dataSourceList);
 
 }
 
@@ -935,11 +1074,14 @@ function updateNotificationRenderer(uiObject) {
 	let version = getVersion(uiObject);
 	const isSystemVariable = 1;
 	const moduleType = "Notification";
+	const datasourceId = uiObject.rowData.datasourceId;
+	let dataSourceList = [];
+	dataSourceList.push(datasourceId);
 
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,dataSourceList);
 
 }
 
@@ -955,7 +1097,22 @@ function updateScriptLibFormatter(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
+
+}
+
+function updateBusinessModuleFormatter(uiObject) {
+	const businessModuleid = uiObject.rowData.business_module_id;
+	const id = $('<div />').text(businessModuleid).html();
+	const moduleName = uiObject.rowData.module_name;
+	const name = $('<div />').text(moduleName).html();
+	let version = getVersion(uiObject);
+	const isSystemVariable = 1;
+	const moduleType = "BusinessModule";
+
+	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
+	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 
@@ -970,7 +1127,7 @@ function updateDashboardRenderer(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 
@@ -980,11 +1137,15 @@ function updateDashletRenderer(uiObject) {
 	let version = getVersion(uiObject);
 	const isSystemVariable = uiObject.rowData.dashletTypeId;
 	const moduleType = "Dashlets";
+	const datasourceId = uiObject.rowData.datasourceId;
+	
+	let dataSourceList = [];
+	dataSourceList.push(datasourceId);
 
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,dataSourceList);
 
 }
 
@@ -996,11 +1157,28 @@ function updateDynamicFormRenderer(uiObject) {
 	let version = getVersion(uiObject);
 	const isSystemVariable = uiObject.rowData.formTypeId;
 	const moduleType = "DynamicForm";
+	const datasourceid = uiObject.rowData.datasourceid;
+	const daodatasourceid = uiObject.rowData.daodatasourceid;
+	
+	let dataSourceList = [];
+	 dataSourceList.push(datasourceid);
+	 dataSourceList.push(daodatasourceid);
+	 let finalDataSourceList = [];
+	 dataSourceList.forEach(element => {
+		 if (element) {
+			 element.split(",").forEach(item => {
+				 let trimmed = item.trim();
+				 if (trimmed && !finalDataSourceList.includes(trimmed)) {
+					 finalDataSourceList.push(trimmed);
+				 }
+			 });
+		 }
+	 });
 
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,finalDataSourceList);
 
 }
 
@@ -1012,11 +1190,32 @@ function updateFileManagerRenderer(uiObject) {
 	const version = "NA";
 	const isSystemVariable = 1;
 	const moduleType = "FileManager";
+	const deletedatasourceId = uiObject.rowData.deleteDataSourceId;
+	const uploaddatasourceId = uiObject.rowData.uploadDataSourceId;
+	const viewdatasourceId = uiObject.rowData.viewDataSourceId;
+	
+	let dataSourceList = [];
+	dataSourceList.push('del_'+deletedatasourceId);
+	dataSourceList.push('upload_'+uploaddatasourceId);
+	dataSourceList.push('view_'+viewdatasourceId);
+	
+	let finalDataSourceList = [];
+	dataSourceList.forEach(element => {
+		if (element) {
+			element.split(",").forEach(item => {
+				let trimmed = item.trim();
+				if (trimmed && !finalDataSourceList.includes(trimmed)) {
+					finalDataSourceList.push(trimmed);
+				}
+			});
+		}
+	});
+
 
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
-
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,finalDataSourceList);
 
 }
 
@@ -1028,11 +1227,26 @@ function updateDynaRestRenderer(uiObject) {
 	let version = getVersion(uiObject);
 	const isSystemVariable = uiObject.rowData.dynarestTypeId;
 	const moduleType = "DynaRest";
+	const datasourceId = uiObject.rowData.datasourceid;
+	let dataSourceList = [];
+	dataSourceList.push(datasourceId);
+
+	let finalDataSourceList = [];
+	dataSourceList.forEach(element => {
+		if (element) {
+			element.split(",").forEach(item => {
+				let trimmed = item.trim();
+				if (trimmed && !finalDataSourceList.includes(trimmed)) {
+					finalDataSourceList.push(trimmed);
+				}
+			});
+		}
+	});
 
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,finalDataSourceList);
 
 }
 
@@ -1047,7 +1261,7 @@ function updatePermissionRenderer(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 
@@ -1064,7 +1278,7 @@ function updateSiteLayoutRenderer(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 // dont havae system var
@@ -1080,7 +1294,7 @@ function updateAppConfigRenderer(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 // dont havae system var
@@ -1096,7 +1310,7 @@ function updateUsersRenderer(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 // dont havae system var
@@ -1112,7 +1326,7 @@ function updateRolesRenderer(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 
@@ -1126,7 +1340,7 @@ function updateHelpManualRenderer(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 
@@ -1140,7 +1354,22 @@ function updateExportApiClientDetailsFormatter(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
+
+}
+
+function updateWorkflowFormatter(uiObject) {
+	const definitionId = uiObject.rowData.definitionId;
+	const id = $('<div />').text(definitionId).html();
+	const definitionName = uiObject.rowData.definitionName;
+	const name = $('<div />').text(definitionName).html();
+	let version = getVersion(uiObject);
+	const isSystemVariable = 1;
+	const moduleType = "Workflow";
+
+	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
+	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 
@@ -1253,7 +1482,7 @@ function updateExportAdditionalDSFormatter(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 
@@ -1267,45 +1496,59 @@ function updateExportSchedulerFormatter(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 
-function renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable) {
+function renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,dataSourceList) {
 	let exportableData = new ExportableData(moduleType, id, name, version, isSystemVariable);
 	if (isSystemVariable == 1) {
 		if (customConfigExcludeList.indexOf(id) != -1 || isDeselectedAll == true) {
 			return '<input type="checkbox" id="' + moduleType + id + '" name="' + moduleType + id + '" onchange="checkCustomVar(this.checked,\''
-				+ id + '\',\'' + moduleType + '\',\'' + escape(name) + '\',\'' + version + '\',\'' + isSystemVariable + '\');">'.toString();
+				+ id + '\',\'' + moduleType + '\',\'' + escape(name) + '\',\'' + version + '\',\'' + isSystemVariable + '\',\'' + dataSourceList + '\');">'.toString();
 		} else {
 			map.get(moduleType).getExportableDataListMap().set(id, exportableData);
 			return '<input type="checkbox" id="' + moduleType + id + '" name="' + moduleType + id + '" onchange="checkCustomVar(this.checked, \''
-				+ id + '\',\'' + moduleType + '\',\'' + escape(name) + '\',\'' + version + '\',\'' + isSystemVariable + '\');" checked="checked">'.toString();
+				+ id + '\',\'' + moduleType + '\',\'' + escape(name) + '\',\'' + version + '\',\'' + isSystemVariable + '\',\'' + dataSourceList + '\');" checked="checked">'.toString();
 		}
 	} else {
 
 		if (systemConfigIncludeList.indexOf(id) != -1) {
 			map.get(moduleType).getExportableDataListMap().set(id, exportableData);
 			return '<input type="checkbox" id="' + moduleType + id + '" name="' + moduleType + id + '" onchange="checkSystemVar(this.checked, \''
-				+ id + '\',\'' + moduleType + '\',\'' + escape(name) + '\',\'' + version + '\',\'' + isSystemVariable + '\');" checked="checked">'.toString();
+				+ id + '\',\'' + moduleType + '\',\'' + escape(name) + '\',\'' + version + '\',\'' + isSystemVariable + '\',\'' + dataSourceList + '\');" checked="checked">'.toString();
 		} else {
 			return '<input type="checkbox" id="' + moduleType + id + '" name="' + moduleType + id + '" onchange="checkSystemVar(this.checked, \''
-				+ id + '\',\'' + moduleType + '\',\'' + escape(name) + '\',\'' + version + '\',\'' + isSystemVariable + '\');">'.toString();
+				+ id + '\',\'' + moduleType + '\',\'' + escape(name) + '\',\'' + version + '\',\'' + isSystemVariable + '\',\'' + dataSourceList + '\');">'.toString();
 		}
 	}
 }
 
-function checkCustomVar(checkedCustom, id, moduleType, name, version, isSystemVariable) {
+function checkCustomVar(checkedCustom, id, moduleType, name, version, isSystemVariable,dataSourceList) {
 	isDeselectedAll = false;
 	if ($('#permissionChkBx').is(':checked')) {
-		permissions(checkedCustom, id, moduleType, name, version, isSystemVariable);
+		permissions(checkedCustom, id, moduleType, name, version, isSystemVariable,null);
+	}
+	if ($('#roleChkBx').is(':checked')) {
+		roles(checkedCustom, id, moduleType, name, version, isSystemVariable,null);
 	}
 	if ($('#dashletChkBx').is(':checked') && moduleType == "Dashboard") {
-		selectDashlet(checkedCustom, id, moduleType, name, version, isSystemVariable);
+		selectDashlet(checkedCustom, id, moduleType, name, version, isSystemVariable,null);
 	}
 	if ($('#formioChkBx').is(':checked') && moduleType == "DynamicForm") {
-		selectFormIOData(checkedCustom, id, moduleType, name, version, isSystemVariable);
+		selectFormIOData(checkedCustom, id, moduleType, name, version, isSystemVariable,null);
 	}
+	if ($('#moduleChkBx').is(':checked')) {
+		selectModuleNames(checkedCustom, id, moduleType, name, version, isSystemVariable,null);
+	}
+	if ($('#scriptLibChkBx').is(':checked') && (moduleType == "DynamicForm" || moduleType == "DynaRest" || moduleType == "FileManager" )) {
+		selectScriptLibrary(checkedCustom, id, moduleType, name, version, isSystemVariable,null);
+	}
+	
+	if ($('#addDataSourceChkBx').is(':checked') && (moduleType == "DynamicForm" || moduleType == "DynaRest" || moduleType == "FileManager" || moduleType == "Grid" || moduleType == "Dashlets" || moduleType == "Notification" || moduleType == "Autocomplete")) {
+		selectAdditionalDataSource(checkedCustom, id, moduleType, name, version, isSystemVariable,dataSourceList);
+	}
+	
 	let exportableData = new ExportableData(moduleType, id, name, version, isSystemVariable);
 
 	if (!checkedCustom) {
@@ -1322,6 +1565,7 @@ function checkCustomVar(checkedCustom, id, moduleType, name, version, isSystemVa
 		map.get(moduleType).getExportableDataListMap().set(id, exportableData);
 		if ($('#deselectAllChkBx').is(':disabled')) {
 			$("#deselectAllChkBx").removeAttr('disabled');
+			$("#deselectLi").removeClass("disble");
 			$('#deselectAllChkBx').prop("checked", false);
 		}
 		let count = $('#selectedCount_' + moduleType).text();
@@ -1331,23 +1575,38 @@ function checkCustomVar(checkedCustom, id, moduleType, name, version, isSystemVa
 	}
 }
 
-function checkSystemVar(checkedSystem, id, moduleType, name, version, isSystemVariable) {
+function checkSystemVar(checkedSystem, id, moduleType, name, version, isSystemVariable,dataSourceList) {
 	isDeselectedAll = false;
 	let exportableData = new ExportableData(moduleType, id, name, version, isSystemVariable);
 	if ($('#permissionChkBx').is(':checked')) {
-		permissions(checkedSystem, id, moduleType, name, version, isSystemVariable);
+		permissions(checkedSystem, id, moduleType, name, version, isSystemVariable,null);
+	}
+	if ($('#roleChkBx').is(':checked')) {
+			roles(checkedSystem, id, moduleType, name, version, isSystemVariable,null);
 	}
 	if ($('#dashletChkBx').is(':checked') && moduleType == "Dashboard") {
-		selectDashlet(checkedSystem, id, moduleType, name, version, isSystemVariable);
+		selectDashlet(checkedSystem, id, moduleType, name, version, isSystemVariable,null);
 	}
 	if ($('#formioChkBx').is(':checked') && moduleType == "DynamicForm") {
-		selectFormIOData(checkedCustom, id, moduleType, name, version, isSystemVariable);
+		selectFormIOData(checkedCustom, id, moduleType, name, version, isSystemVariable,null);
 	}
+	if ($('#moduleChkBx').is(':checked')) {
+		selectModuleNames(checkedSystem, id, moduleType, name, version, isSystemVariable,null);
+	}
+	if ($('#scriptLibChkBx').is(':checked') && (moduleType == "DynamicForm" || moduleType == "DynaRest" || moduleType == "FileManager")) {
+		selectScriptLibrary(checkedCustom, id, moduleType, name, version, isSystemVariable,null);
+	}
+	
+	if ($('#addDataSourceChkBx').is(':checked') && (moduleType == "DynamicForm" || moduleType == "DynaRest" || moduleType == "FileManager" || moduleType == "Grid" || moduleType == "Dashlets" || moduleType == "Notification" || moduleType == "Autocomplete")) {
+		selectAdditionalDataSource(checkedCustom, id, moduleType, name, version, isSystemVariable,dataSourceList);
+	}
+		
 	if (checkedSystem) {
 		map.get(moduleType).getSystemConfigIncludeList().push(id);
 		map.get(moduleType).getExportableDataListMap().set(id, exportableData);
 		if ($('#deselectAllChkBx').is(':disabled')) {
 			$("#deselectAllChkBx").removeAttr('disabled');
+			$("#deselectLi").removeClass("disble");
 			$('#deselectAllChkBx').prop("checked", false);
 		}
 
@@ -1369,6 +1628,8 @@ function gotoNextPage() {
 	CSS.escape($("#htmlTable > tbody").empty());
 	CSS.escape($("#htmlTable > tbody").append(getPreviewHTMLTable()));
 	$("#mainTab").hide();
+	$("#prevBtn").hide();
+	$("#nextBtn").hide();
 	$("#nextTab").show();
 	$("#mainTabBtn").hide();
 	$("#nextTabBtn").show();
@@ -1627,7 +1888,35 @@ function changeType() {
 					}
 				}
 
-			}
+			} else if (moduleType == "BusinessModule") {
+				if (selectedType == 0) {
+					if (isSelectAsPerDate == true) {
+						postData = { gridId: gridID, "cr_isAfterDate": "str_" + formatAfterDate($("#modifiedAfter").val()), "cmp_isAfterDate": "gte" }
+					} else {
+						postData = { gridId: gridID }
+					}
+				} else {
+					if (isSelectAsPerDate == true) {
+						postData = postData = { gridId: gridID, "cr_isAfterDate": "str_" + formatAfterDate($("#modifiedAfter").val()), "cmp_isAfterDate": "gte" }
+					} else {
+						postData = { gridId: gridID }
+					}
+				}
+		    } else if (moduleType == "Workflow") {
+						if (selectedType == 0) {
+							if (isSelectAsPerDate == true) {
+								postData = { gridId: gridID, "cr_isAfterDate": "str_" + formatAfterDate($("#modifiedAfter").val()), "cmp_isAfterDate": "gte" }
+							} else {
+								postData = { gridId: gridID }
+							}
+						} else {
+							if (isSelectAsPerDate == true) {
+								postData = postData = { gridId: gridID, "cr_isAfterDate": "str_" + formatAfterDate($("#modifiedAfter").val()), "cmp_isAfterDate": "gte" }
+							} else {
+								postData = { gridId: gridID }
+							}
+						}
+					}
 			if (gridID != null && moduleType != null && postData != null && postData.gridId != null) {
 				let gridNew = $("#" + moduleType + "").pqGrid();
 				gridNew.pqGrid("option", "dataModel.postData", postData);
@@ -1879,6 +2168,26 @@ function getGridDetails(rowData, modType) {
 			isSystemVariable = 1;
 			moduleType = "FormIO";
 			break;
+		case "BusinessModule":
+			moduleId = rowData.business_module_id;
+			name = rowData.module_name;
+			version = rowData.max_version_id;
+			if (version == null) {
+				version = "1.0";
+			}
+			isSystemVariable = 1;
+			moduleType = "BusinessModule";
+			break;
+		case "Workflow":
+			moduleId = rowData.definitionId;
+			name = rowData.definitionName;
+			version = rowData.version;
+			if (version == null) {
+				version = "1.0";
+			}
+			isSystemVariable = 1;
+			moduleType = "Workflow";
+			break;
 
 	}
 	let exportableData = new ExportableData(moduleType, moduleId, name, version, isSystemVariable);
@@ -1924,6 +2233,7 @@ function deselectAll() {
 		}
 	});
 	$("#deselectAllChkBx").attr("disabled", "disabled");
+	$("#deselectLi").addClass("disble");
 }
 
 function getPreviewHTMLTable() {
@@ -1992,6 +2302,8 @@ function gotoPrevPage() {
 	$("#nextTab").hide();
 	$("#nextTabBtn").hide();
 	$("#mainTab").show();
+	$("#prevBtn").show();
+	$("#nextBtn").show();
 	$("#mainTabBtn").show();
 	$("#expHeader").show();
 }
@@ -2108,7 +2420,7 @@ function updateFileExportRenderer(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 
@@ -2185,6 +2497,118 @@ function formatAfterDate(date) {
 	return [year, month, day].join('-');
 }
 
+
+
+function selectModuleNames(checked, id, moduleType, name, version, isSystemVariable,dataSourceList) {
+	let modType = "BusinessModule";
+	let moduleId;
+	if (moduleType != "Dashlets") {
+		let moduleElement = document.getElementsByClassName("tablinks active");
+		if (moduleElement && moduleElement.length > 0) {
+			moduleId = moduleElement[0].id;
+		}
+	}
+	else {
+		moduleId = moduleType;
+	}
+	$.ajax({
+		async: false,
+		type: "GET",
+		url: contextPath + "/cf/busimodules",
+		data: { entityId: id, moduleId: moduleId },
+		success: function(data) {
+			let exportableData;
+			let exportableDataListMapNew;
+			let exportObjNew;
+			let systemConfigIncludeListNew = [];
+			let customConfigExcludeListNew = [];
+
+			$.each(data, function(key, val) {
+				let businessModuleId = val.businessModuleId;
+				if (businessModuleId != null && businessModuleId != "") {
+					exportableData = new ExportableData(modType, businessModuleId, name, "NA", isSystemVariable);
+					if (map.get(modType) == null) {
+						exportableDataListMapNew = new Map();
+						exportObjNew = new ImportExportConfig(systemConfigIncludeListNew, customConfigExcludeListNew, null, null, modType, exportableDataListMapNew);
+						map.set(modType, exportObjNew);
+						defaultMap.set(modType, exportObjNew);
+						map.get(modType).getExportableDataListMap().set(businessModuleId, exportableData);
+						defaultMap.get(modType).getExportableDataListMap().set(businessModuleId, exportableData);
+					}
+					if (checked) {
+						if (!$('#' + modType + businessModuleId).prop("checked")) {
+							map.get(modType).getSystemConfigIncludeList().push(id + "_" + moduleId);
+							map.get(modType).getExportableDataListMap().set(businessModuleId, exportableData);
+							checkBusinessModCheckbox(modType, businessModuleId, () => {
+								let count = $('#selectedCount_' + modType).text();
+								let countInt = parseInt(count);
+								$('#selectedCount_' + modType).text(countInt + 1);
+							});
+						}
+					} else {
+						map.get(modType).getExportableDataListMap().delete(businessModuleId);
+						uncheckBusinessModCheckbox(modType, businessModuleId, () => {
+							let count = $('#selectedCount_' + modType).text();
+							let countInt = parseInt(count);
+							$('#selectedCount_' + modType).text(countInt - 1);
+						});
+
+					}
+				}
+
+			});
+		},
+
+		error: function(xhr, error) {
+			showMessage("Error occurred while selecting/deselecting Business Modules", "error");
+		},
+
+	});
+}
+
+function checkBusinessModCheckbox(modType, businessModuleId) {
+	let checkboxId = modType + businessModuleId;
+	let $el = $('#' + checkboxId);
+
+	if ($el.length) {
+		$el.prop("checked", true).trigger("change");
+	} else {
+		setTimeout(() => checkBusinessModCheckbox(modType, businessModuleId), 100);
+	}
+}
+
+function uncheckBusinessModCheckbox(modType, businessModuleId) {
+	let checkboxId = modType + businessModuleId;
+	let $el = $('#' + checkboxId);
+
+	if ($el.length) {
+		if ($el.prop("checked")) {   // prevent double decrement
+			$el.prop("checked", false).trigger("change");
+		}
+	} else {
+		setTimeout(() => uncheckBusinessModCheckbox(modType, businessModuleId), 100);
+	}
+}
+
+function selectRoles() {
+	if ($('#roleChkBx').is(':checked') && !$('#deselectAllChkBx').is(':disabled')) {
+		$("#roleWarningDiv").html("<b>There can be already exisiting entity whose roles has not been selected.</b>");
+		$("#roleWarningDiv").dialog({
+			bgiframe: true,
+			autoOpen: true,
+			modal: true,
+			clcoseOnEscape: true,
+			draggable: true,
+			resizable: false,
+			title: "Select Role",
+			position: {
+				my: "center", at: "center"
+			},
+			buttons: [{ text: "OK", class: "btn btn-secondary", click: function() { $(this).dialog("close"); } }]
+		});
+	}
+}
+
 function selectPermissions() {
 	if ($('#permissionChkBx').is(':checked') && !$('#deselectAllChkBx').is(':disabled')) {
 		$("#permissionWarningDiv").html("<b>There can be already exisiting entity whose permission has not been selected.</b>");
@@ -2204,7 +2628,7 @@ function selectPermissions() {
 	}
 }
 
-function permissions(checked, id, moduleType, name, version, isSystemVariable) {
+function permissions(checked, id, moduleType, name, version, isSystemVariable,dataSourceList) {
 	let modType = "Permission";
 	let moduleId;
 	if (moduleType != "Dashlets") {
@@ -2274,7 +2698,7 @@ function permissions(checked, id, moduleType, name, version, isSystemVariable) {
 
 
 
-function selectDashlet(check, id, moduleType, name, version, isSystemVariable) {
+function selectDashlet(check, id, moduleType, name, version, isSystemVariable,dataSourceList) {
 	modType = "Dashlets";
 	$.ajax({
 		async: false,
@@ -2309,6 +2733,21 @@ function selectDashlet(check, id, moduleType, name, version, isSystemVariable) {
 					}
 					if (check) {
 						//  if(!$('#' + modType + dashletId).prop("checked")){
+						if (val.isSystemVariable == 1 || isSystemVariable == 1) {
+					        if (!map.get(modType).getExportableDataListMap().has(dashletId)) {
+					            map.get(modType).getExportableDataListMap().set(dashletId, exportableData);
+
+					            // maintain system include list
+					            if (!map.get(modType).getSystemConfigIncludeList().includes(dashletId)) {
+					                map.get(modType).getSystemConfigIncludeList().push(dashletId);
+					            }
+
+					            $('#' + modType + dashletId).prop("checked", true);
+
+					            let count = $('#selectedCount_' + modType).text();
+					            $('#selectedCount_' + modType).text(parseInt(count) + 1);
+					        }
+					    }
 						if (map.get(modType).getCustomConfigExcludeList().includes(dashletId)) {
 							var i = map.get(modType).getCustomConfigExcludeList().indexOf(dashletId);
 							if (i != -1) {
@@ -2320,11 +2759,26 @@ function selectDashlet(check, id, moduleType, name, version, isSystemVariable) {
 							let countInt = parseInt(count);
 							$('#selectedCount_' + modType).text(countInt + 1);
 						}
-						//	}
 					}
 					else {
 						let count = $('#selectedCount_' + modType).text();
 						let countInt = parseInt(count);
+						//  Handle SYSTEM dashlets removal
+					    if (val.isSystemVariable == 1 || isSystemVariable == 1) {
+
+					        let sysList = map.get(modType).getSystemConfigIncludeList();
+
+					        if (sysList.includes(dashletId)) {
+					            map.get(modType).systemConfigIncludeList =
+					                sysList.filter(item => item !== dashletId);
+
+					            map.get(modType).getExportableDataListMap().delete(dashletId);
+
+					            $('#' + modType + dashletId).prop("checked", false);
+					            $('#selectedCount_' + modType).text(countInt - 1);
+					        }
+
+					    } else {
 						if (!map.get(modType).getCustomConfigExcludeList().includes(dashletId)) {
 							map.get(modType).getCustomConfigExcludeList().push(dashletId);
 							map.get(modType).getExportableDataListMap().delete(dashletId);
@@ -2332,6 +2786,7 @@ function selectDashlet(check, id, moduleType, name, version, isSystemVariable) {
 							$('#selectedCount_' + modType).text(countInt - 1);
 						}
 					}
+				  }
 				}
 
 				if ($('#permissionChkBx').is(':checked')) {
@@ -2343,6 +2798,154 @@ function selectDashlet(check, id, moduleType, name, version, isSystemVariable) {
 			showMessage("Error occurred while selecting/deselecting permission", "error");
 		},
 	});
+}
+
+function selectScriptLibrary(check, id, moduleType, name, version, isSystemVariable,dataSourceList) {
+	modType = "ScriptLibrary";
+	if (moduleType != "Dashlets") {
+		let moduleElement = document.getElementsByClassName("tablinks active");
+		if (moduleElement && moduleElement.length > 0) {
+			moduleId = moduleElement[0].id;
+		}
+	}
+	else {
+		moduleId = moduleType;
+	}
+	$.ajax({
+		async: false,
+		type: "GET",
+		url: contextPath + "/cf/scriptLibraries",
+		data: { entityId: id, moduleId: moduleId },
+		success: function(data) {
+			let exportableData;
+			let exportableDataListMapNew;
+			let exportObjNew;
+			let systemConfigIncludeListNew = [];
+			let customConfigExcludeListNew = [];
+
+			$.each(data, function(key, val) {
+				let scriptlibId = val.scriptlibId;
+				if (scriptlibId != null && scriptlibId != "") {
+					let max_version = val.max_version_id;
+					if (max_version == null || max_version == 'NaN') {
+						max_version = "1.0";
+					}
+					exportableData = new ExportableData(modType, scriptlibId, name, max_version, isSystemVariable);
+					if (map.get(modType) == null) {
+						exportableDataListMapNew = new Map();
+						exportObjNew = new ImportExportConfig(systemConfigIncludeListNew, customConfigExcludeListNew, null, null, modType, exportableDataListMapNew);
+						map.set(modType, exportObjNew);
+						defaultMap.set(modType, exportObjNew);
+						map.get(modType).getExportableDataListMap().set(scriptlibId, exportableData);
+						defaultMap.get(modType).getExportableDataListMap().set(scriptlibId, exportableData);
+					}
+					if (check) {
+						//  if(!$('#' + modType + dashletId).prop("checked")){
+						if (map.get(modType).getCustomConfigExcludeList().includes(scriptlibId)) {
+							var i = map.get(modType).getCustomConfigExcludeList().indexOf(scriptlibId);
+							if (i != -1) {
+								map.get(modType).getCustomConfigExcludeList().splice(i, 1);
+							}
+							map.get(modType).getExportableDataListMap().set(scriptlibId, exportableData);
+							map.get(modType).getSystemConfigIncludeList().push(id + "_" + moduleId);
+							$('#' + modType + scriptlibId).prop("checked", true);
+							let count = $('#selectedCount_' + modType).text();
+							let countInt = parseInt(count);
+							$('#selectedCount_' + modType).text(countInt + 1);
+						}
+						//	}
+					}
+					else {
+						let count = $('#selectedCount_' + modType).text();
+						let countInt = parseInt(count);
+						if (!map.get(modType).getCustomConfigExcludeList().includes(scriptlibId)) {
+							map.get(modType).getCustomConfigExcludeList().push(scriptlibId);
+							map.get(modType).getExportableDataListMap().delete(scriptlibId);
+							$('#' + modType + scriptlibId).prop("checked", false);
+							$('#selectedCount_' + modType).text(countInt - 1);
+						}
+					}
+				}
+
+			});
+		},
+		error: function(xhr, error) {
+			showMessage("Error occurred while selecting/deselecting Script Library", "error");
+		},
+	});
+}
+
+function selectAdditionalDataSource(check, id, moduleType, name, version, isSystemVariable,dataSourceList) {
+	modType = "AdditionalDatasource";
+	if (moduleType != "Dashlets") {
+		let moduleElement = document.getElementsByClassName("tablinks active");
+		if (moduleElement && moduleElement.length > 0) {
+			moduleId = moduleElement[0].id;
+		}
+	}
+	else {
+		moduleId = moduleType;
+	}
+	for(var iCount =0; iCount<dataSourceList.split(',').length;iCount++){
+		var datasourceId = dataSourceList.split(',')[iCount];
+		var delDatasourceId;
+		var uploadDatasourceId;
+		var viewDatasourceId;
+			if(datasourceId.includes('del_')){
+				delDatasourceId= datasourceId;
+				datasourceId = delDatasourceId.split("_")[1];
+			}
+			if (datasourceId.includes('upload_')) {
+				uploadDatasourceId = datasourceId;
+				datasourceId = uploadDatasourceId.split("_")[1];
+			}
+			if (datasourceId.includes('view_')) {
+				viewDatasourceId = datasourceId;
+				datasourceId = viewDatasourceId.split("_")[1];
+			}
+		if (datasourceId != null && datasourceId != "") {
+			let max_version = null;
+			if (max_version == null || max_version == 'NaN') {
+				max_version = "1.0";
+			}
+			exportableData = new ExportableData(modType, datasourceId, name, max_version, isSystemVariable);
+			if (map.get(modType) == null) {
+				exportableDataListMapNew = new Map();
+				exportObjNew = new ImportExportConfig(systemConfigIncludeListNew, customConfigExcludeListNew, null, null, modType, exportableDataListMapNew);
+				map.set(modType, exportObjNew);
+				defaultMap.set(modType, exportObjNew);
+				map.get(modType).getExportableDataListMap().set(datasourceId, exportableData);
+				defaultMap.get(modType).getExportableDataListMap().set(datasourceId, exportableData);
+			}
+			if (check) {
+				//  if(!$('#' + modType + dashletId).prop("checked")){
+				if (map.get(modType).getCustomConfigExcludeList().includes(datasourceId)) {
+					var i = map.get(modType).getCustomConfigExcludeList().indexOf(datasourceId);
+					if (i != -1) {
+						map.get(modType).getCustomConfigExcludeList().splice(i, 1);
+					}
+					map.get(modType).getExportableDataListMap().set(datasourceId, exportableData);
+					map.get(modType).getSystemConfigIncludeList().push(datasourceId);
+			//		map.get(modType).getSystemConfigIncludeList().push(delDatasourceId + "_" + uploadDatasourceId + "_" + viewDatasourceId);
+					$('#' + modType + datasourceId).prop("checked", true);
+					let count = $('#selectedCount_' + modType).text();
+					let countInt = parseInt(count);
+					$('#selectedCount_' + modType).text(countInt + 1);
+				}
+				//	}
+			}
+			else {
+				let count = $('#selectedCount_' + modType).text();
+				let countInt = parseInt(count);
+				if (!map.get(modType).getCustomConfigExcludeList().includes(datasourceId)) {
+					map.get(modType).getCustomConfigExcludeList().push(datasourceId);
+					map.get(modType).getExportableDataListMap().delete(datasourceId);
+					$('#' + modType + datasourceId).prop("checked", false);
+					$('#selectedCount_' + modType).text(countInt - 1);
+				}
+			}
+		}
+	}
 }
 
 function updateFormIOFormRenderer(uiObject) {
@@ -2357,11 +2960,11 @@ function updateFormIOFormRenderer(uiObject) {
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 
-	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable,null);
 
 }
 
-function selectFormIOData(check, id, moduleType, name, version, isSystemVariable) {
+function selectFormIOData(check, id, moduleType, name, version, isSystemVariable,dataSourceList) {
 	modType = "FormIO";
 	$.ajax({
 		async: false,
@@ -2425,6 +3028,75 @@ function selectFormIOData(check, id, moduleType, name, version, isSystemVariable
 		}
 	});
 
+}
+
+
+function roles(checked, id, moduleType, name, version, isSystemVariable,dataSourceList) {
+	let modType = "ManageRoles";
+	let moduleId;
+	if (moduleType != "Dashlets") {
+		let moduleElement = document.getElementsByClassName("tablinks active");
+		if (moduleElement && moduleElement.length > 0) {
+			moduleId = moduleElement[0].id;
+		}
+	}
+	else {
+		moduleId = moduleType;
+	}
+	$.ajax({
+		async: false,
+		type: "GET",
+		url: contextPath + "/cf/roles",
+		data: { entityId: id, moduleId: moduleId },
+		success: function(data) {
+			let exportableData;
+			let exportableDataListMapNew;
+			let exportObjNew;
+			let systemConfigIncludeListNew = [];
+			let customConfigExcludeListNew = [];
+
+			$.each(data, function(key, val) {
+				let roleName = val.roleName;
+				if (roleName != null && roleName != "") {
+					exportableData = new ExportableData(modType, val.roleName, val.roleDescription, "NA", isSystemVariable);
+					if (map.get(modType) == null) {
+						exportableDataListMapNew = new Map();
+						exportObjNew = new ImportExportConfig(systemConfigIncludeListNew, customConfigExcludeListNew, null, null, modType, exportableDataListMapNew);
+						map.set(modType, exportObjNew);
+						defaultMap.set(modType, exportObjNew);
+						map.get(modType).getExportableDataListMap().set(roleName, exportableData);
+						defaultMap.get(modType).getExportableDataListMap().set(roleName, exportableData);
+					}
+					if (checked) {
+						if (!$('#' + modType + roleName).prop("checked")) {
+							map.get(modType).getSystemConfigIncludeList().push(roleName);
+							map.get(modType).getExportableDataListMap().set(roleName, exportableData);
+							$('#' + modType + roleName).prop("checked", true);
+							let count = $('#selectedCount_' + modType).text();
+							let countInt = parseInt(count);
+							$('#selectedCount_' + modType).text(countInt + 1);
+						}
+					} else {
+						let count = $('#selectedCount_' + modType).text();
+						let countInt = parseInt(count);
+						if (map.get(modType).getSystemConfigIncludeList().includes(roleName)) {
+							map.get(modType).systemConfigIncludeList
+								= map.get(modType).systemConfigIncludeList.filter((element) => { return element != roleName });
+							map.get(modType).getExportableDataListMap().delete(roleName);
+							$('#selectedCount_' + modType).text(countInt - 1);
+							$('#' + modType + roleName).prop("checked", false);
+						}
+					}
+				}
+
+			});
+		},
+
+		error: function(xhr, error) {
+			showMessage("Error occurred while selecting/deselecting dashlet", "error");
+		},
+
+	});
 }
 
 

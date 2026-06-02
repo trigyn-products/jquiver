@@ -223,7 +223,7 @@ public class DynaRestModule implements DownloadUploadModule<JwsDynamicRestDetail
 					dynaRest.getJwsAllowFiles(), dynaRest.getJwsDynamicRestTypeId(), dynaRest.getJwsHeaderJson(),
 					daoDetailsFileNameMap, daoDetailsVariableNameMap, daoDetailsQueryTypeMap, daoDetailsDatasourceIdMap,
 					dynaRest.getLastUpdatedTs(), dynaRest.getHidedaoquery(), dynaRest.getIsSecured(),
-					dynaRest.getIsCustomUpdated(), dynaRest.getScriptLibraryId());
+					dynaRest.getIsCustomUpdated());
 
 			map.put("moduleName", formName);
 			map.put("moduleObject", dynamicRestExportVO);
@@ -418,7 +418,6 @@ public class DynaRestModule implements DownloadUploadModule<JwsDynamicRestDetail
 																								// Editor
 					jwsDynamicRestDetail.setIsCustomUpdated(dynaRestExportVO.getIsCustomUpdated());
 					jwsDynamicRestDetail.setIsSecured(dynaRestExportVO.getIsSecured());
-					jwsDynamicRestDetail.setScriptLibraryId(dynaRestExportVO.getScriptLibraryId());
 					File[] directoryFiles = currentDirectory.listFiles(textFilter);
 					Integer filesPresent = directoryFiles.length;
 					if (filesPresent >= 2) {
@@ -486,10 +485,10 @@ public class DynaRestModule implements DownloadUploadModule<JwsDynamicRestDetail
 		}
 	}
 
-	private RestApiDetailsJsonVO convertDynaRestEntityToVO(JwsDynamicRestDetail dynaRest) throws Exception {
+	public RestApiDetailsJsonVO convertDynaRestEntityToVO(JwsDynamicRestDetail dynaRest) throws Exception {
 		RestApiDetailsJsonVO vo = new RestApiDetailsJsonVO();
 
-		vo.setAllowFiles(dynaRest.getJwsAllowFiles() != null ? dynaRest.getJwsAllowFiles().toString() : "");
+	//	vo.setAllowFiles(dynaRest.getJwsAllowFiles() != null ? dynaRest.getJwsAllowFiles().toString() : "");
 		JSONArray daoDetailsId = new JSONArray();
 		JSONArray queryDetails = new JSONArray();
 		JSONArray variableNameDetails = new JSONArray();
@@ -524,7 +523,6 @@ public class DynaRestModule implements DownloadUploadModule<JwsDynamicRestDetail
 		vo.setHeaderJson(dynaRest.getJwsHeaderJson());
 		vo.setHidedaoquery(dynaRest.getHidedaoquery());
 		vo.setDynarestSecured(dynaRest.getIsSecured());
-		vo.setScriptLibId(dynaRest.getScriptLibraryId());
 		return vo;
 	}
 
@@ -586,12 +584,6 @@ public class DynaRestModule implements DownloadUploadModule<JwsDynamicRestDetail
 			if (isCheckSumChanged) {
 				jwsDynarestDAO.saveJwsDynamicRestDetail(dynaRest);
 			}
-			List<String> scriptLibIdList = jwsDynarestDAO.getscriptLibId(dynaRest.getJwsDynamicRestId());
-			List<String> scriptLibId = new ArrayList<>();
-			for (int iScriptUploadCounter = 0; iScriptUploadCounter < scriptLibIdList.size(); iScriptUploadCounter++) {
-				scriptLibId.add("\"" + scriptLibIdList.get(iScriptUploadCounter) + "\"");
-				dynaRest.setScriptLibraryId(scriptLibId.toString());
-			}
 			DynaRestExportVO dynamicRestExportVO = new DynaRestExportVO(dynaRest.getJwsDynamicRestId(),
 					dynaRest.getJwsDynamicRestUrl(), dynaRest.getJwsMethodDescription(), dynaRest.getJwsMethodName(),
 					dynaRest.getJwsPlatformId(), dynaRest.getJwsRbacId(), serviceLogic + ftlCustomExtension,
@@ -599,7 +591,7 @@ public class DynaRestModule implements DownloadUploadModule<JwsDynamicRestDetail
 					dynaRest.getJwsAllowFiles(), dynaRest.getJwsDynamicRestTypeId(), dynaRest.getJwsHeaderJson(),
 					daoDetailsFileNameMap, daoDetailsVariableNameMap, daoDetailsQueryTypeMap, daoDetailsDatasourceIdMap,
 					dynaRest.getLastUpdatedTs(), dynaRest.getHidedaoquery(), dynaRest.getIsSecured(),
-					dynaRest.getIsCustomUpdated(), dynaRest.getScriptLibraryId());
+					dynaRest.getIsCustomUpdated());
 
 			Map<String, Object> map = new HashMap<>();
 			map.put("moduleName", formName);
@@ -615,7 +607,6 @@ public class DynaRestModule implements DownloadUploadModule<JwsDynamicRestDetail
 		String user = "admin";
 
 		DynaRestExportVO dynaRestExportVO = (DynaRestExportVO) importObject;
-
 		String serviceLogicFileName = dynaRestExportVO.getServiceLogicFileName();
 		Map<Integer, String> daoDetailsFileNameMap = dynaRestExportVO.getDaoDetailsFileNameMap();
 		Map<Integer, String> daoDetailsVariableNameMap = dynaRestExportVO.getDaoDetailsVariableNameMap();
@@ -676,7 +667,7 @@ public class DynaRestModule implements DownloadUploadModule<JwsDynamicRestDetail
 																				// Query Editor
 				dynaRest.setIsCustomUpdated(dynaRestExportVO.getIsCustomUpdated());
 				dynaRest.setIsSecured(dynaRestExportVO.getIsSecured());
-				dynaRest.setScriptLibraryId(dynaRestExportVO.getScriptLibraryId());
+			//	dynaRest.setScriptLibraryId(dynaRestExportVO.getScriptLibraryId());
 				File[] directoryFiles = currentDirectory.listFiles(textFilter);
 				Integer filesPresent = directoryFiles.length;
 				if (filesPresent >= 2) {

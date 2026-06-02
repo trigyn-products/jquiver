@@ -11,6 +11,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 @Entity
 @Table(name = "jq_dashboard_dashlet_association")
@@ -21,14 +22,16 @@ public class DashboardDashletAssociation implements Serializable {
 	@EmbeddedId
 	private DashboardDashletAssociationPK	id					= null;
 
-	@ManyToOne(fetch = FetchType.EAGER)
 	@JsonIgnore
+	@XmlTransient
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "dashboard_id", referencedColumnName = "dashboard_id", nullable = false, insertable = false, updatable = false)
 	private Dashboard						dashboard			= null;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JsonIgnore
 	@JoinColumn(name = "dashlet_id", referencedColumnName = "dashlet_id", nullable = false, insertable = false, updatable = false)
+	@XmlTransient
 	private Dashlet							dashlet				= null;
 
 	public DashboardDashletAssociation() {
@@ -47,6 +50,7 @@ public class DashboardDashletAssociation implements Serializable {
 		this.id = id;
 	}
 
+	@XmlTransient
 	public Dashboard getDashboard() {
 		return dashboard;
 	}

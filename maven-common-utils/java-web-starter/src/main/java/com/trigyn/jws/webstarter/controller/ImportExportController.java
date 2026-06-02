@@ -6,11 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,7 +22,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,12 +32,15 @@ import com.google.gson.GsonBuilder;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
+import com.trigyn.jws.dbutils.vo.JwsBusinessModuleEntityVO;
+import com.trigyn.jws.dbutils.vo.ScriptLibConnectVO;
 import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
-import com.trigyn.jws.gridutils.service.GenericUtilsService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
+import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.repository.JwsMasterModulesRepository;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
+import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.webstarter.service.ExportService;
 import com.trigyn.jws.webstarter.service.ImportService;
 import com.trigyn.jws.webstarter.service.MasterModuleService;
@@ -68,10 +72,7 @@ public class ImportExportController {
 
 	@Autowired
 	private PropertyMasterService	propertyMasterService	= null;
-	
-	@Autowired
-	private GenericUtilsService 	genericUtilsService		= null;
-	
+
 	@Autowired
 	private FileUtilities 			fileUtilities 			= null;
 	
@@ -105,14 +106,14 @@ public class ImportExportController {
 		}
 	}
 
-	@RequestMapping(value = "/ecd")
+	@PostMapping(value = "/ecd")
 	@ResponseBody
 	public String exportConfigData(@RequestBody Map<String, String> map, HttpServletRequest request,
 		HttpServletResponse httpServletResponse) throws Exception {
 		return exportService.exportConfigData(request, httpServletResponse, map, false);
 	}
 
-	@RequestMapping(value = "/downloadExport", method = RequestMethod.POST)
+	@PostMapping(value = "/downloadExport")
 	@ResponseBody
 	public void downloadExport(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String filePath = request.getParameter("filePath");
@@ -144,24 +145,44 @@ public class ImportExportController {
 	public String importFile(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			Part				file			= request.getPart("inputFile");
-			Map<String, Object>	map				= importService.importConfig(file, false,null);
-	
+			Map<String, Object>	map				= importService.importConfig(file, false, null);
+
 			MetadataXMLVO		metadataXmlvo	= (MetadataXMLVO) map.get("metadataVO");
+
+			if (null == metadataXmlvo) {
+				return "fail: Invalid file imported.";
+			}
+
+			String	rawCurrentVersion		= metadataXmlvo.getSettings().getCurrentVersion();
+			String	importedVersion			= extractVersionNumber(rawCurrentVersion);
+
+			String	lastSupportedVersion	= propertyMasterService.findPropertyMasterValue("last-supported-version");
+
+			if (null == importedVersion || importedVersion.isBlank()) {
+				return "fail: Version not found in metadata file.";
+			}
+
+			// Validate against last supported version
+			if (compareVersions(importedVersion, lastSupportedVersion) <= 0) {
+				return "fail: Imported version must be greater than " + lastSupportedVersion + ".";
+
+			}
+
 			String				unZipFilePath	= (String) map.get("unZipFilePath");
-	
+
 			String				jsonArray		= importService.getJsonArrayFromMetadataXMLVO(metadataXmlvo);
 			Map<String, Object>	zipFileDataMap	= importService.getXMLJsonDataMap(metadataXmlvo, unZipFilePath);
-	
-			Gson	gson		= new GsonBuilder().create();
-			
+
+			Gson				gson			= new GsonBuilder().create();
+
 			zipFileDataMap.put("completeZipJsonData", jsonArray);
 			Map<String, String> versionMap = importService.getLatestVersion(zipFileDataMap);
 			zipFileDataMap.put("versionMap", gson.toJson(versionMap));
-			
+
 			Map<String, Boolean> crcMap = importService.getLatestCRC(zipFileDataMap);
 			zipFileDataMap.put("crcMap", gson.toJson(crcMap));
-			String	jsonString	= gson.toJson(zipFileDataMap);
-	
+			String jsonString = gson.toJson(zipFileDataMap);
+
 			return jsonString;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while importing file.", a_exception);
@@ -172,23 +193,23 @@ public class ImportExportController {
 		}
 	}
 
-	@RequestMapping(value = "/glv")
-	@ResponseBody
-	public String getLatestVersion(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
-		try {
-			Gson				gson				= new Gson();
-			String				inputData			= request.getParameter("imporatableData");
-			JSONObject			imporatableDataJson	= new JSONObject(inputData);
-			Map<String, Object>	zipFileDataMap		= new ObjectMapper().readValue(inputData, Map.class);
-			;
-			Map<String, String> versionMap = importService.getLatestVersion(zipFileDataMap);
-			return gson.toJson(versionMap);
-		} catch (Exception a_exception) {
-			logger.error("Error occured while loading latest version.", a_exception);
-			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
-			return null;
-		}
-	}
+//	@RequestMapping(value = "/glv")
+//	@ResponseBody
+//	public String getLatestVersion(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
+//		try {
+//			Gson				gson				= new Gson();
+//			String				inputData			= request.getParameter("imporatableData");
+//			JSONObject			imporatableDataJson	= new JSONObject(inputData);
+//			Map<String, Object>	zipFileDataMap		= new ObjectMapper().readValue(inputData, Map.class);
+//			;
+//			Map<String, String> versionMap = importService.getLatestVersion(zipFileDataMap);
+//			return gson.toJson(versionMap);
+//		} catch (Exception a_exception) {
+//			logger.error("Error occured while loading latest version.", a_exception);
+//			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+//			return null;
+//		}
+//	}
 
 	@PostMapping(value = "/glcrc")
 	@ResponseBody
@@ -212,7 +233,7 @@ public class ImportExportController {
 	}
 
 
-	@RequestMapping(value = "/importConfig", method = RequestMethod.POST,consumes="application/json")
+	@PostMapping(value = "/importConfig",consumes="application/json")
 	@ResponseBody
 	public String importConfig(@RequestBody Map<String, String> map,HttpServletRequest request, HttpServletResponse httpServletResponse) {
 		try {
@@ -234,7 +255,7 @@ public class ImportExportController {
 		}
 	}
 
-	@RequestMapping(value = "/importAll", method = RequestMethod.POST,consumes="application/json")
+	@PostMapping(value = "/importAll",consumes="application/json")
 	@ResponseBody
 	public String importAll(@RequestBody Map<String, String> map,HttpServletRequest request, HttpServletResponse httpServletResponse) {
 		try {
@@ -260,14 +281,14 @@ public class ImportExportController {
 		}
 	}
 
-	@RequestMapping(value = "/etl")
+	@PostMapping(value = "/etl")
 	@ResponseBody
 	public String exportToLocal(@RequestBody Map<String, String> map, HttpServletRequest request,
 		HttpServletResponse httpServletResponse) throws Exception {
 		return exportService.exportConfigData(request, httpServletResponse, map, true);
 	}
 
-	@RequestMapping(value = "/ifl")
+	@PostMapping(value = "/ifl")
 	@ResponseBody
 	public String importFromLocal(HttpServletRequest request, HttpServletResponse httpServletResponse) throws Exception {
 		try {
@@ -312,6 +333,52 @@ public class ImportExportController {
 			  moduleId=mastermodule.getModuleId();
 		  }
 		return exportService.getEntityPermissions(entityId, moduleId);
+	}
+	
+	
+	@GetMapping(value = "/roles", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<JwsRoleVO> getRoles(@RequestParam("entityId") String entityId,
+			@RequestParam(value="moduleId") String moduleId) throws Exception {
+		  if(null != moduleId && moduleId.equalsIgnoreCase(MasterModuleType.DASHLET.getModuleType()))
+		  {
+			  JwsMasterModules mastermodule=jwsmasterModuleRepository.findBymoduleName(ModuleType.DASHLET.toString());
+			  moduleId=mastermodule.getModuleId();
+		  }
+		return exportService.getRoles(entityId, moduleId);
+	}
+	
+	
+	@GetMapping(value = "/busimodules", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<JwsBusinessModuleEntityVO> getBusinessModules(@RequestParam("entityId") String entityId,
+			@RequestParam(value="moduleId") String moduleId) throws Exception {
+		  if(null != moduleId && moduleId.equalsIgnoreCase(MasterModuleType.DASHLET.getModuleType()))
+		  {
+			  JwsMasterModules mastermodule=jwsmasterModuleRepository.findBymoduleName(ModuleType.DASHLET.toString());
+			  moduleId=mastermodule.getModuleId();
+		  }
+		return exportService.getBusinessModules(entityId, moduleId);
+	}
+	
+	@GetMapping(value = "/scriptLibraries", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<ScriptLibConnectVO> getscriptLibraries(@RequestParam("entityId") String entityId,
+			@RequestParam(value="moduleId") String moduleId) throws Exception {
+		  if(null != moduleId && moduleId.equalsIgnoreCase(MasterModuleType.DASHLET.getModuleType()))
+		  {
+			  JwsMasterModules mastermodule=jwsmasterModuleRepository.findBymoduleName(ModuleType.DASHLET.toString());
+			  moduleId=mastermodule.getModuleId();
+		  }
+		return exportService.getscriptLibraries(entityId, moduleId);
+	}
+	
+	@GetMapping(value = "/addDatsources", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<String> getAdditionalDataSources(@RequestParam("entityId") String entityId,
+			@RequestParam(value="moduleId") String moduleId) throws Exception {
+		  if(null != moduleId && moduleId.equalsIgnoreCase(MasterModuleType.DASHLET.getModuleType()))
+		  {
+			  JwsMasterModules mastermodule=jwsmasterModuleRepository.findBymoduleName(ModuleType.DASHLET.toString());
+			  moduleId=mastermodule.getModuleId();
+		  }
+		return exportService.getAdditionalDataSources(entityId, moduleId);
 	}
 	
 	
@@ -361,6 +428,37 @@ public class ImportExportController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
 		}
 
+	}
+	
+	private String extractVersionNumber(String versionText) {
+	    if (versionText == null) return null;
+
+	    // Extract first numeric version pattern like 2.8 or 2.8.1
+	    Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)+)");
+	    Matcher matcher = pattern.matcher(versionText);
+
+	    if (matcher.find()) {
+	        return matcher.group(1);
+	    }
+
+	    return null;
+	}
+	
+	private int compareVersions(String v1, String v2) {
+	    String[] p1 = v1.split("\\.");
+	    String[] p2 = v2.split("\\.");
+
+	    int length = Math.max(p1.length, p2.length);
+
+	    for (int i = 0; i < length; i++) {
+	        int n1 = i < p1.length ? Integer.parseInt(p1[i]) : 0;
+	        int n2 = i < p2.length ? Integer.parseInt(p2[i]) : 0;
+
+	        if (n1 != n2) {
+	            return Integer.compare(n1, n2);
+	        }
+	    }
+	    return 0;
 	}
 
 }

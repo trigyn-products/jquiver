@@ -46,3 +46,25 @@ REPLACE  INTO `jq_enc_alg_mod_pad_key_lookup`(`enc_lookup_id`,`enc_algorithm_id`
 (2,1,1,5,20),
 (3,1,6,1,20),
 (4,1,6,5,20);
+
+
+
+insert into `jq_encryption_algorithms_lookup` (`encryption_algo_id`, `encryption_algo_name`) values('2','DES');
+insert into `jq_encryption_algorithms_lookup` (`encryption_algo_id`, `encryption_algo_name`) values('3','RSA');
+
+
+
+insert into `jq_enc_key_length_lookup` (`key_length_id`, `key_length`) values('80','4096 ');
+
+
+insert into `jq_enc_alg_mod_pad_key_lookup` (`enc_lookup_id`, `enc_algorithm_id`, `enc_mode_id`, `enc_padding_id`, `enc_key_length`) values('5','2','1','1','10');
+insert into `jq_enc_alg_mod_pad_key_lookup` (`enc_lookup_id`, `enc_algorithm_id`, `enc_mode_id`, `enc_padding_id`, `enc_key_length`) values('6','2','1','5','10');
+insert into `jq_enc_alg_mod_pad_key_lookup` (`enc_lookup_id`, `enc_algorithm_id`, `enc_mode_id`, `enc_padding_id`, `enc_key_length`) values('7','2','6','1','10');
+insert into `jq_enc_alg_mod_pad_key_lookup` (`enc_lookup_id`, `enc_algorithm_id`, `enc_mode_id`, `enc_padding_id`, `enc_key_length`) values('8','2','6','5','10');
+insert into `jq_enc_alg_mod_pad_key_lookup` (`enc_lookup_id`, `enc_algorithm_id`, `enc_mode_id`, `enc_padding_id`, `enc_key_length`) values('9','3','6','4','60');
+insert into `jq_enc_alg_mod_pad_key_lookup` (`enc_lookup_id`, `enc_algorithm_id`, `enc_mode_id`, `enc_padding_id`, `enc_key_length`) values('10','3','6','4','70');
+insert into `jq_enc_alg_mod_pad_key_lookup` (`enc_lookup_id`, `enc_algorithm_id`, `enc_mode_id`, `enc_padding_id`, `enc_key_length`) values('11','3','6','4','80');
+insert into `jq_enc_alg_mod_pad_key_lookup` (`enc_lookup_id`, `enc_algorithm_id`, `enc_mode_id`, `enc_padding_id`, `enc_key_length`) values('12','3','6','3','60');
+insert into `jq_enc_alg_mod_pad_key_lookup` (`enc_lookup_id`, `enc_algorithm_id`, `enc_mode_id`, `enc_padding_id`, `enc_key_length`) values('13','3','6','3','70');
+insert into `jq_enc_alg_mod_pad_key_lookup` (`enc_lookup_id`, `enc_algorithm_id`, `enc_mode_id`, `enc_padding_id`, `enc_key_length`) values('14','3','6','3','80');
+

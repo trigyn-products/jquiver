@@ -1,0 +1,77 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+var UUID = Java.type("java.util.UUID");
+
+function saveModuleDetails(){ 
+    var map = new HashMap();
+    var queryResult ={};
+    map.put('entityId', requestDetails.entityId);
+    map.put('moduleName', requestDetails.moduleName);
+    map.put('moduleId', requestDetails.moduleId); 
+    map.put('createdby', requestDetails["loggedInUserName"]);
+    var businessmoduleid = UUID.randomUUID().toString();
+    map.put('businessmoduleid', businessmoduleid);
+    map.put('cmvEntityName',requestDetails.cmvEntityName);
+    var moduleIdList = requestDetails.moduleIdList || [];
+    var deleteModuleIdList = requestDetails.deleteModuleIdList || [];
+    moduleIdList = JSON.parse(moduleIdList);
+    deleteModuleIdList = JSON.parse(deleteModuleIdList);
+    if(requestDetails.isEdit == 0){ 
+        if(requestDetails.isShowCreateLinkChkBox == "false"){ 
+            queryResult = jq_updateDBQuery('INSERT INTO jq_business_module (business_module_id,module_name,created_by,created_date) VALUES (:businessmoduleid,:moduleName,:createdby,NOW())', null, map);
+            
+                var businessmoduleentityid = UUID.randomUUID().toString();
+                map.put('businessmoduleentityid', businessmoduleentityid);
+
+            jq_updateDBQuery('INSERT INTO jq_business_module_entity_details (business_module_entity_details_id,business_module_id,module_id,entity_id,cmv_entity_name,created_by,created_date) VALUES (:businessmoduleentityid,:businessmoduleid,:moduleId,:entityId,:cmvEntityName,:createdby,NOW())', null, map);
+        }else{
+            var businessmoduleentityid = UUID.randomUUID().toString();
+            map.put('businessmoduleentityid', businessmoduleentityid);
+
+            if(moduleIdList.length>0){           
+            for (var iCount = 0; iCount < moduleIdList.length; iCount++) {
+                var businessmoduleentityid = UUID.randomUUID().toString();
+                map.put('businessmoduleentityid', businessmoduleentityid);
+                var businessModuleId = moduleIdList[iCount];
+                map.put('businessModuleId', businessModuleId);
+              
+                jq_updateDBQuery('INSERT INTO jq_business_module_entity_details (business_module_entity_details_id,business_module_id,module_id,entity_id,created_by,created_date,cmv_entity_name) VALUES (:businessmoduleentityid,:businessModuleId,:moduleId,:entityId,:createdby,NOW(),:cmvEntityName)', null, map);
+            } 
+        } 
+        }
+    } else{
+      if(requestDetails.isShowCreateLinkChkBox == "false"){
+            queryResult = jq_updateDBQuery('INSERT INTO jq_business_module (business_module_id,module_name,created_by,created_date) VALUES (:businessmoduleid,:moduleName,:createdby,NOW())', null, map);
+
+             var businessmoduleentityid = UUID.randomUUID().toString();
+             map.put('businessmoduleentityid', businessmoduleentityid);
+
+             jq_updateDBQuery('INSERT INTO jq_business_module_entity_details (business_module_entity_details_id,business_module_id,module_id,entity_id,created_by,created_date,cmv_entity_name) VALUES (:businessmoduleentityid,:businessmoduleid,:moduleId,:entityId,:createdby,NOW(),:cmvEntityName)', null, map);
+      } else {
+        if(moduleIdList.length>0){           
+            for (var iCount = 0; iCount < moduleIdList.length; iCount++) {
+                var businessmoduleentityid = UUID.randomUUID().toString();
+                map.put('businessmoduleentityid', businessmoduleentityid);
+                var businessModuleId = moduleIdList[iCount];
+                map.put('businessModuleId', businessModuleId);
+              
+                jq_updateDBQuery('INSERT INTO jq_business_module_entity_details (business_module_entity_details_id,business_module_id,module_id,entity_id,created_by,created_date,cmv_entity_name) VALUES (:businessmoduleentityid,:businessModuleId,:moduleId,:entityId,:createdby,NOW(),:cmvEntityName)', null, map);
+            } 
+        } 
+
+        if(deleteModuleIdList.length>0){
+          for(var iDel=0;iDel<deleteModuleIdList.length;iDel++){
+              var deleteModuleId = deleteModuleIdList[iDel];
+              var deleteMap = new HashMap();
+              deleteMap.put('entityId', requestDetails.entityId);
+              deleteMap.put('moduleId', requestDetails.moduleId); 
+              deleteMap.put('deleteModuleId', deleteModuleId);
+              jq_updateDBQuery('DELETE FROM jq_business_module_entity_details WHERE business_module_id = :deleteModuleId AND module_id = :moduleId AND entity_id = :entityId  ',null,deleteMap);
+
+          }
+       }
+      }
+    }
+    return map.get("moduleName");
+}
+saveModuleDetails();

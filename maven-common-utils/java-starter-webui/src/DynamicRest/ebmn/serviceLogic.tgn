@@ -1,0 +1,19 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+
+function checkExistingBusinessModuleName(){ 
+    var map = new HashMap();
+    var queryResult ={};
+    var moduleId = "";
+    map.put("moduleName", requestDetails.moduleName);
+    if(requestDetails.moduleName != ""){
+        queryResult = jq_getDBResult("SELECT business_module_id as moduleId FROM jq_business_module WHERE module_name = :moduleName",null,map);
+        if (queryResult.data_list !== undefined && queryResult.data_list.length > 0) {
+            moduleId = queryResult.data_list[0].moduleId;
+        }
+       
+    }  
+    return moduleId;
+    
+}
+checkExistingBusinessModuleName();

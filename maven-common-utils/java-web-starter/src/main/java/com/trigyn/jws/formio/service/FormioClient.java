@@ -4,12 +4,16 @@ import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 
 import java.io.IOException;
+import java.sql.Clob;
+import java.sql.SQLException;
+import java.sql.SQLXML;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -27,6 +32,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.postgresql.util.PGobject;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -61,24 +68,26 @@ public class FormioClient implements FormClient {
 		super();
 	}
 
-	private static final Map<String, Boolean> SUBMISSION_PROCESSING_DECISIONS_CACHE = new ConcurrentHashMap<>();
-	private static final String GRID_NO_ROW_WRAPPING_PROPERTY = "noRowWrapping";
+	private static final Map<String, Boolean>	SUBMISSION_PROCESSING_DECISIONS_CACHE	= new ConcurrentHashMap<>();
+	private static final String					GRID_NO_ROW_WRAPPING_PROPERTY			= "noRowWrapping";
 
-	private static final ObjectMapper JSON_MAPPER = new ObjectMapper()
+	private static final ObjectMapper			JSON_MAPPER								= new ObjectMapper()
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).setDefaultMergeable(false);
-	private static final ParseContext JAYWAY_PARSER = JsonPath
+	private static final ParseContext			JAYWAY_PARSER							= JsonPath
 			.using(Configuration.builder().jsonProvider(new JacksonJsonNodeJsonProvider()).build());
-	private ResourceLoader defaultResourceLoader;
+	private ResourceLoader						defaultResourceLoader;
 
-	private DynamicFormDAO dynamicFormDAO = ApplicationContextProvider.getBean(DynamicFormDAO.class);
+	private DynamicFormDAO						dynamicFormDAO							= ApplicationContextProvider
+			.getBean(DynamicFormDAO.class);
 
-	private IResourceBundleRepository iResourceBundleRepository = ApplicationContextProvider
+	private IResourceBundleRepository			iResourceBundleRepository				= ApplicationContextProvider
 			.getBean(IResourceBundleRepository.class);
 
-	HttpServletRequest request = (HttpServletRequest) ((ServletRequestAttributes) Objects
+	HttpServletRequest							request									= (HttpServletRequest) ((ServletRequestAttributes) Objects
 			.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
 
-	private JsonNode compArr = JSON_MAPPER.createObjectNode();
+	private JsonNode							compArr									= JSON_MAPPER
+			.createObjectNode();
 
 	public FormioClient(ResourceLoader defaultResourceLoader) {
 		this.defaultResourceLoader = defaultResourceLoader;
@@ -104,11 +113,13 @@ public class FormioClient implements FormClient {
 	@Override
 	public String getFormWithData(String formKey, Object formData) {
 		try {
-			String jsonString = new Gson().toJson(formData);
-			JsonNode formMetaData = getFormByKey(formKey);
-			JsonNode formJsonData = JSON_MAPPER.readTree(jsonString);
-			JsonNode data = wrapGridData(formJsonData, formMetaData);
-			JsonNode dataMerged = merge(data);
+			// Clean and sanitize formData (e.g., convert SQLXML, UUID, etc. to strings)
+			Object		safeFormData	= sanitizeFormData(formData);
+			String		jsonString		= new Gson().toJson(safeFormData);
+			JsonNode	formMetaData	= getFormByKey(formKey);
+			JsonNode	formJsonData	= JSON_MAPPER.readTree(jsonString);
+			JsonNode	data			= wrapGridData(formJsonData, formMetaData);
+			JsonNode	dataMerged		= merge(data);
 			((ObjectNode) formMetaData).set("data", dataMerged);
 			return dataMerged.toString();
 		} catch (IOException exec) {
@@ -126,15 +137,15 @@ public class FormioClient implements FormClient {
 	}
 
 	public JsonNode merge(JsonNode data) throws IOException {
-		Map<String, List<JsonNode>> jsonMap = new HashMap<>();
-		JsonNode response = JSON_MAPPER.createObjectNode();
+		Map<String, List<JsonNode>>	jsonMap		= new HashMap<>();
+		JsonNode					response	= JSON_MAPPER.createObjectNode();
 		if (data.isObject()) {
 			response = data;
 		} else if (data.isArray()) {
 			ArrayNode arrayNode = (ArrayNode) data;
 			for (JsonNode jsonNode : arrayNode) {
-				List<JsonNode> jsonNodes = new ArrayList<>();
-				Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.fields();
+				List<JsonNode>							jsonNodes	= new ArrayList<>();
+				Iterator<Map.Entry<String, JsonNode>>	fields		= jsonNode.fields();
 				while (fields.hasNext()) {
 					Map.Entry<String, JsonNode> field = fields.next();
 					if (jsonMap.containsKey(field.getKey())) {
@@ -157,10 +168,9 @@ public class FormioClient implements FormClient {
 		if (root.isObject()) {
 			Iterator<String> fieldNames = root.fieldNames();
 			while (fieldNames.hasNext()) {
-				String fieldName = fieldNames.next();
-				JsonNode fieldValue = root.get(fieldName);
+				String		fieldName	= fieldNames.next();
+				JsonNode	fieldValue	= root.get(fieldName);
 				if (fieldValue.has("input") && fieldValue.get("input").asBoolean()) {
-					System.out.println("Inside 1 = " + fieldName);
 					Map.Entry<String, ? extends JsonNode> json = getFormVariable(root, data, data);
 					if (json != null)
 						((ObjectNode) jData).put(json.getKey(), json.getValue());
@@ -190,8 +200,8 @@ public class FormioClient implements FormClient {
 					if (node.has("input") && node.get("input").asBoolean()) {
 						Iterator<String> fieldNames = compArr.fieldNames();
 						while (fieldNames.hasNext()) {
-							String fieldName = fieldNames.next();
-							JsonNode fieldValue = compArr.get(fieldName);
+							String		fieldName	= fieldNames.next();
+							JsonNode	fieldValue	= compArr.get(fieldName);
 							if (fieldValue != null) {
 								Map.Entry<String, ? extends JsonNode> json = getFormVariable(node, data, data);
 								{
@@ -224,9 +234,9 @@ public class FormioClient implements FormClient {
 	public String getFormWithData(String formKey, ObjectNode currentVariables, ResourceLoader resourceLoader,
 			FileStorage fileStorage) {
 		try {
-			JsonNode formDefinition = getFormByKey(formKey);
-			JsonNode cleanData = null;
-			JsonNode data = wrapGridData(cleanData, formDefinition);
+			JsonNode	formDefinition	= getFormByKey(formKey);
+			JsonNode	cleanData		= null;
+			JsonNode	data			= wrapGridData(cleanData, formDefinition);
 			((ObjectNode) formDefinition).set("data", data);
 			return formDefinition.toString();
 		} catch (Exception exec) {
@@ -241,8 +251,8 @@ public class FormioClient implements FormClient {
 
 	@Override
 	public boolean shouldProcessSubmission(String formKey, String submissionState, ResourceLoader resourceLoader) {
-		JsonNode formDefinition = getFormByKey(formKey);
-		String cacheKey = String.format("%s-%s", formDefinition.toString(), submissionState);
+		JsonNode	formDefinition	= getFormByKey(formKey);
+		String		cacheKey		= String.format("%s-%s", formDefinition.toString(), submissionState);
 		return SUBMISSION_PROCESSING_DECISIONS_CACHE.computeIfAbsent(cacheKey,
 				key -> shouldProcessSubmission(formDefinition, submissionState));
 	}
@@ -271,8 +281,8 @@ public class FormioClient implements FormClient {
 	}
 
 	private List<String> getComponentTreeNames(JsonNode component) {
-		List<String> result = new ArrayList<>();
-		String componentName = component.path("key").asText();
+		List<String>	result			= new ArrayList<>();
+		String			componentName	= component.path("key").asText();
 		result.add(componentName);
 		if (!isContainerComponent(component) && !isArrayComponent(component))
 			return result;
@@ -286,8 +296,8 @@ public class FormioClient implements FormClient {
 
 	public JsonNode getFormByKey(String formIoId) {
 		try {
-			FormIOUtils formIOUtils = new FormIOUtils();
-			String formIoJson = formIOUtils.getFormMetaData(formIoId).toString();
+			FormIOUtils	formIOUtils	= new FormIOUtils();
+			String		formIoJson	= formIOUtils.getFormMetaData(formIoId).toString();
 			if (formIoJson.isBlank() == false && formIoJson != null) {
 				return JSON_MAPPER.readTree(formIoJson);
 			}
@@ -314,11 +324,14 @@ public class FormioClient implements FormClient {
 	}
 
 	protected JsonNode expandSubforms(JsonNode component) {
-		Collector<JsonNode, ArrayNode, ArrayNode> arrayNodeCollector = Collector.of(JSON_MAPPER::createArrayNode,
+		Collector<JsonNode, ArrayNode, ArrayNode>	arrayNodeCollector		= Collector.of(JSON_MAPPER::createArrayNode,
 				ArrayNode::add, ArrayNode::addAll);
-		Function<JsonNode, JsonNode> expandSubformsFunction = getExpandSubformsFunction();
-		JsonNode childComponents = !component.isArray() ? getChildComponents(component) : component;
-		JsonNode components = toStream(childComponents).map(expandSubformsFunction).collect(arrayNodeCollector);
+		Function<JsonNode, JsonNode>				expandSubformsFunction	= getExpandSubformsFunction();
+		JsonNode									childComponents			= !component.isArray()
+				? getChildComponents(component)
+				: component;
+		JsonNode									components				= toStream(childComponents)
+				.map(expandSubformsFunction).collect(arrayNodeCollector);
 		return !component.isArray() ? ((ObjectNode) component).set("components", components) : components;
 	}
 
@@ -339,8 +352,9 @@ public class FormioClient implements FormClient {
 	}
 
 	private JsonNode convertToContainer(JsonNode formDefinition) {
-		List<String> formAttributes = asList("src", "reference", "form", "unique", "project", "path");
-		Predicate<Map.Entry<String, JsonNode>> nonFormAttributesPredicate = field -> !formAttributes
+		List<String>							formAttributes				= asList("src", "reference", "form",
+				"unique", "project", "path");
+		Predicate<Map.Entry<String, JsonNode>>	nonFormAttributesPredicate	= field -> !formAttributes
 				.contains(field.getKey());
 		return JSON_MAPPER.valueToTree(toFieldStream(formDefinition).filter(nonFormAttributesPredicate)
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
@@ -365,8 +379,7 @@ public class FormioClient implements FormClient {
 	}
 
 	public JsonNode wrapGridDataInObject(JsonNode data, JsonNode definition) {
-		JsonNode dataWithWrappedChildren = getFormVariables(definition, data,
-				data);
+		JsonNode dataWithWrappedChildren = getFormVariables(definition, data, data);
 		return dataWithWrappedChildren;
 	}
 
@@ -375,8 +388,8 @@ public class FormioClient implements FormClient {
 		if (isGridUnwrapped(definition)) {
 			String wrapperName = definition.at("/components/0/key").asText();
 			for (int index = 0; index < data.size(); index++) {
-				JsonNode arrayElement = data.get(index);
-				ObjectNode wrapper = JsonNodeFactory.instance.objectNode();
+				JsonNode	arrayElement	= data.get(index);
+				ObjectNode	wrapper			= JsonNodeFactory.instance.objectNode();
 				wrapper.set(wrapperName, arrayElement);
 				wrappedData.set(index, wrapper);
 			}
@@ -409,10 +422,10 @@ public class FormioClient implements FormClient {
 	}
 
 	public List<JsonNode> listChildComponents(JsonNode definition) {
-		final Set<String> layoutComponentTypes = new HashSet<>(
+		final Set<String>	layoutComponentTypes	= new HashSet<>(
 				asList("well", "table", "columns", "fieldset", "panel", "Tabs"));
-		final Set<String> containerComponentTypes = new HashSet<>(asList("well", "fieldset", "panel", "Tabs"));
-		List<JsonNode> nodes = new ArrayList<>();
+		final Set<String>	containerComponentTypes	= new HashSet<>(asList("well", "fieldset", "panel", "Tabs"));
+		List<JsonNode>		nodes					= new ArrayList<>();
 		toStream(definition.get("components"))
 				.filter(component -> !layoutComponentTypes.contains(component.get("type").asText()))
 				.forEach(nodes::add);
@@ -457,8 +470,8 @@ public class FormioClient implements FormClient {
 		for (int index = 0; index < data.size(); index++) {
 			ObjectNode currentNode = JsonNodeFactory.instance.objectNode();
 			for (JsonNode childDefinition : childComponents) {
-				String key = childDefinition.get("key").asText();
-				JsonNode unwrappedData = unwrapGridData(data.get(index), childDefinition, key);
+				String		key				= childDefinition.get("key").asText();
+				JsonNode	unwrappedData	= unwrapGridData(data.get(index), childDefinition, key);
 				currentNode.set(key, unwrappedData);
 			}
 			unwrappedArray.set(index, currentNode);
@@ -478,9 +491,9 @@ public class FormioClient implements FormClient {
 	}
 
 	public JsonNode unwrapGridData(JsonNode gridDefinition, ArrayNode data) {
-		ArrayNode components = (ArrayNode) gridDefinition.get("components");
-		ArrayNode unwrappedData = JsonNodeFactory.instance.arrayNode();
-		JsonNode noRowWrappingProperty = gridDefinition
+		ArrayNode	components				= (ArrayNode) gridDefinition.get("components");
+		ArrayNode	unwrappedData			= JsonNodeFactory.instance.arrayNode();
+		JsonNode	noRowWrappingProperty	= gridDefinition
 				.at(String.format("/properties/%s", GRID_NO_ROW_WRAPPING_PROPERTY));
 		if (!noRowWrappingProperty.isMissingNode() && TRUE.equals(noRowWrappingProperty.asBoolean())
 				&& (components.size() == 1)) {
@@ -504,9 +517,9 @@ public class FormioClient implements FormClient {
 	}
 
 	public boolean hasTypeOf(JsonNode component, String... types) {
-		JsonNode typeField = component.get("type");
-		String componentType = typeField != null ? typeField.asText() : "";
-		boolean result = false;
+		JsonNode	typeField		= component.get("type");
+		String		componentType	= typeField != null ? typeField.asText() : "";
+		boolean		result			= false;
 		for (String type : types)
 			result |= componentType.equals(type);
 		return result;
@@ -568,33 +581,33 @@ public class FormioClient implements FormClient {
 
 	public Map.Entry<String, ? extends JsonNode> getContainerVariable(JsonNode component, JsonNode submittedVariables,
 			JsonNode currentVariables) {
-		String componentKey = component.get("key").asText();
+		String		componentKey	= component.get("key").asText();
 		/*
 		 * submittedVariables = submittedVariables.has(componentKey) ?
 		 * submittedVariables.get(componentKey) : JSON_MAPPER.createObjectNode();
 		 * currentVariables = currentVariables.has(componentKey) ?
 		 * currentVariables.get(componentKey) : JSON_MAPPER.createObjectNode();
 		 */
-		JsonNode containerValue = getFormVariables(listChildComponents(component), submittedVariables,
+		JsonNode	containerValue	= getFormVariables(listChildComponents(component), submittedVariables,
 				currentVariables);
 		return new SimpleEntry<>(componentKey, containerValue);
 	}
 
 	public Map.Entry<String, ArrayNode> getArrayComponentVariable(JsonNode components, JsonNode submittedVariables,
 			JsonNode currentVariables) {
-		ArrayNode containerValue = JSON_MAPPER.createArrayNode();
-		String componentKey = components.get("key").asText();
-		JsonNode editableArrayData = submittedVariables.has(componentKey) ? submittedVariables.get(componentKey)
+		ArrayNode	containerValue		= JSON_MAPPER.createArrayNode();
+		String		componentKey		= components.get("key").asText();
+		JsonNode	editableArrayData	= submittedVariables.has(componentKey) ? submittedVariables.get(componentKey)
 				: JSON_MAPPER.createObjectNode();
-		JsonNode readOnlyArrayData = currentVariables.has(componentKey) ? currentVariables.get(componentKey)
+		JsonNode	readOnlyArrayData	= currentVariables.has(componentKey) ? currentVariables.get(componentKey)
 				: JSON_MAPPER.createArrayNode();
 		if (editableArrayData != null) {
 			for (int i = 0; i < editableArrayData.size(); i++) {
-				JsonNode editableArrayItemData = editableArrayData.get(i);
-				JsonNode readOnlyDataArrayItemData = readOnlyArrayData.has(i) ? readOnlyArrayData.get(i)
+				JsonNode	editableArrayItemData		= editableArrayData.get(i);
+				JsonNode	readOnlyDataArrayItemData	= readOnlyArrayData.has(i) ? readOnlyArrayData.get(i)
 						: JSON_MAPPER.createObjectNode();
-				JsonNode containerItemValue = getFormVariables(listChildComponents(components), editableArrayItemData,
-						readOnlyDataArrayItemData);
+				JsonNode	containerItemValue			= getFormVariables(listChildComponents(components),
+						editableArrayItemData, readOnlyDataArrayItemData);
 				containerValue.add(containerItemValue);
 			}
 		}
@@ -604,17 +617,80 @@ public class FormioClient implements FormClient {
 	public Map.Entry<String, ? extends JsonNode> getSimpleComponentVariable(JsonNode component, JsonNode editableData,
 			JsonNode readOnlyData) {
 		if (component.get("key") != null) {
-			String componentKey = component.get("key").asText();
-			Entry<String, JsonNode> editableDataEntry = editableData != null && editableData.has(componentKey)
+			String					componentKey		= component.get("key").asText();
+			Entry<String, JsonNode>	editableDataEntry	= editableData != null && editableData.has(componentKey)
 					? new SimpleEntry<>(componentKey, editableData.get(componentKey))
 					: null;
-			Entry<String, JsonNode> readOnlyDataEntry = readOnlyData != null && readOnlyData.has(componentKey)
+			Entry<String, JsonNode>	readOnlyDataEntry	= readOnlyData != null && readOnlyData.has(componentKey)
 					? new SimpleEntry<>(componentKey, readOnlyData.get(componentKey))
 					: null;
 			return !component.path("disabled").asBoolean() ? editableDataEntry : readOnlyDataEntry;
 		}
 		return null;
 
+	}
+
+	private Object sanitizeFormData(Object data) {
+		if (data instanceof Map) {
+			Map<String, Object> sanitized = new LinkedHashMap<>();
+			((Map<?, ?>) data).forEach((key, value) -> {
+				try {
+					sanitized.put(String.valueOf(key), sanitizeValue(value));
+				} catch (SQLException e) {
+					throw new RuntimeException("Failed to convert SQLXML to String", e);
+				}
+			});
+			return sanitized;
+		} else if (data instanceof List) {
+			List<Object> sanitized = new ArrayList<>();
+			for (Object item : (List<?>) data) {
+				sanitized.add(sanitizeFormData(item));
+			}
+			return sanitized;
+		}
+		return data;
+	}
+
+	private Object sanitizeValue(Object value) throws SQLException {
+		if (value == null)
+			return null;
+
+		if (value instanceof java.sql.SQLXML) {
+			String xmlContent = ((SQLXML) value).getString();
+			return xmlContent;
+		}
+
+		if (value instanceof PGobject) {
+			PGobject pgObj = (PGobject) value;
+			if ("json".equalsIgnoreCase(pgObj.getType()) || "jsonb".equalsIgnoreCase(pgObj.getType())) {
+				// Optionally parse JSON string if needed
+				return pgObj.getValue(); // returns JSON string
+			}
+		}
+
+		// if (value instanceof UUID) {
+		// return value.toString();
+		// }
+
+		// if (value instanceof java.sql.Clob) {
+		// try {
+		// Clob clob = (Clob) value;
+		// return clob.getSubString(1, (int) clob.length());
+		// } catch (Exception e) {
+		// return null;
+		// }
+		// }
+
+		// if (value instanceof java.sql.Blob || value instanceof
+		// java.util.concurrent.locks.ReentrantLock) {
+		// return null; // Not serializable
+		// }
+
+		// if (value instanceof Map || value instanceof List) {
+		// return sanitizeFormData(value); // Recursive sanitization
+		// }
+
+		return value; // Primitive, String, etc.
 	}
 
 }

@@ -12,6 +12,12 @@ class AddEditModule {
 
 		if ($("#moduleId").val() !== "") {
 			moduleDetails.moduleId = $("#moduleId").val();
+			isEdit = 1;
+		} else{
+			isEdit = 0;
+		}
+		if (saveModDetails(isEdit, $("#moduleId").val()) == false) {
+			return false;
 		}
 		/** Added validation for not setting Target URL , if the module is already a home-page. */
 		if ($("#isHomePage").val() !== "") {
@@ -52,6 +58,9 @@ class AddEditModule {
 		//moduleDetails.targetTypeId = $("#targetTypeNameId").val();
 		moduleDetails.isInsideMenu = $("#isInsideMenu").val();
 		moduleDetails.includeLayout = $("#includeLayout").val();
+		moduleDetails.isCustomUpdated = $("#isCustomUpdated").val();
+		moduleDetails.lastUpdatedBy = $("#lastUpdatedBy").val();
+		moduleDetails.updatedDate = $("#updatedDate").val();
 		let contextHeaderJson = context.headerJson();
 		if (!contextHeaderJson['Powered-By']) {
 			contextHeaderJson['Powered-By'] = "JQuiver";
@@ -80,6 +89,9 @@ class AddEditModule {
 				context.saveEntityRoleAssociation(data);
 				context.parentModuleId = $("#parentModuleName").find(":selected").val();
 				showMessage("Information saved successfully", "success");
+				if (isEdit == 0) {
+					saveModDetails(isEdit, data);
+				}
 				isDataSaved = true;
 			},
 
@@ -264,7 +276,7 @@ class AddEditModule {
 			$("#includeLayoutDiv").show();
 			$("#divTargetType").hide();
 			$("#divExternalURL").hide();
-			$("#parentModuleName").val(context.parentModuleId);
+			//$("#parentModuleName").val(context.parentModuleId);
 			$("#targetTypeName").prop('disabled', false);
 			$("#moduleURL").prop('disabled', false);
 			if (isEditFlag === undefined) {
@@ -491,20 +503,24 @@ class AddEditModule {
 			position: {
 				my: "center", at: "center"
 			},
-			buttons: [{
-				text: "Cancel",
-				click: function() {
-					$(this).dialog('close');
-				},
-			},
+			buttons: [
 			{
 				text: "Delete",
+				"class": 'btn btn-primary',
 				click: function() {
 					$(this).dialog('close');
 					let rowId = $(rowElement).attr('id').split("_")[1];
 					$('#' + rowId).remove();
 				}
 			},
+				
+			{
+				text: "Cancel",
+				"class" : 'btn btn-secondary',
+				click: function() {
+					$(this).dialog('close');
+				},
+			}
 			],
 			open: function(event, ui) {
 				$('.ui-dialog-titlebar')

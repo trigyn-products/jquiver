@@ -23,41 +23,21 @@ public class TemplateVO implements Serializable {
 	private String				createdBy			= null;
 
 	private Date				updatedDate			= null;
+	
+	private String				updatedBy			= null;
 
 	public TemplateVO() {
 	}
 
-	public TemplateVO(String templateId, String templateName, String template, Date updatDate) {
+	public TemplateVO(String templateId, String templateName, String template, Integer templateTypeId, String checksum,
+			String createdBy, String updatedBy,Date updatDate) {
 		this.templateId		= templateId;
 		this.templateName	= templateName;
 		this.template		= template;
-		this.updatedDate	= updatDate;
-	}
-
-	public TemplateVO(String templateId, String templateName, String template, String checksum) {
-		this.templateId		= templateId;
-		this.templateName	= templateName;
-		this.template		= template;
-		this.checksum		= checksum;
-	}
-
-	public TemplateVO(String templateId, String templateName, String template, String checksum,
-			Integer templateTypeId) {
-		this.templateId		= templateId;
-		this.templateName	= templateName;
-		this.template		= template;
-		this.checksum		= checksum;
 		this.templateTypeId	= templateTypeId;
-	}
-
-	public TemplateVO(String templateId, String templateName, String template, String checksum, Integer templateTypeId,
-			String createdBy, Date updatDate) {
-		this.templateId		= templateId;
-		this.templateName	= templateName;
-		this.template		= template;
-		this.checksum		= checksum;
-		this.templateTypeId	= templateTypeId;
+		this.checksum 		= checksum;
 		this.createdBy		= createdBy;
+		this.updatedBy		= updatedBy;
 		this.updatedDate	= updatDate;
 	}
 
@@ -99,14 +79,6 @@ public class TemplateVO implements Serializable {
 
 	public void setChecksumChanged(boolean checksumChanged) {
 		this.checksumChanged = checksumChanged;
-	}
-
-	public Integer getTemplateType() {
-		return templateTypeId;
-	}
-
-	public void setTemplateType(Integer templateTypeId) {
-		this.templateTypeId = templateTypeId;
 	}
 
 	public String getCreatedBy() {
@@ -155,4 +127,21 @@ public class TemplateVO implements Serializable {
 		this.updatedDate = updatedDate;
 	}
 
+	public Integer getTemplateTypeId() {
+		return templateTypeId;
+	}
+
+	public void setTemplateTypeId(Integer templateTypeId) {
+		this.templateTypeId = templateTypeId;
+	}
+
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	
 }

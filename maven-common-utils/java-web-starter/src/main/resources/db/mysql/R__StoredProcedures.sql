@@ -178,6 +178,7 @@ DECLARE db_format VARCHAR(20);
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @resultQuery = CONCAT(@resultQuery, ', dl.created_date AS createdDate');
   SET @resultQuery = CONCAT(@resultQuery, ', dl.last_updated_ts AS lastUpdatedTs , COALESCE(CONCAT(jus.first_name, " ", jus.last_name), COALESCE( dl.updated_by, dl.created_by) ) AS updatedBy ');
+  SET @resultQuery = CONCAT(@resultQuery, ', dl.`datasource_id` AS datasourceId ');  
   SET @fromString  = ' FROM jq_dashlet AS dl';
   SET @fromString = CONCAT(@fromString, "  LEFT JOIN jq_user jus ON  jus.email = COALESCE(dl.updated_by, dl.created_by) LEFT OUTER JOIN jq_module_version jmv ON jmv.entity_id = dl.dashlet_id AND jmv.entity_name = 'jq_dashlet' ");
   SET @whereString = '';
@@ -580,6 +581,7 @@ FETCH curP INTO db_format;
   SET @resultQuery = CONCAT(@resultQuery, ', date_format(gun.message_valid_till,''', db_format,''') as validTill ');
   SET @resultQuery = CONCAT(@resultQuery, ', date_format(gun.updated_date,''', '%d-%b-%Y %H:%M:%S',''') as updatedDate ');
   SET @resultQuery = CONCAT(@resultQuery, ', gun.`display_once` AS displayOnce ');
+  SET @resultQuery = CONCAT(@resultQuery, ', gun.`datasource_id` AS datasourceId ');
   SET @fromString  = ' FROM jq_generic_user_notification AS gun';
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = gun.notification_id AND jmv.entity_name = 'jq_generic_user_notification' ");
   SET @whereString = '';
@@ -1478,5 +1480,49 @@ SELECT `a`.`entityroleid`    AS `entityroleid`,
 	GROUP BY `fio`.`form_io_id`
 	ORDER BY `fio`.`last_updated_ts` DESC;        
 
-                
+        
+DROP PROCEDURE IF EXISTS `workflowDefinitionGrid`;
+
+CREATE PROCEDURE `workflowDefinitionGrid`(definitionName VARCHAR(100), VERSION INT,`isActive` INT
+, isAfterDate VARCHAR(50), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+
+  
+  SET @resultQuery = ' SELECT `definition_id` as `definitionId`, `definition_name` as `definitionName`, `bpmn_xml` AS `bpmnXML`, version AS version, `uploaded_by` AS `uploadedBy`, `uploaded_at` AS `uploadedAt`, `is_active` AS `isActive` ';
+  SET @fromString  = ' FROM `jq_workflow_definition` ';
+  SET @whereString = ' WHERE is_active =1';
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+ 
+    
+  
+  IF NOT `isActive` IS NULL THEN
+    SET @isActive= REPLACE(`isActive`,"'","''");
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND is_active = ',@isActive);
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE is_active =',@isActive);
+    END IF;      
+  END IF; 
+    
+  SET @groupByString = ' ';
+    
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY definition_name ASC');
+  END IF;
+  
+  IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
+  END IF;
+
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+ 
+END;
+                  
                 

@@ -3,6 +3,9 @@ package com.trigyn.jws.dbutils.vo;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.trigyn.jws.dbutils.entities.DatasourceLookUp;
+import com.trigyn.jws.dbutils.entities.JwsBusinessModuleEntity;
+
 public class DatasourceLookUpVO implements Serializable {
 
 	private static final long	serialVersionUID			= 2957394044383347260L;
@@ -16,6 +19,8 @@ public class DatasourceLookUpVO implements Serializable {
 	private Double				datasourceSupportedVersion	= null;
 	
 	private String 				connectionUrlPattern  = null;
+	
+	private String				datasourceLookupId		= null;
 
 	public DatasourceLookUpVO() {
 
@@ -26,6 +31,14 @@ public class DatasourceLookUpVO implements Serializable {
 		this.driverClassName		= driverClassName;
 		this.driverClassAvailable	= driverClassAvailable;
 		this.connectionUrlPattern 	= connectionUrlString;
+	}
+	
+	public DatasourceLookUpVO(String datasourceName, String driverClassName, Boolean driverClassAvailable, String connectionUrlString,String datasourceLookupId) {
+		this.datasourceName			= datasourceName;
+		this.driverClassName		= driverClassName;
+		this.driverClassAvailable	= driverClassAvailable;
+		this.connectionUrlPattern 	= connectionUrlString;
+		this.datasourceLookupId 	= datasourceLookupId;
 	}
 
 	public String getDatasourceName() {
@@ -76,6 +89,14 @@ public class DatasourceLookUpVO implements Serializable {
 		this.connectionUrlPattern = connectionUrlPattern;
 	}
 
+	public String getDatasourceLookupId() {
+		return datasourceLookupId;
+	}
+
+	public void setDatasourceLookupId(String datasourceLookupId) {
+		this.datasourceLookupId = datasourceLookupId;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(datasourceName, driverClassAvailable, driverClassName, connectionUrlPattern);
@@ -107,6 +128,17 @@ public class DatasourceLookUpVO implements Serializable {
 				.append(", connectionUrlPattern=").append(connectionUrlPattern)
 				.append("]");
 		return builder.toString();
+	}
+	
+	public DatasourceLookUpVO convertEntityToVO(DatasourceLookUp dataSourceLookup) {
+		DatasourceLookUpVO datasourceLookUpVO = new DatasourceLookUpVO();
+		datasourceLookUpVO.setDatasourceLookupId(dataSourceLookup.getDatasourceLookupId());
+		datasourceLookUpVO.setConnectionUrlPattern(dataSourceLookup.getConnectionUrlPattern());
+		datasourceLookUpVO.setDatabaseDisplayProductName(dataSourceLookup.getDatabaseDisplayProductName());
+		datasourceLookUpVO.setDatasourceName(dataSourceLookup.getDatabaseProductName());
+		datasourceLookUpVO.setDatasourceSupportedVersion(dataSourceLookup.getDatasourceSupportedVersion());
+		datasourceLookUpVO.setDriverClassName(dataSourceLookup.getDriverClassName());
+		return datasourceLookUpVO;
 	}
 
 }

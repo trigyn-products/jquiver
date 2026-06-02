@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.trigyn.jws.dbutils.entities.JwsModuleVersion;
 import com.trigyn.jws.dbutils.repository.JwsTemplateVersionRepository;
 import com.trigyn.jws.dbutils.repository.ModuleVersionDAO;
@@ -49,12 +50,14 @@ public class ModuleVersionService {
 
 	@Autowired
 	private PropertyMasterService			propertyMasterService	= null;
+	
+
 
 	
 	@Transactional(readOnly = false)
 	public void saveModuleVersion(Object entityData, Object parentEntityIdObj, Object entityIdObj, String entityName, Integer sourceTypeId)
 			throws Exception {
-		Gson			gson			= new Gson();
+		Gson			gson			= new GsonBuilder().serializeNulls().create();
 		ObjectMapper	objectMapper	= new ObjectMapper();
 		String			moduleJson		= null;
 		String			dbDateFormat	= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
@@ -156,4 +159,21 @@ public class ModuleVersionService {
 	public String getLastUpdatedJsonData(String entityId, String entityName) throws Exception {
 		return moduleVersionDAO.getLastUpdatedJsonData(entityId, entityName);
 	}
+	
+	public String getLastUpdatedTagJsonData(String entityId, String moduleId) throws Exception {
+		return moduleVersionDAO.getLastUpdatedTagJsonData(entityId, moduleId);
+	}
+	
+	public String getLastUpdatedPermissionData(String entityId, String moduleId) throws Exception {
+		return moduleVersionDAO.buildUpdatedPermissionJson(entityId, moduleId);
+	}
+	
+	public String getTagViewRoleNames(String roleIds) throws Exception {
+		return moduleVersionDAO.getTagViewRoleNames(roleIds);
+	}
+
+	public String savePermissionDetails(String moduleId, String entityId, String permissionJson) throws Exception {
+		return moduleVersionDAO.savePermissionDetails(moduleId, entityId, permissionJson);
+	}
+	
 }

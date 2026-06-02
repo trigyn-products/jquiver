@@ -19,7 +19,29 @@ public interface ICipherUtil {
 			BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, Exception;
 
 	default SecretKeySpec setEncryptionKey(String encKey, String algorithm, Integer keyLength) {
-		byte[] keyBytes = new byte[keyLength / Byte.SIZE];
+		
+		 int keySizeBytes;
+
+		    switch (algorithm.toUpperCase()) {
+		        case "DES":
+		            keySizeBytes = 8;  // DES requires 8 bytes
+		            break;
+		        case "AES":
+		            if (keyLength == 128) {
+		                keySizeBytes = 16;
+		            } else if (keyLength == 192) {
+		                keySizeBytes = 24;
+		            } else if (keyLength == 256) {
+		                keySizeBytes = 32;
+		            } else {
+		                throw new IllegalArgumentException("Invalid AES key length: " + keyLength);
+		            }
+		            break;
+		        default:
+		            throw new IllegalArgumentException("Unsupported algorithm: " + algorithm);
+		    }
+		byte[] keyBytes = new byte[keySizeBytes];
+		    // Fill with zeros if shorter
 		Arrays.fill(keyBytes, (byte) 0x0);
 		byte[]	encKeyBytes	= encKey.getBytes(StandardCharsets.UTF_8);
 		int		length		= encKeyBytes.length < keyBytes.length ? encKeyBytes.length : keyBytes.length;

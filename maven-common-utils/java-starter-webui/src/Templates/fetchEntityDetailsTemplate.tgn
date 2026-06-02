@@ -1,0 +1,27 @@
+<rest>
+    <verifySSL>false</verifySSL>
+    <url>${url}</url>
+    <type>POST</type>
+    <content-type>application/json</content-type>
+    <timeout>30000</timeout>
+
+    <request>
+        <headers>
+            <parameter>
+                <name>Content-Type</name>
+                <value>application/json</value>
+            </parameter>
+            <parameter>
+                <name>Accept</name>
+                <value>application/json</value>
+            </parameter>
+        </headers>
+
+        <body contentType="rawBody">
+            <parameter>
+                <name>data-raw</name>
+                <value>${body}</value>
+            </parameter>
+        </body>
+    </request>
+</rest>

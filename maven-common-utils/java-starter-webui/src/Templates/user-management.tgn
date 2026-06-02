@@ -4,7 +4,6 @@
   <script src="${(contextPath)!''}/webjars/jquery-blockui/2.70/jquery.blockUI.js"></script>
   <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
   <script src="${(contextPath)!''}/webjars/1.0/usermanagement/userManagement.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
   
   
   <style>
@@ -47,7 +46,13 @@
           <label for="isAuthenticationEnabled">
             <span class="asteriskmark">*</span>Authentication </label>
           <div class="onoffswitch">
-            <input type="checkbox" data-bs-toggle="modal" data-bs-target="#adminModalDialog" name="isAuthenticationEnabled" class="onoffswitch-checkbox" id="isAuthenticationEnabled" onchange="showAuthTypeDropDown(this);" />
+            <input type="checkbox" data-bs-toggle="modal" 
+                <#if adminEmailId??>
+                    data-bs-dismiss="#adminModalDialog"
+                <#else>
+                    data-bs-target="#adminModalDialog"
+                </#if>                
+                name="isAuthenticationEnabled" class="onoffswitch-checkbox" id="isAuthenticationEnabled" onchange="showAuthTypeDropDown(this);" />
             <label class="onoffswitch-label" for="isAuthenticationEnabled">
               <span class="onoffswitch-inner"></span>
               <span class="onoffswitch-switch"></span>
@@ -245,7 +250,6 @@ if(num<1)						$("#isAuthenticationEnabled").prop("checked",false).trigger("chan
 			formData.isAuthenticationEnabled = $('#isAuthenticationEnabled').is(':checked'); 
 			formData.authProperties	= authProperties;		
 			var formJsonData = JSON.stringify(formData);
-		//	console.log('Form Data : '+formJsonData);                
 			$.ajax({
 				type : "POST",				
 				url : contextPath+"/cf/sat",

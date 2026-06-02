@@ -1,6 +1,8 @@
 package com.trigyn.jws.formio.controller;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,20 +19,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
+import com.trigyn.jws.formio.dao.IFormIORepository;
 import com.trigyn.jws.formio.entities.FormIO;
 import com.trigyn.jws.formio.service.FormIOService;
 import com.trigyn.jws.formio.utils.FormIOUtils;
 import com.trigyn.jws.formio.vo.FormIOVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DynamicFormCrudService;
+import com.trigyn.jws.webstarter.utils.Constant;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -56,8 +60,14 @@ public class FormIOController {
 	private DynamicFormCrudService	dynamicService		= null;
 	
 	@Autowired
-	private FileUtilities 			fileUtilities 		= null;
+	private FileUtilities			fileUtilities			= null;
+	
+	@Autowired
+	private IFormIORepository		iFormIORepository		= null;
 
+	@Autowired
+	private PropertyMasterService	propertyMasterService	= null;
+	
 	@GetMapping(value = "/fiol", produces = MediaType.TEXT_HTML_VALUE)
 	public String formIoListingPages(HttpServletRequest request, HttpServletResponse httpServletResponse)
 			throws IOException {
@@ -87,19 +97,42 @@ public class FormIOController {
 		return null;
 	}
 	
+	/** This method is called for saving revision through Revision History and Comparison Editors Save method **/
 	@PostMapping(value = "/sfiov")
-	public void saveFormIOByVersion(HttpServletRequest a_httpServletRequest,
-			HttpServletResponse a_httpServletResponse) throws Exception {
-		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
-		ObjectMapper	objectMapper	= new ObjectMapper().configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false);
-		FormIO formIoEntity;
-		FormIOVO formIoVo;
+	public void saveFormIOVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
+		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");							
+		ObjectMapper	objectMapper	= new ObjectMapper().configure(SerializationFeature.FAIL_ON_SELF_REFERENCES,
+				false);
+		String			dbDateFormat	= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
+				Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
+				com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+		DateFormat		dateFormat		= new SimpleDateFormat(dbDateFormat);
+		objectMapper.setDateFormat(dateFormat);
+		FormIO		formIoEntity;
+		FormIOVO	formIoVo;
 		try {
-			formIoVo = objectMapper.readValue(modifiedContent, FormIOVO.class);
-			formIoEntity = FormIOUtils.convertToFormIoEntity(formIoVo);
-			formIOService.saveFormIOByVersion(formIoEntity, formIoVo);
-		} catch (JsonProcessingException jpe) {
-			throw new Exception("Error while saving the contents.");
+			formIoVo		= objectMapper.readValue(modifiedContent, FormIOVO.class);
+			formIoEntity	= FormIOUtils.convertToFormIoEntity(formIoVo);
+			FormIOVO formIoVO = FormIOUtils.convertToFormIoVO(formIoEntity);
+			formIOService.saveFormIOByVersion(formIoEntity, formIoVO);
+		} catch (CustomStopException cse) {
+			throw new CustomStopException("Error while saving the contents.");
+		} catch (Exception e) {
+			throw new Exception("Error while saving the contents.", e);
+		}
+	}
+	
+	/** This method is called for saving revision after main FormIO save method through onSuccess() **/
+	@PostMapping(value = "/safiov")
+	public void saveFormIOByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
+		String			formIoId	= a_httpServletRequest.getParameter("formIoId");
+		FormIO  formIoEntity = iFormIORepository.findById(formIoId).orElse(null);
+
+		try {
+			FormIOVO    formIoVO = FormIOUtils.convertToFormIoVO(formIoEntity);
+			formIOService.saveFormIOByVersion(formIoEntity, formIoVO);
 		} catch (CustomStopException cse) {
 			throw new CustomStopException("Error while saving the contents.");
 		}

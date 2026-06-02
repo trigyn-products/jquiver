@@ -1,6 +1,7 @@
 package com.trigyn.jws.webstarter.vo;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 public class RestApiDetailsJsonVO implements Serializable {
@@ -10,7 +11,7 @@ public class RestApiDetailsJsonVO implements Serializable {
 	 */
 	private static final long	serialVersionUID			= 1L;
 
-	private String				allowFiles					= null;
+//	private String				allowFiles					= null;
 
 	private String				daoDetailsIds				= null;
 
@@ -54,15 +55,24 @@ public class RestApiDetailsJsonVO implements Serializable {
 	
 	private String				datasourceDetails			= null;
 	
-	private	String				scriptLibId					= null;
+    private Integer				isCustomUpdated					= 1;
+	
+	private String				createdBy						= null;
+	
+	private Date				createdDate						= null;
+	
+	private String				lastUpdatedBy					= null;
+	
+	private Date				lastUpdatedTs					= null;
+	
 
-	public String getAllowFiles() {
-		return allowFiles;
-	}
-
-	public void setAllowFiles(String allowFiles) {
-		this.allowFiles = allowFiles;
-	}
+//	public String getAllowFiles() {
+//		return allowFiles;
+//	}
+//
+//	public void setAllowFiles(String allowFiles) {
+//		this.allowFiles = allowFiles;
+//	}
 
 	public String getDaoDetailsIds() {
 		return daoDetailsIds;
@@ -234,12 +244,44 @@ public class RestApiDetailsJsonVO implements Serializable {
 		this.datasourceDetails = datasourceDetails;
 	}
 
-	public String getScriptLibId() {
-		return scriptLibId;
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
 	}
 
-	public void setScriptLibId(String string) {
-		this.scriptLibId = string;
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public String getLastUpdatedBy() {
+		return lastUpdatedBy;
+	}
+
+	public void setLastUpdatedBy(String lastUpdatedBy) {
+		this.lastUpdatedBy = lastUpdatedBy;
+	}
+
+	public Date getLastUpdatedTs() {
+		return lastUpdatedTs;
+	}
+
+	public void setLastUpdatedTs(Date lastUpdatedTs) {
+		this.lastUpdatedTs = lastUpdatedTs;
 	}
 
 	

@@ -116,6 +116,8 @@ public class JwsRole {
 		role.setRoleName(roleName != null ? roleName.trim() : roleName);
 		role.setRoleDescription(roleDescription != null ? roleDescription.trim() : roleDescription);
 		role.setIsActive(isActive);
+		role.setRolePriority(rolePriority);
+		role.setIsCustomUpdated(isCustomUpdated);
 
 		List<JwsRoleMasterModulesAssociation> jrmmaOthr = new ArrayList<>();
 		if (jwsRoleMasterModulesAssociation != null && !jwsRoleMasterModulesAssociation.isEmpty()) {
@@ -128,14 +130,17 @@ public class JwsRole {
 		return role;
 	}
 
+	
 	public JwsRoleVO convertEntityToVO(JwsRole jwsRole) {
-		JwsRoleVO jwsRoleVO = new JwsRoleVO();
-		jwsRoleVO.setRoleId(StringUtils.isNotEmpty(jwsRole.getRoleId()) ? jwsRole.getRoleId() : null);
-		jwsRoleVO.setRoleName(jwsRole.getRoleName());
-		jwsRoleVO.setRoleDescription(jwsRole.getRoleDescription());
-		jwsRoleVO.setIsActive(jwsRole.getIsActive());
-		jwsRoleVO.setRolePriority(jwsRole.getRolePriority());
-		return jwsRoleVO;
+		JwsRoleVO jwsRoleVo = new JwsRoleVO();
+		jwsRoleVo.setRoleId(StringUtils.isNotEmpty(jwsRole.getRoleId()) ? jwsRole.getRoleId() : null);
+		jwsRoleVo.setRoleName(jwsRole.getRoleName());
+		jwsRoleVo.setRoleDescription(jwsRole.getRoleDescription());
+		jwsRoleVo.setIsActive(jwsRole.getIsActive());
+		jwsRoleVo.setRolePriority(jwsRole.getRolePriority());
+		jwsRoleVo.setIsCustomUpdated(jwsRole.getIsCustomUpdated());
+		return jwsRoleVo;
 	}
-
+	
+	
 }

@@ -114,8 +114,9 @@
     	</div>	
 		
 		<div class="row margin-t-10">
-			<div class="col-12">
-				<div class="text-end">
+			<div class="d-flex justify-content-end align-items-center gap-2">
+            <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_dashboard')">Create/Link Module</button>
+				<!-- <div class="text-end"> -->
 					<div class="btn-group dropup custom-grp-btn">
 			            <div id="savedAction">
 		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('dashboard-manage-details', this, isEdit, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
@@ -131,13 +132,18 @@
 					<span onclick="addEditDashboardFn.backToDashboardListingPage();">
 						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 					</span> 
-				</div>
+				<!-- </div> -->
 			</div>
-		</div>		
+		</div>
+
        
 	<textarea id="htmlContent" style="display: none">
         ${(dashboard?api.getDashboardBody())!''}
 	</textarea>
+
+    <div id="moduleAutocomplete">
+            <@templateWithoutParams "common-modal-template"/>
+    </div>   
     
 </div>
 
@@ -152,6 +158,11 @@
       isEdit=1;  
     }
 	let addEditDashboardFn;
+    let moduleIdList = [];
+    let deleteModuleIdList = [];
+    let newAddedModuleIdList = [];
+    let existingModuleIdList = [];
+    let allModuleList = []; 
 	
 	$(function() {
 		  
@@ -167,7 +178,14 @@
         if(dashboardId == ""){
             getDashboardCssDefaultContent();
         }
-        
+        if(isEdit == 1){
+            getModuleNames(dashboardId,$("#moduleId").val());
+            /** Added for resetting the values of BusinessModule Dialog after save and edit. **/
+	        document.getElementById("saveAndEdit").addEventListener("click", function () {
+	            resetBusModuleModal();
+	        });
+        }  
+
 	});
 
   var dashletMultiselect;
@@ -218,7 +236,7 @@ $(function () {
            if(liId == itemData.dashletId+"_li"){     
                 let itemSpan = $('<span class="ml-selected-item" id="'+itemData.dashletId+'">'+encodedName+'</span>');
                 listsdashElement.append(itemSpan);
-                let deleteItemcontext = $('<span class="float-right closeicon"><i class="fa fa-times-circle-o" aria-hidden="true"></i></span>');
+                let deleteItemcontext = $('<span class="float-right closeicon"><i class="fa-regular fa-circle-xmark" aria-hidden="true"></i></span>');
                 deleteItemcontext.data("selected-item", itemData);
                 listsdashElement.append(deleteItemcontext);
                 $("#associatedDashlets_selectedOptions_ul").append(listsdashElement);
@@ -267,6 +285,28 @@ $(function () {
 				error: function(xhr, error) {					
 				},
 			});
+    }
+
+    function saveModDetails(isEdit,entityId){
+        var busmoduleName = $("#busmoduleName").val();
+        var cmvEntityName = document.getElementById("cmvEntityName").value;        
+        if(checkExistingBusinessModuleName(busmoduleName) == true){
+            showMessage("Module Name already exists","warn");
+            $("#busmoduleName").val("");
+            return false;
+        }
+        if(entityId != ""){
+            var isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked;  
+            if (existingModuleIdList.includes(busmoduleName)) {
+                showMessage("Module Name already exists for this entity.", "info");
+                return false;
+            }
+            if(busmoduleName != "" || moduleIdList.length > 0 || deleteModuleIdList.length > 0){
+                saveModuleDetails(busmoduleName,entityId,$("#moduleId").val(),isEdit,moduleIdList,deleteModuleIdList,isShowCreateLinkChkBox,cmvEntityName);
+            }
+            
+        }
+        return true;
     }
 </script>
 <script src="${(contextPath)!''}/webjars/1.0/dashboard/addEditDashboard.js"></script>

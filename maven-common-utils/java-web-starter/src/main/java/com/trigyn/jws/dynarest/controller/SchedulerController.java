@@ -12,8 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
@@ -23,6 +25,7 @@ import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynarest.cipher.utils.JwsSchedulerJob;
+import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.JqScheduler;
 import com.trigyn.jws.dynarest.repository.JqschedulerRepository;
 import com.trigyn.jws.dynarest.service.SchedulerService;
@@ -66,8 +69,12 @@ public class SchedulerController {
 	
 	@Autowired
 	private FileUtilities		    fileUtilities			= null;
+	
+	@Autowired
+	private JwsDynarestDAO			jwsDynarestDAO			= null;
 
-	@RequestMapping(value = "/sl", produces = MediaType.TEXT_HTML_VALUE)
+	//@RequestMapping(value = "/sl", method= RequestMethod.GET,produces = MediaType.TEXT_HTML_VALUE)
+	@GetMapping(value = "/sl", produces = MediaType.TEXT_HTML_VALUE)
 	public String schedulerListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			return menuService.getTemplateWithSiteLayout("jq-scheduler-listing", new HashMap<>());
@@ -95,6 +102,7 @@ public class SchedulerController {
 			/* Method called for implementing Activity Log */
 			logActivity(schedulerName, Constants.Action.DELETE.getAction());
 			status = schedulerService.deleteScheduler(schedulerId);
+			jwsDynarestDAO.businessModEntityDeleteById(schedulerId);
 		} catch (Exception a_exception) {
 			logger.error("Error occured while deleting : Scheduler : " + "Scheduler Name : "
 					+ httpServletRequest.getParameter("schedulerName"), a_exception);
@@ -164,7 +172,7 @@ public class SchedulerController {
 		return String.valueOf(status);
 	}
 
-	@RequestMapping(value = "/execn", produces = MediaType.TEXT_HTML_VALUE)
+	@PostMapping(value = "/execn", produces = MediaType.TEXT_HTML_VALUE)
 	public String executeNow(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
 			throws IOException {
 		boolean status = false;

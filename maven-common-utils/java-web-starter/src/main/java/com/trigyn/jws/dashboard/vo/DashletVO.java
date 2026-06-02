@@ -2,8 +2,13 @@ package com.trigyn.jws.dashboard.vo;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Column;
 
 public class DashletVO implements Serializable {
 
@@ -25,7 +30,7 @@ public class DashletVO implements Serializable {
 
 	private Integer					width					= null;
 
-	private Integer					height					= null;	
+	private Integer					height					= null;
 
 	private String					dataSourceId			= null;
 
@@ -39,18 +44,67 @@ public class DashletVO implements Serializable {
 
 	private Integer					daoQueryType			= null;
 
-	private List<DashletPropertyVO>	dashletPropertVOList	= new ArrayList<>();	
+	private List<DashletPropertyVO>	dashletPropertVOList	= new ArrayList<>();
 
 	private Integer					dashletTypeId			= 1;
+
+	private String					createdBy				= null;
+
+	private Date					createdDate				= null;
+
+	private String					updatedBy				= null;
+
+	private Date					lastUpdatedTs			= null;
+
+	private String					dashletQueryChecksum	= null;
+
+	private String					dashletBodyChecksum		= null;
+
+	private Integer					isCustomUpdated			= 1;
 
 	public DashletVO() {
 
 	}
 
+	
 	public DashletVO(String dashletId, String dashletTitle, String dashletName, String dashletBody, String dashletQuery,
-			Integer xCoordinate, Integer yCoordinate, Integer width, Integer height, 
-			String dataSourceId, String resultVariableName, Integer daoQueryType, Integer showHeader,
-			Integer isActive,Integer dashletTypeId) {
+			Integer xCoordinate, Integer yCoordinate, Integer width, Integer height, String dataSourceId,
+			Integer showHeader, Integer isActive, List<String> roleIdList, String resultVariableName,
+			Integer daoQueryType, List<DashletPropertyVO> dashletPropertVOList, Integer dashletTypeId, String createdBy,
+			Date createdDate, String updatedBy, Date lastUpdatedTs, String dashletQueryChecksum,
+			String dashletBodyChecksum, String datasourceId2, Integer isCustomUpdated) {
+		super();
+		this.dashletId				= dashletId;
+		this.dashletTitle			= dashletTitle;
+		this.dashletName			= dashletName;
+		this.dashletBody			= dashletBody;
+		this.dashletQuery			= dashletQuery;
+		this.xCoordinate			= xCoordinate;
+		this.yCoordinate			= yCoordinate;
+		this.width					= width;
+		this.height					= height;
+		this.dataSourceId			= dataSourceId;
+		this.showHeader				= showHeader;
+		this.isActive				= isActive;
+		this.roleIdList				= roleIdList;
+		this.resultVariableName		= resultVariableName;
+		this.daoQueryType			= daoQueryType;
+		this.dashletPropertVOList	= dashletPropertVOList;
+		this.dashletTypeId			= dashletTypeId;
+		this.createdBy				= createdBy;
+		this.createdDate			= createdDate;
+		this.updatedBy				= updatedBy;
+		this.lastUpdatedTs			= lastUpdatedTs;
+		this.dashletQueryChecksum	= dashletQueryChecksum;
+		this.dashletBodyChecksum	= dashletBodyChecksum;
+		this.isCustomUpdated		= isCustomUpdated;
+	}
+
+
+	public DashletVO(String dashletId, String dashletTitle, String dashletName, String dashletBody, String dashletQuery,
+			Integer xCoordinate, Integer yCoordinate, Integer width, Integer height, String dataSourceId,
+			String resultVariableName, Integer daoQueryType, Integer showHeader, Integer isActive,
+			Integer dashletTypeId) {
 		this.dashletId			= dashletId;
 		this.dashletTitle		= dashletTitle;
 		this.dashletName		= dashletName;
@@ -67,12 +121,10 @@ public class DashletVO implements Serializable {
 		this.isActive			= isActive;
 		this.dashletTypeId		= dashletTypeId;
 	}
-	
-	
 
 	public DashletVO(String dashletId, String dashletName) {
-		this.dashletId = dashletId;
-		this.dashletName = dashletName;
+		this.dashletId		= dashletId;
+		this.dashletName	= dashletName;
 	}
 
 	public String getDashletId() {
@@ -202,8 +254,6 @@ public class DashletVO implements Serializable {
 	public void setDaoQueryType(Integer daoQueryType) {
 		this.daoQueryType = daoQueryType;
 	}
-	
-	
 
 	public Integer getDashletTypeId() {
 		return dashletTypeId;
@@ -212,49 +262,123 @@ public class DashletVO implements Serializable {
 	public void setDashletTypeId(Integer dashletTypeId) {
 		this.dashletTypeId = dashletTypeId;
 	}
+	
+	
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	public Date getLastUpdatedTs() {
+		return lastUpdatedTs;
+	}
+
+	public void setLastUpdatedTs(Date lastUpdatedTs) {
+		this.lastUpdatedTs = lastUpdatedTs;
+	}
+
+	public String getDashletQueryChecksum() {
+		return dashletQueryChecksum;
+	}
+
+	public void setDashletQueryChecksum(String dashletQueryChecksum) {
+		this.dashletQueryChecksum = dashletQueryChecksum;
+	}
+
+	public String getDashletBodyChecksum() {
+		return dashletBodyChecksum;
+	}
+
+	public void setDashletBodyChecksum(String dashletBodyChecksum) {
+		this.dashletBodyChecksum = dashletBodyChecksum;
+	}
+
+	
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
+	public void setxCoordinate(Integer xCoordinate) {
+		this.xCoordinate = xCoordinate;
+	}
+
+	public void setyCoordinate(Integer yCoordinate) {
+		this.yCoordinate = yCoordinate;
+	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(dashletBody, dashletId, dashletName, dashletPropertVOList, dashletQuery,
-				dashletTitle, dataSourceId, height, isActive, roleIdList, showHeader, width, xCoordinate, yCoordinate,dashletTypeId);
+		return Objects.hash(createdBy, createdDate, daoQueryType, dashletBody, dashletBodyChecksum, dashletId,
+				dashletName, dashletPropertVOList, dashletQuery, dashletQueryChecksum, dashletTitle, dashletTypeId,
+				dataSourceId,  height, isActive, isCustomUpdated, lastUpdatedTs, resultVariableName,
+				roleIdList, showHeader, updatedBy, width, xCoordinate, yCoordinate);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		DashletVO other = (DashletVO) obj;
-		return  Objects.equals(dashletBody, other.dashletBody)
+		return Objects.equals(createdBy, other.createdBy) && Objects.equals(createdDate, other.createdDate)
+				&& Objects.equals(daoQueryType, other.daoQueryType) && Objects.equals(dashletBody, other.dashletBody)
+				&& Objects.equals(dashletBodyChecksum, other.dashletBodyChecksum)
 				&& Objects.equals(dashletId, other.dashletId) && Objects.equals(dashletName, other.dashletName)
 				&& Objects.equals(dashletPropertVOList, other.dashletPropertVOList)
-				&& Objects.equals(dashletQuery, other.dashletQuery) && Objects.equals(dashletTitle, other.dashletTitle)
-				&& Objects.equals(dataSourceId, other.dataSourceId) && Objects.equals(height, other.height)
-				&& Objects.equals(isActive, other.isActive) && Objects.equals(roleIdList, other.roleIdList)
-				&& Objects.equals(showHeader, other.showHeader) && Objects.equals(width, other.width)
-				&& Objects.equals(xCoordinate, other.xCoordinate) && Objects.equals(yCoordinate, other.yCoordinate)
-				&& Objects.equals(dashletTypeId, other.dashletTypeId);
+				&& Objects.equals(dashletQuery, other.dashletQuery)
+				&& Objects.equals(dashletQueryChecksum, other.dashletQueryChecksum)
+				&& Objects.equals(dashletTitle, other.dashletTitle)
+				&& Objects.equals(dashletTypeId, other.dashletTypeId)
+				&& Objects.equals(dataSourceId, other.dataSourceId) 
+				&& Objects.equals(height, other.height) && Objects.equals(isActive, other.isActive)
+				&& Objects.equals(isCustomUpdated, other.isCustomUpdated)
+				&& Objects.equals(lastUpdatedTs, other.lastUpdatedTs)
+				&& Objects.equals(resultVariableName, other.resultVariableName)
+				&& Objects.equals(roleIdList, other.roleIdList) && Objects.equals(showHeader, other.showHeader)
+				&& Objects.equals(updatedBy, other.updatedBy) && Objects.equals(width, other.width)
+				&& Objects.equals(xCoordinate, other.xCoordinate) && Objects.equals(yCoordinate, other.yCoordinate);
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("DashletVO [dashletId=").append(dashletId).append(", dashletTitle=").append(dashletTitle)
-				.append(", dashletName=").append(dashletName).append(", dashletBody=").append(dashletBody)
-				.append(", dashletQuery=").append(dashletQuery).append(", xCoordinate=").append(xCoordinate)
-				.append(", yCoordinate=").append(yCoordinate).append(", width=").append(width).append(", height=")
-				.append(height).append(", dataSourceId=").append(dataSourceId)
-				.append(", dashletTypeId=").append(dashletTypeId)
-				.append(", showHeader=").append(showHeader).append(", isActive=").append(isActive)
-				.append(", roleIdList=").append(roleIdList).append(", dashletPropertVOList=")
-				.append(dashletPropertVOList).append("]");
-		return builder.toString();
+		return "DashletVO [dashletId=" + dashletId + ", dashletTitle=" + dashletTitle + ", dashletName=" + dashletName
+				+ ", dashletBody=" + dashletBody + ", dashletQuery=" + dashletQuery + ", xCoordinate=" + xCoordinate
+				+ ", yCoordinate=" + yCoordinate + ", width=" + width + ", height=" + height + ", dataSourceId="
+				+ dataSourceId + ", showHeader=" + showHeader + ", isActive=" + isActive + ", roleIdList=" + roleIdList
+				+ ", resultVariableName=" + resultVariableName + ", daoQueryType=" + daoQueryType
+				+ ", dashletPropertVOList=" + dashletPropertVOList + ", dashletTypeId=" + dashletTypeId + ", createdBy="
+				+ createdBy + ", createdDate=" + createdDate + ", updatedBy=" + updatedBy + ", lastUpdatedTs="
+				+ lastUpdatedTs + ", dashletQueryChecksum=" + dashletQueryChecksum + ", dashletBodyChecksum="
+				+ dashletBodyChecksum + ", isCustomUpdated=" + isCustomUpdated + "]";
 	}
 
+	
 }

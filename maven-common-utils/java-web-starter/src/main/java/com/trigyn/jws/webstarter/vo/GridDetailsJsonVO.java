@@ -42,6 +42,10 @@ public class GridDetailsJsonVO implements Serializable {
 	
 	private Date				lastUpdatedTs		= null;	
 
+	private String				lastUpdatedBy			= null;
+	
+	private Integer				isCustomUpdated			= 1;
+	
 	public String getEntityName() {
 		return entityName;
 	}
@@ -168,6 +172,22 @@ public class GridDetailsJsonVO implements Serializable {
 
 	public void setLastUpdatedTs(Date lastUpdatedTs) {
 		this.lastUpdatedTs = lastUpdatedTs;
+	}
+
+	public String getLastUpdatedBy() {
+		return lastUpdatedBy;
+	}
+
+	public void setLastUpdatedBy(String lastUpdatedBy) {
+		this.lastUpdatedBy = lastUpdatedBy;
+	}
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
 	}
 
 	

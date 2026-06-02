@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-replace into jq_manual_type (manual_id, name, is_system_manual,header_template) VALUES ('07cf45ae-2987-11eb-a9be-e454e805e22f', 'JQuiver Manual', 2,'<script>
+replace into jq_manual_type (manual_id, name, is_system_manual,header_template,created_by,created_date,last_updated_by,last_updated_ts,editor_name) VALUES ('07cf45ae-2987-11eb-a9be-e454e805e22f', 'JQuiver Manual', 2,'<script>
 	$(function() {
 		//console.log( "ready!" );
 	});
@@ -59,7 +59,7 @@ replace into jq_manual_type (manual_id, name, is_system_manual,header_template) 
     .searchhelp{
         
     }
-</style>');
+</style>','admin@jquiver.io',NOW(),'admin@jquiver.io',NOW(),'1');
 
 /*************************************************JQuiver - start****************************************************************/
 REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) VALUES
@@ -1518,107 +1518,6 @@ Exporting the configuration plays pivotal role when you want to migrate some con
 16, NOW(), 'admin@jquiver.io');
 
 /************************************************Export Configuration - End*****************************************************/
-
-
-
-
-/************************************************Dev Environment - Start********************************************************/
-
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) 
-VALUES('935b9394-c33d-4113-a248-27c46c45e7e9', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Dev Environment', '# Dev Environment:
-
-You can modify the following modules in your favourite editor just by changing the value of **Profile** property to **dev** from application configuration:
-* Templating
-* Dynamic Form
-* Dashlet
-* Rest API
-
-![](/cf/files/5332fa07-f42e-4b40-ad30-bb0ffbad979b)
-
-You can get the default path from the property_master table or from UI Application Configuration,which will be used by the application to download, upload and process the content
-
-![](/cf/files/a8956dc5-1b52-4a6f-b326-2c757dc7e850)
-
-![](/cf/files/d73c1cc1-ec63-49cd-a79c-1891e88de41b)
-
-Dev environment features:
-** Download: **If you want to download(from database to local directory) all custom records then you can use Download All feature.
-** Upload:**If you want to upload(from local directory to database) all custom records then you can use Upload All feature.
-** Note: **If you add any new record from the UI then application will save the changes in database as well as create appropriate files in local directory.
- 
-Download All custom templates:
-![](/cf/files/58d80ab5-4eae-43da-b61e-d1c5bbd54f86) 
-	
-Download All custom dynamic forms:
-![](/cf/files/88950dfd-c8c7-48bf-bbad-6a8a8df67209)
-
-Download All custom dashlets:
-![](/cf/files/5c3bb528-a63e-4ad0-95d1-863d755f3215)
-
-Download All custom Rest APIs:
-![](/cf/files/c9498a41-8921-44b0-a5af-7743d7e659e5)
-
-Upload All custom templates:
-![](/cf/files/ce49087d-106f-4bdc-bd67-5aa71e619b90)
- 
-Upload All custom dynamic forms:
-![](/cf/files/88950dfd-c8c7-48bf-bbad-6a8a8df67209)
- 
-Upload All custom dashlets:
-![](/cf/files/a556eeae-82ce-4c30-9342-a715a9e28c33)
-
-Upload All custom Rest APIs:
-![](/cf/files/b171c780-199c-443b-adf5-5166c604e2e8)
-
-Download/Upload templates:
-![](/cf/files/0141f87a-4a0f-4cb3-9456-3a9487b50b68)
-
-Download/Upload dynamic forms:
-![](/cf/files/109cbd35-3656-489a-a8d8-d2837b8160ca)
-
-Download/Upload dashlets:
-![](/cf/files/d3816cab-ce34-4c70-a3ad-aa2277f6198) 
-
-Download/Upload Rest APIs:
-![](/cf/files/90c87a4f-743c-4a56-8118-6346a531aead) 
-
-Find all the templates under **Templates** folder. It consist of **template-name.tgn** files
-
-![](/cf/files/ff40843a-54a2-4d5d-8923-2a9a01ab871b)
- 
- Application will save all forms in **DynamicForms** folder. Inside DynamicForms, there will be one folder for each dynamic form and it should contain at least 3 files:
-*  htmlContent
-*  selectQuery
-*  saveQuery-1
-
-![](/cf/files/248ad2c0-2ab0-4a44-81bc-df9accc4ca36)
-
-![](/cf/files/18c9fdd3-3d7e-4d7c-8874-6e31ea9a9aef)
-
- Application will save all Rest APIs in **DynamicRest** folder. Inside DynamicRest, there will be one folder for each Rest API and it should contain at least 2 files:
-*  selectQuery-1.tgn
-*  serviceLogic.tgn
-
-![](/cf/files/00c75941-bcd3-4fe4-92e7-f12503dee6fc)
-
-![](/cf/files/299b9053-0616-4f52-a9ec-2280469c361e)
-
-**Note: **You can add as much selectQuery as per your requirement.
-
-Like dynamic forms, each dashlet details will be stored in seperate folder and all dashlets will be saved in Dashlets folder. There should be only two files in each folder:
-* htmlContent
-* selectQuery
-
-![](/cf/files/acccd191-3554-4f60-92e0-5ff945ac29bd)
-
-![](/cf/files/0390d488-bd3a-4422-b901-61d33d4313a3)
-
-
-', 17, NOW(), 'admin@jquiver.io');
-
-/************************************************Dev Environment - End**********************************************************/
-
-
 
 /*************************************************Others - Start****************************************************************/
 REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) 

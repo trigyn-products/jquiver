@@ -6,7 +6,7 @@ import com.trigyn.jws.dbutils.cipher.modes.IVCipherMode;
 
 public class DESCipherUtilFactory {
 
-	public static ICipherUtil getCipherMode(String algorithm, String mode, String padding, Integer keyLength) {
+	public static ICipherUtil getCipherMode(String algorithm, String mode, String padding, Integer keyLength) throws Exception {
 		if (mode != null && mode.isEmpty() == false) {
 			switch (mode) {
 				case "ECB":

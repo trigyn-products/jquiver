@@ -26,13 +26,6 @@
                 <input type="hidden" name="formId" value="8a80cb81749ab40401749ac2e7360000"/>
                 <input type="hidden" name="primaryId" id="primaryId" value=""/>
                 <input type="hidden" name="urlPrefix" id="urlPrefix" value="${urlPrefix}"/>
-                <#if environment == "dev">
-
-                <button id="downloadRestApi" onclick= "downloadDynaRest();" type="button" class="spacingclss btn btn-primary ">Download REST API</button>
-
-                <button id="uploadRestApi" onclick= "uploadDynaRest();" type="button" class="spacingclss btn btn-primary ">Upload REST API</button>               
-                
-                </#if>
 
                  <span class="iconscover spacingclss">
                  <button type='button' onclick="location.href='${(contextPath)!''}/cf/ad'" class="addonicons addresourceicon" title="Additional Datasource">
@@ -194,13 +187,7 @@ $(function () {
         const updatedDate = uiObject.rowData.lastUpdatedTs;
         const templateTypeId = uiObject.rowData.dynarestTypeId;
 		const revisionCount = uiObject.rowData.revisionCount;
-			
-         <#if environment == "dev">
-            let element = "<span id='"+dynarestUrl+"'  class= 'grid_action_icons'><i class='fa fa-pencil'></i></span>";
-            element = element + "<span id='"+dynarestId+"' class= 'grid_action_icons' onclick='downloadRestApiById(this)'><i class='fa fa-download'></i></span>";
-            element = element + "<span id='"+dynarestId+"_upload' name='"+dynarestUrl+"' class= 'grid_action_icons' onclick='uploadRestApiById(this)'><i class='fa fa-upload'></i></span>";
-            return element;
-        <#else>    
+			    
 		let actionElement;
 		actionElement = '<span id="'+dynarestUrl+'" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>';
 		if(revisionCount > 1){
@@ -219,7 +206,6 @@ $(function () {
 		        </#if>
 		        }
 		return actionElement;	
-         </#if>
 	}
 
      function downloadRestApiById(thisObj){
@@ -280,43 +266,5 @@ function submitRevisionForm(sourceElement) {
 	function backToWelcomePage() {
         location.href = contextPath+"/cf/home";
 	}
-
-<#if environment == "dev">
-    function downloadDynaRest(){
-        $.ajax({
-            url:contextPath+"/cf/darld",
-            type:"POST",
-            success : function(data) {
-                showMessage("Rest APIs downloaded successfully", "success");
-            },
-            error : function(xhr, error){
-                showMessage("Error occurred while downloading Rest APIs", "error");
-            },
-            
-        });
-    }
-    function uploadDynaRest(){
-    	var restTypeId = $("#typeSelect").val();
-    	if(restTypeId == 2) {
-	    		showMessage("Only Custom Rest APIs can be uploaded.", "warn");
-	    		return false;
-	    }
-    	
-        $.ajax({
-            url:contextPath+"/cf/uardb",
-            type:"POST",
-            data:{
-	        		restTypeId : restTypeId,
-	        	}, 
-            success : function(data) {
-                showMessage("Rest APIs uploaded successfully", "success");
-            },
-            error : function(xhr, error){
-                showMessage("Error occurred while uploading Rest APIs", "error");
-            },
-            
-        });
-    }
-    </#if>
 
 </script>

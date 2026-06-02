@@ -15,316 +15,381 @@
     .flexcls{
         display:flex;
     }
+
+    .calndercutom.spacingclss .custtexbox {
+    width: 134px;
+    display: flex;
+    align-items: center;
+}
+
+
+    .addonbtnblock_cate{
+        display:none;
+        position: absolute;
+        right: 0px;
+        z-index: 9;
+        top:0px;
+        padding-top:32px;
+        color: #999;
+    }
+
+    .disble{
+        opacity:0.5;
+        background-color: #E7E7E7  ;
+    }
+
+    .filterlist{
+        list-style: none;
+        padding: 0px;
+        color:#000;
+        margin: 0px;
+        display: flex;
+        background:#fff;
+        flex-direction: column;
+    }
+
+    .filterlist{
+        display: flex;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 180px;
+        color:#000;
+    }
+
+    .lists {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 10px 10px;
+        border-top: 1px solid #ccc;
+    }
+
+    .lists:hover {
+        background:#f2f2f2;
+    }
+
+    .filterblock{
+        position:relative;
+    }
+
+    .filterblock:hover .addonbtnblock_cate{
+        display:block;
+    }
+
+    .filtericon{
+
+    }
+
+    .iconsnextbac{
+        display:flex;
+        align-items:center;
+        gap:5px;
+    }
+
     </style>
 
 
 </head>
 
 <div class="pg-export-config">
-
 <div class="container">
-    <div class="cm-card">
-	<div class="topband cm-card-header">
-		<h2 class="title-cls-name float-left" style="margin-top: 5px;">${messageSource.getMessage('jws.exportconfiguration')}</h2>
-        <div class=" addonbtnblock">
+   <div class="cm-card">
+      <div class="topband cm-card-header">
+         <h2 class="title-cls-name float-left" style="margin-top: 5px;">${messageSource.getMessage('jws.exportconfiguration')}</h2>
+         <div class=" addonbtnblock">
             <div class="flexblock">
-            <div id="expHeader" class="flexblock">
-               <div class="showblock">
-                 <span>${messageSource.getMessage('jws.show')}</span>
-                <select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()" >   
-                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
-                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
-                <option value="2">${messageSource.getMessage('jws.system')}</option>                 
-                  </select>       
-                </div> 
-                <span class="calndercutom spacingclss">
-                     <label for="chkDatePicker" style="cursor:pointer">${messageSource.getMessage('jws.modifiedafter')} </label>
-                    <input type="checkbox" id="chkDatePicker" onchange="selectAsperDate()" >
-                    <input disabled id="modifiedAfter" data-type="varchar" class="custtexbox" name="modifiedAfter" placeholder="Modified After" autocomplete="off"/>
-                         <button disabled id="modifiedAfter-trigger" class="calender_icon">
-                        <i class="fa fa-calendar" aria-hidden="true"></i>
-                        </button>
-                </span>
+               <div id="expHeader" class="flexblock">
+                  <div class="showblock">
+                     <span>${messageSource.getMessage('jws.show')}</span>
+                     <select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()" >
+                        <option value="0">${messageSource.getMessage('jws.all')}</option>
+                        <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>
+                        <option value="2">${messageSource.getMessage('jws.system')}</option>
+                     </select>
+                  </div>
+                  <span class="calndercutom spacingclss">
+                  <input id="modifiedAfter" data-type="varchar" class="custtexbox" name="modifiedAfter" placeholder="Modified After" autocomplete="off"/>
+                  <button id="modifiedAfter-trigger" class="calender_icon" onclick="selectAsperDate()">
+                  <i class="fa fa-calendar" aria-hidden="true"></i>
+                  </button>
+                  </span>
+               </div>
             </div>
-            
+            <div id="mainTabBtn" class="filterblock btn btn-secondary spacingclss">
+               <span class="filtericon"><i class="fa-solid fa-filter"></i></span>
+               <div  class="addonbtnblock_cate">
+                  <ul class="filterlist">
+                     <li id="deselectLi">
+                        <div class="lists " onchange="deselectAll();">
+                           <input type="checkbox" id="deselectAllChkBx" name="deselectAllChkBx">
+                           <label for="deselectAllChkBx">${messageSource.getMessage('jws.deselect')}</label> 
+                        </div>
+                     </li>
+                     <li>
+                        <div class="lists" onchange="selectPermissions();">
+                           <input type="checkbox" id="permissionChkBx" name="permissionChkBx">
+                           <label for="permissionChkBx">${messageSource.getMessage('jws.permission')}</label>
+                        </div>
+                     </li>
+                     <li>
+                        <div class="lists" onchange="selectRoles();">
+                           <input type="checkbox" id="roleChkBx" name="roleChkBx">
+                           <label for="roleChkBx">${messageSource.getMessage('jws.role')}</label>
+                        </div>
+                     </li>
+                     <li class="disble" id="dashletLi">
+                        <div class="lists">
+                           <input type="checkbox" id="dashletChkBx" name="dashletChkBx" disabled>
+                           <label for="dashletChkBx">${messageSource.getMessage('jws.dashlet')}</label>
+                        </div>
+                     </li>
+                     <li class="disble" id="formioLi">
+                        <div class="lists">
+                           <input type="checkbox" id="formioChkBx" name="formioChkBx" disabled>
+                           <label for="formioChkBx">${messageSource.getMessage('jws.formiolabel')}</label>
+                        </div>
+                     </li>
+                     <li class="disble" id="busimoduleLi">
+                        <div class="lists">
+                           <input type="checkbox" id="moduleChkBx" name="moduleChkBx">
+                           <label for="moduleChkBx">Modules</label>
+                        </div>
+                     </li>
+                     <li class="disble" id="scriptLibLi">
+                        <div class="lists">
+                           <input type="checkbox" id="scriptLibChkBx" name="scriptLibChkBx" disabled>
+                           <label for="scriptLibChkBx">Script Library</label>
+                        </div>
+                     </li>
+                     <li class="disble" id="addDataSourceLi">
+                        <div class="lists">
+                           <input type="checkbox" id="addDataSourceChkBx" name="addDataSourceChkBx" disabled>
+                           <label for="addDataSourceChkBx">Additional DataSource</label>
+                        </div>
+                     </li>
+                  </ul>
+               </div>
             </div>
-
-            <div id="mainTabBtn" class="addonbtnblock">
-		      
-                <div class="jws-deselect-btn btn btn-primary spacingclss">
-                    <input type="checkbox" id="deselectAllChkBx" name="deselectAllChkBx"
-                        onchange="deselectAll();" style="float:left;">
-                    <label for="deselectAllChkBx">${messageSource.getMessage('jws.deselect')}</label> 
-                </div>
-                 <div class="jws-permission-btn btn btn-primary spacingclss" style="margin-top:0px;margin-bottom:0px">
-                 <input type="checkbox" id="permissionChkBx" name="permissionChkBx"
-                        onchange="selectPermissions();" style="float:left;">
-                    <label for="permissionChkBx">${messageSource.getMessage('jws.permission')}</label>
-                 </div> 
-                  <div class="jws-dashlet-btn btn btn-primary spacingclss" style="margin-top:0px;margin-bottom:0px">
-                 <input type="checkbox" id="dashletChkBx" name="dashletChkBx" disabled
-                         style="float:left;">
-                    <label for="dashletChkBx">${messageSource.getMessage('jws.dashlet')}</label>
-                 </div> 
-                 <div class="jws-dashlet-btn btn btn-primary spacingclss" style="margin-top:0px;margin-bottom:0px">
-                 	<input type="checkbox" id="formioChkBx" name="formioChkBx" disabled
-                         style="float:left;">
-                    <label for="formioChkBx">${messageSource.getMessage('jws.formiolabel')}</label>
-                 </div> 
-                 
-                  <input id="nextBtn" class="btn btn-primary spacingclss" style="float:right;padding: 6px 12px;    margin: 0 6px;" name="nextBtn" value="${messageSource.getMessage('jws.next')}" type="button" onclick="gotoNextPage()">
-		    </div>
-            
+            <span id="prevBtn" class="btn btn-secondary spacingclss iconsnextbac" value="${messageSource.getMessage('jws.previous')}" type="button" onclick="backToPreviousPage();" style="display: block;"><i class="fa-solid fa-chevron-left"></i> Back</span>
+            <span id="nextBtn" class="btn btn-secondary spacingclss iconsnextbac" value="${messageSource.getMessage('jws.next')}" type="button" onclick="gotoNextPage()" style="display: block;">Next <i class="fa-solid fa-chevron-right"></i></span>
             <div id="nextTabBtn" style="display: none;">
-                <button id="download" class="btn btn-primary spacingclss" style="float: right; margin: 0 9px;" name="downloadBtn"
-                    type="button" onclick="exportToLocal()">${messageSource.getMessage('jws.exportToFolder')} <i class="fa fa-download" aria-hidden="true"></i></button>
-            
-                <button id="exportBtn" class="btn btn-primary spacingclss" style="float: right;    margin: 0 0 0 9px;" name="exportBtn"
-                    type="button" onclick="exportData()">
-                    ${messageSource.getMessage('jws.exportZip')}
-                </button>
-                <input id="prevBtn" class="btn btn-primary spacingclss" style="float: right;" name="prevBtn"
-                    value="${messageSource.getMessage('jws.previous')}" type="button" onclick="gotoPrevPage()">
+               <button id="download" class="btn btn-primary spacingclss" style="float: right; margin: 0 9px;" name="downloadBtn"
+                  type="button" onclick="exportToLocal()">${messageSource.getMessage('jws.exportToFolder')} <i class="fa fa-download" aria-hidden="true"></i></button>
+               <button id="exportBtn" class="btn btn-primary spacingclss" style="float: right;    margin: 0 0 0 9px;" name="exportBtn"
+                  type="button" onclick="exportData()">
+               ${messageSource.getMessage('jws.exportZip')}
+               </button>
+               <span id="prevBtn" class="btn btn-secondary spacingclss iconsnextbac" value="${messageSource.getMessage('jws.previous')}" type="button" onclick="gotoPrevPage()"><i class="fa-solid fa-chevron-left"></i> Back</span>
             </div>
-
-            <span onclick="backToPreviousPage();" >
-                <input id="backBtn" class="btn btn-secondary spacingclss" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-            </span>	
-
-        </div>
-        
-		<div id="exportFormDiv" style = "display:none"></div>
-        <div id="permissionWarningDiv" style="display:none"></div>
-
-		   
-	</div>
-	
-
-    <div class="cm-card-body">
-    <div class="cm-boxwrapper"  id="mainTab">
-    <div class="cm-boxleft cm-scrollbar export-cm-boxleft">
-          
-                <div class="tab" style="height: 100%;">
-                 <#if (moduleVOList)??> 
-                 <#list moduleVOList as moduleVO> 
-                        <#if moduleVO.moduleType?? && moduleVO.moduleType == "Grid"> 
-                            <button class="tablinks active" id= "${moduleVO.moduleId}" 
-                            	onclick="openTab(event, '${moduleVO.gridDetailsId}', '${moduleVO.moduleType}')">
-                            	${(moduleVO.moduleName)}  <div class="jws-count-wrap">	
-                                    Selected:	
-                                <span id="selectedCount_${moduleVO.moduleType}"></span> / <span id="totalCount_${moduleVO.moduleType}"></span>	
-                                <img src="${(contextPath)!''}/webjars/1.0/images/s-information1.svg">	
-                                </div>	
-                            </button>
-                        <#else>
-                            <button class="tablinks" id= "${moduleVO.moduleId}" 
-                            	onclick="openTab(event, '${moduleVO.gridDetailsId!""}', '${moduleVO.moduleType!""}')">
-                            	${(moduleVO.moduleName)} <div class="jws-count-wrap">	
-                                    Selected:	
-                                <span id="selectedCount_${moduleVO.moduleType!''}"></span> / <span id="totalCount_${moduleVO.moduleType!''}" ></span>	
-                                <img src="${(contextPath)!''}/webjars/1.0/images/s-information1.svg">	
-                                </div>	
-                            	</button>
-                        </#if>
-                                	
-                            </#list>
-                        </#if>
-	            </div>
-
-    </div>
-
-    <div class="cm-boxright cm-boxright-export cm-scrollbar">
-         <#if (moduleVOList)??> 
-                    <#list moduleVOList as moduleVO> 
-                        <#if moduleVO.moduleType?? && moduleVO.moduleType == "Grid"> 
-                            <div id="${moduleVO.moduleType}" class="tabcontent">
-                            </div>
-                        <#else>
-                            <div id="${moduleVO.moduleType!''}" class="tabcontent" style="display:none;">
-                            </div>
-                        </#if>
-                    </#list>
-		        </#if>
-       
-    </div>
-    </div>
-
-        <div>
-        </div>
-
-        	<div id="nextTab" style="display: none;">
-		<div class="cm-scrollbar" id="divHtmlTable">
-			<table class="table table-striped pq-grid-table" id="htmlTable">
-				<thead class="thead-light">
-					<tr>
-						<th>${messageSource.getMessage('jws.moduletype')}</th>
-						<th>${messageSource.getMessage('jws.entityid')}</th>
-						<th>${messageSource.getMessage('jws.entityname')}</th>
-						<th>${messageSource.getMessage('jws.version')}</th>
+         </div>
+         <div id="exportFormDiv" style = "display:none"></div>
+         <div id="permissionWarningDiv" style="display:none"></div>
+         <div id="roleWarningDiv" style="display:none"></div>
+      </div>
+      <div class="cm-card-body">
+         <div class="cm-boxwrapper"  id="mainTab">
+            <div class="cm-boxleft cm-scrollbar export-cm-boxleft">
+               <div class="tab" style="height: 100%;">
+                  <#if (moduleVOList)??> 
+                  <#list moduleVOList as moduleVO> 
+                  <#if moduleVO.moduleType?? && moduleVO.moduleType == "Grid"> 
+                  <button class="tablinks active" id= "${moduleVO.moduleId}" 
+                     onclick="openTab(event, '${moduleVO.gridDetailsId}', '${moduleVO.moduleType}')">
+                     ${(moduleVO.moduleName)}  
+                     <div class="jws-count-wrap">	
+                        Selected:	
+                        <span id="selectedCount_${moduleVO.moduleType}"></span> / <span id="totalCount_${moduleVO.moduleType}"></span>	
+                        <img src="${(contextPath)!''}/webjars/1.0/images/s-information1.svg">	
+                     </div>
+                  </button>
+                  <#else>
+                  <button class="tablinks" id= "${moduleVO.moduleId}" 
+                  onclick="openTab(event, '${moduleVO.gridDetailsId!""}', '${moduleVO.moduleType!""}')">
+                  ${(moduleVO.moduleName)} 
+                  <div class="jws-count-wrap">	
+                     Selected:	
+                     <span id="selectedCount_${moduleVO.moduleType!''}"></span> / <span id="totalCount_${moduleVO.moduleType!''}" ></span>	
+                     <img src="${(contextPath)!''}/webjars/1.0/images/s-information1.svg">	
+                  </div>
+                  </button>
+                  </#if>
+                  </#list>
+                  </#if>
+               </div>
+            </div>
+            <div class="cm-boxright cm-boxright-export cm-scrollbar">
+               <#if (moduleVOList)??> 
+               <#list moduleVOList as moduleVO> 
+               <#if moduleVO.moduleType?? && moduleVO.moduleType == "Grid"> 
+               <div id="${moduleVO.moduleType}" class="tabcontent">
+               </div>
+               <#else>
+               <div id="${moduleVO.moduleType!''}" class="tabcontent" style="display:none;">
+               </div>
+               </#if>
+               </#list>
+               </#if>
+            </div>
+         </div>
+         <div>
+         </div>
+         <div id="nextTab" style="display: none;">
+            <div class="cm-scrollbar" id="divHtmlTable">
+               <table class="table table-striped pq-grid-table" id="htmlTable">
+                  <thead class="thead-light">
+                     <tr>
+                        <th>${messageSource.getMessage('jws.moduletype')}</th>
+                        <th>${messageSource.getMessage('jws.entityid')}</th>
+                        <th>${messageSource.getMessage('jws.entityname')}</th>
+                        <th>${messageSource.getMessage('jws.version')}</th>
                         <th >${messageSource.getMessage('jws.deleteBtnText')}</th>
-					</tr>
-				</thead>
-				<tbody class="cm-scrollbar">
-				</tbody>
-			</table>
-		</div>
-	</div>
-    </div>
-
-     
-</div>
+                     </tr>
+                  </thead>
+                  <tbody class="cm-scrollbar">
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
 </div>
 <div id="deleteEntityConfirm"></div>
 <script>
-document.title = "Export Configuration Module";
-let isDeselectedAll = false;
-let selectedType = 1;
-//contextPath = "${contextPath}";
-var isSelectAsPerDate = false;
-var selectedDate;
-let selectDateCal;
-let profile;
-
-function selectAsperDate() {
-    $("#modifiedAfter").prop("disabled", !$("#chkDatePicker")[0].checked);
-	$("#modifiedAfter-trigger").prop("disabled", !$("#chkDatePicker")[0].checked);
-
-    if($("#chkDatePicker")[0].checked) {
-        isSelectAsPerDate = true;
-        if($("#modifiedAfter").val() != null && $("#modifiedAfter").val() != "") {
-            isSelectAsPerDate = true;
-            selectedDate = $("#modifiedAfter").val();
-            changeType();
-        }
+   document.title = "Export Configuration Module";
+   let isDeselectedAll = false;
+   let selectedType = 1;
+   //contextPath = "${contextPath}";
+   var isSelectAsPerDate = false;
+   var selectedDate;
+   let selectDateCal;
+   let profile;
+   
+   function selectAsperDate() {
+       isSelectAsPerDate = true;
+       if($("#modifiedAfter").val() != null && $("#modifiedAfter").val() != "") {
+           isSelectAsPerDate = true;
+           selectedDate = $("#modifiedAfter").val();
+           changeType();
+       }
        deselectAll(); 
-    } else {
-        isSelectAsPerDate = false;
-        selectedDate = "";
-        $("#modifiedAfter").val("");
-        changeType();
-    }
-}
-
-$(function () {
-    <#list systemProperties as key, value>
-                <#if key.propertyName == "profile">
-                    profile = "${value}".trim();
-                </#if>
-            </#list>
-    if(profile=="dev") {
-        $("#divExportToLocal").show();
-    } else {
-        $("#divExportToLocal").hide();  
-    }
-    selectDateCal = Calendar.setup({
-			trigger    : "modifiedAfter-trigger",
-			inputField : "modifiedAfter",
-			dateFormat : "%d-%b-%Y",
-			weekNumbers: true,
-            showTime: false,
-			onSelect   : function() { 
-				let selectedDate = this.selection.get();
-				let date = Calendar.intToDate(selectedDate);
-				date = Calendar.printDate(date, "%d-%b-%Y");
-				$("#"+this.inputField.id).val(date);
-				this.hide();
-                if(isSelectAsPerDate == true) {
-                    isSelectAsPerDate = true;
-                    selectedDate = date;
-                    changeType();
-                }
-			},
-		});
-
-	    localStorage.removeItem("imporatableData");
-	    localStorage.removeItem("importedIdList");
-
-	    <#if (customEntityCount)??> 
-	    	<#list customEntityCount as entity> 
-				<#list entity?keys as key>
-					${key} = '${(entity[key])!""}' ;
-				</#list> 
-				$('#selectedCount_'+enityType).text(count);
-			</#list>
-	    </#if>
-	    <#if (allEntityCount)??> 
-	    	<#list allEntityCount as entity> 
-				<#list entity?keys as key>
-					${key} = '${(entity[key])!""}' ;
-				</#list> 
-				$('#totalCount_'+enityType).text(totalCount);
-			</#list>
-	    </#if>
-
-	<#if (customEntities)??> 
-		let exportableData;
-		let exportableDataListMapNew;
-		let exportObjNew;
-		let systemConfigIncludeListNew=[];
-		let customConfigExcludeListNew=[];
-		<#list customEntities as entity> 
-			<#list entity?keys as key> 
-				<#outputformat "HTML">
-		    		${key} = '${(entity[key])!""}' ;
-		    	</#outputformat>
-			</#list> 
-			if(id != null && id != "") {
-				exportableData = new ExportableData(enityType, id, name, versionID, 1);
-				if(map.get(enityType) == null) {
-					exportableDataListMapNew = new Map();
-					exportObjNew = new ImportExportConfig(systemConfigIncludeListNew, customConfigExcludeListNew, null, null, enityType, 					exportableDataListMapNew);					
-					map.set(enityType, exportObjNew);
-					defaultMap.set(enityType, exportObjNew);
-				}
-				map.get(enityType).getExportableDataListMap().set(id, exportableData);
-				defaultMap.get(enityType).getExportableDataListMap().set(id, exportableData);
-			}
-		</#list>
-	</#if>
-	var exportObj;
-	let moduleName;
-	let moduleID;
-	let gridID;
-	let colM;
-	let moduleType;
-	let systemConfigIncludeList=[];
-	let customConfigExcludeList=[];
-	let exportableDataListMap;
-	<#if (moduleVOList)??> 
-		<#list moduleVOList as moduleVO> 
-			 moduleName="${moduleVO.moduleName}";
-			 moduleID="${moduleVO.moduleId}";
-			 gridID="${moduleVO.gridDetailsId!''}";
-			 
-			 moduleType = "${moduleVO.moduleType!''}";
-			
-			exportObj = map.get(moduleType);
-			exportableDataListMap = new Map();
-			if(exportObj == null || (exportObj != null && exportObj.getColM() == null)) {
-				if(exportObj != null) {
-					systemConfigIncludeList=exportObj.getSystemConfigIncludeList();
-					if(systemConfigIncludeList == null) {
-						systemConfigIncludeList=[];
-					}
-
-					customConfigExcludeList=exportObj.getCustomConfigExcludeList();
-					if(customConfigExcludeList == null) {
-						customConfigExcludeList=[];
-					}
-
-					exportableDataListMap = exportObj.getExportableDataListMap();
-					if(exportableDataListMap == null) {
-						exportableDataListMap = new Map();
-					}
-					
-				}
-				if(moduleType == "Grid") {
-					openTab(event, gridID, moduleType);
-				}
-			}
-    		
-      	</#list>
-	</#if>
-});
-
+   }
+   
+   $(function () {
+       <#list systemProperties as key, value>
+                   <#if key.propertyName == "profile">
+                       profile = "${value}".trim();
+                   </#if>
+               </#list>
+       $("#divExportToLocal").hide();  
+       selectDateCal = Calendar.setup({
+   			trigger    : "modifiedAfter-trigger",
+   			inputField : "modifiedAfter",
+   			dateFormat : "%d-%b-%Y",
+   			weekNumbers: true,
+               showTime: false,
+   			onSelect   : function() { 
+   				let selectedDate = this.selection.get();
+   				let date = Calendar.intToDate(selectedDate);
+   				date = Calendar.printDate(date, "%d-%b-%Y");
+   				$("#"+this.inputField.id).val(date);
+   				this.hide();
+                   if(isSelectAsPerDate == true) {
+                       isSelectAsPerDate = true;
+                       selectedDate = date;
+                       changeType();
+                   }
+   			},
+   		});
+   
+   	    localStorage.removeItem("imporatableData");
+   	    localStorage.removeItem("importedIdList");
+   
+   	    <#if (customEntityCount)??> 
+   	    	<#list customEntityCount as entity> 
+   				<#list entity?keys as key>
+   					${key} = '${(entity[key])!""}' ;
+   				</#list> 
+   				$('#selectedCount_'+enityType).text(count);
+   			</#list>
+   	    </#if>
+   	    <#if (allEntityCount)??> 
+   	    	<#list allEntityCount as entity> 
+   				<#list entity?keys as key>
+   					${key} = '${(entity[key])!""}' ;
+   				</#list> 
+   				$('#totalCount_'+enityType).text(totalCount);
+   			</#list>
+   	    </#if>
+   
+   	<#if (customEntities)??> 
+   		let exportableData;
+   		let exportableDataListMapNew;
+   		let exportObjNew;
+   		let systemConfigIncludeListNew=[];
+   		let customConfigExcludeListNew=[];
+   		<#list customEntities as entity> 
+   			<#list entity?keys as key> 
+   				<#outputformat "HTML">
+   		    		${key} = '${(entity[key])!""}' ;
+   		    	</#outputformat>
+   			</#list> 
+   			if(id != null && id != "") {
+   				exportableData = new ExportableData(enityType, id, name, versionID, 1);
+   				if(map.get(enityType) == null) {
+   					exportableDataListMapNew = new Map();
+   					exportObjNew = new ImportExportConfig(systemConfigIncludeListNew, customConfigExcludeListNew, null, null, enityType, 					exportableDataListMapNew);					
+   					map.set(enityType, exportObjNew);
+   					defaultMap.set(enityType, exportObjNew);
+   				}
+   				map.get(enityType).getExportableDataListMap().set(id, exportableData);
+   				defaultMap.get(enityType).getExportableDataListMap().set(id, exportableData);
+   			}
+   		</#list>
+   	</#if>
+   	var exportObj;
+   	let moduleName;
+   	let moduleID;
+   	let gridID;
+   	let colM;
+   	let moduleType;
+   	let systemConfigIncludeList=[];
+   	let customConfigExcludeList=[];
+   	let exportableDataListMap;
+   	<#if (moduleVOList)??> 
+   		<#list moduleVOList as moduleVO> 
+   			 moduleName="${moduleVO.moduleName}";
+   			 moduleID="${moduleVO.moduleId}";
+   			 gridID="${moduleVO.gridDetailsId!''}";
+   			 
+   			 moduleType = "${moduleVO.moduleType!''}";
+   			
+   			exportObj = map.get(moduleType);
+   			exportableDataListMap = new Map();
+   			if(exportObj == null || (exportObj != null && exportObj.getColM() == null)) {
+   				if(exportObj != null) {
+   					systemConfigIncludeList=exportObj.getSystemConfigIncludeList();
+   					if(systemConfigIncludeList == null) {
+   						systemConfigIncludeList=[];
+   					}
+   
+   					customConfigExcludeList=exportObj.getCustomConfigExcludeList();
+   					if(customConfigExcludeList == null) {
+   						customConfigExcludeList=[];
+   					}
+   
+   					exportableDataListMap = exportObj.getExportableDataListMap();
+   					if(exportableDataListMap == null) {
+   						exportableDataListMap = new Map();
+   					}
+   					
+   				}
+   				if(moduleType == "Grid") {
+   					openTab(event, gridID, moduleType);
+   				}
+   			}
+       		
+         	</#list>
+   	</#if>
+   });
+   
 </script>

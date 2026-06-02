@@ -88,7 +88,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 		if (a_templateMaster != null) {
 			templates.add(a_templateMaster);
 			templateVOs = templates.stream().map((template) -> new TemplateVO(template.getTemplateId(), template.getTemplateName(),
-					template.getTemplate(), template.getChecksum(), template.getTemplateTypeId(), template.getCreatedBy(), template.getUpdatedDate()))
+					template.getTemplate(), template.getTemplateTypeId(), template.getChecksum(), template.getCreatedBy(),template.getUpdatedBy(), template.getUpdatedDate()))
 					.collect(Collectors.toList());
 		} else {
 			templateVOs = getAllDefaultTemplates();
@@ -191,7 +191,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 				templateDAO.updateChecksum(templateVO);
 
 				TemplateExportVO	temMaster	= new TemplateExportVO(templateVO.getTemplateId(), templateVO.getTemplateName(),
-						templateVO.getTemplateType(), templateVO.getTemplateName() + ftlCustomExtension, templateVO.getUpdatedDate());
+						templateVO.getTemplateTypeId(), templateVO.getTemplateName() + ftlCustomExtension, templateVO.getUpdatedDate(), templateVO.getUpdatedBy(), templateVO.getCreatedBy(), newFileCheckSum);
 
 		//		Map<String, Object>	map			= new HashMap<>();
 				map.put("moduleName", templateVO.getTemplateName());
@@ -295,7 +295,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 								dbTemplatingRepository.save(template);
 						}
 						TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(),
-								template.getTemplate(), new Date());
+								template.getTemplate(), template.getTemplateTypeId(), template.getChecksum(), template.getCreatedBy(), template.getUpdatedBy(), new Date());
 						moduleVersionService.saveModuleVersion(templateVO, null, template.getTemplateId(), "jq_template_master",
 								Constant.UPLOAD_SOURCE_VERSION_TYPE);
 					}
@@ -313,7 +313,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 		if (a_templateMaster != null) {
 			templates.add(a_templateMaster);
 			templateVOs = templates.stream().map((template) -> new TemplateVO(template.getTemplateId(), template.getTemplateName(),
-					template.getTemplate(), template.getChecksum(), template.getTemplateTypeId(), template.getCreatedBy(), template.getUpdatedDate()))
+					template.getTemplate(),  template.getTemplateTypeId(), template.getChecksum(), template.getCreatedBy(), template.getUpdatedBy() ,template.getUpdatedDate()))
 					.collect(Collectors.toList());
 		} else {
 			templateVOs = getAllDefaultTemplates();
@@ -349,7 +349,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 				templateVO.setChecksum(newFileCheckSum);
 			}
 			TemplateExportVO	temMaster	= new TemplateExportVO(templateVO.getTemplateId(), templateVO.getTemplateName(),
-					templateVO.getTemplateType(), templateVO.getTemplateName() + ftlCustomExtension, templateVO.getUpdatedDate());
+					templateVO.getTemplateTypeId(), templateVO.getTemplateName() + ftlCustomExtension, templateVO.getUpdatedDate(), templateVO.getUpdatedBy(), templateVO.getCreatedBy(), newFileCheckSum);
 
 			Map<String, Object>	map			= new HashMap<>();
 			map.put("moduleName", templateVO.getTemplateName());
@@ -368,9 +368,12 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 	public Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject) throws Exception {
 		String				user				= "admin";
 		TemplateExportVO	templateExportVO	= (TemplateExportVO) importObject;
-
-		String				ftlCustomExtension	= "." + templateExportVO.getTemplateFileName().split("\\.")[1];
-
+		String				templateFileName	= templateExportVO.getTemplateFileName();
+		int					lastDotIndex		= templateFileName.lastIndexOf('.');
+		final String		ftlCustomExtension	= (lastDotIndex != -1)
+				? "." + templateFileName.substring(lastDotIndex + 1)
+				: "";
+			
 		TemplateMaster		template			= null;
 		File				directory			= new File(folderLocation);
 		if (!directory.exists()) {

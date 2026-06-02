@@ -1,5 +1,6 @@
 package com.trigyn.jws.usermanagement.repository;
 
+import java.util.regex.Pattern;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -99,21 +100,69 @@ public class AuthorizedValidatorDAO extends DBConnection {
 		}, defaultTTLMinutes);
 	}
 
-	public Long hasAccessToDynamicRest(String requestUri, String requestMethod, List<String> roleNames) {
-		String	cacheName	= "dynamicRest-access";
-		String	entityId	= requestUri + ":" + requestMethod;
-		return accessControlCacheUtil.hasAccess(cacheName, AccessEntityType.DYNAMIC_REST, entityId, roleNames, () -> {
-			Query<Long> query = getCurrentSession().createQuery(
-					" SELECT COUNT (*) from JwsEntityRoleAssociation jera INNER JOIN JwsDynamicRestDetail jdrd ON jera.entityId = jdrd.jwsDynamicRestId "
-							+ "  INNER JOIN JwsRole jr ON jera.roleId = jr.roleId  WHERE  jera.isActive=:isActive AND jr.roleName IN(:roleNames)"
-							+ " AND  jdrd.jwsDynamicRestUrl=:requestUri",
-					Long.class);
-			query.setParameter("requestUri", requestUri);
-			// query.setParameter("requestMethod", requestMethod);
-			query.setParameter("isActive", Constants.ISACTIVE);
-			query.setParameterList("roleNames", roleNames);
-			return query.uniqueResult();
-		}, defaultTTLMinutes);
+	
+public Long hasAccessToDynamicRest(String requestUri, String requestMethod, List<String> roleNames) {
+
+	String		entityId	= requestMethod + ":" + requestUri;
+	String		cacheName	= "dynamic-rest-access";
+
+	return accessControlCacheUtil.hasAccess(cacheName, AccessEntityType.DYNAMIC_REST, entityId, roleNames, () -> {
+
+		Query<String> restUrlQuery = getCurrentSession()
+				.createQuery("SELECT DISTINCT jdrd.jwsDynamicRestUrl FROM JwsEntityRoleAssociation jera "
+						+ "INNER JOIN JwsDynamicRestDetail jdrd ON jera.entityId = jdrd.jwsDynamicRestId "
+						+ "INNER JOIN JwsRole jr ON jera.roleId = jr.roleId "
+						+ "WHERE jera.isActive = :isActive AND jr.roleName IN (:roleNames)", String.class);
+		restUrlQuery.setParameter("isActive", Constants.ISACTIVE);
+		restUrlQuery.setParameterList("roleNames", roleNames);
+
+		List<String> dynamicUrls = restUrlQuery.getResultList();
+
+		for (String dynamicUrl : dynamicUrls) {
+			String regex = convertToRegex(dynamicUrl);
+			if (requestUri.matches(regex)) {
+				Query<Long> query = getCurrentSession()
+						.createQuery("SELECT COUNT(*) FROM JwsEntityRoleAssociation jera "
+								+ "INNER JOIN JwsDynamicRestDetail jdrd ON jera.entityId = jdrd.jwsDynamicRestId "
+								+ "INNER JOIN JwsRole jr ON jera.roleId = jr.roleId "
+								+ "WHERE jera.isActive = :isActive " + "AND jr.roleName IN (:roleNames) "
+								+ "AND jdrd.jwsDynamicRestUrl = :requestUri", Long.class);
+				query.setParameter("requestUri", dynamicUrl);
+				query.setParameter("isActive", Constants.ISACTIVE);
+				query.setParameterList("roleNames", roleNames);
+
+				Long count = query.uniqueResult();
+				if (count != null && count > 0) {
+					return count;
+				}
+			}
+		}
+		return 0L;
+
+	}, defaultTTLMinutes);
+}
+
+	private String convertToRegex(String dynamicUrl) {
+		if (dynamicUrl == null || dynamicUrl.isBlank())
+			return "";
+
+		if (dynamicUrl.endsWith("/") && !dynamicUrl.equals("/")) {
+			dynamicUrl = dynamicUrl.substring(0, dynamicUrl.length() - 1);
+		}
+
+		String regex;
+
+		if (dynamicUrl.endsWith("/**")) {
+			regex = dynamicUrl.replace("/**", "");
+			regex = regex.replace(".", "\\\\.") + "(?:/.*)?";
+		} else if (dynamicUrl.endsWith("/*")) {
+			regex = dynamicUrl.replace("/*", "");
+			regex = regex.replace(".", "\\\\.") + "/[^/]+";
+		} else {
+			regex = dynamicUrl.replace(".", "\\\\.");
+		}
+
+		return "^" + regex + "$";
 	}
 
 	public Long hasAccessToTemplate(String templateName, List<String> roleNames) {

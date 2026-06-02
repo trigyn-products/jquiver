@@ -1,0 +1,67 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+var JSONObject = Java.type("org.json.JSONObject");
+var Base64 = Java.type("java.util.Base64");
+var RuntimeException = Java.type("java.lang.RuntimeException");
+
+function saveFormValue() {
+    // === Build workflow definition object ===
+    var workflowDefinition = new JSONObject();
+    workflowDefinition.put("definitionId", requestDetails["definitionid"]);
+    workflowDefinition.put("definitionName", requestDetails["definitionName"]);
+
+    // === Encode Monaco content (XML) to Base64 ===
+    var encoder = Base64.getEncoder();
+    var encodedContent = encoder.encodeToString(requestDetails["workflowFileContent"].getBytes("UTF-8"));
+
+    // === Build the full JSON payload ===
+    var requestJson = new JSONObject();
+    requestJson.put("workflowDefinition", workflowDefinition);
+    requestJson.put("workflowFileName", requestDetails["workflowFileName"]);
+    requestJson.put("workflowFileContent", encodedContent);
+
+    // === Build REST params ===
+    var params = new HashMap();
+    var baseUrl = jq_getDBResult(
+        "SELECT property_value As baseUrl FROM jq_property_master WHERE property_name='base-url'",
+        null,
+        new HashMap()
+    ).data_list[0].baseUrl;
+
+    var contextPath = requestDetails["contextPath"];
+    params.put("url", baseUrl + contextPath + "/cf/swf");
+    params.put("body", requestJson.toString());
+
+    // === Build REST XML from template ===
+    var restXML = jq_evalTemplateByName("saveWorkFlowTemplate", params);
+
+    // === Execute REST call ===
+    var response = jq_executeRESTCall(restXML);
+
+     System.out.println("Response: " + response);
+  try {
+     if (response === null || response === undefined) {
+            System.out.println(" Response is null");
+            throw new RuntimeException("Error occurred: No response from workflow save service");
+        }
+
+        var statusCode = response.getResponseStatusCode();
+
+        if (statusCode === null || statusCode === undefined || statusCode == 500 ) {
+            System.out.println(
+                " Response invalid or failed. " +
+                "StatusCode=" + statusCode +
+                ", Body=" + response.getResponseBody()
+            );
+            throw new RuntimeException("Error occurred while saving workflow definition");
+        }
+
+        return true;
+    } catch (e) {
+        System.out.println(" Exception while handling response: " + e);
+        throw e; // rethrow 
+    }
+
+}
+
+saveFormValue();

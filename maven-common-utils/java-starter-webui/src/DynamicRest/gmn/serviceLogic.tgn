@@ -1,0 +1,24 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+
+function getModuleNames(){ 
+    var map = new HashMap();
+    var queryResult ={};
+    map.put("entityId", requestDetails.entityId);
+    map.put("moduleId", requestDetails.moduleId);
+     var moduleList = [];
+    queryResult = jq_getDBResult("SELECT jbm.business_module_id as moduleId,jbm.module_name as moduleName FROM `jq_business_module` jbm LEFT JOIN `jq_business_module_entity_details` jbmed ON jbm.`business_module_id` = jbmed.`business_module_id` WHERE jbmed.`entity_id` = :entityId AND jbmed.`module_id` = :moduleId",null,map);
+
+    for (var i = 0; i < queryResult.data_list.length; i++) {
+        if (queryResult.data_list.length > 0) {
+            moduleList.push({
+                moduleId: queryResult.data_list[i].moduleId,
+                moduleName: queryResult.data_list[i].moduleName
+            });
+        }
+    }    
+
+    queryResult.moduleMultiselect = JSON.stringify(moduleList);
+    return queryResult.moduleMultiselect;
+}
+getModuleNames();

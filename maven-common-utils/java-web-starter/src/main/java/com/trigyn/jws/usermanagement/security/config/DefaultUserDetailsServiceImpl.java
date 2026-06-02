@@ -30,10 +30,13 @@ import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.utils.Constants.VerificationType;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.usermanagement.vo.JwsUserLoginVO;
+import com.trigyn.jws.webstarter.service.CaptchaService;
+import com.trigyn.jws.webstarter.vo.CaptchaDetails;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+
 
 public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 
@@ -51,6 +54,9 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 	
 	@Autowired
 	private JwsRoleRepository			jwsRoleRepository						= null;
+	
+	@Autowired
+	private CaptchaService						captchaService					= null;
 	
 
 	public DefaultUserDetailsServiceImpl() {
@@ -90,7 +96,6 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 		
 		if(sra != null) {
 			HttpServletRequest			request		= sra.getRequest();
-			HttpSession					session		= request.getSession();
 			@SuppressWarnings("unchecked")
 			List<JwsUserLoginVO> multiAuthLoginVOs = (List<JwsUserLoginVO>) mapDetails.get("activeAutenticationDetails");
 			if (multiAuthLoginVOs != null && multiAuthLoginVOs.isEmpty() == false) {
@@ -115,9 +120,18 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 								if (loginAttributes.containsKey("enableCaptcha")) {
 									String captcaValue = (String) loginAttributes.get("enableCaptcha");
 									if (captcaValue != null && captcaValue.equalsIgnoreCase("true")) {
-										if ((session.getAttribute("loginCaptcha")!=null && (request.getParameter("captcha")!=null && request.getParameter("captcha")
-												.equals(session.getAttribute("loginCaptcha").toString())== false))) {
-											session.removeAttribute("loginCaptcha");
+										String	captchaRequestId	= request.getHeader("r");
+										String	formCaptcha			= request.getParameter("captcha");
+
+										if (captchaRequestId == null || formCaptcha == null) {
+											throw new InvalidLoginException("Captcha required!");
+										}
+
+										CaptchaDetails captchaDetails = captchaService
+												.fetchCaptchDetailsById(captchaRequestId);
+										if ((captchaDetails != null && (request.getParameter("captcha") != null
+												&& request.getParameter("captcha")
+														.equals(captchaDetails.getCaptcha()) == false))) {
 											throw new InvalidLoginException("Please verify captcha!");
 										}
 									}

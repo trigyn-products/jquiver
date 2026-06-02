@@ -18,6 +18,24 @@ padding: 8px 5px;
         border-radius: 4px;
 }
 
+.search-cover input.form-control {
+		/* adjust as needed */
+		height: 28px;
+}
+
+.btn.cm-impobtn.outline a{
+        color:#000;
+        text-decoration:none;
+}
+
+.cm-impobtn.outline{
+        width:auto !Important;
+}
+
+.actionbtnblock .fa{
+        margin-left:5px;
+}
+
 
 </style>
 
@@ -59,23 +77,20 @@ padding: 8px 5px;
                 </div>
 
                 <div class="actionbtnblock">
-                        <div class="importbtn">
-                            <a href="${(contextPath)!''}/cf/vimp">
-                                    <div class="cm-importicon1">
-                                        <div class="btn cm-impobtn outline"><i class="fa fa-download"></i> ${messageSource.getMessage('jws.import')}</div>
-                                    </div>
-                                </a>
-                        </div>
 
+					<a  class="btn btn-secondary"
+							href="${(contextPath)!''}/cf/vimp"><i class="fa fa-download"></i>
+							${messageSource.getMessage('jws.import')}</a>
 
-                        <div class="exportbtn">
-                                <a href="${(contextPath)!''}/cf/vexp">
-		            <div class="cm-exporticon1">
-		                <div class="btn cm-expobtn outline">${messageSource.getMessage('jws.export')}<i class="fa fa-upload"></i></div>
-		            </div>
-	             </a>
-                            </div>
-                </div>
+					<a class="btn btn-secondary"
+						href="${(contextPath)!''}/cf/vexp">${messageSource.getMessage('jws.export')}<i class="fa fa-upload"></i></a>
+
+ 					<a class="btn btn-secondary" href="javascript:loadDevelopersView();"><i class="fa fa-eye"></i>
+						${messageSource.getMessage('jws.developersview')}</a>
+
+                    <a class="btn btn-secondary" href="${contextPath}${viewPath}/tg"><i class="fa fa-tags"></i>
+						${messageSource.getMessage('jws.tags')}</a>
+				 </div>	
        
              </div>
 
@@ -195,7 +210,7 @@ padding: 8px 5px;
                     <h5 class="mb-1">${messageSource.getMessage('jws.formBuilder')}</h5>
                      
                 </div>
-                <p class="mb-1 desc">${messageSource.getMessage('jws.builtfreemarker')} </p>
+                <p class="mb-1 desc">${messageSource.getMessage('jws.builtfreemarkerformbuilder')} </p>
                 <small class="text-muted">${messageSource.getMessage('jws.createdynamicforms')}</small>
             </div>
         </a>
@@ -231,7 +246,22 @@ padding: 8px 5px;
         </a>
         </div>
         
-        
+        	
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}${(viewPath)!''}/wd" class="list-group-item list-group-item-action notf">
+            <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/workflow.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage('jws.workflow')}</h5>
+                     
+                </div>
+                <p class="mb-1 desc">${messageSource.getMessage('jws.workflowheader')}</p>
+                <small class="text-muted">${messageSource.getMessage('jws.workflowdescrip')}</small>
+            </div>
+        </a>
+        </div>
+
+
         <div class="home_block col-12">
         <a href="${(contextPath)!''}/cf/um" class="list-group-item list-group-item-action um">
             <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/user_management.svg"></div> 
@@ -303,8 +333,7 @@ padding: 8px 5px;
             </div>
         </a>
         </div>
-        
-        
+	
 	    <!-- <div class="home_block col-12">
 			<div class="cm-iconboxwrap ex">
 	            <a href="${(contextPath)!''}/cf/vimp">
@@ -329,7 +358,7 @@ padding: 8px 5px;
 	document.title = "Control Panel";
 	contextPath = "${(contextPath)!''}";
 	var env = "${(environment)!''}";
-    if(env == "" || env != "dev" || env == undefined){
+    if(env == "" || env == undefined){
         env = "prod";
     }
     let autocompleteQJ;
@@ -393,5 +422,25 @@ padding: 8px 5px;
 		 }
 	 }
 	});
+
+    function loadDevelopersView() {
+        $.ajax({
+			type : "POST",
+            async: "false",
+	    	contentType : "application/json",
+			url : "${contextPath}${apiPath}/dve",
+            success: function(data) {
+				if(data == undefined || data.count == 0) {
+	               showMessage("No Business Modules found.", "warn");
+                   return;
+				} else {
+	                location.href = "${contextPath}${viewPath}/dv";
+	            }
+			},
+			error: function(data) {
+				showMessage("Error occurred while retrieving details", "error");
+			},
+		});
+    }
 
 </script>

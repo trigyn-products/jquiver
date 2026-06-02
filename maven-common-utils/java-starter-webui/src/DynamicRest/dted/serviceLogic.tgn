@@ -1,0 +1,18 @@
+var HashMap = Java.type("java.util.HashMap");
+var System = Java.type("java.lang.System");
+
+function deleteTagEntityDetails() {
+    var tagEntityId = requestDetails.tagEntityId;
+    var tagId = requestDetails.tagId;
+    var map = new HashMap();
+    map.put("tagEntityId", tagEntityId);
+    map.put("tagId", tagId);
+
+    var deleteEntityQuery = "DELETE FROM jq_tag_entity_details WHERE tag_entity_details_id = :tagEntityId";
+    jq_updateDBQuery(deleteEntityQuery, null, map);
+
+    var deleteParentQuery = "DELETE FROM jq_tag_data WHERE tag_id = :tagId";
+    jq_updateDBQuery(deleteParentQuery, null, map);
+}
+
+deleteTagEntityDetails();

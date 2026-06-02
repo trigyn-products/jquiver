@@ -3,13 +3,13 @@
     <scriptLibraryDetails>
         <createdBy>anonymous</createdBy>
         <description>Create Table Script</description>
-        <isCustomUpdated>1</isCustomUpdated>
+        <isCustomUpdated>0</isCustomUpdated>
         <libraryName>createFormDataTbl</libraryName>
         <scriptLibId>a2a7e46b-f9af-11ef-9980-7c8ae1bb24d8</scriptLibId>
         <scriptLibraryConnection>
             <createdBy>anonymous</createdBy>
             <entityId>3722482e-c18f-4120-9fd5-f4ed5bf7e24a</entityId>
-            <isCustomUpdated>1</isCustomUpdated>
+            <isCustomUpdated>0</isCustomUpdated>
             <moduletypeId>47030ee1-0ecf-11eb-94b2-f48e38ab9348</moduletypeId>
             <scriptLibId>a2a7e46b-f9af-11ef-9980-7c8ae1bb24d8</scriptLibId>
             <scriptlibconnId>9eef7976-b451-4a9c-8b0e-7fbd2fe242e7</scriptlibconnId>
@@ -19,7 +19,7 @@
         <scriptLibraryConnection>
             <createdBy>anonymous</createdBy>
             <entityId>02943afd-4855-4e57-a596-9c3fc09e12e1</entityId>
-            <isCustomUpdated>1</isCustomUpdated>
+            <isCustomUpdated>0</isCustomUpdated>
             <moduletypeId>47030ee1-0ecf-11eb-94b2-f48e38ab9348</moduletypeId>
             <scriptLibId>a2a7e46b-f9af-11ef-9980-7c8ae1bb24d8</scriptLibId>
             <scriptlibconnId>d98429a3-c9d8-496b-b160-43a007a0a304</scriptlibconnId>
@@ -30,5 +30,56 @@
         <templateId>27beb436-741a-4753-9fff-dacb5d689fed</templateId>
         <updatedBy>anonymous</updatedBy>
         <updatedDate>2025-05-05T19:09:44+05:30</updatedDate>
+    </scriptLibraryDetails>
+    <scriptLibraryDetails>
+        <createdBy>111415ae-0980-11eb-9a16-f48e38ab9348</createdBy>
+        <description>check for authentication</description>
+        <isCustomUpdated>1</isCustomUpdated>
+        <libraryName>checkAuthentication</libraryName>
+        <scriptLibId>38555dc6-33b0-41fa-89e1-df08724f37b2</scriptLibId>
+        <scriptLibraryConnection>
+            <createdBy>admin@jquiver.io</createdBy>
+            <entityId>64b60ae7-85dc-44a0-8d52-4b46f66bdd2b</entityId>
+            <isCustomUpdated>1</isCustomUpdated>
+            <moduletypeId>47030ee1-0ecf-11eb-94b2-f48e38ab9348</moduletypeId>
+            <scriptLibId>38555dc6-33b0-41fa-89e1-df08724f37b2</scriptLibId>
+            <scriptlibconnId>12dd2bf3-446f-11f1-97bc-7c8ae1c122b7</scriptlibconnId>
+            <updatedBy>admin@jquiver.io</updatedBy>
+            <updatedDate>2026-04-30T14:01:40+05:30</updatedDate>
+        </scriptLibraryConnection>
+        <scriptLibraryConnection>
+            <createdBy>admin@jquiver.io</createdBy>
+            <entityId>d08c700c-2c1a-4835-81f6-21c98f6d43db</entityId>
+            <isCustomUpdated>1</isCustomUpdated>
+            <moduletypeId>47030ee1-0ecf-11eb-94b2-f48e38ab9348</moduletypeId>
+            <scriptLibId>38555dc6-33b0-41fa-89e1-df08724f37b2</scriptLibId>
+            <scriptlibconnId>5ba09b82-4476-11f1-97bc-7c8ae1c122b7</scriptlibconnId>
+            <updatedBy>admin@jquiver.io</updatedBy>
+            <updatedDate>2026-04-30T14:53:49+05:30</updatedDate>
+        </scriptLibraryConnection>
+        <scriptLibraryConnection>
+            <createdBy>admin@jquiver.io</createdBy>
+            <entityId>5a7b2b34-5a7f-46c3-8a2b-0bed4b6f5e13</entityId>
+            <isCustomUpdated>1</isCustomUpdated>
+            <moduletypeId>47030ee1-0ecf-11eb-94b2-f48e38ab9348</moduletypeId>
+            <scriptLibId>38555dc6-33b0-41fa-89e1-df08724f37b2</scriptLibId>
+            <scriptlibconnId>5cfd07fa-4498-11f1-97bc-7c8ae1c122b7</scriptlibconnId>
+            <updatedBy>admin@jquiver.io</updatedBy>
+            <updatedDate>2026-04-30T18:57:14+05:30</updatedDate>
+        </scriptLibraryConnection>
+        <scriptLibraryConnection>
+            <createdBy>anonymous</createdBy>
+            <entityId>55df75db-dbf4-47ef-a0dd-addf2779810b</entityId>
+            <isCustomUpdated>1</isCustomUpdated>
+            <moduletypeId>47030ee1-0ecf-11eb-94b2-f48e38ab9348</moduletypeId>
+            <scriptLibId>38555dc6-33b0-41fa-89e1-df08724f37b2</scriptLibId>
+            <scriptlibconnId>a9d0c709-52a4-11f1-97bc-7c8ae1c122b7</scriptlibconnId>
+            <updatedBy>anonymous</updatedBy>
+            <updatedDate>2026-05-18T16:00:11+05:30</updatedDate>
+        </scriptLibraryConnection>
+        <scriptType>1</scriptType>
+        <templateId>61f5ee4c-2593-44b7-91fa-0b05de848f1c</templateId>
+        <updatedBy>111415ae-0980-11eb-9a16-f48e38ab9348</updatedBy>
+        <updatedDate>2026-04-30T13:22:19+05:30</updatedDate>
     </scriptLibraryDetails>
 </scriptLibraryData>

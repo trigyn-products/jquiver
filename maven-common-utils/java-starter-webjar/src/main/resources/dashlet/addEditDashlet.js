@@ -38,6 +38,7 @@ AddEditDashlet.prototype.fn = {
 			});
 			dashletSQLEditor.onDidChangeModelContent(function() {
 				$('#errorMessage').hide();
+				userActivityDetected(); // for salt refresh
 			});
 			$("#sqlContent").remove();
 
@@ -93,6 +94,7 @@ AddEditDashlet.prototype.fn = {
 			});
 			dashletHTMLEditor.onDidChangeModelContent(function() {
 				$('#errorMessage').hide();
+				userActivityDetected(); // for salt refresh
 			});
 			$("#htmlContent").remove();
 		});
@@ -121,6 +123,10 @@ AddEditDashlet.prototype.fn = {
 		let dashletPropertVOList = new Array();
 		let isValid = context.validateDashletMandatoryFields();
 		let sequenceCounter = 0;
+		if(saveModDetails(isEdit,$("#dashletId").val()) == false){
+			return false;
+		}
+			
 		if (isValid) {
 			$("#dashletProps").find('tr.dashlet_property').each(function() {
 				let dashletProperty = new Object();
@@ -163,6 +169,10 @@ AddEditDashlet.prototype.fn = {
 			if ($('#datasourcecontainer_0').val() != "") {
 				dashlet.dataSourceId = $('#datasourcecontainer_0').val();
 			}
+			
+			if ($('#dataSource').val() != "") {
+				dashlet.dataSourceId = $('#dataSource').val();
+			}
 
 			if (jQuery("#isActiveCheckbox").prop("checked")) {
 				dashlet.isActive = 1;
@@ -189,6 +199,9 @@ AddEditDashlet.prototype.fn = {
 					isDataSaved = true;
 					context.saveEntityRoleAssociation(data);
 					showMessage("Information saved successfully", "success");
+					if (isEdit == 0) {
+						saveModDetails(isEdit, data);
+					}
 				},
 
 				error: function(xhr, error) {
@@ -208,14 +221,7 @@ AddEditDashlet.prototype.fn = {
 	                return false;
 	            }
 	        }
-	        if(property["type"] == "368732c8-1e8b-11e8-8d69-000d3a173cc5"){
-				let regex = /^\[\{"key":"\d+","value":"\d+"\}\]$/;
-				let userInput = property["value"];
-				if (!regex.test(userInput)) {
-				    showMessage("Select type value is invalid.", "warn");
-	                return false;
-				} 
-			}
+	        
 	        return true;
 	    },
     

@@ -251,6 +251,15 @@
         this.list = $('<div class="ml-selected-items-div"><ul id="'+multiselectId+'_ul" class="ml-selected-items-list"></ul></div>');
         this.list.css('max-height', maxHeight + 'px');
         this.list.show();
+		// hide only +X more text initially
+		$("#"+multiselectId.replace("_selectedOptions","")+"_count > span")
+		    .css({
+		        "font-size":"0",
+		        "width":"0",
+		        "display":"inline-block"
+		    });
+		$("#" + multiselectId.replace("_selectedOptions", "") + "_count")
+			.addClass("expanded-multiselect");
         options.multiselectItem.append(this.list)
     }
 
@@ -261,7 +270,7 @@
             const element = context.options.selectedItemRender(itemData);
             let listsElement = $("<li></li>");
             let itemSpan = $('<span id="'+itemData[elementId]+'" class="ml-selected-item">'+element+'</span>');
-            let deleteItemContext = $('<span class="float-right closeicon"><i class="fa fa-times-circle-o" aria-hidden="true"></i></span>');
+            let deleteItemContext = $('<span class="float-right closeicon"><i class="fa-regular fa-circle-xmark" aria-hidden="true"></i></span>');
             deleteItemContext.data("selected-item", itemData);
     
             listsElement.append(itemSpan);
@@ -431,14 +440,29 @@
     	this.selectedObject = new Array();
     }
     
-    Multiselect.prototype.showHideDataDiv = function(multiselectId){
-    	if($("#"+multiselectId+"_ul").is(":visible")){
-			$("#"+multiselectId+"_ul").hide();
-		}else{
-			$("#"+multiselectId+"_ul").show();
+	Multiselect.prototype.showHideDataDiv = function(multiselectId) {
+		let listElement = $("#" + multiselectId + "_ul");
+		let spanElement = $("#" + multiselectId.replace("_selectedOptions", "") + "_count > span");
+		let countDiv = $("#" + multiselectId.replace("_selectedOptions", "") + "_count");
+		if (listElement.is(":visible")) {
+			// COLLAPSE
+			listElement.hide();
+			spanElement.css({
+				"font-size": "14px",
+				"width": "auto"
+			});
+			countDiv.removeClass("expanded-multiselect");
+		} else {
+			// EXPAND
+			listElement.show();
+			spanElement.css({
+				"font-size": "0",
+				"width": "0"
+			});
+			countDiv.addClass("expanded-multiselect");
 		}
-    }
-    
+	}
+		    
     $.fn.autocomplete = function(options, selectedItem) {
 		selectedItem = selectedItem == undefined ? {} : selectedItem;
         const tOptions = {

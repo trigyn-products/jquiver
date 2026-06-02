@@ -1,0 +1,259 @@
+var HashMap = Java.type("java.util.HashMap");
+var UUID = Java.type("java.util.UUID");
+
+// --- Utility: create params map from JS object ---
+function newParams(obj) {
+    var map = new HashMap();
+    for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            map.put(key, obj[key]);
+        }
+    }
+    return map;
+}
+
+// --- Utility: fetch first row (or null if none) ---
+function fetchFirstRow(query, params) {
+    var result = jq_getDBResult(query, null, params);
+    if (result != null && result.containsKey("data_list") && !result.get("data_list").isEmpty()) {
+        return result.get("data_list").get(0);
+    }
+    return null;
+}
+
+// --- Utility: throw error if no row found ---
+function mustFetchFirstRow(query, params, errorMessage) {
+    var row = fetchFirstRow(query, params);
+    if (row == null) {
+        throw new Error(errorMessage);
+    }
+    return row;
+}
+
+// --- Get status type by ID ---
+function getStatusType(statusId) {
+    var row = fetchFirstRow(
+        "SELECT status_type FROM jq_workflow_status WHERE status_id = :statusId",
+        newParams({ statusId: statusId })
+    );
+    return row ? row.get("status_type") : null;
+}
+
+// --- Business Helpers ---
+
+function getWorkflowDefinition(definitionId) {
+    return mustFetchFirstRow(
+        "SELECT definition_id, MAX(version) AS version FROM jq_workflow_definition WHERE definition_id = :definitionId",
+        newParams({ definitionId: definitionId }),
+        "No workflow definition found for: " + definitionId
+    );
+}
+
+function getInitialStatus(definitionId) {
+    return mustFetchFirstRow(
+        "SELECT ws.status_id FROM jq_workflow_status ws WHERE ws.definition_id = :definitionId AND ws.order_no = 1 ORDER BY ws.version DESC LIMIT 1",
+        newParams({ definitionId: definitionId }),
+        "No initial status found for definition: " + definitionId
+    ).get("status_id");
+}
+
+function insertWorkflowInstance(definitionId, version, statusId, entityId, loggedInUser) {
+    var instanceId = UUID.randomUUID().toString();
+    var insertQuery = "INSERT INTO jq_workflow_instance (instance_id, definition_id, version, current_status_id, " +
+                      "started_by, started_at, last_updated_by, last_updated_ts, is_active, entity_id) " +
+                      "VALUES (:instanceId, :definitionId, :version, :statusId, :startedBy, NOW(), :lastUpdatedBy, NOW(), 1, :entityId)";
+    jq_updateDBQuery(insertQuery, null, newParams({
+        instanceId: instanceId,
+        definitionId: definitionId,
+        version: version,
+        statusId: statusId,
+        startedBy: loggedInUser,
+        lastUpdatedBy: loggedInUser,
+        entityId: entityId
+    }));
+    return instanceId;
+}
+
+// --- Get next USER_TASK status (skip gateways) ---
+function getNextUserTaskStatus(fromStatusId, definitionId, version) {
+    var result = jq_getDBResult(
+        "SELECT to_status_id FROM jq_workflow_transition WHERE from_status_id = :fromStatusId AND definition_id = :definitionId AND version = :version ORDER BY order_no",
+        null,
+        newParams({ fromStatusId: fromStatusId, definitionId: definitionId, version: version })
+    );
+    if (!result || result.get("data_list").isEmpty()) return null;
+
+    for (var i = 0; i < result.get("data_list").size(); i++) {
+        var toStatusId = result.get("data_list").get(i).get("to_status_id");
+        if (getStatusType(toStatusId) === "USER_TASK") return toStatusId;
+    }
+    return null;
+}
+
+// --- Insert jq_workflow_task if status is USER_TASK --- Start workflow process ---
+function insertWorkflowTask(instanceId, fromStatusId, assignedTo) {
+    if (!assignedTo) throw "Task requires assignedTo";
+
+    var currentStatusId = fromStatusId;
+
+    // --- Traverse until we reach USER_TASK or END_EVENT ---
+    while (true) {
+        var type = getStatusType(currentStatusId);
+        if (type === "USER_TASK" || type === "END_EVENT") break;
+
+        var transitions = jq_getDBResult(
+            "SELECT to_status_id FROM jq_workflow_transition WHERE from_status_id = :fromStatusId ORDER BY order_no",
+            null,
+            newParams({ fromStatusId: currentStatusId })
+        );
+
+        if (!transitions || transitions.get("data_list").isEmpty()) break;
+
+        // pick the first transition (linear workflow)
+        currentStatusId = transitions.get("data_list").get(0).get("to_status_id");
+    }
+
+    // --- Only insert if USER_TASK ---
+    if (getStatusType(currentStatusId) !== "USER_TASK") return null;
+
+    var taskId = UUID.randomUUID().toString();
+
+    var statusName = mustFetchFirstRow(
+        "SELECT status_name FROM jq_workflow_status WHERE status_id = :statusId",
+        newParams({ statusId: currentStatusId }),
+        "Status not found: " + currentStatusId
+    ).get("status_name");
+
+    jq_updateDBQuery(
+        "INSERT INTO jq_workflow_task (task_id, instance_id, status_id, assigned_to, task_name, created_at, is_completed) " +
+        "VALUES (:taskId, :instanceId, :statusId, :assignedTo, :taskName, NOW(), 0)",
+        null,
+        newParams({
+            taskId: taskId,
+            instanceId: instanceId,
+            statusId: currentStatusId,
+            assignedTo: assignedTo,
+            taskName: statusName
+        })
+    );
+
+    return taskId;
+}
+
+// ---  startWorkflowProcess ---
+function startWorkflowProcess(definitionId, requestDetails, userName) {
+    var defRow = getWorkflowDefinition(definitionId);
+    var version = defRow.get("version");
+    var initialStatusId = getInitialStatus(definitionId);
+
+    var instanceId = insertWorkflowInstance(definitionId, version, initialStatusId, requestDetails.entityId, userName);
+
+    // --- Create initial task only if first node is USER_TASK or next node is USER_TASK ---
+    var nextTaskId = null;
+    var initialStatusType = getStatusType(initialStatusId);
+    if (initialStatusType === "USER_TASK") {
+        nextTaskId = insertWorkflowTask(instanceId, initialStatusId, requestDetails.assignedTo);
+    } else {
+        var nextUserTask = getNextUserTaskStatus(initialStatusId, definitionId, version);
+        if (nextUserTask) {
+            nextTaskId = insertWorkflowTask(instanceId, nextUserTask, requestDetails.assignedTo);
+        }
+    }
+
+    return { processInstanceId: instanceId, initialStatusId: initialStatusId, version: version, taskId: nextTaskId };
+}
+
+
+// --- Move workflow instance ---
+function moveWorkflowInstance(taskId, loggedInUser, assignedId, action) {
+    if (!action || !action.trim()) throw "Action is required";
+
+    var task = mustFetchFirstRow(
+        "SELECT wt.task_id, wt.instance_id, wt.status_id,  wi.definition_id, wi.version " +
+        "FROM jq_workflow_task wt JOIN jq_workflow_instance wi ON wi.instance_id = wt.instance_id " +
+        "WHERE wt.task_id = :taskId",
+        newParams({ taskId: taskId }),
+        "Task not found: " + taskId
+    );
+
+    var instanceId = task.get("instance_id");
+    var currentNodeId = task.get("status_id");
+    var definitionId = task.get("definition_id");
+    var version = task.get("version");
+
+    jq_updateDBQuery(
+        "UPDATE jq_workflow_task SET is_completed = 1, completed_on = NOW(), completed_by = :loggedInUser WHERE task_id = :taskId",
+        null,
+        newParams({ taskId: taskId, loggedInUser: loggedInUser })
+    );
+
+    var finalStatusReached = false;
+    var nextStatusId = currentNodeId;
+    var newTaskId = null;
+
+    while (!finalStatusReached) {
+        var transitions = jq_getDBResult(
+            "SELECT wt.to_status_id, ws.is_final, ws.is_user_task, ws.status_type, wt.action " +
+            "FROM jq_workflow_transition wt JOIN jq_workflow_status ws ON ws.status_id = wt.to_status_id " +
+            "WHERE wt.from_status_id = :fromStatusId ORDER BY wt.order_no",
+            null,
+            newParams({ fromStatusId: nextStatusId })
+        );
+        if (!transitions || transitions.get("data_list").isEmpty()) break;
+
+        var matched = null;
+        for (var i = 0; i < transitions.get("data_list").size(); i++) {
+            var row = transitions.get("data_list").get(i);
+            if ((row.get("action") || "AUTO").toUpperCase() === (action || "AUTO").toUpperCase()) {
+                matched = row;
+                break;
+            }
+        }
+        if (!matched) matched = transitions.get("data_list").get(0);
+
+        nextStatusId = matched.get("to_status_id");
+        finalStatusReached = matched.get("is_final") === true || matched.get("is_final") === 1;
+        var isUserTask = matched.get("is_user_task") === true || matched.get("is_user_task") === 1;
+
+        jq_updateDBQuery(
+            "UPDATE jq_workflow_instance SET current_status_id = :targetStatusId, last_updated_ts = NOW(), last_updated_by = :loggedInUser, is_active = :isActive WHERE instance_id = :instanceId",
+            null,
+            newParams({ targetStatusId: nextStatusId, loggedInUser: loggedInUser, isActive: finalStatusReached ? 0 : 1, instanceId: instanceId })
+        );
+
+        if (finalStatusReached) break;
+        if (isUserTask) {
+            newTaskId = insertWorkflowTask(instanceId, nextStatusId, assignedId);
+            break;
+        }
+    }
+
+    return { newTaskId: newTaskId, nextStatusId: nextStatusId, isFinal: finalStatusReached };
+}
+
+// --- Check if status is USER_TASK ---
+function loopIsUserTask(statusId, definitionId, version) {
+    var result = jq_getDBResult(
+        "SELECT is_user_task FROM jq_workflow_status WHERE status_id = :statusId AND definition_id = :definitionId AND version = :version",
+        null,
+        newParams({ statusId: statusId, definitionId: definitionId, version: version })
+    );
+    if (!result || result.get("data_list").isEmpty()) return false;
+    return result.get("data_list").get(0).get("is_user_task") === true || result.get("data_list").get(0).get("is_user_task") === 1;
+}
+
+// --- Create flowable task ---
+function createFlowableTask(definitionId, currentStatusId, instanceId, assignedId) {
+    var versionRow = mustFetchFirstRow(
+        "SELECT definition_id, version FROM jq_workflow_instance WHERE instance_id = :instance_id",
+        newParams({ instance_id: instanceId }),
+        "Instance not found: " + instanceId
+    );
+    var version = versionRow.get("version");
+
+    var nextStatusId = getNextUserTaskStatus(currentStatusId, definitionId, version);
+    if (!nextStatusId) throw "No USER_TASK transition found from status=" + currentStatusId;
+
+    var taskId = insertWorkflowTask(instanceId, nextStatusId, assignedId);
+    return moveWorkflowInstance(taskId, "system", assignedId, "AUTO");
+}

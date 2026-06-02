@@ -162,6 +162,7 @@ public class JqApiClientDetails implements Serializable {
 		apiClientDetails.setClientKey(clientKey);
 		apiClientDetails.setClientName(clientName);
 		apiClientDetails.setClientSecret(clientSecret);
+		apiClientDetails.setClientPublicKey(clientPublicKey);
 		apiClientDetails.setCreatedBy(createdBy);
 		JqEncAlgModPadKeyLookup algModPadKeyLookup =  new JqEncAlgModPadKeyLookup();
 		algModPadKeyLookup.setEncLookupId(jqEncAlgModPadKeyLookup.getEncLookupId());
@@ -169,6 +170,7 @@ public class JqApiClientDetails implements Serializable {
 		apiClientDetails.setInclusionUrlPattern(inclusionUrlPattern);
 		apiClientDetails.setUpdatedBy(updatedBy);
 		apiClientDetails.setUpdatedDate(updatedDate);
+		apiClientDetails.setIsCustomUpdated(isCustomUpdated);
 
 		return apiClientDetails;
 	}
@@ -182,6 +184,12 @@ public class JqApiClientDetails implements Serializable {
 		vo.setClientSecret(apiClientDetails.getClientSecret());
 		vo.setEncryptionAlgoId(Integer.valueOf(apiClientDetails.getJqEncAlgModPadKeyLookup().getEncLookupId()));
 		vo.setEncLookupId(apiClientDetails.getJqEncAlgModPadKeyLookup().getEncLookupId());
+		vo.setClientPublicKey(apiClientDetails.getClientPublicKey());
+	    vo.setCreatedBy(apiClientDetails.getCreatedBy());
+		//vo.setInclusionUrlPattern(apiClientDetails.getInclusionUrlPattern());
+	    vo.setIsCustomUpdated(apiClientDetails.getIsCustomUpdated());
+	    vo.setUpdatedBy(apiClientDetails.getUpdatedBy());
+	    vo.setUpdatedDate(apiClientDetails.getUpdatedDate());
 		return vo;
 	}
 

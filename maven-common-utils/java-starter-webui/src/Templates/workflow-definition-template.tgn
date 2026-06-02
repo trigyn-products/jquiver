@@ -1,0 +1,377 @@
+<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
+<head>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
+</head>
+
+<div class="container">
+    <div class="topband">
+        <h2 class="title-cls-name">Workflow Definition</h2> 
+        <div class="topactionbuttons">
+             <button type="submit" class="btn btn-primary spacingclss"  id="createBtn"> Create New </button>
+            <span >
+                <input id="backBtn" class="btn btn-secondary spacingclss" name="backBtn" value="Back" type="button">
+            </span> 
+        </div>
+        
+     </div>
+        
+    <div class="table_responsive">
+         <div id="curDiv" class="cursor show"></div>  
+            <div id="workflowDefinitionGrid" class="tablescrollcls"></div>
+    </div>
+    <div id="deleteHeader"></div>
+    <div id="snackbar"></div>
+</div>
+
+<script ${scriptNonce}>
+    contextPath = "${(contextPath)!''}";
+    viewPath = "${(viewPath)!''}";
+     let listingData  = [];
+    $(function () {
+	     const createBtn = document.getElementById("createBtn");
+	     const backBtn = document.getElementById("backBtn");
+	     createBtn.addEventListener("click", function (event) {
+	        event.preventDefault(); // prevent form from submitting if needed
+	        upsert(null);
+	    });
+	     
+	     backBtn.addEventListener("click", function (event) {
+	        event.preventDefault(); // prevent form from submitting if needed
+	        backToWelcomePage();
+	    });
+    //Add all columns that needs to be displayed in the grid
+        let colM = [
+            	{ title: "Definition Id", hidden : false, width: 130, dataIndx: "definitionId", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Definition Name", hidden : false, width: 130, dataIndx: "definitionName", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Version", hidden : false, width: 130, dataIndx: "version", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "<@resourceBundle 'jws.action' />", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: actionButtonRenderer, sortable: false}
+        ];
+    
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+        	
+            $("#workflowDefinitionGrid").addClass("mobiledatagrid");
+            $("#curDiv").removeClass("cursor");
+	        colM = [
+	            { title: "workflowDefinitionGrid", width: 100, align: "center", dataIndx: "gridId", align: "left", halign: "center",
+	                filter: { type: "textbox", condition: "contain", listeners: ["change"]},  sortable: false, render: renderMobileDisplay },
+	            { title: "Definition Id", hidden : false, dataIndx: "definitionId", hidden: true},
+	            { title: "Definition Name", hidden : false, dataIndx: "definitionName", hidden: true},
+	            { title: "Version", hidden : false, dataIndx: "version", hidden: true},
+	        ];
+        }
+    
+    	/*uncomment below section if you want sorting on any specific column by default.
+    	That column needs to be present in the column model defined above. If you don't 
+    	want to show that column, you can keep that as hidden column*/
+    	let dataModel = {
+    		url: contextPath + "/cf/pq-grid-data"
+    		/*,sortIndx: "lastUpdatedTs",
+   			sortDir: "down"*/
+    	};
+    	
+    //System will fecth grid data based on gridId
+        let grid = $("#workflowDefinitionGrid").grid({
+          gridId: "workflowDefinitionGrid",
+          colModel: colM,
+          dataModel: dataModel,
+		  additionalParameters: { "m": isMobile + ""}
+        });
+    
+     // Access the actual pqGrid instance
+       let pqGrid = $("#workflowDefinitionGrid").pqGrid("instance");
+
+       // Attach to the reliable `refresh` event
+        pqGrid.on("refresh", function () {
+            bindAllActionButtons(); // <- This WILL fire after rendering
+            if (isMobile) {
+                bindAllActionButtonsForMobile();
+            }
+        });
+    });
+    
+    /*
+    uncomment below method and set as formatter for your column if 
+    you want date format
+    render: dateFormatter
+    */
+    /*
+    function dateFormatter(uiObject){
+    	let dateToBeFormatted = uiObject.cellData;
+    	return formatDate(dateToBeFormatted);
+    }*/
+    
+    /*
+    uncomment below method and set as formatter for your column if 
+    you want boolean format for dynamically rendering boolean grid values(true/false) as ticked/unticked check boxes
+    render: checkBoxRenderer
+    */
+    /*
+   function checkBoxRenderer(uiObject){
+        return "<span>" + ( uiObject.cellData ? "☑" : "☐") + "</span>";
+       
+    }
+    */
+    
+     //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
+    function actionButtonRenderer(uiObject) {
+         listingData  [uiObject.rowIndx] = uiObject.rowData;
+        let rowIndx = uiObject.rowIndx;  
+        let editId = 'editBtn_' + rowIndx;
+        let copyId = 'copyBtn_' + rowIndx;
+        let deleteId = 'deleteBtn_' + rowIndx;
+        let definitionId=uiObject.rowData.definitionId ;
+        let generateRow='<span id="'+editId+'"  class= "grid_action_icons" title="Edit Record"><i class="fa fa-pencil"></i></span>'.toString();
+         generateRow += '<span id="' + copyId + '" class="grid_action_icons" ' +
+                   'data-definition-id="' + definitionId + '"' +
+                   'title="Copy1">' +
+                   '<i class="fa fa-regular fa-copy" aria-hidden="true" style=""></i>' +
+                   '</span>';
+        <#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>
+            <#list loggedInUserRoleList as loggedInUserRole>
+                <#if (loggedInUserRole == "ADMIN")>  
+                      generateRow += '<span id="'+deleteId+'"  class= "grid_action_icons"  data-definition-id="' + definitionId + '" title="${messageSource.getMessage('jws.deleteBtnText')}"><i class="fa fa-trash "></i></span>';
+                     <#break>
+               </#if>
+            </#list>
+        </#if>
+     
+
+
+
+                   
+        return generateRow;
+    }
+    // Bind All Buttons in One Go
+    /*function bindAllActionButtons() {
+	    $(".grid_action_icons").each(function () {
+            const id = this.id;
+            const rowIndx = parseInt(id.split("_")[1]);
+            this.onclick = function () {
+                upsert(rowIndx);
+            };
+	    });
+	}*/
+
+    // Bind All Buttons in One Go
+    function bindAllActionButtons() {
+        // Edit button handler
+        $(".grid_action_icons[id^='editBtn_']").each(function () {
+            const id = this.id;
+            const rowIndx = parseInt(id.split("_")[1]);
+            this.onclick = function () {
+                upsert(rowIndx);
+            };
+        });
+
+        // Copy button handler
+        $(".grid_action_icons[id^='copyBtn_']").off("click").on("click", function () {
+           let definitionId = $(this).data("definition-id");
+            if (!definitionId) return;
+
+            // Create a temporary input, copy value, remove it
+            let input = $("<input>");
+            $("body").append(input);
+            input.val(definitionId).select();
+            document.execCommand("copy");
+            input.remove();
+
+            // Reuse your global message function
+            showMessage("Definition Id copied successfully", "success");
+        });
+
+         $(".grid_action_icons[id^='deleteBtn_']").off("click").on("click", function () {
+            let definitionId = $(this).data("definition-id");
+            if (!definitionId) return;
+
+            // Call your confirmation dialog function
+            openDeleteConfirmation(definitionId);
+        });       
+    }
+
+
+
+	
+
+    function upsert(a_rowID){
+    	let redirectURL = contextPath+viewPath+"/wdf";
+        if(a_rowID != null && a_rowID != undefined && a_rowID >= 0){
+    				redirectURL += '?definitionid=' + listingData[a_rowID]["definitionId"];
+    	}
+    	location.href = redirectURL;
+    }
+
+function openDeleteConfirmation(definitionId) {
+    $("#deleteHeader").html("Are you sure you want to delete?");
+    $("#deleteHeader").dialog({
+        bgiframe: true,
+        autoOpen: true,
+        modal: true,
+        closeOnEscape: true,
+        draggable: true,
+        resizable: false,
+        title: "${messageSource.getMessage('jws.deleteBtnText')}",
+        position: {
+            my: "center", at: "center"
+        },
+        buttons: [
+            {
+                text: "${messageSource.getMessage('jws.deleteBtnText')}",
+                "class": 'btn btn-primary',
+                click: function () {
+                    $(this).dialog('close');
+                    deleteDefinition(definitionId);
+                }
+            },
+            {
+                text: "${messageSource.getMessage('jws.cancel')}",
+                "class": 'btn btn-secondary',
+                click: function () {
+                    $(this).dialog('close');
+                }
+            }
+        ],
+        open: function (event, ui) {
+            $('.ui-dialog-titlebar')
+                .find('button')
+                .removeClass('ui-dialog-titlebar-close')
+                .addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+                .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
+                .append('<span class="ui-button-icon-space"></span>');
+        }
+    });
+}
+
+function deleteDefinition(definitionId) {
+    $.ajax({
+        url: "${contextPath!''}/cf/dDef",   
+        type: "POST",
+        data: {
+            "definitionId": definitionId
+        },
+        async: true,
+        success: function (data) {
+            $("#workflowDefinitionGrid").pqGrid().pqGrid("refreshDataAndView");
+            showMessage("Definition is deleted", "info");
+            
+        },
+        error: function (jqXHR, exception) {
+            showMessage("Error occurred while deleting the definition", "error");
+        }
+    });
+}
+
+    //Code go back to previous page
+    function backToWelcomePage() {
+        location.href = contextPath;        
+    }
+
+	/**
+	 ** Below code is specifically for mobile view handling
+	 **/
+    
+    function renderMobileDisplay(uiObject){
+        return generateDynamicCardForMob(uiObject, { title: 'workflow-definition', dateFields: ['uploaded_at']});
+    }    
+
+    // Bind All Buttons in One Go
+    function bindAllActionButtonsForMobile() {
+        $(".grid_action_icons_mob").each(function () {
+            const id = this.id;
+            const rowIndx = id.split("_")[1];
+            this.onclick = function () {
+                upsert(rowIndx);
+            };
+        });
+    }	
+
+    function generateDynamicCardForMob(uiObject, options = {}) {
+        // Default options with overrides
+        var data =uiObject["rowData"];
+        listingData[uiObject.rowIndx] = uiObject.rowData;
+
+        const config = {
+            title: 'Details',
+            excludeFields: ['id', 'created_at'],
+            dateFields: ['date', 'created_at', 'updated_at', 'start_date', 'end_date'],
+            currencyFields: ['price', 'amount', 'salary', 'cost'],
+            statusFields: ['active', 'status', 'is_active'],
+            ...options
+        };
+
+        // Formatting helpers
+        const formatValue = (key, value) => {
+            if (value === null || value === undefined) return 'N/A';
+            
+            // Format dates
+            if (config.dateFields.includes(key)) {
+                return formatDate(value);
+            }
+            
+            // Format currency
+            if (config.currencyFields.includes(key)) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(value);
+            }
+            
+            // Format booleans
+            if (config.statusFields.includes(key)) {
+            return value ? 
+                '<span style="color: green;">Active</span>' : 
+                '<span style="color: red;">Inactive</span>';
+            }
+            
+            // Default formatting
+            return String(value);
+        };
+
+        // Filter and sort keys
+        const keys = Object.keys(data)
+            .filter(key => !config.excludeFields.includes(key))
+            .sort((a, b) => a.localeCompare(b));
+
+          // Generate the HTML
+            var response = '<div class="data-card tbledatacard">';
+            response += '<div class="tableheaderblock">';
+            response += '<h3>' + config.title + '</h3>';
+            response += '<div>';
+        if(data.id != null && data.id != ""){ 
+            response += '<button class="edit-btn grid_action_icons_mob"  data-id="' + data.id + '" id="edit_' + uiObject.rowIndx + '">  ';
+            response += '<i class="fa fa-pencil"></i>';
+            response += '</button>';
+
+            /**
+             * If any new buttons need to be included in the card, either below code can be uncommented or new button can be added below
+             **/
+
+            // response += '<button class="delete-btn grid_action_icons_mob" ';
+            // response += 'data-id="' + data.id + '" id="del_' + uiObject.rowIndx + '">';
+            // response += '<i class="fa-solid fa-trash"></i>';
+            // response += '</button>';
+        } else {
+            response += '';
+        }
+        response += '</div>';
+        response += '</div>';
+        response += '<div style="display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px;">';
+        for (var i = 0; i < keys.length; i++) { 
+            response += '<span style="font-weight: bold;">' + keys[i].replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) + ':</span>';
+            response += '<span>' + formatValue(keys[i], data[keys[i]]) + '</span>';
+        }
+        response += '</div>';
+        
+        response += '</div>';
+        return response;
+    }
+
+ 
+</script>

@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -133,23 +134,29 @@ public class TemplatingUtils {
 			logger.debug("Inside TemplatingUtils.addTemplateProperties(modelMap: {})", modelMap);
 			String								contextPath			= servletContext.getContextPath();
 			Map<PropertyMasterKeyVO, String>	propertyMasterMap	= propertyMasterDetails.getAllProperties();
+			String enableUserManagement =propertyMasterDetails.getSystemPropertyValue("enable-user-management");
 			Locale								locale				= null;
-			
 			loadDynamicTemplate();
 			HttpServletRequest requestObject = getRequest();
 			
+			if(modelMap == null) {
+				modelMap = new HashMap<>();
+			}
+			modelMap.put("enableUserManagement", enableUserManagement);
+			String nonce = null;
 			if(requestObject == null) {
 				locale = Locale.US;
 			} else {
 				locale = localeResolver.resolveLocale(requestObject);
 				modelMap.put("httpRequestObject", requestObject);
+				nonce = (String) requestObject.getAttribute("cspNonce");
 			}
 			boolean cspEnable = propertyMasterDetails.getCspConfig().isCSPEnable();
-			String nonce = (String) requestObject.getAttribute("cspNonce");
 			modelMap.put("locale", locale);
 			modelMap.put("contextPath", contextPath);
 			modelMap.put("viewPath", jQuiverPropeties.getViewPath());
 			modelMap.put("apiPath", jQuiverPropeties.getApiPath());
+			modelMap.put("baseUrl", jQuiverPropeties.getBaseUrl());
 			if (cspEnable && null!=nonce) {
 				modelMap.put("dynamicNonce", nonce);
 				modelMap.put("enableCSP", cspEnable);
@@ -247,27 +254,5 @@ public class TemplatingUtils {
 			logger.error("Dynamic template is null while processing template in TemplatingUtils");
 		}
 	}
-	
-	public boolean isValidJSON(String json) {
-	    try {
-	        new com.fasterxml.jackson.databind.ObjectMapper().readTree(json);
-	        return true;
-	    } catch (Exception e) {
-	        return false;
-	    }
-	}
-
-	public boolean isValidXML(String xml) {
-	    try {
-	        javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-	        factory.setNamespaceAware(true);
-	        javax.xml.parsers.DocumentBuilder builder = factory.newDocumentBuilder();
-	        builder.parse(new org.xml.sax.InputSource(new java.io.StringReader(xml)));
-	        return true;
-	    } catch (Exception e) {
-	        return false;
-	    }
-	}
-
 
 }

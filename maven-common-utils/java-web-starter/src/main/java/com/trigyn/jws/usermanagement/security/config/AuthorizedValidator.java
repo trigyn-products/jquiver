@@ -1,6 +1,8 @@
 package com.trigyn.jws.usermanagement.security.config;
 
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +29,7 @@ import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -62,14 +65,7 @@ public class AuthorizedValidator {
 			HttpServletRequest	requestObject	= getRequest();
 			HttpServletResponse	responseObject	= getResponse();
 			Authorized			myAnnotation	= method.getAnnotation(Authorized.class);
-			Authentication		authentication	= null;
-			if (requestObject.getSession().getAttribute("SPRING_SECURITY_CONTEXT") != null) {
-				authentication = ((SecurityContextImpl) requestObject.getSession()
-						.getAttribute("SPRING_SECURITY_CONTEXT")).getAuthentication();
-			}
-			if (authentication == null) {
-				authentication = SecurityContextHolder.getContext().getAuthentication();
-			}
+			Authentication		authentication = SecurityContextHolder.getContext().getAuthentication();
 
 			String moduleName = myAnnotation.moduleName();
 
@@ -88,7 +84,7 @@ public class AuthorizedValidator {
 				String entityName = entityValidator.getEntityName(requestObject, roleNames, a_joinPoint);
 				if (entityName == null) {
 					logger.warn("No record found for " + moduleName, moduleName);
-					responseObject.sendError(HttpStatus.NOT_FOUND.value());
+					responseObject.sendError(HttpStatus.NOT_FOUND.value(),"No record found");
 					return null;
 				} else {
 					logger.warn("You do not have enough privilege to access: " + moduleName + " : " + entityName,
@@ -109,10 +105,23 @@ public class AuthorizedValidator {
 									&& requestObject.getQueryString().isEmpty() == false) {
 								requestURL += "?" + requestObject.getQueryString();
 							}
-							requestObject.getSession().setAttribute("CUSTOM_REDIRECT_URL", requestURL);
+							Cookie redirectUrlCookie = new Cookie("CUSTOM_REDIRECT_URL",
+									URLEncoder.encode(requestURL, StandardCharsets.UTF_8));
+							redirectUrlCookie.setHttpOnly(true); 
+							redirectUrlCookie.setSecure(false); // Required true in production over HTTPS
+							redirectUrlCookie.setPath("/");
+							redirectUrlCookie.setMaxAge(5 * 60); 
+							responseObject.addCookie(redirectUrlCookie);
+							
+							// System login flag
+							Cookie systemLogin = new Cookie("SYS_LOGIN", "true");
+							systemLogin.setPath("/");
+							systemLogin.setHttpOnly(true);
+							systemLogin.setMaxAge(5 * 60); // 5 minute
+							responseObject.addCookie(systemLogin);
+
 							StringBuilder redirectUrl = new StringBuilder().append(servletContext.getContextPath())
 									.append("/cf/login");
-							// responseObject.sendRedirect(redirectUrl.toString());
 							responseObject.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
 							responseObject.setHeader("Location", redirectUrl.toString());
 						} else {

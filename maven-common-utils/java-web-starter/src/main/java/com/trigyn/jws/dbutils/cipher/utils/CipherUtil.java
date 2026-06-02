@@ -1,5 +1,6 @@
 package com.trigyn.jws.dbutils.cipher.utils;
 
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -9,6 +10,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
+import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
@@ -63,6 +65,23 @@ public class CipherUtil {
 		return ivBytes;
 	}
 
+	// RSA encryption with Public Key
+		public String encryptRSA(String plainText, PublicKey publicKey, String transformation) 
+		        throws Exception {
+		    Cipher cipher = Cipher.getInstance(transformation); // e.g., "RSA/ECB/PKCS1Padding"
+		    cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+		    byte[] encryptedBytes = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+		    return Base64.encodeBase64String(encryptedBytes);
+		}
+
+		// RSA decryption with Private Key
+		public String decryptRSA(String encryptedText, PrivateKey privateKey, String transformation) 
+		        throws Exception {
+		    Cipher cipher = Cipher.getInstance(transformation);
+		    cipher.init(Cipher.DECRYPT_MODE, privateKey);
+		    byte[] decryptedBytes = cipher.doFinal(Base64.decodeBase64(encryptedText));
+		    return new String(decryptedBytes, StandardCharsets.UTF_8);
+		}
 	
 
 }

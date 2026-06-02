@@ -11,10 +11,11 @@
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/simplemde/simplemde.min.css">
 <script src="${(contextPath)!''}/webjars/1.0/simplemde/simplemde.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css"/>
-<!--<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>-->
 <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.js"></script>
 <link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.css" />
 <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/fileupload/fileupload.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/ckEditor/ckeditor.js"></script>
+
 <style>
     .leftrideblock{
         display:flex;
@@ -68,7 +69,88 @@
         width:100%;
     }
 
-    </style>
+   /* Editor content scrolls */
+
+    .ck-editor__editable {
+        height: 560px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        resize: none;
+        /* IMPORTANT: Ensure spaces aren't collapsed by CSS */
+        white-space: pre-wrap !important;
+    }
+
+    /* Optional: smoother scroll */
+    .ck-editor__editable::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .ck-editor__editable::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+    }
+
+    .ck-editor__top {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: #ffffff;
+        border-bottom: 1px solid #dcdcdc;
+    }
+
+    /* Icons */
+    .ck-button .ck-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .ck-powered-by {
+        display: none;
+    }
+
+    /* Prevent items from shrinking */
+    .ck.ck-toolbar__grouped-dropdown,
+    .ck.ck-toolbar__items > * {
+        flex-shrink: 0;
+    }
+
+    /* Optional scrollbar styling */
+    .ck.ck-toolbar__items::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .ck.ck-toolbar__items::-webkit-scrollbar-thumb {
+        background: #cfcfcf;
+        border-radius: 4px;
+    }
+
+    .ck.ck-dropdown__panel {
+        max-height: 320px !important;
+        overflow: hidden;
+    }
+
+    .ck.ck-dropdown__panel .ck-list {
+        max-height: 300px !important;
+        overflow-y: auto !important;
+        scrollbar-width: thin;
+    }
+
+    /* jsTree context menu */
+    .vakata-context,
+    .vakata-context-ul {
+        z-index: 99999 !important;
+        position: absolute !important;
+    }
+
+    /* optional: ensure upload/file bin stays below */
+    .file-bin,
+    .upload-container,
+    .dropzone,
+    .file-upload-wrapper {
+        z-index: 1 !important;
+    }
+
+</style>
 </head>
 
 <div class="container">
@@ -81,10 +163,8 @@
                   ${messageSource.getMessage('jws.createTopic')}</button>  
              <button type='button' onclick="backToPreviousPage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
                 </button>
-
         </div>
-        </div>
-        
+        </div>       
      </div>
         
    <form method="post" name="addEditForm" id="addEditForm">
@@ -95,11 +175,13 @@
       <input type="hidden" id="manualentryid" name="manualentryid"  value="" maxlength="50" class="form-control">
             <input type="hidden" id="manualtype" name="mt"  value="${mt}" maxlength="50" class="form-control">
             <input type="hidden" id="manualname" name="manualname"  value="JQuiver+Manual" maxlength="50" class="form-control">
-            <div class="leftcontenctcls cm-scrollbar" id="tree_container" style="height:600px;width: 370px;"> </div>
-            <div  class="col-10 rightcontecntcls heightclscls cm-right-wrapper ">
+            <div class="leftcontenctcls cm-scrollbar" id="tree_container" style="height:600px;width: 200px;"> </div>
+            
+            <div  class="rightcontecntcls heightclscls cm-right-wrapper " style="border:1px solid #ccc; border-radius:4px;">
                 <textarea class="form-control" rows="15" cols="90" title="Entry content" id="entrycontent"  placeholder="Entry content" name="entrycontent" style="height:80px"></textarea>
+               
             </div>
-                  
+                   <div id="editor"></div>
        </div>
         <div class="rightcontecntcls" style="margin:10px 0;">
             <div id="fileUploadMaster" class="col-12 fileupload dropzone"></div>
@@ -144,199 +226,369 @@
     let manual = new HelpManual();
     let manualTypes = manual.getManualDetails();
     let isEdit=1;
+    let manualId = "${mt!''}";
+    let editorName = "${editorName!''}";
+      
     $("#title").html(manualTypes.find(manual => {
         return manual["manual_id"] == "${mt!''}"
     })["name"]); 
+
     const treeViewMap = new Map();
+    const treeHeaderMap = new Map();
     const changedTreeViewMap = new Map();     
     const changedContentNodeMap = []; 
     const newAndModifiedMap=new Map();
     const deletedManualDataList=[];
     const renameManualDataList=[];
     var deletedNodeList=new Array();
-
-     dropzone = $(".fileupload").fileUpload({
-            fileBinId : "helpManual",
-            fileAssociationId:"",
-            createFileBin : true,
-            renderer: fileConfigRenderer,
-            successcallback: showFileDataInEntryContent.bind(this),
-            deletecallback: deleteFileDataInEntryContent.bind(this)
+    
+    dropzone = $(".fileupload").fileUpload({
+        fileBinId : "helpManual",
+        fileAssociationId:"",
+        createFileBin : true,
+        renderer: fileConfigRenderer,
+        successcallback: showFileDataInEntryContent.bind(this),
+        deletecallback: deleteFileDataInEntryContent.bind(this)
     }); 
-     
-    let simplemde = new SimpleMDE({
-                                    renderingConfig: {
-                                    codeSyntaxHighlighting: true,
-                                    }
-                                  });
-    $(function () {
-        //Lazy Loading- Initally Parents will be loaded later child node loading on click
-         var result;
-        $("#tree_container").jstree({
-            "core": {'strings' : {
-                            'New node' : 'New topic'
-                        } ,         
-                       "check_callback" : true, 
-                       "force_text"  :true,                       
-                       "data": {                          
-                            'url' : contextPath+"/cf/hmfn", 
-                            'data' : function (node) { 
-                                       return { 'id' : node.id ,'mt' : '${mt}' }; 
-                                     },
-                            'dataFilter' :  function (treeData) {   
-                                                $.each(JSON.parse(treeData), function(i, data) {
+
+    let ckEditorInstance;
+    let ckEditorReady = false;
+    let simplemde;
+ 
+$(function () {
+    if(editorName == "1") {
+        simplemde = new SimpleMDE({
+            renderingConfig: {
+                codeSyntaxHighlighting: true,
+            }
+        });
+         // Listen for content change
+        simplemde.codemirror.on("change", function () {
+            entryContentChange();
+            userActivityDetected();
+        });
+    } else {
+        $('#fileUploadMaster').hide(); 
+        class MyBase64UploadAdapter {
+            constructor( loader ) {
+                this.loader = loader;
+        }
+
+        upload() {
+            return this.loader.file.then( file => new Promise( ( resolve, reject ) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    resolve({
+                        default: reader.result
+                    });
+                };
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            }));
+        }
+        abort() {}
+    }
+
+    function MyCustomUploadAdapterPlugin( editor ) {
+        editor.plugins.get( 'FileRepository' ).createUploadAdapter = ( loader ) => {
+            return new MyBase64UploadAdapter( loader );
+        };
+    }
+
+    const editorElement = document.querySelector('#entrycontent');      
+    if (editorElement) {
+        ClassicEditor
+                .create(document.querySelector('#entrycontent'), {
+                    extraPlugins: [ MyCustomUploadAdapterPlugin ],
+                    removePlugins: [ 'CKFinder', 'CKFinderUploadAdapter' ],
+                    // Includes features compatible with Word's formatting
+                    toolbar: {
+                        items: [                 
+                            'heading', '|',
+                            'bold', 'italic', 'strikethrough', 'underline', '|',     
+                            'bulletedList', 'numberedList', '|',
+                            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+                            'uploadImage', 'insertTable', '|',
+                            'alignment', '|',
+                            'undo', 'redo', '|',   
+                            'outdent', 'indent', '|',       
+                            'link', 'mediaEmbed',  '|',
+                            'code', 'subscript', 'superscript', '|',
+                        //  'codeBlock',
+                            'horizontalLine', 'findAndReplace', 'selectAll','blockQuote', '|', 
+                            
+                        ],
+                        shouldNotGroupWhenFull: false
+                    },
+                    // --- FONT CONFIGURATION START ---
+                   fontFamily: {
+                            options: [
+                                'default',
+
+                                // Modern Office Fonts
+                                'Aptos, sans-serif',
+                                'Aptos Narrow, sans-serif',
+                                'Calibri, sans-serif',
+                                'Cambria, serif',
+                                'Candara, sans-serif',
+                                'Corbel, sans-serif',
+                                'Consolas, monospace',
+                                'Constantia, serif',
+
+                                // Older Word Defaults
+                                'Times New Roman, Times, serif',
+                                'Arial, Helvetica, sans-serif',
+                                'Verdana, Geneva, sans-serif',
+                                'Tahoma, sans-serif',
+                                'Trebuchet MS, sans-serif',
+                                'Georgia, serif',
+
+                                // Windows Common Fonts
+                                'Segoe UI, sans-serif',
+                                'Franklin Gothic Medium, sans-serif',
+                                'Garamond, serif',
+                                'Book Antiqua, serif',
+                                'Century Gothic, sans-serif',
+                                'Lucida Sans Unicode, sans-serif',
+                                'Palatino Linotype, serif',
+
+                                // Monospace
+                                'Courier New, monospace',
+                                'Lucida Console, monospace',
+
+                                // Indian / Unicode Friendly
+                                'Nirmala UI, sans-serif',
+                                'Mangal, sans-serif',
+                                'Kokila, serif',
+                                'Aparajita, serif',
+                                'Arial Unicode MS, sans-serif'
+                            ],
+                            supportAllValues: true
+                        },
+                       fontSize: {
+                            options: [
+                                8,9,10,11,12,14,16,18,20,22,24,26,28,
+                                36,48,72,
+                                'default'
+                            ],
+                            supportAllValues: true
+                        },
+                        // --- FONT CONFIGURATION END ---
+
+                    // Support for Microsoft Word paste behavior
+                    pasteFromOffice: {
+                        removeMessageAfter: 1000
+                    },
+                    table: {
+                        contentToolbar: [
+                            'tableColumn', 'tableRow', 'mergeTableCells', 'tableCellProperties', 'tableProperties'
+                        ]
+                    },
+                })
+                .then(editor => {
+                    ckEditorInstance = editor;
+                    ckEditorReady = true;
+                    editor.model.document.on('change:data', () => {
+                        entryContentChange();
+                        userActivityDetected();
+                    });
+                
+                })
+                .catch(error => {
+                    console.error("CKEditor init failed", error);
+                });
+    }
+       
+    function setEditorContentSafely(html) {
+        if (ckEditorInstance) {            
+            ckEditorInstance.setData(html || '');
+        } else {
+            setTimeout(() => setEditorContentSafely(html), 100);
+        }
+    }
+}
+    //Lazy Loading- Initally Parents will be loaded later child node loading on click
+    var result;
+    $("#tree_container").jstree({
+        "core": {'strings' : {
+                        'New node' : 'New topic'
+                    } ,         
+                    "check_callback" : true, 
+                    "force_text"  :true,                       
+                    "data": {                          
+                        'url' : contextPath+"/cf/hmfn", 
+                        'data' : function (node) { 
+                                    return { 'id' : node.id ,'mt' : '${mt}' }; 
+                                    },
+                        'dataFilter' :  function (treeData) {   
+                                            $.each(JSON.parse(treeData), function(i, data) {
                                                 treeViewMap.set(data.id, data.entryContent);
                                                 changedTreeViewMap.set(data.id, data.entryContent);
-                                            });
-                                            if (document.readyState === 'complete') {
-                                                // The page is fully loaded
-                                                var content;
-                                                var selected_node = $('#tree_container').jstree('get_selected', false);
-                                                if( typeof selected_node != "undefined" && selected_node != null &&   selected_node.length != null && selected_node.length > 0) {
-                                                    content=changedTreeViewMap.get(selected_node[0]);
-                                                    }
-                                                else{
-                                                    const [firstValue] = changedTreeViewMap.values();
-                                                    content=firstValue; 
-                                                    }
-                                                    if(content!=null){
-                                                       // const  finalcontent= content.replaceAll("/cf/files/", contextPath + "/cf/files/");
-                                                        //simplemde.value(finalcontent);
-                                                        simplemde.value(content);
-                                                        }
-                                                    else{
-                                                        //simplemde.value(content);
-                                                        //simplemde.value("");
-                                                    }
-                                                
+                                                treeHeaderMap.set(data.id, data.text);
+                                        });
+                                        if (document.readyState === 'complete') {
+                                            // The page is fully loaded
+                                            var content;
+                                            var selected_node = $('#tree_container').jstree('get_selected', false);
+                                            if( typeof selected_node != "undefined" && selected_node != null &&   selected_node.length != null && selected_node.length > 0) {
+                                                content=changedTreeViewMap.get(selected_node[0]);
+                                                headerTxt = treeHeaderMap.get(selected_node[0]);
+                                            }else{
+                                                const [firstValue] = changedTreeViewMap.values();
+                                                content=firstValue; 
+                                            }
+                                            if(content!=null ){
+                                                 let finalContent = content;
+                                                if (!content.includes(contextPath + "/cf/files/")) {
+                                                    finalContent = content.replaceAll("/cf/files/", contextPath + "/cf/files/");
                                                 }
-                                            return  treeData;
-                                        
-                                       }
-                                 }
-                       
-                    },
-                        'types' :{ 
-                                   'folder': {
-                                        'icon' : "${(contextPath)!''}/webjars/1.0/images/book.png"
-                                        },
-                                    'default': {
-                                       'icon': 'jstree-icon jstree-file'
-                                               },
-                                    'open': {
-                                       'icon': "${(contextPath)!''}/webjars/1.0/images/openbook.png"
+                                                if(editorName == "1"){  
+                                                    let finalEntryContent = finalContent;
+                                                    // Check if content already starts with a header
+                                                    const hasHeader = finalContent.trim().toLowerCase().startsWith("# " + headerTxt.toLowerCase());
+                                                    if (hasHeader == false) {
+                                                        // No header at all → add it
+                                                        finalEntryContent = "# " + headerTxt + "\n\n" + finalContent;
+                                                    } 
+                                                    simplemde.value(finalEntryContent);       
+                                                } else {
+                                                    const finalEntryContent ="<h2>" + headerTxt + "</h2>" + finalContent;
+                                                    ckEditorInstance.setData(finalEntryContent);
+                                                }
+                                        }
+                                        }
+                                        return  treeData;
+                                    
+                                    }
+                                }
+                    
+                },
+                    'types' :{ 
+                                'folder': {
+                                    'icon' : "${(contextPath)!''}/webjars/1.0/images/book.png"
+                                    },
+                                'default': {
+                                    'icon': 'jstree-icon jstree-file'
                                             },
-                                    'closed': {
-                                        'icon': "${(contextPath)!''}/webjars/1.0/images/book.png"
-                                            }
-                                  },
-                        'contextmenu' : {
-						'items' : function(node) {
-							var items = $.jstree.defaults.contextmenu.items();
-                            items.ccp=false;
-							items.create = {// The "create" menu item
-                                           "label" : "Create",
-                                            action: function (data) {
-                                                var inst = $.jstree.reference(data.reference),
-                                                    obj = inst.get_node(data.reference);
-                                                    inst.create_node(obj, {}, "last", function (new_node) {
-                                                    new_node.data = {file: true};
-                                                    setTimeout(function () { inst.edit(new_node);
+                                'open': {
+                                    'icon': "${(contextPath)!''}/webjars/1.0/images/openbook.png"
+                                        },
+                                'closed': {
+                                    'icon': "${(contextPath)!''}/webjars/1.0/images/book.png"
+                                        }
+                                },
+                    'contextmenu' : {
+                    'items' : function(node) {
+                        var items = $.jstree.defaults.contextmenu.items();
+                        items.ccp=false;
+                        items.create = {// The "create" menu item
+                                        "label" : "Create",
+                                        action: function (data) {
+                                            var inst = $.jstree.reference(data.reference),
+                                                obj = inst.get_node(data.reference);
+                                                inst.create_node(obj, {}, "last", function (new_node) {
+                                                new_node.data = {file: true};
+                                                setTimeout(function () { inst.edit(new_node);
+                                            
+                                        //    setEditorContentSafely("");
+                                                if(editorName == "1"){
                                                     simplemde.value("");
-                                                     var tree = $('#tree_container').jstree(true);
-                                                     tree.deselect_all();
-                                                     tree.select_node(new_node); 
-                                                    changedTreeViewMap.set(new_node.id, null); 
-                                                    newAndModifiedMap.set(new_node.id, null); 
-                                                    },0);
-                                                    localStorage.setItem('selectedNodeId', new_node.id);
-                                                });
-                                            }
-                                        
-						
-						           },
-                             items.remove ={
-                                    "separator_before" : false,
-                                    "icon" : false,
-                                    "separator_after" : false,
-                                    "_disabled" : false, //(this.check("delete_node", data.reference, this.get_parent(data.reference), "")),
-                                    "label" : "Delete",
-                                    "action" : function (data) {
-                                        var inst = $.jstree.reference(data.reference),
-                                            obj = inst.get_node(data.reference);   
-                                                    $("#deleteDiv").html("Are you sure you want to delete <span style='font-weight: bold;'> \"" + obj.text + "\"<\span>?");
-                                                                $("#deleteDiv").dialog({
-                                                                    bgiframe		 : true,
-		                                                            autoOpen		 : true, 
-		                                                            modal		 : true,
-                                                                    title:"Delete",
-                                                                    buttons		 : [{
-                                                                    text	:"Cancel",
-                                                                    class   :"btn btn-secondary",
-                                                                    click	: function() { 
-                                                                        $(this).dialog('close');                    
-                                                                        return false;
-                                                                    },
+                                                } else{
+                                                    ckEditorInstance.setData("");
+                                                }
+                                                    var tree = $('#tree_container').jstree(true);
+                                                    tree.deselect_all();
+                                                    tree.select_node(new_node); 
+                                                changedTreeViewMap.set(new_node.id, null); 
+                                                newAndModifiedMap.set(new_node.id, null); 
+                                                },0);
+                                                localStorage.setItem('selectedNodeId', new_node.id);
+                                            });
+                                        }
+                                    
+                    
+                                },
+                            items.remove ={
+                                "separator_before" : false,
+                                "icon" : false,
+                                "separator_after" : false,
+                                "_disabled" : false, //(this.check("delete_node", data.reference, this.get_parent(data.reference), "")),
+                                "label" : "Delete",
+                                "action" : function (data) {
+                                    var inst = $.jstree.reference(data.reference),
+                                        obj = inst.get_node(data.reference);   
+                                                $("#deleteDiv").html("Are you sure you want to delete <span style='font-weight: bold;'> \"" + obj.text + "\"<\span>?");
+                                                            $("#deleteDiv").dialog({
+                                                                bgiframe		 : true,
+                                                                autoOpen		 : true, 
+                                                                modal		 : true,
+                                                                title:"Delete",
+                                                                buttons		 : [{
+                                                                text	:"Cancel",
+                                                                class   :"btn btn-secondary",
+                                                                click	: function() { 
+                                                                    $(this).dialog('close');                    
+                                                                    return false;
                                                                 },
-                                                                {
-                                                                    text    : "Delete",
-                                                                    class   :"btn btn-primary",
-                                                                    click	: function(){
-                                                                          if(inst.is_selected(obj)) {
-                                                        
-                                                                            let manualData = new Object();
-                                                                            manualData["manualEntryId"] = obj.id;             
-                                                                            manualData["manualId"] = $('#manualtype').val();   
-                                                                            manualData["action"]="delete";  
-                                                                            if(!obj.id.startsWith("j1_")) {      
-                                                                            deletedManualDataList.push(manualData);
-                                                                            }
-                                                                        
-                                                                            inst.delete_node(inst.get_selected());
+                                                            },
+                                                            {
+                                                                text    : "Delete",
+                                                                class   :"btn btn-primary",
+                                                                click	: function(){
+                                                                        if(inst.is_selected(obj)) {
+                                                    
+                                                                        let manualData = new Object();
+                                                                        manualData["manualEntryId"] = obj.id;             
+                                                                        manualData["manualId"] = $('#manualtype').val();   
+                                                                        manualData["action"]="delete";  
+                                                                        if(!obj.id.startsWith("j1_")) {      
+                                                                        deletedManualDataList.push(manualData);
                                                                         }
-                                                                        else {
-                                                                            inst.delete_node(obj);
-                                                                        }
-
-                                                                        $(this).dialog('close');
-                                                                        
-                                                                        
+                                                                    
+                                                                        inst.delete_node(inst.get_selected());
                                                                     }
-                                                                },
-                                                        ]
-                                                     });                                                      
-                                    }
-                                    }
-							return items;
-						}
-					},
-					    'plugins' : ['themes','types','contextmenu']
-        }).bind("loaded.jstree", function (event, data) {
-                        data.instance.select_node('ul > li:first');     
-                       //  data.instance.open_node('ul > li:first');                  
-                    }).on('open_node.jstree', function (event, data) {
-      data.instance.set_type(data.node, 'open');
+                                                                    else {
+                                                                        inst.delete_node(obj);
+                                                                    }
+
+                                                                    $(this).dialog('close');
+                                                                    
+                                                                    
+                                                                }
+                                                            },
+                                                    ]
+                                                    });                                                      
+                                }
+                                }
+                        return items;
+                    }
+                },
+                    'plugins' : ['themes','types','contextmenu']
+    }).bind("loaded.jstree", function (event, data) {
+                    data.instance.select_node('ul > li:first');     
+                    //  data.instance.open_node('ul > li:first');                  
+                }).on('open_node.jstree', function (event, data) {
+    data.instance.set_type(data.node, 'open');
    }).on('close_node.jstree', function (event, data) {
       data.instance.set_type(data.node, 'closed');
    });             
 
-      var id=$('#tree_container').jstree('get_selected');
-      hideShowActionButtons();
+    var id=$('#tree_container').jstree('get_selected');
+    hideShowActionButtons();
      
 });
- 
 
-     $("#create_btn").click(function(){ 
-       var ref = $("#tree_container").jstree('create_node', '#',  { text : "New topic", type : "root" } ); 
-      
-       $('#tree_container').jstree('edit', ref);
-       
-       simplemde.value("");
+$("#create_btn").click(function(){ 
+       var ref = $("#tree_container").jstree('create_node', '#',  { text : "New topic", type : "root" } );     
+       $('#tree_container').jstree('edit', ref);      
+        if(editorName == "1"){
+            simplemde.value("");
+        } else{
+            ckEditorInstance.setData("");
+        }
+    
        var tree = $('#tree_container').jstree(true);
-      //  curr = tree.get_selected(false);
        tree.deselect_all();
-      //var p = $('#tree').jstree('get_selected').attr('id')
-    //var p = tree.get_next_dom(curr);
        tree.select_node(ref); 
        newAndModifiedMap.set(ref, null);
        changedTreeViewMap.set(ref, null);
@@ -344,18 +596,35 @@
     });
 
     $('#tree_container').on("changed.jstree", function (e, data) {
+            var headerTxt;
             let id=data.selected;
+            if(data.node!=null){
+                headerTxt = data.node.text;
+            }  else{
+                headerTxt = treeHeaderMap.get(id[0]);
+            }  
             localStorage.setItem('selectedNodeId',id);
             if(id[0]!=null && id[0]!= "undefined") {
                 const id_flag=id[0].startsWith("j1_");                   
                 const flag=changedTreeViewMap.has(id[0]);  
                 if(flag){
                     const content=changedTreeViewMap.get(id[0]);
-                    if(content!=null) {
-                       // const  finalcontent= content.replaceAll("/cf/files/", contextPath + "/cf/files/")
-                        simplemde.value(content);
-                    }
-                    else{
+                   if(content!=null) {     
+                        let finalcontent = content;
+                        if(editorName == "1"){
+                             let finalEntryContent = finalcontent;
+                            // Check if content already starts with a header
+                            const hasHeader = finalcontent.trim().toLowerCase().startsWith("# " + headerTxt.toLowerCase());
+                            if (hasHeader == false) {
+                                // No header at all → add it
+                                finalEntryContent = "# " + headerTxt + "\n\n" + finalcontent;
+                            } 
+                            simplemde.value(finalEntryContent);                   
+                        } else{
+                            const finalEntryContent ="<h2>" + headerTxt + "</h2>" + finalcontent; 
+                            ckEditorInstance.setData(finalcontent);
+                        }
+                   } else {
                           //simplemde.value("");
                           $.ajax({
                                 async: true,
@@ -363,36 +632,46 @@
                                 url: contextPath+"/cf/hmfc",
                                 data:{"id":id[0]},
                                 success: function (data) {
-                                   treeViewMap.set(id[0], data); 
-                                  // const  finalcontent1= data.replaceAll("/cf/files/", contextPath + "/cf/files/")
-                                      simplemde.value(data);
-                                      // $("#previewDiv").css('display', 'none');
-                                      // $('#previews').html("");
-                                      // $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));
-                                       //$("#contentDiv").scrollTop(0);
-                                       
+                                   treeViewMap.set(id[0], data);   
+                                    let finalcontent = data;    
+                                    if(editorName == "1"){  
+                                        let finalEntryContent = finalcontent;
+                                        // Check if content already starts with a header
+                                        const hasHeader = finalcontent.trim().toLowerCase().startsWith("# " + headerTxt.toLowerCase());
+                                        if (hasHeader == false) {
+                                            // No header at all → add it
+                                            finalEntryContent = "# " + headerTxt + "\n\n" + finalcontent;
+                                        } 
+                                        simplemde.value(finalEntryContent);
+                                        $("#previewDiv").css('display', 'none');
+                                        $('#previews').html("");
+                                        $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));    
+                                        $("#contentDiv").scrollTop(0);
+                                    } else{
+                                        const finalEntryContent ="<h2>" + headerTxt + "</h2>" + finalcontent;
+                                        ckEditorInstance.setData(finalEntryContent || '');
+                                    }                                                                       
                                 }
                         });
                     }
                 }
                 if(!flag && id_flag) {
-                    simplemde.value("");
-                }
-            
+                    if(editorName == "1"){
+                        simplemde.value("");
+                    } else{
+                        ckEditorInstance.setData("");
+                    }               
+                }            
             }
     }); 
  
-     $("#tree_container").on("select_node.jstree", function(event, node) {
-          
+     $("#tree_container").on("select_node.jstree", function(event, node) {        
         var selected_Node_Id =$('#tree_container').jstree('get_selected');
-       // selected_Node_Id= node.instance.get_selected();
         if(!selected_Node_Id[0].startsWith("j1_")) 
            {               
                dropzone.options.fileAssociationId = selected_Node_Id[0];
                dropzone.getSelectedFiles();
-            } 
-        else 
-            {         
+            } else {         
                dropzone.disableDropZone("You can't edit");              
                $(".fileupload").on("click", function(event) {
                    var id=$('#tree_container').jstree('get_selected');
@@ -405,204 +684,277 @@
         }       
     }); 
  
-    //document.getElementById("entrycontent").addEventListener("click", myFunction);
-    // document.getElementByTagName("textarea").addEventListener("change", contentChange);
-     // document.getElementByTagName("textarea").addEventListener("keyup", contentChange);
-    $('textarea').on(' propertychange input select paste keyup',function(event) {
-    
-        entryContentChange();
-      
-    });
-	function entryContentChange()
-    {
-        
+	function entryContentChange(){    
         var previousNodeId = localStorage.getItem('selectedNodeId');   
-        if(changedTreeViewMap.get(previousNodeId)!=simplemde.value())
-        {
-            if(changedContentNodeMap.length==10)
-                { 
-                    if (!changedContentNodeMap.includes(previousNodeId)) 
-                    {                    
-                        if(changedTreeViewMap.get(previousNodeId)!=null) {
-                            simplemde.value(changedTreeViewMap.get(previousNodeId));
-                        }
-                        else
-                        {
-                            simplemde.value("");
-                             
-                        }
-                        $('#tree_container').jstree().delete_node($('#'+previousNodeId));
-                        $("#exceedDiv").dialog({
-                            title:"Save and Proceed",
-                            buttons: [ { text: "OK" , click: function() { $( this ).dialog( "close" ); } } ]
-                          });
-                         
-                    } 
-                    else{
-                         changedTreeViewMap.set(previousNodeId, simplemde.value()); 
-                        newAndModifiedMap.set(previousNodeId, simplemde.value()); 
-                    }
+   		if(editorName == "1"){
+	        if(changedTreeViewMap.get(previousNodeId)!=simplemde.value()){
+	            if(changedContentNodeMap.length==10){ 
+	                    if (!changedContentNodeMap.includes(previousNodeId)) {                    
+	                        if(changedTreeViewMap.get(previousNodeId)!=null) {          
+	                                simplemde.value(changedTreeViewMap.get(previousNodeId));                           
+	                        } else {
+	                                simplemde.value("");                        
+	                        }
+	                        $('#tree_container').jstree().delete_node($('#'+previousNodeId));
+	                        $("#exceedDiv").dialog({
+	                            title:"Save and Proceed",
+	                            buttons: [ { text: "OK" , click: function() { $( this ).dialog( "close" ); } } ]
+	                          });
+	                         
+	                    } else {
+                            let contentVal = simplemde.value().trim();
 
+                            // Skip empty content
+                            if (contentVal === "") {
+                                newAndModifiedMap.delete(previousNodeId);
+                                changedTreeViewMap.set(previousNodeId, null);
+                                return;
+                            }
 
-                 }
-                 else{
-                       if (!changedContentNodeMap.includes(previousNodeId)) {
-                            changedContentNodeMap.push(previousNodeId);
-                            } 
-                    
-                        changedTreeViewMap.set(previousNodeId, simplemde.value()); 
-                        newAndModifiedMap.set(previousNodeId, simplemde.value()); 
-                 }
-          
-        }
-      
-      
+                            // Remove header before storing
+                            if (contentVal.startsWith("# ")) {
+                                contentVal = contentVal.replace(/^# .*?\n+/, "");
+                            }
+                            // Store only valid content
+                            changedTreeViewMap.set(previousNodeId, contentVal);
+                            newAndModifiedMap.set(previousNodeId, contentVal);
+	                    }
+	                 } else{
+	                       if (changedContentNodeMap.includes(previousNodeId) == false) {
+	                            changedContentNodeMap.push(previousNodeId);
+	                        } 
+
+                        let contentVal = simplemde.value().trim();
+                        // Skip empty content
+                        if (contentVal === "") {
+                            newAndModifiedMap.delete(previousNodeId);
+                            changedTreeViewMap.set(previousNodeId, null);
+                            return;
+                        }
+                        // Remove header before storing
+                        if (contentVal.startsWith("# ")) {
+                            contentVal = contentVal.replace(/^# .*?\n+/, "");
+                        }
+                        // Store only valid content
+                        changedTreeViewMap.set(previousNodeId, contentVal);
+                        newAndModifiedMap.set(previousNodeId, contentVal);	                     
+	                 }      
+	        }
+    	} else{
+        	if(changedTreeViewMap.get(previousNodeId)!=ckEditorInstance.getData()){
+	            if(changedContentNodeMap.length==10){ 
+	                    if (!changedContentNodeMap.includes(previousNodeId)) {                    
+	                        if(changedTreeViewMap.get(previousNodeId)!=null) {                                          ckEditorInstance.setData(changedTreeViewMap.get(previousNodeId));                     
+	                        } else {
+	                            ckEditorInstance.setData(content);                          
+	                        }
+	                        $('#tree_container').jstree().delete_node($('#'+previousNodeId));
+	                        $("#exceedDiv").dialog({
+	                            title:"Save and Proceed",
+	                            buttons: [ { text: "OK" , click: function() { $( this ).dialog( "close" ); } } ]
+	                          });
+	                         
+	                    } else {
+                            let contentVal = ckEditorInstance.getData();
+                            //  Remove duplicate HTML headers
+                            let nodeText = $('#tree_container').jstree(true).get_node(previousNodeId).text;
+                            contentVal = removeDuplicateHeader(contentVal, nodeText);
+                            // Also remove markdown header (safety)
+                            contentVal = contentVal.replace(/^# .*?\n+/, "");
+                            newAndModifiedMap.set(previousNodeId, contentVal);
+                            changedTreeViewMap.set(previousNodeId, contentVal);
+	                  //     newAndModifiedMap.set(previousNodeId, ckEditorInstance.getData()); 
+	                    }
+	                 } else{
+	                       if (changedContentNodeMap.includes(previousNodeId) == false) {
+	                            changedContentNodeMap.push(previousNodeId);
+	                        } 
+                            let contentVal = ckEditorInstance.getData();
+                            //  Remove duplicate HTML headers
+                            let nodeText = $('#tree_container').jstree(true).get_node(previousNodeId).text;
+                            contentVal = removeDuplicateHeader(contentVal, nodeText);
+                            // Also remove markdown header (safety)
+                            contentVal = contentVal.replace(/^# .*?\n+/, "");
+                            newAndModifiedMap.set(previousNodeId, contentVal);
+                            changedTreeViewMap.set(previousNodeId, contentVal); 
+	                 } 
+	    	}
+	      
+	    } 
     }
   
-     $('#tree_container').on("rename_node.jstree", function (e, data) {
-            
-             var new_Name = data.node.text;
-            if(new_Name.length>500)
-            {
-                showMessage("${messageSource.getMessage('jws.topicNameLenghtValidation')}","error")
-                 var tree = $("#tree_container").jstree(true);
-                      $("#tree_container").jstree("refresh");
-         
-                return false;
+    $('#tree_container').on("rename_node.jstree", function (e, data) {    
+        var new_Name = data.node.text;
+        if(new_Name.length>500){
+            showMessage("${messageSource.getMessage('jws.topicNameLenghtValidation')}","error")
+                var tree = $("#tree_container").jstree(true);
+                    $("#tree_container").jstree("refresh");        
+            return false;
+        }
+        const isFound = changedTreeViewMap.has(data.node.id);
+        if(isFound) {
+            newAndModifiedMap.set(data.node.id, changedTreeViewMap.get(data.node.id));  
+        }
+    }); 
+
+   function removeDuplicateHeader(content, headerText) {
+        if (content == false){
+            return content;
+        } 
+        let tempDiv = document.createElement("div");
+        tempDiv.innerHTML = content;
+        let headers = tempDiv.querySelectorAll("h1, h2, h3, h4, h5, h6");
+        headers.forEach(h => {
+            if (h.innerText.trim() === headerText.trim()) {
+                h.remove();
             }
-            //$('.jstree-rename-input').attr('maxLength', 6);
-            const isFound = changedTreeViewMap.has(data.node.id);
-            if(isFound) {
-              newAndModifiedMap.set(data.node.id, changedTreeViewMap.get(data.node.id));  
-            }
-      });   
+        });
+        return tempDiv.innerHTML.trim();
+    }
 
     //Add logic to save form data
-    function saveData(){
+    function saveData(){     
+        const currentNodeId = localStorage.getItem('selectedNodeId');  
+            if (currentNodeId) {
+                let currentValue = (editorName == "1") 
+                    ? simplemde.value() 
+                    : ckEditorInstance.getData();
+
+            if (currentValue && currentValue.trim() !== "") {
+                // remove header before storing
+                if (currentValue.startsWith("# ")) {
+                    currentValue = currentValue.replace(/^# .*?\n+/, "");
+                }
+                if (/^<h[1-6][^>]*>/i.test(currentValue)) {
+                    currentValue = currentValue.replace(/^<h[1-6][^>]*>.*?<\/h[1-6]>\s*/i, "");
+                }
+                newAndModifiedMap.set(currentNodeId, currentValue);
+                changedTreeViewMap.set(currentNodeId, currentValue);
+            }
+        }
         let isDataSaved = false;         
         const errorList =[];        
         const finalManualDataList =[]; 
         $("#errorMessage").hide();        
         var flat_tree_data = $('#tree_container').jstree(true).get_json(null, { "flat" : true });
-        if(flat_tree_data.length===0 && fileBins.length>0)
-        {
+        if(flat_tree_data.length===0 && fileBins.length>0){
             showMessage("${messageSource.getMessage('jws.createTopicValidation')}", "error");
             return false;
         }
-        let sortId=${sortIndex};
-        for (let [key, value] of newAndModifiedMap) {
+       let sortId=${sortIndex};
+       for (let [key, value] of newAndModifiedMap) {
             const index=flat_tree_data.map(object => object.id).indexOf(key);
             var node=flat_tree_data[index];
-            let manualData = new Object(); 
-            
-            if(index!==-1){ 
-                if(value!=null && value!=""){  
-                    
-                        manualData["entryContent"] = value;
-                        manualData["parentId"]=node.parent;
-                        manualData["entryName"] = node.text;
-                        manualData["manualId"] = $('#manualtype').val(); 
-                        manualData["manualEntryId"] = node.id;
-                        if(!node.id.startsWith("j1_")) {                    
-                           // manualData["manualEntryId"] = node.id;
-                            manualData["action"]="update";
-                         }else{   
-                             sortId = sortId + 1;
-                            manualData["sortIndex"] = sortId;      
-                            manualData["action"]="add";
-                         }
-                    finalManualDataList.push(manualData);
+            let manualData = new Object();           
+            if(index!==-1) { 
+              //  if(value!=null && value!=""){         
+                if(value && value.trim() !== ""){      
+                //    manualData["entryContent"] = value;
+                    let cleanedContent = value;
+                   // Remove duplicate HTML headers first
+                    cleanedContent = removeDuplicateHeader(cleanedContent, node.text);
+                    // Remove markdown header also
+                    cleanedContent = cleanedContent.replace(/^# .*?\n+/, "");
+                    manualData["entryContent"] = cleanedContent;
+                    manualData["parentId"]=node.parent;
+                    manualData["entryName"] = node.text;
+                    manualData["manualId"] = $('#manualtype').val(); 
+                    manualData["manualEntryId"] = node.id;
+                    if(!node.id.startsWith("j1_")) {                    
+                        // manualData["manualEntryId"] = node.id;
+                        manualData["action"]="update";
+                    } else {   
+                        sortId = sortId + 1;
+                        manualData["sortIndex"] = sortId;      
+                        manualData["action"]="add";
+                    }
+                finalManualDataList.push(manualData);
+                } else {
+                    if (value == null || value.trim() === "") {
+                        errorList.push(node.text);
+                        finalManualDataList.length = 0;
+                        continue;
+                    }
                 }
-                else{
-                    errorList.push(node.text);
-                    finalManualDataList.length=0;
-                }
-            }
-                         
+            }                        
         }
-        if(errorList.length>0)
-        {            
+
+        if(errorList.length>0) {            
             $("#rejectedDiv").html("<textarea  readonly rows = '3' id='rejectedArea' style='width:100%;font-weight: bold;border: white;overflow: auto;outline: none;resize:none'></textarea>");
                      
             const node =  document.createTextNode("Content for below Nodes are required."+"\n");
             const rejectedArea=document.getElementById("rejectedArea");
             rejectedArea.append(node);
             for(var i = 0; i < errorList.length; i++) {
-            rejectedArea.append(i+1+") "+errorList[i].trim() +" \n");
-             } 
+                rejectedArea.append(i+1+") "+errorList[i].trim() +" \n");
+            } 
             $("#rejectedDiv").dialog({
-                            title:"Content for below Node are required!",
-                            buttons: [ { text: "OK" , click: function() { $( this ).dialog( "close" );errorList.length=0; } } ]
+                title:"Content for below Node are required!",
+                buttons: [ { text: "OK" , click: function() { $( this ).dialog( "close" );errorList.length=0; } } ]
             });
              return false;
         }
             
-        if(deletedManualDataList.length>0)
-        {
+        if(deletedManualDataList.length>0) {
             for(let obj of  deletedManualDataList){
                 finalManualDataList.push(obj);
             }
         }
-        if (finalManualDataList.length === 0 && fileBins.length===0) {
-                          showMessage("${messageSource.getMessage('jws.saveHelpManualValidation')}", "warn");
-                          return false;
-        
-        }
-        if(finalManualDataList.length>10)
-        {
-           
-            $("#exceedDiv").dialog({
-                            title:"Save and Proceed",
-                            buttons: [ { text: "OK" , click: function() { $( this ).dialog( "close" ); } } ]
-                          });
-                          return false;
-        }
-     //var dataObject =   JSON.stringify(finalManualDataList); 
-     if(fileBins.length===0){
-      var dataObject = JSON.stringify({
-                    "finalManualDataList": finalManualDataList
-                });
 
-     }else {
+        if (finalManualDataList.length === 0 && fileBins.length===0) {
+            showMessage("${messageSource.getMessage('jws.saveHelpManualValidation')}", "warn");
+            return false; 
+        }
+
+        if(finalManualDataList.length>10){         
+            $("#exceedDiv").dialog({
+                title:"Save and Proceed",
+                buttons: [ { text: "OK" , click: function() { $( this ).dialog( "close" ); } } ]
+            });
+            return false;
+        }
+       
+     if(fileBins.length===0){
+        var dataObject = JSON.stringify({
+                "finalManualDataList": finalManualDataList
+        });
+     } else {
        var dataObject = JSON.stringify({
-                    "finalManualDataList": finalManualDataList,
-                    "formData": fileBins
-                });
+            "finalManualDataList": finalManualDataList,
+            "formData": fileBins
+        });
      }
         $.ajax({
-                type : "POST",             
-                url : contextPath+"/cf/shmd",   
-                async: false,
-                contentType: "application/json",
-                data :dataObject,
-                success : function(data) {
-                    isDataSaved = true;
-                   // $('#tree_container').jstree(true).deselect_all();
-                    dropzone.enableDropZone(data);
-                    $("#manualentryid").val(data);
-                    showMessage("${messageSource.getMessage('jws.informationSavedSuccessfully')}", "success");
-                    finalManualDataList.length = 0;
-                    newAndModifiedMap.clear();
-                    deletedManualDataList.lenght=0;
-                    $('#tree_container').jstree(true).refresh(true);
-                  
-                },
-                error : function(xhr, error){
-                    showMessage("${messageSource.getMessage('jws.errSaving')}", "error");
-                },
+            type : "POST",             
+            url : contextPath+"/cf/shmd",   
+            async: false,
+            contentType: "application/json",
+            data :dataObject,
+            success : function(data) {
+                isDataSaved = true;
+                dropzone.enableDropZone(data);
+                $("#manualentryid").val(data);
+                showMessage("${messageSource.getMessage('jws.informationSavedSuccessfully')}", "success");
+                finalManualDataList.length = 0;
+                newAndModifiedMap.clear();
+                deletedManualDataList.lenght=0;
+                $('#tree_container').jstree(true).refresh(true);              
+            },
+            error : function(xhr, error){
+                showMessage("${messageSource.getMessage('jws.errSaving')}", "error");
+            },
         });
         return isDataSaved;
     }
+
     $('#tree_container').on("refresh.jstree", function(e) {
-       // var previousNodeId = localStorage.getItem('selectedNodeId'); 
-        $('#tree_container').jstree(true).deselect_all();
+       $('#tree_container').jstree(true).deselect_all();
        $('#tree_container').jstree('select_node', 'ul > li:first');
        var firstNodeSet = localStorage.getItem('selectedNodeId'); 
        localStorage.setItem('selectedNodeId', firstNodeSet);
-       //localStorage.setItem('selectedNodeId', id);
-});
+    });
 
-        function fileConfigRenderer(fileObj) {
+    function fileConfigRenderer(fileObj) {
         let fileUploadId = fileObj["id"];
         let fileName = fileObj["name"];
         let btnTxt = resourceBundleData("jws.copyFilePath,jws.fileName");
@@ -646,4 +998,5 @@
     function backToPreviousPage() {
         location.href = contextPath + "/cf/help";
     }
+
 </script>

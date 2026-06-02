@@ -89,6 +89,13 @@ public final class CrudQueryStore {
 	public static final String		HQL_QUERY_TO_FETCH_SCRIPT_LIBRARY_DATA_FOR_EXPORT		= "FROM ScriptLibraryDetails AS sl WHERE "
 			+ "sl.scriptLibId NOT IN :excludeCustomConfigList";
 	
+	public static final String		HQL_QUERY_TO_FETCH_BUSINESS_MODULE_DATA_FOR_EXPORT		= "FROM JwsBusinessModule AS jbm WHERE "
+			+ "(jbm.businessModuleId NOT IN :excludeCustomConfigList ) OR (jbm.businessModuleId IN :includeSystemConfigList)";
+	
+	public static final String		HQL_QUERY_TO_FETCH_WORKFLOW_DATA_FOR_EXPORT		= "FROM WorkflowDefinition AS wd WHERE "
+			+ "wd.definitionId NOT IN :excludeCustomConfigList";
+	
+	
 	/*public static final String		HQL_QUERY_TO_FETCH_GRID_DATA_FOR_AUTO_EXPORT				= "FROM GridDetails AS gd ";
 
 	public static final String		HQL_QUERY_TO_FETCH_GRID_DATA_FOR_AUTO_EXPORT_MF				= "FROM GridDetails AS gd "
@@ -189,4 +196,9 @@ public final class CrudQueryStore {
 	public static final String		HQL_QUERY_TO_FETCH_FORM_IO_DATA_FOR_EXPORT					= "FROM FormIO AS fio WHERE "
 			+ "(fio.formIoId NOT IN :excludeCustomConfigList AND fio.formIoType = :customConfigType) OR "
 			+ "(fio.formIoId IN :includeSystemConfigList AND fio.formIoType = :systemConfigType)";
+	
+	public static final String		HQL_QUERY_TO_FETCH_BUSINESS_MODULE_DATA_FOR_AUTO_EXPORT		= "Select * FROM jq_business_module AS jbm";
+	
+	
+	public static final String		HQL_QUERY_TO_FETCH_WORKFLOW_DATA_FOR_AUTO_EXPORT		= "Select * FROM jq_workflow_definition AS wd";
 }

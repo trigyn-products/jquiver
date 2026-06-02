@@ -192,8 +192,8 @@
         	</div>
 
             <div class="row">
-		<div class="col-12">
-			<div class="text-end">
+		<div class="d-flex justify-content-end align-items-center gap-2">
+			<!-- <div class="text-end"> -->
 				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="onSaveButtonClick(SaveAction.Return);">${messageSource.getMessage("jws.saveAndReturn")}</button>
@@ -209,11 +209,15 @@
 				<span onclick="backToPreviousPage();">
 					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 				</span> 
-			</div>
+			<!-- </div> -->
 		</div>
         </div>
-
+        <input id="moduleId" value="6ac6a54c-8d3f-11eb-8dcd-0242ac130003" name="moduleId"  type="hidden">
+        <div id="moduleAutocomplete">
+            <@templateWithoutParams "common-modal-template"/>
+        </div>   
         
+
 	</div>
     </div>
   </form>
@@ -226,7 +230,12 @@
 
 	//contextPath = "${contextPath}";	 
     formId = "${formId}";
-	let isEdit = 0;  
+	let isEdit = 0; 
+    let moduleIdList = [];
+    let deleteModuleIdList = [];
+    let newAddedModuleIdList = [];
+    let existingModuleIdList = [];
+    let allModuleList = []; 
     $(function(){
 
         calculateLengthMsgTxt();
@@ -301,7 +310,7 @@
                $("#dataSource").val('')
             }          
 		</#list>
-        
+        getModuleNames($("#notificationid").val(),$("#moduleId").val());
 	    $(".pageHeader").html("Edit Details");
 	<#else>
 		const generatedNotificationId = uuidv4();
@@ -343,7 +352,7 @@
 	*/
 	function onValidation(a_serializedFormData){
         /**Method called on click of save button for validating MsgValidTill Dt not greater than MsgValidFrom Dt*/
-        if(validateTillDate()== true)
+        if(validateTillDate()== true && saveModDetails(isEdit,$("#notificationid").val()) == true)
         {
             return a_serializedFormData;
 	    }
@@ -356,8 +365,27 @@
 	 * message will be shown before calling this method. 
 	 * you can define getSuccessMessage() function and return string for custom success message
 	*/
-	function onSuccess(a_serverResponse){
-	    
+    function saveModDetails(isEdit,entityId){
+        var busmoduleName = $("#busmoduleName").val();
+		var cmvEntityName = document.getElementById("cmvEntityName").value;   
+        if(checkExistingBusinessModuleName(busmoduleName) == true){
+            showMessage("Module Name already exists","warn");
+            $("#busmoduleName").val("");
+            return false;
+        }
+        var isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked;  
+        if (existingModuleIdList.includes(busmoduleName)) {
+            showMessage("Module Name already exists for this entity.", "info");
+            return false;
+        }
+        if(busmoduleName != "" || moduleIdList.length > 0 || deleteModuleIdList.length > 0){
+            saveModuleDetails(busmoduleName,entityId,$("#moduleId").val(),isEdit,moduleIdList,deleteModuleIdList,isShowCreateLinkChkBox,cmvEntityName);
+        }
+        return true;
+    }
+
+	function onSuccess(a_serverResponse){     
+        
 	}
 	
 	/**
@@ -464,5 +492,8 @@
         return true;
     }
     /**Ends Here*/	
+
+     
+
    
 </script>

@@ -21,6 +21,7 @@ import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.formio.dao.FormIODAO;
 import com.trigyn.jws.formio.entities.FormIO;
+import com.trigyn.jws.formio.utils.FormIOUtils;
 import com.trigyn.jws.formio.vo.FormIOVO;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
 import com.trigyn.jws.webstarter.service.UserManagementService;
@@ -88,7 +89,8 @@ public class FormIOService {
 			 */
 			formIODAO.saveOrUpdateFormIo(formIo);
 			// saveFormIoRoles(formIo);
-			moduleVersionService.saveModuleVersion(formIoVo, null, formIoVo.getFormIoId(), "FormIO",
+		//	formIoVo = FormIOUtils.convertToFormIoVO(formIo);
+			moduleVersionService.saveModuleVersion(formIoVo, null, formIo.getFormIoId(), "FormIO",
 					Constant.REVISION_SOURCE_VERSION_TYPE);
 			logFormIoActivity(formIo);
 		} catch (Exception exec) {

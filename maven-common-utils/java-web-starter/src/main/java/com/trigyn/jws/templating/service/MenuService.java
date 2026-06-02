@@ -59,8 +59,8 @@ public class MenuService {
 		logger.debug("Inside MenuService.getTemplateWithSiteLayout(templateName: {}, templateDetails: {})",
 				templateName, templateDetails);
 		try {
-			String jquiverVersion = propertyMasterService.findPropertyMasterValue(Constant.SYSTEM_OWNER_TYPE,
-					Constant.SYSTEM_OWNER_ID, Constant.JQUIVER_VERSION_PROPERTY_NAME);
+			String jquiverVersion = getProperty(Constant.SYSTEM_OWNER_ID, Constant.SYSTEM_OWNER_TYPE,
+					Constant.JQUIVER_VERSION_PROPERTY_NAME);
 			Map<String, Object> templateMap = new HashMap<>();
 			List<ModuleDetailsVO> moduleDetailsVOList = moduleService.getAllMenuModules();
 			templateMap.put("moduleDetailsVOList", moduleDetailsVOList);
@@ -71,7 +71,7 @@ public class MenuService {
 			templateMap.put("isAuthEnabled", applicationSecurityDetails.getIsAuthenticationEnabled());
 			templateMap.putAll(templateDetails);
 			TemplateVO templateVO = templatingService.getTemplateByName("home-page");
-			String suffix = propertyMasterDetails.getAllProperties().get("template_suffix");
+			String suffix = getSystemProperty("template_suffix");
 			if (suffix == null)
 				suffix = "";
 			if (templatingService.getTemplateByNameWithoutAuthorization(templateName) != null) {
@@ -97,10 +97,8 @@ public class MenuService {
 				}
 			}
 
-			String enableGoogleAnalytics = propertyMasterDAO.findPropertyMasterValue("system", "system",
-					"enable-google-analytics");
-			String googleAnalyticsKey = propertyMasterDAO.findPropertyMasterValue("system", "system",
-					"google-analytics-key");
+			String enableGoogleAnalytics = getProperty("system", "system", "enable-google-analytics");
+			String googleAnalyticsKey = getProperty("system", "system", "google-analytics-key");
 			templateMap.put("enableGoogleAnalytics", enableGoogleAnalytics);
 			templateMap.put("googleAnalyticsKey", googleAnalyticsKey);
 			templateMap.put("entityName", templateName);
@@ -146,8 +144,8 @@ public class MenuService {
 		templateMap.put("isAuthEnabled", applicationSecurityDetails.getIsAuthenticationEnabled());
 		TemplateVO			templateVO				= templatingService.getTemplateByName("home-page");
 		//childTemplateDetails.put("template-body", template);
-		String	enableGoogleAnalytics	= propertyMasterDAO.findPropertyMasterValue("system", "system", "enable-google-analytics");
-		String	googleAnalyticsKey		= propertyMasterDAO.findPropertyMasterValue("system", "system", "google-analytics-key");
+		String enableGoogleAnalytics = getProperty("system", "system", "enable-google-analytics");
+		String googleAnalyticsKey = getProperty("system", "system", "google-analytics-key");
 		templateMap.put("enableGoogleAnalytics", enableGoogleAnalytics);
 		templateMap.put("googleAnalyticsKey", googleAnalyticsKey);
 		templateMap.put("pageName", templateVO.getTemplateName());
@@ -197,7 +195,7 @@ public class MenuService {
 			templateMap.putAll(templateParamMap);
 		}
 		TemplateVO templateInnerVO = new TemplateVO();
-		String suffix = propertyMasterDetails.getAllProperties().get("template_suffix");
+		String suffix = getSystemProperty("template_suffix");
 		if (suffix == null)
 			suffix = "";
 		
@@ -211,8 +209,8 @@ public class MenuService {
 		{
 			template = templateInnerVO.getTemplate();
 		}
-		String	enableGoogleAnalytics	= propertyMasterDAO.findPropertyMasterValue("system", "system", "enable-google-analytics");
-		String	googleAnalyticsKey		= propertyMasterDAO.findPropertyMasterValue("system", "system", "google-analytics-key");
+		String enableGoogleAnalytics = getProperty("system", "system", "enable-google-analytics");
+		String googleAnalyticsKey = getProperty("system", "system", "google-analytics-key");
 		templateMap.put("enableGoogleAnalytics", enableGoogleAnalytics);
 		templateMap.put("googleAnalyticsKey", googleAnalyticsKey);
 		templateMap.put("pageName", templateName);
@@ -237,7 +235,7 @@ public class MenuService {
 				"enable-user-management");
 		templateMap.put("isAuthEnabled", Boolean.parseBoolean(propertyMaster.getPropertyValue()));
 		templateMap.put("isAuthEnabled", applicationSecurityDetails.getIsAuthenticationEnabled());
-		String suffix = propertyMasterDetails.getAllProperties().get("template_suffix");
+		String suffix = getSystemProperty("template_suffix");
 		if(suffix == null) suffix = "";
 		TemplateVO			templateVO				= null;
 		if(templatingService.getTemplateByNameWithoutAuthorization("home-page") != null) {
@@ -248,8 +246,8 @@ public class MenuService {
 		Map<String, String>	childTemplateDetails	= new HashMap<>();
 		childTemplateDetails.put("template-body", templateContent);
 
-		String	enableGoogleAnalytics	= propertyMasterDAO.findPropertyMasterValue("system", "system", "enable-google-analytics");
-		String	googleAnalyticsKey		= propertyMasterDAO.findPropertyMasterValue("system", "system", "google-analytics-key");
+		String enableGoogleAnalytics = getProperty("system", "system", "enable-google-analytics");
+		String googleAnalyticsKey = getProperty("system", "system", "google-analytics-key");
 		templateMap.put("enableGoogleAnalytics", enableGoogleAnalytics);
 		templateMap.put("googleAnalyticsKey", googleAnalyticsKey);
 		templateMap.putAll(templateDetails);
@@ -294,9 +292,8 @@ public class MenuService {
 			}
 			templateVO = templatingService.getTemplateByName("error-page");
 		}
-		String		enableGoogleAnalytics	= propertyMasterDAO.findPropertyMasterValue("system", "system", "enable-google-analytics");
-		String		googleAnalyticsKey		= propertyMasterDAO.findPropertyMasterValue("system", "system", "google-analytics-key");
-		templateMap.put("enableGoogleAnalytics", enableGoogleAnalytics);
+		String enableGoogleAnalytics = getProperty("system", "system", "enable-google-analytics");
+		String googleAnalyticsKey = getProperty("system", "system", "google-analytics-key");	templateMap.put("enableGoogleAnalytics", enableGoogleAnalytics);
 		templateMap.put("googleAnalyticsKey", googleAnalyticsKey);
 		templateMap.put("pageName", templateVO.getTemplateName());
 		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), templateMap);
@@ -305,4 +302,12 @@ public class MenuService {
 			throw custStopException;
 		}
 		}
+	
+	private String getProperty(String ownerId, String ownerType, String propertyName) {
+		return propertyMasterDetails.getPropertyValueFromPropertyMaster(ownerId, ownerType, propertyName);
+	}
+
+	private String getSystemProperty(String name) {
+		return propertyMasterDetails.getSystemPropertyValue(name);
+	}
 }

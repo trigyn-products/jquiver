@@ -4,19 +4,26 @@
 <head>
 <link rel="icon" type="image/x-icon" href="${(contextPath)!''}/webjars/1.0/images/favicon.png"/>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/6.7.2/css/all.min.css" /> 
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.14.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.14.1/jquery-ui.theme.css" />
-<script type="text/javascript" src="${(contextPath)!''}/webjars/jquery/3.7.1/jquery.min.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/jquery-ui/1.14.1/jquery-ui.min.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/blockui/jquery.blockUI.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/bootstrap/bootstrap.bundle.min.js"></script>
- <link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.min.css" />
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/home/home.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.14.1/jquery-ui.min.css"/>
+
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
-<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/cookie/cookie.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/cookie.style.css" />
+
+<script type="text/javascript" src="${(contextPath)!''}/webjars/jquery/3.7.1/jquery.min.js" ></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/jquery-ui/1.14.1/jquery-ui.min.js" ></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/blockui/jquery.blockUI.js" ></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/bootstrap/bootstrap.bundle.min.js" ></script>
+
+<script  src="${contextPath}/webjars/1.0/static/js/custom/crypto-js.min.js"></script>
+
+<script type="module" src="${contextPath}/webjars/1.0/static/js/custom/interceptor-fetch.js"></script>
+<script type="module" src="${contextPath}/webjars/1.0/static/js/custom/interceptor-setup.js"></script>
+
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/home/home.js"></script>
 <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/notification/notification.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/cookie/cookie.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Content-Language" content="${(locale)}" />
  <!-- 
@@ -45,7 +52,7 @@
     justify-content: space-between;
     width: 100%;
 }
-    </Style>
+    </style>
 <script ${scriptNonce}>
 // Get the root element
 var r = document.querySelector(':root');
@@ -73,6 +80,7 @@ function onDarkMode(){
 	apiPath = "${(apiPath)!'/api'}";
 	let homePageFn;
 	let jqJSDateFormat;
+    
   
 	$(function() {
         let entityName = "${entityName}";
@@ -80,6 +88,83 @@ function onDarkMode(){
           $("body").addClass("Helpmanualblock");
         }
 
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function (event) {
+                homePageFn.menuSearchFilter(event);
+            });
+        }
+
+        const clearBtn = document.getElementById('menuSearchClear');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function () {
+                homePageFn.clearMenuSearch();
+            });
+        }
+
+        const darkmodebtn = document.getElementById('darkmodebtn');
+        if (darkmodebtn) {
+            darkmodebtn.addEventListener('click', function () {
+                onDarkMode();
+            });
+        }
+       
+        const bluecolortheme = document.querySelector('.bluecolortheme');
+        if (bluecolortheme) {
+            bluecolortheme.addEventListener('click', function () {
+                themColor('005da3');
+            });
+        }
+
+        const orangecolortheme = document.querySelector('.orangecolortheme');
+        if (orangecolortheme) {
+            orangecolortheme.addEventListener('click', function () {
+                themColor('FF9800');
+            });
+        }
+
+        const purplecolortheme = document.querySelector('.purplecolortheme');
+        if (purplecolortheme) {
+            purplecolortheme.addEventListener('click', function () {
+                themColor('7B1FA2');
+            });
+        }
+
+        const greencolortheme = document.querySelector('.greencolortheme');
+        if (greencolortheme) {
+            greencolortheme.addEventListener('click', function () {
+                themColor('008a00');
+            });
+        }
+
+        const browncolortheme = document.querySelector('.browncolortheme');
+        if (browncolortheme) {
+            browncolortheme.addEventListener('click', function () {
+                themColor('ba4b4b');
+            });
+        }
+
+        const notificationIcon = document.querySelector('.notificationiconscls');
+        if (notificationIcon) {
+            notificationIcon.addEventListener('click', function () {
+                loadNotificationView();
+            });
+        }
+
+        const viewNotificationBtn = document.getElementById('viewNotificationBtn');
+        if (viewNotificationBtn) {
+            viewNotificationBtn.addEventListener('click', function () {
+                loadNotificationView();
+            });
+        }
+
+        const languageOptions = document.getElementById("languageOptions");
+        document.addEventListener("change", function (e) {
+            if (e.target && e.target.id === "languageOptions") {
+                changeLanguage();
+            }
+        });
+       
         const hamburgerMenu = document.querySelector(".hamburgermenu");
 	    if (hamburgerMenu) {
 	        hamburgerMenu.addEventListener("click", function () {
@@ -174,6 +259,35 @@ function onDarkMode(){
         	homePageFn.toggleNavigation();
         }
     }
+
+    document.addEventListener("click", function (e) {
+
+    // Toggle navigation
+    const navToggle = e.target.closest("[data-action='nav-toggle']");
+    if (navToggle) {
+        homePageFn.toggleNavigation();
+        return;
+    }
+
+    // Submit target URL
+    const submitTarget = e.target.closest(".submit-target");
+    if (submitTarget) {
+        e.preventDefault();
+        submitTargetUrl(
+            submitTarget.dataset.url,
+            submitTarget.dataset.type,
+            submitTarget.dataset.id
+        );
+        return;
+    }
+
+    // Logout clear cookie
+    const logoutBtn = e.target.closest(".logout-btn");
+    if (logoutBtn) {
+        clearCookie();
+        return;
+    }
+});
      //Added for setting Default Cookie 
      window.onload = function() { cookieConsent(); };
 
@@ -213,16 +327,16 @@ function onDarkMode(){
                             <span class="multilingicon">
                                 <span class="iconss"><img src="${(contextPath)!''}/webjars/1.0/images/multiling.png" title="Multilingual" alt="Multilingual Icon">	</span>
                                     <label for="languageOptions"></label>				
-					                <select class="multilingselectbox" id="languageOptions" aria-label="Select a language" onchange="changeLanguage()">
+					                <select class="multilingselectbox" id="languageOptions" aria-label="Select a language">
 					                </select>
                             </span>
 						</li>
 
             			<li class="notificationblock">                          
 
-            				<a class="notificationiconscls"  onclick="loadNotificationView()"> 
+            				<a class="notificationiconscls"> 
                                  <i class="fa fa-bell" aria-hidden="true"></i> </a>
-                              <input id="viewNotificationBtn" onclick="loadNotificationView()" class="btn btn-secondary" name="viewNotificationBtn" value="0" type="button">                      
+                              <input id="viewNotificationBtn" class="btn btn-secondary" name="viewNotificationBtn" value="0" type="button">                      
                         	
 						</li>
                         <li>
@@ -233,7 +347,7 @@ function onDarkMode(){
             			<#if loggedInUserName?? && loggedInUserName != "anonymous">
                         	<li class="usernameblock"><a class="nav-link cm-userid" href="${(contextPath)!''}/cf/profile"><i id="iClass" class="fa-solid fa-user"  style="display:block;" aria-hidden="true"></i><img style="width:20px; height:20px;display:none;" id="profileImg" alt="profileImg" /> ${loggedInUserName}</a></li>
                             <li>
-                            	<a class="nav-link signout-icon" href="${(contextPath)!''}/logout" onclick="clearCookie();" title="<@resourceBundleWithDefault 'jws.logout' 'Logout'/>"> 
+                            	<a class="nav-link signout-icon" href="${(contextPath)!''}/logout"  title="<@resourceBundleWithDefault 'jws.logout' 'Logout'/>"> 
                             		<i class="fa fa-sign-out" aria-hidden="true"></i>
                             	</a>
                             </li>
@@ -256,8 +370,8 @@ function onDarkMode(){
 		<div class="row">
 			<nav id="mySidenav" class=" bg-dark sidenav sidebar">
 				<div class="nav-inside">
-					<input class="form-control form-control-dark w-100" id="searchInput" type="text" placeholder="Search" aria-label="Search" onkeyup="homePageFn.menuSearchFilter(event)">
-					<span id="menuSearchClear" onclick="homePageFn.clearMenuSearch()" class="menu-clear-txt">
+					<input class="form-control form-control-dark w-100" id="searchInput" type="text" placeholder="Search" aria-label="Search" >
+					<span id="menuSearchClear"  class="menu-clear-txt">
                     <i class="fa fa-times" aria-hidden="true"></i>
                 </span>
 					<ul id="menuUL" class="nav flex-column customnav">
@@ -286,8 +400,7 @@ function onDarkMode(){
 														<#if targetBlank?has_content && targetBlank==1>
 															<li
 																class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas">
-																<a class="nav-link clickable panel-collapsed"
-																	onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}
+																<a class="nav-link clickable panel-collapsed nav-toggle">${moduleDetailsVO?api.getModuleName()!''}
 																</a>
 																<#else>
 															<li
@@ -299,9 +412,8 @@ function onDarkMode(){
 															<#if targetBlank?has_content && targetBlank==1>
 																<li
 																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} ">
-																	<a class="nav-link clickable panel-collapsed"
-																		target="${openTarget}"
-																		onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}
+																	<a class="nav-link clickable panel-collapsed nav-toggle"
+																		target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
 																	</a>
 																	<#else>
 																<li
@@ -319,9 +431,8 @@ function onDarkMode(){
 																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas">
 																	<div class="dr-menu" style="display:flex;">
 																		<a href="${(contextPath)!''}${(viewPath)!''}/${moduleDetailsVO?api.getModuleUrl()!''}"
-																			class="nav-link drclickmenu"
-																			style="width:100%;" target="${openTarget}"
-																			onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}
+																			class="nav-link drclickmenu nav-toggle"
+																			style="width:100%;" target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
 																		</a>
 																		<a class=" nav-link clickable panel-collapsed"
 																			style="position: absolute;    right: 0px; width: 30px; top: 0px;height:38px;" ">                                         
@@ -345,10 +456,9 @@ function onDarkMode(){
                                    <li class=" nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} " >    
                                    <div class=" dr-menu" style="display:flex;">
 																					<a href="${(contextPath)!''}${(viewPath)!''}/${moduleDetailsVO?api.getModuleUrl()!''}"
-																						class="nav-link drclickmenu"
+																						class="nav-link drclickmenu nav-toggle"
 																						style="width:100%;"
-																						target="${openTarget}"
-																						onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}
+																						target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
 																					</a>
 																					<a class=" nav-link clickable panel-collapsed"
 																						style="position: absolute;    right: 0px; width: 30px; top: 0px;height:38px;">
@@ -393,15 +503,17 @@ function onDarkMode(){
 																		<#if targetBlankChild?has_content &&
 																			targetBlankChild==1>
 																			<li class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}">
-																				<a onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
-																					class="nav-link"
-																					target="${openTargetChild}"
-																					onclick="homePageFn.toggleNavigation();">${moduleDetailsVOChild?api.getModuleName()!''}</a>
+																				<a 
+																					class="nav-link nav-toggle"
+																					target="${openTargetChild}">$onlc{moduleDetailsVOChild?api.getModuleName()!''}</a>
 																			</li>
 																			<#else>
 																				<li  class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}">
-																				<a onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
-																					class="nav-link"
+																				<a 
+																					class="nav-link submit-target"
+                                                                                    data-url="${moduleDetailsVO?api.getModuleUrl()}"
+                                                                                    data-type="${moduleDetailsVO?api.getTargetTypeId()}"
+                                                                                    data-id="${moduleDetailsVO?api.getModuleId()!''}"
 																					target="${openTargetChild}">${moduleDetailsVOChild?api.getModuleName()!''}</a>
 																				</li>
 																		</#if>
@@ -410,9 +522,8 @@ function onDarkMode(){
 																				targetBlankChild==1>
 																				<li  class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}">
 																					<a href="${(contextPath)!''}${(viewPath)!''}/${moduleDetailsVOChild?api.getModuleUrl()!''}"
-																						class="nav-link"
-																						target="${openTargetChild}"
-																						onclick="homePageFn.toggleNavigation();">${moduleDetailsVOChild?api.getModuleName()!''}</a>
+																						class="nav-link nav-toggle"
+																						target="${openTargetChild}">${moduleDetailsVOChild?api.getModuleName()!''}</a>
 																				</li>
 																				<#else>
 																					<li  class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}"> 
@@ -444,18 +555,17 @@ function onDarkMode(){
 																class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
 																<span data-feather="file"></span>
 																<a href="#"
-																	onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
-																	class="nav-link" target="openTargetFile"
-																	onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}</a>
+																	class="nav-link nav-toggle" target="openTargetFile">${moduleDetailsVO?api.getModuleName()!''}</a>
 															</li>
 															<#else>
 																<li
 																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
 																	<span data-feather="file"></span>
 																	<a href="#"
-																		onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
-												
-																		class="nav-link"
+																		class="nav-link submit-target"
+                                                                        data-url="${moduleDetailsVO?api.getModuleUrl()}"
+                                                                        data-type="${moduleDetailsVO?api.getTargetTypeId()}"
+                                                                        data-id="${moduleDetailsVO?api.getModuleId()!''}"
 																		target="${openTargetFile}">${moduleDetailsVO?api.getModuleName()!''}</a>
 																</li>
 														</#if>
@@ -465,8 +575,7 @@ function onDarkMode(){
 																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
 																	<span data-feather="file"></span>
 																	<a href="${(contextPath)!''}${(viewPath)!''}/${moduleDetailsVO?api.getModuleUrl()!''}"
-																		class="nav-link" target="${openTargetFile}"
-																		onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}</a>
+																		class="nav-link nav-toggle" target="${openTargetFile}">${moduleDetailsVO?api.getModuleName()!''}</a>
 																</li>
 																<#else>
 																	<li
@@ -492,18 +601,13 @@ function onDarkMode(){
                     <img src="${(contextPath)!''}/webjars/1.0/images/color_colors_themes.png" title="Colors" alt="Color Pallete">
                 </div>
                 <div class="colorpalette">
-                     <button type="button" class="bluecolortheme colorbtn" onclick="themColor('005da3')">Blue</button>
-                    <button type="button" class="orangecolortheme colorbtn" onclick="themColor('FF9800')">Orange</button>
-                    <button type="button" class="purplecolortheme colorbtn" onclick="themColor('7B1FA2')">purple</button>
-                    <button type="button" class="greencolortheme colorbtn" onclick="themColor('008a00')">Green</button>
-                    <button type="button" class="browncolortheme colorbtn" onclick="themColor('ba4b4b')">Brown</button>
+                     <button type="button" class="bluecolortheme colorbtn">Blue</button>
+                    <button type="button" class="orangecolortheme colorbtn">Orange</button>
+                    <button type="button" class="purplecolortheme colorbtn">purple</button>
+                    <button type="button" class="greencolortheme colorbtn">Green</button>
+                    <button type="button" class="browncolortheme colorbtn">Brown</button>
                     
-					 <!-- <div id="darkmodebtn" class="darkmodeblock" onclick="onDarkMode()">
-		                <span class="darkmodeon"><i class="fa fa-sun-o"></i></span>
-		                <span class="darkmodeoff"><i class="fa fa-moon-o"></i></span>
-		            </div> -->
-
-                    <div id="darkmodebtn" class="darkmodeblock" onclick="onDarkMode()">       
+                    <div id="darkmodebtn" class="darkmodeblock">       
                         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
                             <g id="_25-day_and_night" data-name="25-day and night" transform="translate(0 0)">
                                 <path id="Path_1" data-name="Path 1" d="M63.707.293a1,1,0,0,0-1.414,0l-62,62a1,1,0,1,0,1.414,1.414l62-62a1,1,0,0,0,0-1.414Z"/>
@@ -540,11 +644,13 @@ function onDarkMode(){
     <div class="footer bg-dark">
         <div class="row">
             <div class="col-sm-8 col-8 text-end copyrighttext">${messageSource.getMessage('jws.copywright©')} <a href = "https://www.trigyn.com?utm_source=JQuiver&utm_medium=organic" target="_blank" rel="noopener noreferrer">${messageSource.getMessage('jws.trigyntech')}</a></div>
-           <div class="col-sm-4 col-4 text-end teamtext"><a href = "${(contextPath)!''}${(viewPath)!''}/team" target="_blank">${(jquiverVersion)!'1.0.0'}</a></div>
+           <div class="col-sm-4 col-4 text-end teamtext"></div>
         </div>
     </div>
 </footer>
 <div id="divNotificationView"></div>
+<!-- Use type="module" if using import/export syntax in your JS -->
+<!--<script type="module" src="${contextPath}/webjars/1.0/static/js/custom/interceptor-setup.js"></script>-->
 </body>
 
 

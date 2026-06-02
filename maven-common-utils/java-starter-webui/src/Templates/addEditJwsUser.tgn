@@ -249,6 +249,9 @@
          if(${jwsUser?api.getIsActive()} == 1){ 
          	 $("#isActive").prop("checked",true);
          }
+         else{ 
+         	 $("#isActive").prop("checked",false);
+         }
         <#if userRoleIds??>    
           <#list userRoleIds as roleId>
               $("#${roleId}").attr("checked",true);

@@ -124,23 +124,25 @@ public class PropertyMasterDetails {
 		try {
 			String				xssPatternJson	= getSystemPropertyValue("xssPattern");
 			ObjectMapper		objectMapper	= new ObjectMapper();
-			List<XSSPattern>	patterns		= objectMapper.readValue(xssPatternJson,
-					new TypeReference<List<XSSPattern>>() {
-														});
-			String				prettyJson		= objectMapper.writerWithDefaultPrettyPrinter()
-					.writeValueAsString(xssPatternJson);
-			logger.debug("====Print as Pretty Printer XssPatternJson===" + prettyJson);
-			for (XSSPattern xssPattern : patterns) {
-				Pattern pattern = null;
-				if (null != xssPattern.getPatterns()) {
-					int flags = PatternFlagResolver.getFlagsFromNames(xssPattern.getPatterns());
-					pattern = Pattern.compile(xssPattern.getRegex(), flags);
-				} else {
-					pattern = Pattern.compile(xssPattern.getRegex());
+			
+			if(xssPatternJson != null) {
+				List<XSSPattern>	patterns		= objectMapper.readValue(xssPatternJson,
+						new TypeReference<List<XSSPattern>>() {
+															});
+				String				prettyJson		= objectMapper.writerWithDefaultPrettyPrinter()
+						.writeValueAsString(xssPatternJson);
+				logger.debug("====Print as Pretty Printer XssPatternJson===" + prettyJson);
+				for (XSSPattern xssPattern : patterns) {
+					Pattern pattern = null;
+					if (null != xssPattern.getPatterns()) {
+						int flags = PatternFlagResolver.getFlagsFromNames(xssPattern.getPatterns());
+						pattern = Pattern.compile(xssPattern.getRegex(), flags);
+					} else {
+						pattern = Pattern.compile(xssPattern.getRegex());
+					}
+					xssPatternList.add(pattern);
 				}
-				xssPatternList.add(pattern);
 			}
-
 		} catch (Exception e) {
 			logger.error("Error while fetching XSSPattern" + e.getMessage());
 			throw new IllegalArgumentException("Error while fetching XSSPattern" + e.getMessage());

@@ -1,0 +1,164 @@
+<head>
+<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+
+<style>
+    .modal {
+    z-index: 1050; /* default */
+    }
+
+    .modal-backdrop {
+    z-index: 1040; /* default backdrop */
+    }
+
+    /* when multiple modals are open */
+    .modal.show + .modal-backdrop {
+    z-index: 1060;
+    }
+
+    .modal.modal-stack {
+    z-index: 1070 !important; /* ensure on top */
+    }
+
+    /* Boost jQuery UI dialog above Bootstrap modals */
+    .ui-dialog {
+    z-index: 2000 !important;
+    }
+    .ui-widget-overlay {
+    z-index: 1999 !important;
+    }
+
+    .ml-selected-items-div{
+        max-height:170px !important;
+    }
+
+</style>
+</head>
+
+<div class="col-lg-12 col-12">          
+    <div class="col-inner-form full-form-fields">                 
+        <label for="linkModuleName" style="white-space:nowrap">
+            <span class="asteriskmark">*</span>
+            Module Name
+        </label>
+        <div class="search-cover">  
+            <input type="hidden" data-type="text" id="linkModuleName" name="linkModuleName"  value="" >
+            <input class="form-control" id="linkModuleNameAutocomplete" type="text" value="" >
+            <i class="fa fa-search" aria-hidden="true"></i>
+        </div>                   
+    </div>              
+</div>
+
+<script>
+contextPath = "${(contextPath)!''}";	
+let linkModuleMultiselect;
+$(function () {	
+    $(document).on('show.bs.modal', '.modal', function () {
+        var zIndex = 1050 + (10 * $('.modal:visible').length);
+        $(this).css('z-index', zIndex);
+        setTimeout(() => {
+            $('.modal-backdrop').not('.modal-stack')
+                .css('z-index', zIndex - 1)
+                .addClass('modal-stack');
+        }, 0);
+    });
+	 linkModuleMultiselect = $("#linkModuleNameAutocomplete").multiselect({
+            autocompleteId: "getBusinessModuleName",
+            enableClearAll: true,
+            render: function(item) {
+                var renderStr ='';
+                if(item.emptyMsg == undefined || item.emptyMsg === '')
+                {
+                    renderStr = '<p>'+item.moduleName+'</p>';
+                }
+                else
+                {
+                    renderStr = item.emptyMsg;	
+                }	    				        
+                return renderStr;
+            },
+            extractText: function(item) {
+                return item.moduleName;
+            },
+            selectedItemRender: function(item){
+                return item.moduleName;
+            },
+            select: function(item) {
+                $("#linkModuleNameAutocomplete").blur();
+                linkModuleMultiselect.setSelectedObject(item);
+                if(moduleIdList.includes(item.moduleId) == false) {
+                    moduleIdList.push(item.moduleId);
+                }
+                let index = deleteModuleIdList.indexOf(item.moduleId);
+                if (index !== -1) {
+                    deleteModuleIdList.splice(index, 1); 
+                }
+                if(newAddedModuleIdList.includes(item.moduleId) == false && existingModuleIdList.includes(item.moduleId) == false) {
+                    newAddedModuleIdList.push(item.moduleId);
+                }        
+            }, 	
+        });
+
+        linkModuleMultiselect.createElementForMultiselect =  function(context, multiselectId, itemData) {
+            if(context.options.duplicateCheckRule(context.selectedObjects, itemData) == false) {
+                const element = context.options.selectedItemRender(itemData);
+                /**Written for preventing Cross Site Scripting*/
+                var moduleName = element;
+                encodedName = $('<div />').text(moduleName).html();
+                /**Ends Here*/
+                let listLinkModuleElement = $("<li id='"+itemData.moduleId+"_li'></li>");
+                let liId = listLinkModuleElement[0].id;
+            
+                if(liId == itemData.moduleId+"_li"){     
+                    let itemSpan = $('<span class="ml-selected-item" id="'+itemData.moduleId+'">'+encodedName+'</span>');
+                    listLinkModuleElement.append(itemSpan);
+                    let deleteItemcontext = $('<span class="float-right closeicon"><i class="fa-regular fa-circle-xmark" aria-hidden="true"></i></span>');
+                    deleteItemcontext.data("selected-item", itemData);
+                    listLinkModuleElement.append(deleteItemcontext);
+                    $("#linkModuleNameAutocomplete_selectedOptions_ul").append(listLinkModuleElement);
+                    var deleteItem = function(event) {
+                        deleteData = $(deleteItemcontext).data("selected-item");
+                        deleteModuleIdList.push(deleteData.moduleId);
+                        const index = moduleIdList.indexOf(deleteData.moduleId);
+                        if (index !== -1) {
+                            moduleIdList.splice(index, 1); 
+                        }
+                        const newIndex = newAddedModuleIdList.indexOf(deleteData.moduleId);
+                        if (newIndex !== -1) {
+                            newAddedModuleIdList.splice(newIndex, 1); 
+                        }
+
+                        context.deleteItem.apply(deleteItemcontext, [multiselectId, deleteData, context]);                        
+                    };
+                        deleteItemcontext.click(deleteItem);  
+                    let noOfElements = parseInt($("#"+multiselectId+"_count > span").text());
+                    $("#"+multiselectId+"_count > span").text(noOfElements+1);
+                    $("#"+multiselectId+"_count").removeClass("disable_cls");
+                    $("#"+multiselectId+"_count > span" ).css("pointer-events","auto");
+                    context.selectedObjects.push(itemData);   
+                } 
+            }else{
+                showMessage("${messageSource.getMessage('jws.datapresentinlist')}", "info")
+            }
+            $(context.element).val("");   
+        }
+
+        linkModuleMultiselect.setSelectedObject = function (item){
+            linkModuleMultiselect.createElementForMultiselect(this, this.element[0].id, item);
+            return this.selectedObject;
+        }
+        
+        linkModuleMultiselect.options.duplicateCheckRule = function(list, obj) {
+            var iCounter;
+            for (iCounter = 0; iCounter < list.length; iCounter++) {
+                if (list[iCounter].moduleId === obj.moduleId) {
+                    return true;
+                }
+            }
+            return false;
+        }
+       
+	});
+    
+</script>

@@ -141,7 +141,6 @@ public final class CaptchaUtil {
 		boolean			isEven	= true;
 		int				charCounter	= 0;
 		for (char c : captchaStr.toCharArray()) {
-			// System.out.println(gRPNV(15, -15));
 			orig = ((Graphics2D) graphics).getTransform();
 			orig.rotate(Math.toRadians(gRPNV(20, -20)), 0, 0);
 			Font rotatedFont = font.deriveFont(orig);
@@ -193,8 +192,6 @@ public final class CaptchaUtil {
 		}
 
 		for (int iVerticalCounter = 0; iVerticalCounter < verticalCount; iVerticalCounter++) {
-			//System.out.println("CaptchaGeneratorServlet.drawLines() " +
-			//iVerticalCounter);
 			graphics.drawLine(15 * iVerticalCounter, 2, 15 * iVerticalCounter, size.height);
 		}
 	}
@@ -294,7 +291,6 @@ public final class CaptchaUtil {
 	}
 
 	public static Map<String, String> getMathCaptcha() {
-		//System.out.println("MathCaptcha.main()");
 		Map<String, String>	captchaMap		= new HashMap<>();
 		int					firstPart		= getRandomNumber(1, 10);
 		int					secondPart		= getRandomNumber(1, 10);

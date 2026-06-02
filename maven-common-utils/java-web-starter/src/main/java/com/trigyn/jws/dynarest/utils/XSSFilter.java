@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,10 +12,13 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 
 import jakarta.servlet.FilterChain;
@@ -38,6 +42,9 @@ public class XSSFilter extends OncePerRequestFilter {
 	@Autowired
 	private PropertyMasterDetails propertyMasterDetails = null;
 
+	@Autowired
+	private PropertyMasterService	propertyMasterService	= null;
+	
 	private static final Pattern BASE64_PATTERN = Pattern.compile("^[A-Za-z0-9+/]+={0,2}$");
 	private static final Pattern HEX_PATTERN = Pattern.compile("^[0-9a-fA-F]+$");
 
@@ -45,7 +52,6 @@ public class XSSFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		try {
 			String methodType = request.getMethod();
-			request.getRequestURL();
 
 			// Only check login requests
 //			if ("/cf/login".equals(request.getServletPath()) && "POST".equalsIgnoreCase(request.getMethod())) {
@@ -80,22 +86,41 @@ public class XSSFilter extends OncePerRequestFilter {
 				}
 
 			}
-			String base_Url = propertyMasterDetails.getSystemPropertyValue("base-url");
-			String allowedHost = normalizeHost(base_Url);
-			String incomingHost = normalizeHost(request.getHeader("Host"));
-
-//			if (null != allowedHost && (null == incomingHost || !allowedHost.equals(incomingHost))) {
+			/**
+			 * Removed the below block of code as it is causing different issues at
+			 * different scenarios. One of the case, is where OAuth authentication is hrsSIT
+			 * is not working, and redirecting to Invalid Request page, if cache is cleared.
+			 */
+//			String baseUrl = propertyMasterDetails.getSystemPropertyValue("base-url");
+//			String referrerUrl = request.getHeader("referer");
+//			String xForwardedHost = normalizeHost(request.getHeader("x-forwarded-host"));
+//			String allowedHost = normalizeHost(baseUrl);
+//			String	uri						= request.getRequestURI();
+//
+//			String	schedulerUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url");
+//			if (uri != null && schedulerUrlProperty != null && uri.contains("/" + schedulerUrlProperty + "/") == false
+//					&& (null == baseUrl || (null != referrerUrl && referrerUrl.startsWith(baseUrl) == false)
+//							|| (null != xForwardedHost && xForwardedHost.equals(allowedHost) == false))) {
+//				System.out.println("baseUrl ## " + baseUrl);
+//				System.out.println("referrerurl ## " + referrerUrl);
+//				System.out.println("xforwarededHost ## " + xForwardedHost);
+//
 //				fileUtilities.customSendError(response, HttpServletResponse.SC_BAD_REQUEST, "Invalid Request");
 //				return;
 //			}
 
 			filterChain.doFilter(request, response);
-		} catch (Throwable e) {
-//			e.printStackTrace();
-			logger.error("Error in Cross-Site Scripting Filter", e.getMessage());
-//			String errorMessage = e.getCause().getMessage();
-			fileUtilities.customSendError(response, HttpServletResponse.SC_BAD_REQUEST,
-					e.getMessage());
+		} catch (CustomStopException custStopException) {
+			logger.error("Custom stop exception caught.", custStopException);
+			throw custStopException;
+		} catch (Exception excp) {
+			excp.printStackTrace();
+			logger.error("Error in Cross-Site Scripting Filter", excp.getMessage());
+			String errorMessage = excp.getMessage();
+			if (excp.getCause() != null && excp.getCause().getMessage() != null) {
+				errorMessage = excp.getCause().getMessage();
+			}
+			fileUtilities.customSendError(response, HttpServletResponse.SC_BAD_REQUEST, errorMessage);
 			return;
 		}
 	}

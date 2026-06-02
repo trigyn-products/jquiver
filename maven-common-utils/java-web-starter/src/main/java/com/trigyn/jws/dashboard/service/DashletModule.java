@@ -116,7 +116,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 				DashletExportVO		dashletExportVO	= new DashletExportVO(dashlet.getDashletId(), dashlet.getDashletName(),
 						dashlet.getDashletTitle(), dashlet.getXCoordinate(), dashlet.getYCoordinate(), dashlet.getWidth(),
 						dashlet.getHeight(),dashlet.getShowHeader(), dashlet.getIsActive(),
-						dashlet.getDashletTypeId(), selectQuery + ftlCustomExtension, htmlBody + ftlCustomExtension,dashlet.getProperties(),dashlet.getDaoQueryType(),dashlet.getResultVariableName());
+						dashlet.getDashletTypeId(), selectQuery + ftlCustomExtension, htmlBody + ftlCustomExtension,dashlet.getProperties(),dashlet.getDaoQueryType(),dashlet.getResultVariableName(),dashlet.getDatasourceId());
 
 				Map<String, Object>	map				= new HashMap<>();
 				map.put("moduleName", dashletName);
@@ -305,7 +305,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 			DashletExportVO		dashletExportVO	= new DashletExportVO(dashlet.getDashletId(), dashlet.getDashletName(),
 					dashlet.getDashletTitle(), dashlet.getXCoordinate(), dashlet.getYCoordinate(), dashlet.getWidth(), dashlet.getHeight(),
 					dashlet.getShowHeader(), dashlet.getIsActive(), dashlet.getDashletTypeId(),
-					selectQuery + ftlCustomExtension, htmlBody + ftlCustomExtension,dashlet.getProperties(),dashlet.getDaoQueryType(),dashlet.getResultVariableName());
+					selectQuery + ftlCustomExtension, htmlBody + ftlCustomExtension,dashlet.getProperties(),dashlet.getDaoQueryType(),dashlet.getResultVariableName(),dashlet.getDatasourceId());
 
 			Map<String, Object>	map				= new HashMap<>();
 			map.put("moduleName", dashletName);
@@ -375,6 +375,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 				dashlet.setYCoordinate(dashletExportVO.getyCoordinate());
 				dashlet.setDaoQueryType(dashletExportVO.getDaoQueryType());
 				dashlet.setResultVariableName(dashletExportVO.getResultVariableName());
+				dashlet.setDatasourceId(dashletExportVO.getDatasourceId());
 				List<DashletProperties> dpOtr = new ArrayList<>();
 				if (dashletExportVO.getProperties() != null && !dashletExportVO.getProperties().isEmpty()) {
 					for (DashletProperties obj : dashletExportVO.getProperties()) {
@@ -446,6 +447,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 		dashletVO.setDaoQueryType(dashlet.getDaoQueryType());
 		dashletVO.setResultVariableName(dashlet.getResultVariableName());
 		dashletVO.setDashletTypeId(dashlet.getDashletTypeId());
+		dashletVO.setDataSourceId(dashlet.getDatasourceId());
 		List<DashletPropertyVO> dpOtr = new ArrayList<>();
 		if (dashlet.getProperties() != null && !dashlet.getProperties().isEmpty()) {
 			for (DashletProperties obj : dashlet.getProperties()) {
@@ -454,7 +456,15 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 			dashletVO.setDashletPropertVOList(dpOtr);
 		} else
 			dashletVO.setDashletPropertVOList(null);
-		
+		dashletVO.setCreatedBy(dashlet.getCreatedBy());
+		dashletVO.setCreatedDate(dashlet.getCreatedDate());
+		dashletVO.setUpdatedBy(dashlet.getUpdatedBy());
+		dashletVO.setDashletQueryChecksum(dashlet.getDashletQueryChecksum());
+		dashletVO.setDashletBodyChecksum(dashlet.getDashletBodyChecksum());
+		dashletVO.setDashletTypeId(dashlet.getDashletTypeId());
+		dashletVO.setDaoQueryType(dashlet.getDaoQueryType());
+		dashletVO.setIsCustomUpdated(dashlet.getIsCustomUpdated());
+		dashletVO.setLastUpdatedTs(dashlet.getLastUpdatedTs());
 		return dashletVO;
 	}
 }

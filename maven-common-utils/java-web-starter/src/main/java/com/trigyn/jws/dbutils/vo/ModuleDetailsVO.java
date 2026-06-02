@@ -1,6 +1,7 @@
 package com.trigyn.jws.dbutils.vo;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,6 +37,10 @@ public class ModuleDetailsVO implements Serializable {
 	private Integer				openInNewTab		= null;
 	private String				menuStyle			= null;
 	private Integer				isHomePage			= null;//Added for isHomePage
+	private Integer				isCustomUpdated		= null;
+	private String				lastUpdatedBy		= null;
+	private Date				updatedDate			= null;
+	private Integer				moduleTypeId		= null;
 
 	public ModuleDetailsVO() {
 
@@ -104,6 +109,34 @@ public class ModuleDetailsVO implements Serializable {
 		this.openInNewTab		= openInNewTab;
 		this.menuStyle 			= menuStyle;
 		this.isHomePage = isHomePage;
+	}
+
+	public ModuleDetailsVO(String moduleId, String moduleName, String moduleUrl, String parentModuleId,
+			String parentModuleName, Integer sequence, Integer isInsideMenu, Integer includeLayout,
+			Integer targetLookupId, String targetLookupDesc, String targetLookupName, String targetTypeId,
+			String headerJson, String requestParamJson, Integer openInNewTab, String menuStyle, Integer isHomePage,
+			Integer isCustomUpdated, String lastUpdatedBy, Date updatedDate, Integer moduleTypeId) {
+		this.moduleId			= moduleId;
+		this.moduleName			= moduleName;
+		this.moduleUrl			= moduleUrl;
+		this.parentModuleId		= parentModuleId;
+		this.parentModuleName	= parentModuleName;
+		this.sequence			= sequence;
+		this.isInsideMenu		= isInsideMenu;
+		this.includeLayout		= includeLayout;
+		this.targetLookupId		= targetLookupId;
+		this.targetLookupDesc	= targetLookupDesc;
+		this.targetLookupName	= targetLookupName;
+		this.targetTypeId		= targetTypeId;
+		this.headerJson			= headerJson;
+		this.requestParamJson	= requestParamJson;
+		this.openInNewTab		= openInNewTab;
+		this.menuStyle			= menuStyle;
+		this.isHomePage			= isHomePage;
+		this.isCustomUpdated	= isCustomUpdated;
+		this.lastUpdatedBy		= lastUpdatedBy;
+		this.updatedDate		= updatedDate;
+		this.moduleTypeId		= moduleTypeId;
 	}
 
 	public String getModuleId() {
@@ -355,4 +388,36 @@ public class ModuleDetailsVO implements Serializable {
 		this.isHomePage = isHomePage;
 	}
 	// Ends Here
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
+	public String getLastUpdatedBy() {
+		return lastUpdatedBy;
+	}
+
+	public void setLastUpdatedBy(String lastUpdatedBy) {
+		this.lastUpdatedBy = lastUpdatedBy;
+	}
+
+	public Date getUpdatedDate() {
+		return updatedDate;
+	}
+
+	public void setUpdatedDate(Date updatedDate) {
+		this.updatedDate = updatedDate;
+	}
+
+	public Integer getModuleTypeId() {
+		return moduleTypeId;
+	}
+
+	public void setModuleTypeId(Integer moduleTypeId) {
+		this.moduleTypeId = moduleTypeId;
+	}
 }

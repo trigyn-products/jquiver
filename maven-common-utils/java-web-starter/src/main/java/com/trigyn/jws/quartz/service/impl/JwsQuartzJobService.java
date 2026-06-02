@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.trigyn.jws.quartz.config.QuartzSchedulerConfig;
 import com.trigyn.jws.quartz.service.IJwsQuartzJobService;
 import com.trigyn.jws.quartz.util.JobUtil;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
 
 @Service
 @Transactional
@@ -51,6 +52,9 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 	
 	@Autowired
 	private ServerProperties serverProperties 			= null;
+	
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
 
 	/**
 	 * Schedule a job by jobName at given date.
@@ -479,16 +483,21 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 		return false;
 	}
 	
-	public String getBaseUrl() throws UnknownHostException {
-        String	resultPath = "";
-		if (serverProperties != null) {
-			String	scheme		= serverProperties.getSsl() != null && serverProperties.getSsl().isEnabled() ? "https" : "http";
-			
-			String	serverName	= InetAddress.getLocalHost().getHostAddress();
-			int		serverPort	= serverProperties.getPort();
-			resultPath	= scheme + "://" + serverName + ":" + serverPort;
-		}
-		return resultPath;
-  }
+//	public String getBaseUrl() throws UnknownHostException {
+//        String	resultPath = "";
+//		if (serverProperties != null) {
+//			String	scheme		= serverProperties.getSsl() != null && serverProperties.getSsl().isEnabled() ? "https" : "http";
+//			
+//			String	serverName	= InetAddress.getLocalHost().getHostAddress();
+//			int		serverPort	= serverProperties.getPort();
+//			resultPath	= scheme + "://" + serverName + ":" + serverPort;
+//		}
+//		return resultPath;
+//  }
+	
+public String getBaseUrl() throws UnknownHostException {
+	String resultPath = jQuiverPropeties.getBaseUrl();
+	return resultPath;
+}
 
 }

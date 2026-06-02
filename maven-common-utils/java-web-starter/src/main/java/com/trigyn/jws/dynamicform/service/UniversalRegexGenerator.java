@@ -83,7 +83,7 @@ public class UniversalRegexGenerator {
 		switch (baseType) {
 			case Constant.BASETYPE_STRING:
 				int length = getStringLength(meta, columnIndex, productName);
-				if (Constant.UNIQUEID.equalsIgnoreCase(dataType) && Constant.MSSQL.equalsIgnoreCase(productName)) {
+				if ((Constant.UNIQUEID.equalsIgnoreCase(dataType) && Constant.MSSQL.equalsIgnoreCase(productName)) ||  (Constant.UUID.equalsIgnoreCase(dataType) && Constant.POSTGRESQL.equalsIgnoreCase(productName))) {
 					strictPattern
 							.append(Constant.UNIQUEID_REGEX);
 				} else {
@@ -95,7 +95,14 @@ public class UniversalRegexGenerator {
 				long maxValue = getMaxIntegerValue(meta.getColumnType(columnIndex));
 				int maxDigits = String.valueOf(Math.abs(maxValue)).length();
 				int digits = Math.min(precision > 0 ? precision : maxDigits, maxDigits);
-				strictPattern.append("-?\\d{1,").append(digits).append("}");
+				if (Constant.TINYINT.equalsIgnoreCase(dataType) && Constant.MARIA_DB.equalsIgnoreCase(productName)) {
+					strictPattern.append(Constant.TINYINT_REGEX_MARIADB);
+				} else if (Constant.TINYINT.equalsIgnoreCase(dataType)
+						&& Constant.MSSQL.equalsIgnoreCase(productName)) {
+					strictPattern.append(Constant.TINYINT_REGEX_MSSQL);
+				} else {
+					strictPattern.append("-?\\d{1,").append(digits).append("}");
+				}
 				break;
 
 			case Constant.BASETYPE_DECIMAL:
@@ -109,6 +116,8 @@ public class UniversalRegexGenerator {
 					integerDigits = 1; // prevent invalid {1,0}
 				if ((Constant.MSSQL.equalsIgnoreCase(productName)) && Constant.BASETYPE_DECIMAL.equalsIgnoreCase(baseType)) {
 					strictPattern.append(Constant.DECIMAL_REGEX);
+				} else if((Constant.POSTGRESQL.equalsIgnoreCase(productName)) && Constant.BASETYPE_DECIMAL.equalsIgnoreCase(baseType)) {
+					strictPattern.append(Constant.DECIMAL_REGEX_POST_GRES);
 				} else {
 					strictPattern.append("-?\\d{1,").append(integerDigits).append("}");
 					if (scale > 0) {

@@ -24,6 +24,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.CollectionUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
@@ -105,8 +106,15 @@ public class JwsMailScheduleJob extends QuartzJobBean {
 
 		JobDataMap jobDataMap = context.getMergedJobDataMap();
 		String dynamicRestUrl = (String) jobDataMap.get("dynamicRestUrl");
-		Map<String, Object> requestParams = (Map<String, Object>) jobDataMap.get("requestParams");
+		String requestParams = (String) jobDataMap.get("requestParams");
+
+		Map<String, Object> requestMap = new HashMap<>();
+		
 		try {
+			if(requestParams != null) {
+				ObjectMapper objectMapper = new ObjectMapper();
+	            requestMap = objectMapper.readValue(requestParams, HashMap.class);
+			}
 			String groupId = (String) jobDataMap.get("mailSenderGroupId");
 			if (groupId.isEmpty() == false && groupId.isBlank() == false && null != groupId) {
 				List<MailSchedule> mh = mScheduleRepository.findBySendorGroupId(groupId);
@@ -117,7 +125,8 @@ public class JwsMailScheduleJob extends QuartzJobBean {
 						emailVo.setMailSchedule(emailXMLVO);
 						emailVo.setMailScheduleId(emailXMLVO.getMailScheduleId());
 						emailVo.setMailSenderGroupId(groupId);
-						emailVo.setRequestParams(requestParams);
+						
+						emailVo.setRequestParams(requestMap);
 						sendMail(emailVo);
 					}
 				}
@@ -128,9 +137,9 @@ public class JwsMailScheduleJob extends QuartzJobBean {
 			throw custStopException;
 		} catch (Throwable a_thr) {
 			a_thr.printStackTrace();
-			if(requestParams != null && requestParams.containsKey("dynamicRestUrl") != true) {
+			if(requestParams != null && requestMap.containsKey("dynamicRestUrl") != true) {
 				logger.error(
-					"Error occurred while sending email in " + "Rest API" + " : " + requestParams.get("dynamicRestUrl"),
+					"Error occurred while sending email in " + "Rest API" + " : " + requestMap.get("dynamicRestUrl"),
 					a_thr);
 			} else {
 				logger.error(

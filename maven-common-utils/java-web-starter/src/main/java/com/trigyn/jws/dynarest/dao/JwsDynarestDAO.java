@@ -1,6 +1,7 @@
 package com.trigyn.jws.dynarest.dao;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -14,12 +15,15 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import com.trigyn.jws.dbutils.entities.JwsBusinessModule;
+import com.trigyn.jws.dbutils.entities.JwsBusinessModuleEntity;
 import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.dynarest.entities.JqSchedulerLog;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 import com.trigyn.jws.dynarest.utils.Constants;
+import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryConnection;
 import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryDetails;
 import com.trigyn.jws.webstarter.utils.RedissonQueryCacheManagerUtil;
 
@@ -196,6 +200,97 @@ public class JwsDynarestDAO extends DBConnection {
 
 		return resultMap;
 	}
+	
+	public ScriptLibraryDetails getScriptLibDetails(String scriptLibId) {
+	    Query querySQL = getCurrentSession().createNativeQuery(
+	        "SELECT * FROM jq_script_lib_details WHERE script_lib_id = :scriptLibId",
+	        ScriptLibraryDetails.class);
+
+	    querySQL.setParameter("scriptLibId", scriptLibId);
+
+	    // Return single result safely
+	    List<ScriptLibraryDetails> results = querySQL.getResultList();
+	    return results.isEmpty() ? null : results.get(0);
+	}
+	
+	public List<ScriptLibraryConnection> getscriptLibraryConnDetails(String scriptLibId, String entityId, String moduleId) {
+	    if (moduleId.equals(Constant.FILEBINMODID)) {
+	        List<String> entityIds = Arrays.asList(
+	            "upload_" + entityId,
+	            "view_" + entityId,
+	            "delete_" + entityId
+	        );
+
+	        Query querySQL = getCurrentSession().createNativeQuery(
+	            "SELECT * FROM jq_script_lib_connect " +
+	            "WHERE script_lib_id = :scriptLibId " +
+	            "AND entity_id IN (:entityIds) " +
+	            "AND module_type_id = :moduleId",
+	            ScriptLibraryConnection.class
+	        );
+
+	        querySQL.setParameter("scriptLibId", scriptLibId);
+	        querySQL.setParameterList("entityIds", entityIds);
+	        querySQL.setParameter("moduleId", moduleId);
+
+	        return querySQL.list();
+	    }
+
+	    // fallback if not FILEBINMODID
+	    Query querySQL = getCurrentSession().createNativeQuery(
+	        "SELECT * FROM jq_script_lib_connect " +
+	        "WHERE script_lib_id = :scriptLibId " +
+	        "AND entity_id = :entityId " +
+	        "AND module_type_id = :moduleId",
+	        ScriptLibraryConnection.class
+	    );
+	    querySQL.setParameter("scriptLibId", scriptLibId);
+	    querySQL.setParameter("entityId", entityId);
+	    querySQL.setParameter("moduleId", moduleId);
+
+	    return querySQL.list();
+	}
+
+	
+	public JwsBusinessModule getBusinessModuleDetails(String businessModuleId) {
+	    Query querySQL = getCurrentSession().createNativeQuery(
+	        "SELECT * FROM jq_business_module WHERE business_module_id = :businessModuleId",
+	        JwsBusinessModule.class);
+
+	    querySQL.setParameter("businessModuleId", businessModuleId);
+
+	    // Return single result safely
+	    List<JwsBusinessModule> results = querySQL.getResultList();
+	    return results.isEmpty() ? null : results.get(0);
+	}
+	
+	public List<String> getdynamicFormQueryID(String dynamicformId) {
+		Query querySQL = getCurrentSession().createNativeQuery(
+				"SELECT dynamic_form_query_id FROM jq_dynamic_form_save_queries WHERE dynamic_form_id = :dynamicformId", String.class);
+		querySQL.setParameter("dynamicformId", dynamicformId);
+		List<String> dynamicFormSaveQueryList = querySQL.list();
+		return dynamicFormSaveQueryList;
+	}
+
+	
+	public List<String> getmoduleDetailsId(String entityId, String moduleId) {
+		Query querySQL = getCurrentSession().createNativeQuery(
+				"SELECT business_module_id FROM jq_business_module_entity_details" + " WHERE entity_id = :entityId AND module_id = :moduleId", String.class);
+		querySQL.setParameter("entityId", entityId);
+		querySQL.setParameter("moduleId", moduleId);
+		List<String> businessModuleIdList = querySQL.list();
+		return businessModuleIdList;
+	}
+	
+	public List<JwsBusinessModuleEntity> getBusinessModuleEntityDetails(String businessModuleId,String entityId, String moduleId) {
+		Query querySQL = getCurrentSession().createNativeQuery(
+				"SELECT * FROM jq_business_module_entity_details" + " WHERE business_module_id = :businessModuleId AND entity_id = :entityId AND module_id = :moduleId", JwsBusinessModuleEntity.class);
+		querySQL.setParameter("businessModuleId", businessModuleId);
+		querySQL.setParameter("entityId", entityId);
+		querySQL.setParameter("moduleId", moduleId);
+		List<JwsBusinessModuleEntity> businessModuleIdList = querySQL.list();
+		return businessModuleIdList;
+	}
 
 	public List<String> getscriptLibId(String entityId) {
 		Query querySQL = getCurrentSession().createNativeQuery(
@@ -219,6 +314,15 @@ public class JwsDynarestDAO extends DBConnection {
 		deleteScriptLibQuery.setParameter("entityid", entityid);
 		int resultSetDelete = deleteScriptLibQuery.executeUpdate();
 	}
+	
+	@Transactional
+	public void businessModEntityDeleteById(String entityid) {
+		MutationQuery deleteBusinessModEntities = getCurrentSession()
+				.createNativeMutationQuery("delete from jq_business_module_entity_details" + " where entity_id=:entityid AND module_id=:moduleid");
+		deleteBusinessModEntities.setParameter("entityid", entityid);
+		deleteBusinessModEntities.setParameter("moduleid", Constant.SCHEDULER_MOD_ID);
+		int resultSetDelete = deleteBusinessModEntities.executeUpdate();
+	}
 
 	public List<JwsDynamicRestDetail> getAllDynamicRestDetails(Integer dynamicRestTypeId) {
 		Query query = getCurrentSession().createQuery(
@@ -234,6 +338,38 @@ public class JwsDynarestDAO extends DBConnection {
 		if (scriptLibrary != null)
 			getCurrentSession().evict(scriptLibrary);
 		return scriptLibrary;
+	}
+	
+	public String matchDynaRestUrl(String requestUri) {
+		Query<String> restUrlQuery = getCurrentSession().createQuery(
+				"SELECT DISTINCT jdrd.jwsDynamicRestUrl FROM JwsEntityRoleAssociation jera "
+						+ "INNER JOIN JwsDynamicRestDetail jdrd ON jera.entityId = jdrd.jwsDynamicRestId "
+						+ "INNER JOIN JwsRole jr ON jera.roleId = jr.roleId " + "WHERE jera.isActive = :isActive ",
+				String.class);
+
+		restUrlQuery.setParameter("isActive", Constants.ISACTIVE);
+		List<String> dynamicUrls = restUrlQuery.getResultList();
+
+		for (String dynamicUrl : dynamicUrls) {
+			String regex = convertToRegex(dynamicUrl);
+			if (requestUri.matches(regex)) {
+				return dynamicUrl;
+			}
+		}
+		return null;
+	}
+
+	private String convertToRegex(String dynamicUrl) {
+		String regex = dynamicUrl.replace(".", "\\\\.");
+		if (regex.endsWith("/**")) {
+			regex = regex.substring(0, regex.length() - 3) + "(?:/.*)?";
+		} else {
+			String tempDoubleStarPlaceholder = "__DOUBLE_STAR_PLACEHOLDER__";
+			regex	= regex.replace("**", tempDoubleStarPlaceholder);
+			regex	= regex.replace("*", "[^/]+");
+			regex	= regex.replace(tempDoubleStarPlaceholder, "(?:/.*)?");
+		}
+		return "^" + regex + "$";
 	}
 
 }

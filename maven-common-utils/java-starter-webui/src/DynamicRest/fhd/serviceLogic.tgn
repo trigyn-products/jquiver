@@ -7,7 +7,7 @@ function fetchHeaderData(){
 	
     params.put("manualId", requestDetails["manualId"]);
        
-    var queryResult = jq_getDBResult("SELECT name, header_template FROM jq_manual_type WHERE manual_id =  :manualId  ", null, params);    
+    var queryResult = jq_getDBResult("SELECT jmt.name AS name, jmt.header_template AS header_template, jmt.editor_name AS editorId FROM jq_manual_type jmt WHERE manual_id =  :manualId  ", null, params);    
         if(queryResult != null) {
             return queryResult.data_list[0];
         }

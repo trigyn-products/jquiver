@@ -594,6 +594,7 @@ public class UserManagementService {
 			authenticationDetails.put("authenticationDetails", multiAuthSecurityDetails);
 			authenticationDetails.put("authenticationTypes", authenticationTypes);
 
+			authenticationDetails.put("adminEmailId", propertyMasterDetails.getSystemPropertyValue("adminEmailId"));
 			return menuService.getTemplateWithSiteLayout("user-management", authenticationDetails);
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured while loading User Management page.", custStopException);
@@ -628,7 +629,6 @@ public class UserManagementService {
 			String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 					templateVO.getTemplateName(), mailDetails);
 			email.setBody(mailBody);
-			// System.out.println(mailBody);
 			sendMailService.sendTestMail(email);
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured in sendMailForForcePassword.", custStopException);
@@ -658,7 +658,6 @@ public class UserManagementService {
 			String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 					templateVO.getTemplateName(), mailDetails);
 			email.setBody(mailBody);
-			// System.out.println(mailBody);
 			sendMailService.sendTestMail(email);
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured in sendMailForUserUpdate.", custStopException);
@@ -705,7 +704,6 @@ public class UserManagementService {
 			String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 					templateVO.getTemplateName(), mailDetails);
 			email.setBody(mailBody);
-			// System.out.println(mailBody);
 			List<EmailAttachedFile>	attachedFiles		= new ArrayList<>();
 			EmailAttachedFile		emailAttachedFile	= new EmailAttachedFile();
 			emailAttachedFile.setFile(file);
@@ -748,7 +746,6 @@ public class UserManagementService {
 			String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 					templateVO.getTemplateName(), mailDetails);
 			email.setBody(mailBody);
-			// System.out.println(mailBody);
 			sendMailService.sendTestMail(email);
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured in sendMailForO365Authentication.", custStopException);
@@ -1003,6 +1000,11 @@ public class UserManagementService {
 	public JwsUser findByEmailIgnoreCase(String email) {
 		return jwsUserRepository.findByEmailIgnoreCase(email);
 	}
+	
+	public String findbyEmailAndIsActive(String email) {
+		String user = jwsUserRepository.findbyEmailAndIsActive(email);
+		return user;
+	}
 
 	public String getProfilePage() throws Exception {
 
@@ -1204,7 +1206,6 @@ public class UserManagementService {
 					Integer defAuthId = defaultAuthType.getKey();
 					if (modifiedAuthTypes.containsKey(defAuthId) == false) {
 						String propertyJson = defaultAuthType.getValue();
-						//System.out.println("JSON : " + propertyJson);
 						authenticationTypeRepository.updatePropertyById(defAuthId, propertyJson);
 					} else if (modifiedAuthTypes.containsKey(defAuthId)) {
 						mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
@@ -1213,7 +1214,6 @@ public class UserManagementService {
 								modifiedAuthTypes.get(defAuthId), new TypeReference<ConnectionDetailsJSONSpecification>() {
 																					});
 						
-						//System.out.println("M-JSON : " + propertyJson);
 						if (defAuthId.equals(Constants.AuthType.DAO.getAuthType())) {
 							Map<String, Object> authenticationDetails = new HashMap<>();
 							userConfigService.getConfigurableDetails(authenticationDetails);
@@ -1221,7 +1221,6 @@ public class UserManagementService {
 							modConnSpec = escapeRegexProperties(modConnSpec);
 						}
 						String								propertyJson	= mapper.writeValueAsString(modConnSpec);
-						//System.out.println("JSON : " + propertyJson);
 						authenticationTypeRepository.updatePropertyById(defAuthId, propertyJson);
 					}
 				}
@@ -1234,7 +1233,6 @@ public class UserManagementService {
 				for (Map.Entry<Integer, String> defaultAuthType : defaultAuthTypes.entrySet()) {
 					Integer defAuthId = defaultAuthType.getKey();
 					String propertyJson = defaultAuthType.getValue();
-					//System.out.println("JSON : " + propertyJson);
 					authenticationTypeRepository.updatePropertyById(defAuthId, propertyJson);
 				}
 				
@@ -1561,7 +1559,6 @@ public class UserManagementService {
 		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 				templateVO.getTemplateName(), mailDetails);
 		email.setBody(mailBody);
-		//System.out.println(mailBody);
 		sendMailService.sendTestMail(email);
 
 	}
@@ -1608,7 +1605,6 @@ public class UserManagementService {
 		String				mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 				templateVO.getTemplateName(), mailDetails);
 		email.setBody(mailBody);
-		// System.out.println(mailBody);
 
 		List<EmailAttachedFile>	attachedFiles		= new ArrayList<>();
 		EmailAttachedFile		emailAttachedFile	= new EmailAttachedFile();
@@ -1654,7 +1650,6 @@ public class UserManagementService {
 			String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 					templateVO.getTemplateName(), mailDetails);
 			email.setBody(mailBody);
-			// System.out.println(mailBody);
 			sendMailService.sendTestMail(email);
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured in createUserForPasswordAuth.", custStopException);

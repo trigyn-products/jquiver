@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.usermanagement.entities.JwsRole;
+import com.trigyn.jws.usermanagement.entities.JwsUser;
 
 @Repository
 public interface JwsRoleRepository extends JpaRepository<JwsRole, String> {
@@ -19,5 +20,8 @@ public interface JwsRoleRepository extends JpaRepository<JwsRole, String> {
 
 	@Query("SELECT jr.roleId AS roleId FROM JwsRole jr WHERE jr.roleName IN (:roleNameList) AND jr.isActive=1 ORDER BY jr.rolePriority DESC ")
 	List<String> getRoleIdByPriority(@Param("roleNameList") List<String> roleNameList);
+	
+	
+	JwsRole findByRoleId(@Param("roleId") String roleId);
 
 }

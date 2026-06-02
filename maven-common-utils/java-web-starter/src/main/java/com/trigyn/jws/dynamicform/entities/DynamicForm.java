@@ -15,7 +15,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 
 @Entity
 @EntityListeners(value = { UUIDEntityListener.class })
@@ -71,9 +70,6 @@ public class DynamicForm {
 
 	@Column(name = "is_custom_updated")
 	private Integer						isCustomUpdated			= 1;
-
-	@Transient
-	private String						scriptLibraryId			= null;
 
 	@Column(name = "is_captcha_enabled")
 	private Integer						isCaptchaEnabled		= 0;
@@ -131,7 +127,6 @@ public class DynamicForm {
 		this.dynamicFormSaveQueries	= dynamicFormSaveQueries;
 		this.selectQueryType		= selectQueryType;
 		this.isCustomUpdated		= isCustomUpdated;
-		this.scriptLibraryId		= scriptLibraryId;
 		this.isCaptchaEnabled		= isCaptchaEnabled;
 		this.isCsrfEnabled			= isCsrfEnabled;
 		this.formIoId				= formIoId;
@@ -265,14 +260,6 @@ public class DynamicForm {
 		this.isCustomUpdated = isCustomUpdated;
 	}
 
-	public String getScriptLibraryId() {
-		return scriptLibraryId;
-	}
-
-	public void setScriptLibraryId(String scriptLibraryId) {
-		this.scriptLibraryId = scriptLibraryId;
-	}
-
 	public Integer getIsCaptchaEnabled() {
 		return isCaptchaEnabled;
 	}
@@ -312,8 +299,9 @@ public class DynamicForm {
 		obj.setFormTypeId(formTypeId);
 		obj.setLastUpdatedBy(lastUpdatedBy != null ? lastUpdatedBy.trim() : lastUpdatedBy);
 		obj.setLastUpdatedTs(lastUpdatedTs);
+		obj.setIsCustomUpdated(isCustomUpdated);
 		obj.setSelectQueryType(selectQueryType);
-		obj.setScriptLibraryId(scriptLibraryId != null ? scriptLibraryId.trim() : scriptLibraryId);
+	//	obj.setScriptLibraryId(scriptLibraryId != null ? scriptLibraryId.trim() : scriptLibraryId);
 		obj.setFormIoId(formIoId != null ? formIoId.trim() : formIoId);
 
 		List<DynamicFormSaveQuery> dfsOtr = new ArrayList<>();

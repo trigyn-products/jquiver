@@ -38,6 +38,7 @@ import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
+import com.trigyn.jws.dbutils.vo.ModuleListingVO;
 import com.trigyn.jws.dbutils.vo.ModuleTargetLookupVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.usermanagement.entities.JwsRole;
@@ -407,6 +408,10 @@ public class ModuleService {
 		vo.setIsHomePage(moduleListing.getIsHomePage());
 		vo.setMenuStyle(moduleListing.getMenuStyle());
 		vo.setOpenInNewTab(moduleListing.getOpenInNewTab());
+		vo.setIsCustomUpdated(moduleListing.getIsCustomUpdated());
+		vo.setLastUpdatedBy(moduleListing.getLastUpdatedBy());
+		vo.setModuleTypeId(moduleListing.getModuleTypeId());
+		vo.setUpdatedDate(moduleListing.getUpdatedDate());
 		return vo;
 	}
 
@@ -588,4 +593,27 @@ public class ModuleService {
 		}
 		return baseURL;
 	}
+	
+	public ModuleListingVO convertEntityToVO(ModuleListing entity) {
+	    ModuleListingVO vo = new ModuleListingVO();
+	    vo.setModuleId(entity.getModuleId());
+	    vo.setModuleUrl(entity.getModuleUrl());
+	    vo.setParentId(entity.getParentId());
+	    vo.setSequence(entity.getSequence());
+	    vo.setIsInsideMenu(entity.getIsInsideMenu());
+	    vo.setIncludeLayout(entity.getIncludeLayout());
+	    vo.setIsHomePage(entity.getIsHomePage());
+	    vo.setTargetLookupId(entity.getTargetLookupId());
+	    vo.setTargetTypeId(entity.getTargetTypeId());
+	    vo.setHeaderJson(entity.getHeaderJson());
+	    vo.setUpdatedDate(entity.getUpdatedDate());
+	    vo.setModuleTypeId(entity.getModuleTypeId());
+	    vo.setRequestParamJson(entity.getRequestParamJson());
+	    vo.setOpenInNewTab(entity.getOpenInNewTab());
+	    vo.setMenuStyle(entity.getMenuStyle());
+	    vo.setIsCustomUpdated(entity.getIsCustomUpdated());
+	    vo.setLastUpdatedBy(entity.getLastUpdatedBy());
+	    return vo;
+	}
+
 }

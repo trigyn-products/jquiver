@@ -5,6 +5,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,7 +59,6 @@ public final class DBExtractor {
 			String				executeQueryString	= "select *  from " + queryTableName;
 			ResultSet			rs					= con.createStatement().executeQuery(executeQueryString);
 			ResultSetMetaData	rsmd				= rs.getMetaData();
-
 			String				colName				= null;
 			for (int iColCounter = 1; iColCounter <= rsmd.getColumnCount(); iColCounter++) {
 				dbCol	= new HashMap<String, Object>();
@@ -68,13 +68,65 @@ public final class DBExtractor {
 				dbCol.put("tableColumnName", colName);
 				dbCol.put("columnName", colName.replace("_", ""));
 				dbCol.put("fieldName", toCamelCase(colName.replace("_", " ")));
-
 				dbCol.put("columnKey", "");
-				String	dataType	= getDataType(rsmd.getColumnTypeName(iColCounter), productName);
-				String	columnType	= null;
+				String	a_dataType	= null;
+				String	dataType	= null;
+				String	tableSchema	= con.getCatalog();
+				// Override CHAR with actual ENUM or SET for MariaDB
+				if (Constant.MARIA_DB.equalsIgnoreCase(productName)
+						&& "CHAR".equalsIgnoreCase(rsmd.getColumnTypeName(iColCounter))) {
+
+					String		queryString	= "SELECT DATA_TYPE,COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS "
+							+ "WHERE TABLE_SCHEMA = '" + tableSchema + "' " + "AND TABLE_NAME = '" + queryTableName
+							+ "' " + "AND COLUMN_NAME = '" + colName + "'";
+
+					Statement	queryStmt	= con.createStatement();
+					ResultSet	rsInfo		= queryStmt.executeQuery(queryString);
+					if (rsInfo.next()) {
+						String	actualDataType	= rsInfo.getString("DATA_TYPE");
+						String	fullColumnType	= rsInfo.getString("COLUMN_TYPE");	// e.g., enum('a','b','c')
+						if (actualDataType != null && (actualDataType.equalsIgnoreCase(Constant.ENUM)
+								|| actualDataType.equalsIgnoreCase(Constant.SET))) {
+							a_dataType = actualDataType;
+							// Extract enum/set values and add to map
+							List<String>	dbValues	= new ArrayList<>();
+							// This line removes the prefix enum( or set( and the suffix ) from the
+							// fullColumnType string.
+							String			values		= fullColumnType.replaceAll("^(enum|set)\\(|\\)$", "");
+							for (String val : values.split(",")) {
+								dbValues.add(val.replace("'", "").trim());
+							}
+							dbCol.put("dbValues", dbValues); // this will be used in FTL
+						}
+					}
+					rsInfo.close();
+					queryStmt.close();
+				} else if (Constant.POSTGRESQL.equalsIgnoreCase(productName)
+						&& "money".equalsIgnoreCase(rsmd.getColumnTypeName(iColCounter))) {
+
+					String		schemaName	= Constant.SCHEMA_POSTGRES;												// Usually
+					String		columnName	= colName.toLowerCase();
+
+					String		queryString	= "SELECT column_name, data_type FROM information_schema.columns "
+							+ "WHERE table_schema = '" + schemaName + "' " + "AND table_name = '" + queryTableName.toLowerCase().replace("\"", "") + "' "
+							+ "AND column_name = '" + columnName + "'";
+
+					Statement	queryStmt	= con.createStatement();
+					ResultSet	rsInfo		= queryStmt.executeQuery(queryString);
+					if (rsInfo.next()) {
+						String	actualDataType	= rsInfo.getString("data_type");
+						if (actualDataType != null && actualDataType.equalsIgnoreCase(Constant.MONEY)) {
+							a_dataType = actualDataType;
+						}
+					}
+					rsInfo.close();
+					queryStmt.close();
+				}
+				dataType = getDataType(rsmd.getColumnTypeName(iColCounter), productName, a_dataType);
+				String columnType = null;
 				if (dataType != null) {
 					columnType = getDBType(dataType, rsmd.getColumnType(iColCounter),
-							rsmd.getColumnDisplaySize(iColCounter), rsmd.getColumnTypeName(iColCounter));
+							rsmd.getColumnDisplaySize(iColCounter), rsmd.getColumnTypeName(iColCounter), productName);
 				}
 
 				if (null == dataType || null == columnType) {
@@ -90,7 +142,7 @@ public final class DBExtractor {
 				dbCol.put("autoIncrement", rsmd.isAutoIncrement(iColCounter));
 				if (null != dataType || null != columnType) {
 					dbCol.put("regexValidation",
-							UniversalRegexGenerator.generateRegex(rsmd, iColCounter, productName, colName,dataType));
+							UniversalRegexGenerator.generateRegex(rsmd, iColCounter, productName, colName, dataType));
 				}
 
 				dbStructure.add(dbCol);
@@ -98,6 +150,15 @@ public final class DBExtractor {
 
 			String	catalogName	= rsmd.getCatalogName(1);
 			String	schemaName	= rsmd.getSchemaName(1);
+
+			if (Constant.POSTGRESQL.equalsIgnoreCase(productName)) {
+				if (catalogName.isBlank()) {
+					catalogName = null;
+				}
+				if (schemaName.isBlank()) {
+					schemaName = "public";
+				}
+			}
 
 			// Microsoft JDBC Driver 12.6 for SQL Server
 			if ((dbmd.getDriverName().contains("Microsoft") && dbmd.getDriverName().contains("SQL Server"))
@@ -117,19 +178,32 @@ public final class DBExtractor {
 		return dbStructure;
 	}
 
-	private static String getDataType(String a_colTypeName, String productName) {
+	private static String getDataType(String a_colTypeName, String productName, String data_type) {
 		String colType = a_colTypeName.toUpperCase();
 		// Special case for Oracle's LONG type
 		if (Constant.LONG.equals(colType) && Constant.ORACLEDB.equalsIgnoreCase(productName)) {
 			return "text";
-		}
-		if (Constant.BASETYPE_TIMESTAMP.equals(colType) && Constant.MSSQL.equalsIgnoreCase(productName)) {
+		} else if (Constant.BASETYPE_TIMESTAMP.equalsIgnoreCase(colType)
+				&& Constant.MSSQL.equalsIgnoreCase(productName)) {
 			return null;
-		} else if (Constant.XMLCOL.equals(colType) && Constant.MSSQL.equalsIgnoreCase(productName)) {
-			return "xml";
-		} 
-		else if (Constant.UNIQUEID.equalsIgnoreCase(a_colTypeName) && Constant.MSSQL.equalsIgnoreCase(productName)) {
-			return "uniqueidentifier";
+		} else if (Constant.XMLCOL.equalsIgnoreCase(colType) && (Constant.MSSQL.equalsIgnoreCase(productName)
+				|| Constant.POSTGRESQL.equalsIgnoreCase(productName))) {
+			return Constant.XMLCOL;
+		} else if (Constant.UNIQUEID.equalsIgnoreCase(colType) && Constant.MSSQL.equalsIgnoreCase(productName)) {
+			return Constant.UNIQUEID;
+		} else if (Constant.UUID.equalsIgnoreCase(colType) && Constant.POSTGRESQL.equalsIgnoreCase(productName)) {
+			return Constant.UUID;
+		} else if ((Constant.JSON.equalsIgnoreCase(colType) || Constant.JSONB.equalsIgnoreCase(colType))
+				&& Constant.POSTGRESQL.equalsIgnoreCase(productName)) {
+			return Constant.JSON;
+		} else if (Constant.ENUM.equalsIgnoreCase(data_type) && Constant.MARIA_DB.equalsIgnoreCase(productName)) {
+			return Constant.ENUM;
+		} else if (Constant.SET.equalsIgnoreCase(data_type) && Constant.MARIA_DB.equalsIgnoreCase(productName)) {
+			return Constant.SET;
+		} else if (Constant.MONEY.equalsIgnoreCase(data_type) && Constant.POSTGRESQL.equalsIgnoreCase(productName)) {
+			return null;
+		} else if (Constant.TINYINT.equalsIgnoreCase(colType) && (Constant.MARIA_DB.equalsIgnoreCase(productName) || Constant.MSSQL.equalsIgnoreCase(productName))) {
+			return Constant.TINYINT;
 		}
 		switch (colType) {
 			// Text types
@@ -219,9 +293,22 @@ public final class DBExtractor {
 		return null;
 	}
 
-	private static String getDBType(String dataType, int a_colType, int a_colLength, String a_colTypeName) {
+	private static String getDBType(String dataType, int a_colType, int a_colLength, String a_colTypeName,
+			String productName) {
+		dataType = dataType.toLowerCase();
+		if (Constant.XMLCOL.equalsIgnoreCase(dataType) && (Constant.MSSQL.equalsIgnoreCase(productName)
+				|| Constant.POSTGRESQL.equalsIgnoreCase(productName))) {
+			return Constant.XMLCOL;
+		} else if (Constant.UUID.equalsIgnoreCase(dataType) && Constant.POSTGRESQL.equalsIgnoreCase(productName)) {
+			return Constant.UUID;
+		} else if ((Constant.JSON.equalsIgnoreCase(dataType) || Constant.JSONB.equalsIgnoreCase(dataType))
+				&& Constant.POSTGRESQL.equalsIgnoreCase(productName)) {
+			return Constant.JSON;
+		} else if (Constant.TINYINT.equalsIgnoreCase(dataType) && (Constant.MARIA_DB.equalsIgnoreCase(productName) || Constant.MSSQL.equalsIgnoreCase(productName))) {
+			return Constant.TINYINT;
+		}
 		switch (dataType) {
-			case "text":
+			case "text": {
 				switch (a_colType) {
 					case Types.BLOB:
 					case Types.CLOB:
@@ -246,6 +333,8 @@ public final class DBExtractor {
 					case Types.LONGNVARCHAR:
 						return "textarea";
 				}
+			}
+
 			case "int":
 				switch (a_colType) {
 					case Types.INTEGER:
@@ -325,11 +414,23 @@ public final class DBExtractor {
 					case Types.OTHER:
 						return "xml";
 				}
-			case "uniqueidentifier":
+			case Constant.UNIQUEID:
 				switch (a_colType) {
 					case Constant.UNIQUEIDENTIFIER:
 					case Types.OTHER:
-						return "uniqueidentifier";
+						return Constant.UNIQUEID;
+				}
+			case Constant.ENUM:
+				switch (a_colType) {
+					case Constant.ENUM_COLTYPE:
+					case Types.OTHER:
+						return Constant.ENUM;
+				}
+			case Constant.SET:
+				switch (a_colType) {
+					case Constant.SET_COLTYPE:
+					case Types.OTHER:
+						return Constant.SET;
 				}
 			default:
 				return null;
@@ -372,6 +473,9 @@ public final class DBExtractor {
 		String	pgNullIntCast		= String.format("COALESCE(NULLIF(%s::text, '')::int, NULL)", param);
 		String	pgNullDecimalCast	= String.format("COALESCE(NULLIF(%s::text, '')::numeric, NULL)", param);
 		String	pgNullBoolCast		= String.format("COALESCE(NULLIF(%s::text, '')::boolean, NULL)", param);
+		String	pgNullJsonCast		= String.format("COALESCE(NULLIF(%s::text, '')::json, NULL)", param);
+		String	pgNullXmlCast		= String.format("COALESCE(NULLIF(%s::text, '')::xml, NULL)", param);
+		String	pgNullUuidCast		= String.format("COALESCE(NULLIF(%s::text, '')::uuid, NULL)", param);
 
 		switch (dataType.toLowerCase()) {
 			case "money":
@@ -436,12 +540,36 @@ public final class DBExtractor {
 					expr = String.format("COALESCE(NULLIF(TRIM(%s), ''), NULL)", param);
 				}
 				break;
+				
+			case "tinyint":
+				if (isMySQL) {
+					expr = String.format("COALESCE(NULLIF(TRIM(%s), ''), NULL)", param);
+				}
+				break;
 
 			case "decimal":
 				if (isPostgres) {
 					expr = pgNullDecimalCast;
 				} else if (isMySQL) {
 					expr = String.format("COALESCE(NULLIF(TRIM(%s), ''), NULL)", param);
+				}
+				break;
+			case "json":
+			case "jsonb":
+				if (isPostgres) {
+					expr = pgNullJsonCast;
+				}
+				break;
+
+			case "xml":
+				if (isPostgres) {
+					expr = pgNullXmlCast;
+				}
+				break;
+
+			case "uuid":
+				if (isPostgres) {
+					expr = pgNullUuidCast;
 				}
 				break;
 

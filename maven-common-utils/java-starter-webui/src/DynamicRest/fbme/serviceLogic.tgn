@@ -1,0 +1,82 @@
+var HashMap =  Java.type('java.util.HashMap');
+var System = Java.type('java.lang.System');
+var params = new HashMap();
+var queryParam = new HashMap();
+function getBusinessEntityData(){ 
+	
+    params.put("businessModuleId", requestDetails.businessModuleId);
+    
+    var queryResult = jq_getDBResult("SELECT emd.business_module_entity_details_id, emd.module_id, mm.module_name AS child_module_name, " +
+            " emd.entity_id AS child_entity_id, era.entity_name AS child_entity_name, emd.created_by, emd.cmv_entity_name " +
+            " FROM jq_business_module_entity_details emd " +
+            " LEFT JOIN jq_master_modules mm ON emd.module_id = mm.module_id " +
+            " LEFT JOIN jq_entity_role_association era ON emd.entity_id = era.entity_id " +
+            " WHERE emd.business_module_id = :businessModuleId" +  
+            " GROUP BY emd.module_id,emd.entity_id " +
+            " ORDER BY mm.module_name",
+            null,
+            params);    
+        for (var iCounter = 0; iCounter < queryResult.data_list.length; iCounter++) {
+            var record = queryResult.data_list[iCounter];
+            var cmvEntityName = record.cmv_entity_name;
+            var childEntityName = record.child_entity_name;
+
+            if (childEntityName == null || childEntityName == "null" || childEntityName.trim() === "") {
+                params.put("childEntityId", record.child_entity_id);
+                var entityNameResult = null;
+
+                switch (cmvEntityName) {
+                    case "jq_resource_bundle":
+                        entityNameResult = jq_getDBResult(
+                            "SELECT resource_key AS child_entity_name FROM jq_resource_bundle WHERE resource_key = :childEntityId",
+                            null,
+                            params
+                        );
+                        break;
+
+                    case "jq_api_client_details":
+                        entityNameResult = jq_getDBResult(
+                            "SELECT client_name AS child_entity_name FROM jq_api_client_details WHERE client_id = :childEntityId",
+                            null,
+                            params
+                        );
+                        break;
+
+                    case "jq_property_master":
+                        entityNameResult = jq_getDBResult(
+                            "SELECT property_name AS child_entity_name FROM jq_property_master WHERE property_master_id = :childEntityId",
+                            null,
+                            params
+                        );
+                        break;
+
+                    case "jq_job_scheduler":
+                        entityNameResult = jq_getDBResult(
+                            "SELECT scheduler_name AS child_entity_name FROM jq_job_scheduler WHERE scheduler_id = :childEntityId",
+                            null,
+                            params
+                        );
+                        break;
+
+                    default:
+                        System.out.println("No specific handler for cmvEntityName: " + cmvEntityName);
+                }
+
+                if (entityNameResult != null && entityNameResult.data_list.length > 0) {
+                    record.child_entity_name = entityNameResult.data_list[0].child_entity_name;
+                }
+            }
+        }          
+        if(queryResult != null) {
+            return queryResult.data_list;
+        }
+    
+}
+
+function loadBusinessEntityData() {
+    var returnObject = new Object();    
+    returnObject.businessModuleData = getBusinessEntityData();
+    return returnObject;
+}
+
+loadBusinessEntityData();

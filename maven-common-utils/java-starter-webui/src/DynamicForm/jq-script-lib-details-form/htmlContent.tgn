@@ -4,6 +4,7 @@
 <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
 <script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
+
  
 <style>
     .displayflex{
@@ -29,6 +30,16 @@
 	    margin:0 0 0 15px !important;
 	}
 
+    .inputactionbtn {
+        height: 35px;
+        right: -35px;
+        border-radius: 0 4px 4px 0;
+    }
+
+	#openTemplateBtn {
+	    display: none;
+	}
+
     </style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <#if resultSetObject.scriptData?? && resultSetObject.scriptData[0]?has_content>
@@ -37,13 +48,24 @@
 </head>
 
 <div class="container">
-	<div class="topband">
-        <#if (scriptData.script_lib_id)?? && (scriptData.script_lib_id)?has_content>
-			<h2 class="title-cls-name float-left">Edit Script Details</h2> 
-        <#else>
-            <h2 class="title-cls-name float-left">Add Script Details</h2> 
-        </#if> 
-		<div class="clearfix"></div>		
+	<div class="row topband">
+        <div class="col-4">
+            <#if (scriptData.script_lib_id)?? && (scriptData.script_lib_id)?has_content>
+                <h2 class="title-cls-name float-left">Edit Script Details</h2> 
+            <#else>
+                <h2 class="title-cls-name float-left">Add Script Details</h2> 
+            </#if> 
+        </div> 
+         <div class="col-8">   
+	          <#if (scriptData.script_lib_id)?? && (scriptData.script_lib_id)?has_content>                           
+		        <#assign ufAttributes = {
+		            "entityType": "Templating",
+		            "entityId": "templateId",
+		            "entityName": "vmName"
+		        }>
+		        <@templateWithParams "user-favorite-template" ufAttributes />
+	        </#if>
+	    </div>				
 	</div>
   <form name="addEditScriptForm" id="addEditScriptForm" onsubmit="return false;" action="#">
       
@@ -51,7 +73,7 @@
     <input type="hidden" id="entityName" name="entityName" value="jq_script_lib_details">
     
     <div class="row">
-        <input type="hidden" data-type="text" id="scriptlibid" name="scriptlibId"  value="${(scriptData.script_lib_id)!""}" >
+        <input type="hidden" data-type="text" id="scriptlibid" name="scriptlibid"  value="${(scriptData.script_lib_id)!""}" >
         <input type="hidden" data-type="text" id="createdby" name="createdBy"  value="${(scriptData.created_by)!""}" >  
         <input type="hidden" data-type="text" id="updatedby" name="updatedBy"  value="${(scriptData.updated_by)!""}" >  
         <input type="hidden" data-type="text" id="updateddate" name="updatedDate"  value="${(scriptData.updated_date)!""}" >    
@@ -81,17 +103,21 @@
         </div>
         
          <div class="col-4" style="width:300px;">
-            <div class="col-inner-form full-form-fields" >
+            <div class="col-inner-form full-form-fields" style="position:relative;" >
                 
-            <label for="template_name" >
+            <label for="templateAutocomplete" >
                 <span class="asteriskmark">*</span>
             ${messageSource.getMessage('jws.templatename')}    
             </label>
+            
            <div class="search-cover">  
                 <input type="hidden" data-type="text" id="templateid" name="templateId"  value="${(scriptData.template_id)!""}" >
-                <input class="form-control" id="templateAutocomplete" type="text" value="${(scriptData.template_id)!""}" >
+                <input class="form-control" id="templateAutocomplete" type="text" value="${(scriptData.template_id)!""}" > 
                 <i class="fa fa-search" aria-hidden="true"></i>
             </div>
+            <button class="inputactionbtn" title="Open File" id="openTemplateBtn" name="openTemplateBtn" type="button">
+                <i class="fa fa-external-link" aria-hidden="true"></i>
+            </button>
             </div>
         </div> 
         
@@ -141,6 +167,7 @@
    <div id="manageScript" style="display:none;"></div>
 </div>
 <script>
+     var env = '${(environment)!""}';
     $("#manageScript").html("${messageSource.getMessage('jws.managescriptlib')}")
     document.title = $("#manageScript").html();
 	//contextPath = "${contextPath}";	 
@@ -185,13 +212,16 @@
 			$("#templateAutocomplete").blur();
 			$("#templateid").val(item.targetTypeId);
 			$("#templateAutocomplete").val(item.targetTypeName);
+             if (isEdit === 1) {
+                $("#openTemplateBtn").show();
+            }
 		}, 	
 	 });
     <#if resultSetObject.tempAutocomplete?? && resultSetObject.tempAutocomplete?has_content>
         autocompleteTemp.setSelectedObject(${(resultSetObject.tempAutocomplete)});     
     </#if>  
 
-    // setting value on edit. 
+    // setting value on edit. a
     <#if resultSetObject.scriptData?has_content >
       	isEdit = 1;
 	    $(".pageHeader").html("Edit Details ${(formName)!''}");
@@ -200,10 +230,17 @@
         var finalDesCount = maxCount-desCount;
         $('#countdown').val(finalDesCount);
     <#else>
-	
+		const random_uuid = uuidv4();
+	    $("#scriptlibid").val(random_uuid);
     </#if>
     hideShowActionButtons();
 	changeDefaultAction();
+
+    if (isEdit && $("#templateid").val()) {
+        $("#openTemplateBtn").show();
+    } else {
+        $("#openTemplateBtn").hide();
+    }
 
   });
   
@@ -265,6 +302,8 @@
         }
          return true;
     }
+
+   
   /**
 	* this method is called when there is a successful response from server.
 	* you can use this to take other actions in case you need to. Success 
@@ -275,16 +314,15 @@
         let formName = "jq-script-lib-details-form";
 	    //Call a Rest API for saving Module Version Details
          var scriptdataObj={
-            "scriptlibId": $("#scriptlibid").val()+"",
+            "scriptLibId": $("#scriptlibid").val()+"",
             "libraryName": $("#libraryname").val()+"",
             "scriptType" : $("#scripttype").val()+"",
             "templateId" : $("#templateid").val()+"",
             "description": $("#description").val()+"",
             "iscustomUpdated": $("#iscustomupdated").val()+"",
-            "scriptlibId": $("#scriptlibid").val()+"",
-            "createdBy"  : $("#createdby").val()+"",
-            "updatedBy"  : $("#updatedby").val()+"",
-            "updatedDate": $("#updateddate").val()+"",
+            "createdBy"  : '${fullName  !''}'+"",
+            "updatedBy"  : '${fullName  !''}'+"",
+            "updatedDate": '${.now?string("dd-MM-yyyy HH:mm:ss")}',
             "formId"     : formId+"",
             "primaryKey" : $("#scriptlibid").val()+"",
             "entityName" : $("#entityName").val()+"",
@@ -334,6 +372,33 @@
 	function backToPreviousPage() {
 			location.href = contextPath+viewPath+"/jq-script-lib-details";
 	}
+
+    $("#openTemplateBtn").on("click", function () {
+        openTemplate();
+    });
+    function openTemplate() {
+        const templateId = document.getElementById("templateid").value;
+
+        if (!templateId) {
+            showMessage("Please select a template first", "warn");
+            return;
+        }
+
+        // Open in new tab
+        window.open(contextPath + "/cf/aet?vmMasterId=" + templateId, "_blank");
+    }
+
+  $("#templateAutocomplete").on("input", function () {
+        if (!this.value.trim()) {
+            $("#templateid").val("");
+            $("#openTemplateBtn").hide();
+        }
+    });
+
+    $(document).on("click", ".autocomplete-clear-txt", function () {
+        $("#templateid").val("");
+        $("#openTemplateBtn").hide();
+    });
 	
 </script>
 <#else>

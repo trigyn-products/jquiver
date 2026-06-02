@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.NestedServletException;
 
@@ -54,7 +55,7 @@ public class URLExceptionHandler implements ErrorController {
 	@Autowired
 	private JQuiverProperties 			jQuiverPropeties 			= null;
 	
-	@RequestMapping("/error")
+	@RequestMapping(value="/error",method = {RequestMethod.GET, RequestMethod.POST})
 	public Object errorHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
 		Object				status			= httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
 		Exception			exception		= (Exception) httpServletRequest.getAttribute("javax.servlet.error.exception");
@@ -99,7 +100,7 @@ public class URLExceptionHandler implements ErrorController {
 						httpStatus = currentStatus;
 					}
 				}
-					return new ResponseEntity<String>(errorMessage, httpStatus);
+				return menuService.getTemplateWithSiteLayout(templateVO.getTemplateName(), parameterMap);
 			}
 			
 			if(httpServletRequest.getHeader("X-Requested-With") != null &&

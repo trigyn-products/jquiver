@@ -46,12 +46,6 @@ public class FileUploadConfigVO {
 	
 	private String		datasourceId		= null;
 	
-	private	String		uploadScriptLibraryId			= null;
-	
-	private	String		viewScriptLibraryId			= null;
-	
-	private	String		deleteScriptLibraryId			= null;
-	
     private Integer		isFileStorageEnable		= 0;
 	
 	private String      customFileStorageClass   = null;
@@ -103,8 +97,7 @@ public class FileUploadConfigVO {
 			String updatedBy, Date updatedDate, String createdBy, Date createdDate, Integer uploadQueryType,
 			Integer viewQueryType, Integer deleteQueryType, String datasourceViewValidator,
 			String datasourceUploadValidator, String datasourceDeleteValidator, Integer isCustomUpdated,
-		    String uploadScriptLibraryId, String viewScriptLibraryId,
-			String deleteScriptLibraryId,Integer isFileStorageEnable,String customFileStorageClass) {
+			Integer isFileStorageEnable,String customFileStorageClass) {
 		this.fileBinId = fileBinId;
 		this.fileTypSupported = fileTypSupported;
 		this.maxFileSize = maxFileSize;
@@ -124,9 +117,6 @@ public class FileUploadConfigVO {
 		this.datasourceUploadValidator = datasourceUploadValidator;
 		this.datasourceDeleteValidator = datasourceDeleteValidator;
 		this.isCustomUpdated = isCustomUpdated;
-		this.uploadScriptLibraryId = uploadScriptLibraryId;
-		this.viewScriptLibraryId = viewScriptLibraryId;
-		this.deleteScriptLibraryId = deleteScriptLibraryId;
 		this.isFileStorageEnable= isFileStorageEnable;
 		this.customFileStorageClass=customFileStorageClass;
 	}
@@ -328,30 +318,6 @@ public class FileUploadConfigVO {
 				.append(", deleteQueryContent=").append(deleteQueryContent).append(", isDeleted=").append(isDeleted)
 				.append(", updatedBy=").append(updatedBy).append("]");
 		return builder.toString();
-	}
-
-	public String getDeleteScriptLibraryId() {
-		return deleteScriptLibraryId;
-	}
-
-	public void setDeleteScriptLibraryId(String deleteScriptLibraryId) {
-		this.deleteScriptLibraryId = deleteScriptLibraryId;
-	}
-
-	public String getUploadScriptLibraryId() {
-		return uploadScriptLibraryId;
-	}
-
-	public void setUploadScriptLibraryId(String uploadScriptLibraryId) {
-		this.uploadScriptLibraryId = uploadScriptLibraryId;
-	}
-
-	public String getViewScriptLibraryId() {
-		return viewScriptLibraryId;
-	}
-
-	public void setViewScriptLibraryId(String viewScriptLibraryId) {
-		this.viewScriptLibraryId = viewScriptLibraryId;
 	}
 
 	public Integer getIsFileStorageEnable() {

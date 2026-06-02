@@ -74,6 +74,9 @@ public class GenericUserNotification {
 	/*Added New Column for Datasource Id*/
 	@Column(name = "datasource_id")
 	private String	datasourceId		= null;
+	
+	@Column(name = "display_once")
+	private Integer	displayOnce		= null;
 
 	public GenericUserNotification() {
 		super();
@@ -81,7 +84,7 @@ public class GenericUserNotification {
 
 	public GenericUserNotification(String notificationId, Date messageValidFrom, Date messageValidTill,
 			String messageText, String messageType, String messageFormat, String createdBy, Date creationDate,
-			String selectionCriteria, String updatedBy, Date updatedDate, String datasourceId) {
+			String selectionCriteria, String updatedBy, Date updatedDate, String datasourceId,Integer displayOnce) {
 		super();
 		this.notificationId		= notificationId;
 		this.messageValidFrom	= messageValidFrom;
@@ -94,6 +97,7 @@ public class GenericUserNotification {
 		this.updatedBy			= updatedBy;
 		this.updatedDate		= updatedDate;
 		this.datasourceId 		= datasourceId;/*Added New Column for Datasource Id*/
+		this.displayOnce 		= displayOnce;
 	}
 
 	public String getMessageType() {
@@ -196,6 +200,14 @@ public class GenericUserNotification {
 
 	/*Ends Here*/
 
+	public Integer getDisplayOnce() {
+		return displayOnce;
+	}
+
+	public void setDisplayOnce(Integer displayOnce) {
+		this.displayOnce = displayOnce;
+	}
+
 	public static GenericUserNotification createGenericUserNotification(String a_currentUser, String a_strDateFormat,
 			Map a_properties) throws ParseException {
 		GenericUserNotification userNotification = new GenericUserNotification();
@@ -266,7 +278,7 @@ public class GenericUserNotification {
 		notification.setUpdatedBy(updatedBy != null ? updatedBy.trim() : updatedBy);
 		notification.setUpdatedDate(updatedDate);
 		notification.setDatasourceId(datasourceId);/*Added New Column for Datasource Id*/
-
+		notification.setDisplayOnce(displayOnce);
 		return notification;
 	}
 

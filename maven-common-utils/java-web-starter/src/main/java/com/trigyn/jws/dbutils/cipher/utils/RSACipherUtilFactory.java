@@ -3,10 +3,14 @@ package com.trigyn.jws.dbutils.cipher.utils;
 import com.trigyn.jws.dbutils.cipher.modes.ECBCipherMode;
 import com.trigyn.jws.dbutils.cipher.modes.GCMCipherMode;
 import com.trigyn.jws.dbutils.cipher.modes.IVCipherMode;
+import com.trigyn.jws.dbutils.cipher.modes.RSACipherMode;
 
 public class RSACipherUtilFactory {
 	
-	public static ICipherUtil getCipherMode(String algorithm, String mode, String padding, Integer keyLength) {
+	public static ICipherUtil getCipherMode(String algorithm, String mode, String padding, Integer keyLength) throws Exception {
+		if ("RSA".equalsIgnoreCase(algorithm)) {
+            return new RSACipherMode(algorithm, mode, padding, keyLength);
+        }
 		if (mode != null && mode.isEmpty() == false) {
 			switch (mode) {
 				case "ECB":

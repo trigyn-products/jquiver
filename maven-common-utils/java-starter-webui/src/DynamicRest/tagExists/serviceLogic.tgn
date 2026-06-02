@@ -1,0 +1,19 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+
+function log2Console(a_strMessage){
+    var isToPrint = true;
+    if(isToPrint == false){
+        return;
+    }
+    System.out.println(a_strMessage);
+}
+
+function doSomething(){
+    var returnObject = new HashMap();
+
+    var moduleCount = jq_getDBResult("SELECT COUNT(*) As cnt FROM jq_tag_entity_details", null, null).data_list[0];
+    returnObject.put("count", moduleCount.cnt);
+    return returnObject;
+}
+doSomething();

@@ -40,6 +40,9 @@ public class ManualType {
 	
 	@Column(name = "header_template")
 	private String headerTemplate = null;
+	
+	@Column(name = "editor_Name")
+	private Integer editorName = null;
 
 	public ManualType() {
 
@@ -51,11 +54,12 @@ public class ManualType {
 //		this.isSystemManual = isSystemManual;
 //	}
 
-	public ManualType(String manualId, String name, Integer isSystemManual,String headerTemplate,String createdBy,Date createdDate,String	lastUpdatedBy,Date	lastUpdatedTs) {
+	public ManualType(String manualId, String name, Integer isSystemManual,String headerTemplate, Integer editorName, String createdBy,Date createdDate,String	lastUpdatedBy,Date	lastUpdatedTs) {
 		this.manualId		= manualId;
 		this.name			= name;
 		this.isSystemManual	= isSystemManual;
 		this.headerTemplate = headerTemplate;
+		this.editorName = editorName;
 		this.createdBy=createdBy;
 		this.createdDate=createdDate;
 		this.lastUpdatedBy=lastUpdatedBy;
@@ -124,6 +128,14 @@ public class ManualType {
 
 	public void setHeaderTemplate(String headerTemplate2) {
 		this.headerTemplate = headerTemplate2;
+	}
+
+	public Integer getEditorName() {
+		return editorName;
+	}
+
+	public void setEditorName(Integer editorName) {
+		this.editorName = editorName;
 	}
 
 	@Override

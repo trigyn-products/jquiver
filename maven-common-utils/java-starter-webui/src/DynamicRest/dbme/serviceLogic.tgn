@@ -1,0 +1,14 @@
+var HashMap = Java.type("java.util.HashMap");
+var System = Java.type("java.lang.System");
+
+function deleteBusinessModuleEntity() {
+    var bmEntityId = requestDetails.bmEntityId;
+
+    var map = new HashMap();
+    map.put("bmEntityId", bmEntityId);
+
+    var deleteEnityQuery = "DELETE FROM jq_business_module_entity_details WHERE business_module_entity_details_id = :bmEntityId";
+    jq_updateDBQuery(deleteEnityQuery, null, map);
+}
+
+deleteBusinessModuleEntity();

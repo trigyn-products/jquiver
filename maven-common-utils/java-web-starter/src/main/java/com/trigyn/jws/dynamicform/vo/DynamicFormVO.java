@@ -17,18 +17,19 @@ public class DynamicFormVO implements Serializable {
 	private String							createdBy				= null;
 	private Date							createdDate				= null;
 	private List<DynamicFormSaveQueryVO>	dynamicFormSaveQueries	= null;
-	private Integer							selectQueryType  		= null;
+	private Integer							selectQueryType			= null;
 	private String							variableName			= null;
 	private String							datasourceDetails		= null;
 	private String							queryType				= null;
-	private String 							daoDetailsId 			= null;
-	private String 							queryDetails 			= null;
-	private String 							formQueryId 			= null;
-	private String 							scriptLibId 			= null;
-	private Integer 						isCaptchaEnabled		= null;
-	private Integer 						isCsrfEnabled 			= null;
+	private String							daoDetailsId			= null;
+	private String							queryDetails			= null;
+	private String							formQueryId				= null;
+	private Integer							isCaptchaEnabled		= null;
+	private Integer							isCsrfEnabled			= null;
 	private String							formIoId				= null;
-
+	private Integer							isCustomUpdated			= 1;
+	private String							lastUpdatedBy			= null;
+	private Date							lastUpdatedTs			= null;
 
 	public DynamicFormVO() {
 
@@ -36,7 +37,7 @@ public class DynamicFormVO implements Serializable {
 
 	public DynamicFormVO(String formId, String formName, String formDescription, String formSelectQuery,
 			String formBody, Integer formTypeId, String createdBy, Date createdDate,Integer isCaptchaEnabled,Integer isCsrfEnabled,
-			List<DynamicFormSaveQueryVO> dynamicFormSaveQueries) {
+			List<DynamicFormSaveQueryVO> dynamicFormSaveQueries, Integer	isCustomUpdated ) {
 		this.formId					= formId;
 		this.formName				= formName;
 		this.formDescription		= formDescription;
@@ -48,13 +49,14 @@ public class DynamicFormVO implements Serializable {
 		this.isCaptchaEnabled 		= isCaptchaEnabled;
 		this.isCsrfEnabled 			= isCsrfEnabled;
 		this.dynamicFormSaveQueries	= dynamicFormSaveQueries;
+		this.isCustomUpdated		= isCustomUpdated;
 	}
 
 	public DynamicFormVO(String formId, String formName, String formDescription, String formSelectQuery,
 			String formBody, Integer formTypeId, String createdBy, Date createdDate,
 			List<DynamicFormSaveQueryVO> dynamicFormSaveQueries, Integer selectQueryType, String variableName,
-			String datasourceDetails, String queryType, String daoDetailsId, String queryDetails, String formQueryId,
-			String scriptLibId,Integer isCaptchaEnabled,Integer isCsrfEnabled) {
+			String datasourceDetails, String queryType, String queryDetails, String formQueryId,
+			Integer isCaptchaEnabled, Integer isCsrfEnabled, Integer isCustomUpdated) {
 		this.formId = formId;
 		this.formName = formName;
 		this.formDescription = formDescription;
@@ -68,12 +70,11 @@ public class DynamicFormVO implements Serializable {
 		this.variableName = variableName;
 		this.datasourceDetails = datasourceDetails;
 		this.queryType = queryType;
-		this.daoDetailsId = daoDetailsId;
 		this.queryDetails = queryDetails;
 		this.formQueryId = formQueryId;
-		this.scriptLibId = scriptLibId;
 		this.isCaptchaEnabled = isCaptchaEnabled;
 		this.isCsrfEnabled = isCsrfEnabled;
+		this.isCustomUpdated		= isCustomUpdated;
 	}
 
 	/**
@@ -228,7 +229,8 @@ public class DynamicFormVO implements Serializable {
 				&& Objects.equals(formTypeId, other.formTypeId)
 				&& Objects.equals(isCaptchaEnabled, other.isCaptchaEnabled)
 				&& Objects.equals(formIoId, other.formIoId)
-				&& Objects.equals(isCsrfEnabled, other.isCsrfEnabled);
+				&& Objects.equals(isCsrfEnabled, other.isCsrfEnabled)
+				&& Objects.equals(isCustomUpdated, other.isCustomUpdated);
 		
 	}
 
@@ -296,14 +298,6 @@ public class DynamicFormVO implements Serializable {
 		this.formQueryId = formQueryId;
 	}
 
-	public String getScriptLibId() {
-		return scriptLibId;
-	}
-
-	public void setScriptLibId(String scriptLibId) {
-		this.scriptLibId = scriptLibId;
-	}
-
 	public Integer getIsCaptchaEnabled() {
 		return isCaptchaEnabled;
 	}
@@ -328,5 +322,27 @@ public class DynamicFormVO implements Serializable {
 		this.formIoId = formIoId;
 	}
 
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
 
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
+	public String getLastUpdatedBy() {
+		return lastUpdatedBy;
+	}
+
+	public void setLastUpdatedBy(String lastUpdatedBy) {
+		this.lastUpdatedBy = lastUpdatedBy;
+	}
+
+	public Date getLastUpdatedTs() {
+		return lastUpdatedTs;
+	}
+
+	public void setLastUpdatedTs(Date lastUpdatedTs) {
+		this.lastUpdatedTs = lastUpdatedTs;
+	}
 }

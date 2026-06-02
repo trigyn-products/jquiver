@@ -115,7 +115,6 @@ public class ApiClientFilter extends OncePerRequestFilter {
 
 					@Override
 					public void setHeader(String a_name, String a_value) {
-						// System.out.println("Setting header : " + a_name + " : " + a_value);
 						super.setHeader(a_name, a_value);
 						if (a_name == null) {
 							return;
@@ -136,8 +135,6 @@ public class ApiClientFilter extends OncePerRequestFilter {
 
 					@Override
 					public Collection<String> getHeaderNames() {
-						// System.out.println("ApiClientFilter.doFilterInternal(...).new
-						// HttpServletResponseWrapper() {...}.getHeaderNames()");
 						return header.keySet();
 					}
 
@@ -146,10 +143,6 @@ public class ApiClientFilter extends OncePerRequestFilter {
 						if (a_name == null) {
 							return null;
 						}
-						// System.out.println(requestURL);
-						// System.out.println("ApiClientFilter.doFilterInternal(...).new
-						// HttpServletResponseWrapper() {...}.getHeader() " + a_name + " = " +
-						// header.get(a_name));
 						if (header.get(a_name) == null) {
 							return super.getHeader(a_name);
 						}
@@ -202,7 +195,6 @@ public class ApiClientFilter extends OncePerRequestFilter {
 
 					if (requestBody != null) {
 						if (requestBody.equals("") == false && apiClientDetailsVO != null) {
-							//System.out.println("Request Body = "+requestBody);
 							JqEncAlgModPadKeyLookup algLookup = algLookupData.get();
 							decryptedRequestBody = CipherUtilFactory
 									.getCipherUtil(algLookup.getJqEncryptionAlgorithmsLookup().getEncryptionAlgoName(), algLookup.getJqEncModeLookup().getModeName(), algLookup.getJqEncPaddLookup().getPaddingName(), algLookup.getJqEncKeyLengthLookup().getKeyLength())
@@ -212,7 +204,6 @@ public class ApiClientFilter extends OncePerRequestFilter {
 						}
 						HttpServletRequestWritableWrapper requestWrapper = new HttpServletRequestWritableWrapper(
 								httpServletRequest, decryptedRequestBody, null);
-						IOUtils.toString(requestWrapper.getReader());
 						HttpServletResponseReadableWrapper responseWrapper = new HttpServletResponseReadableWrapper(
 								httpServletResponse) {
 							private Map<String, String> header = new HashMap<String, String>();
@@ -223,7 +214,6 @@ public class ApiClientFilter extends OncePerRequestFilter {
 
 							@Override
 							public void setHeader(String a_name, String a_value) {
-								// System.out.println("Setting header : " + a_name + " : " + a_value);
 								super.setHeader(a_name, a_value);
 								if (a_name == null) {
 									return;
@@ -244,8 +234,6 @@ public class ApiClientFilter extends OncePerRequestFilter {
 
 							@Override
 							public Collection<String> getHeaderNames() {
-								// System.out.println("ApiClientFilter.doFilterInternal(...).new
-								// HttpServletResponseWrapper() {...}.getHeaderNames()");
 								return header.keySet();
 							}
 
@@ -254,10 +242,6 @@ public class ApiClientFilter extends OncePerRequestFilter {
 								if (a_name == null) {
 									return null;
 								}
-								// System.out.println(requestURL);
-								// System.out.println("ApiClientFilter.doFilterInternal(...).new
-								// HttpServletResponseWrapper() {...}.getHeader() " + a_name + " = " +
-								// header.get(a_name));
 								if (header.get(a_name) == null) {
 									return super.getHeader(a_name);
 								}
@@ -276,7 +260,7 @@ public class ApiClientFilter extends OncePerRequestFilter {
 								header.put(a_name, a_value);
 							}
 						};
-						HttpServletRequest wrappedParamRequest = new ParameterWrappedRequest(httpServletRequest, extraParams);
+						HttpServletRequest wrappedParamRequest = new ParameterWrappedRequest(requestWrapper, extraParams);
 						if (httpServletRequest.getParameterMap() != null) {
 							for (String requestParamKey : httpServletRequest.getParameterMap().keySet()) {
 								String[] value = new String[1];

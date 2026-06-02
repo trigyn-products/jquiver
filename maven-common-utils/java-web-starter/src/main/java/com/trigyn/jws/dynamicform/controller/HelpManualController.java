@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,10 +49,12 @@ import com.trigyn.jws.dynarest.service.FileUploadConfigService;
 import com.trigyn.jws.dynarest.service.FilesStorageService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.security.config.Authorized;
+import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.service.ImportService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 @RestController
 @RequestMapping("/cf")
@@ -115,7 +118,7 @@ public class HelpManualController {
 			return null;
 		}
 	}
-
+	
 	@PostMapping(value = "/shmt", produces = MediaType.TEXT_HTML_VALUE)
 	@Authorized(moduleName = com.trigyn.jws.usermanagement.utils.Constants.HELPMANUAL)
 	public String saveManualType(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
@@ -127,13 +130,15 @@ public class HelpManualController {
 			String isEdit = httpServletRequest.getParameter("ie");
 			String name = httpServletRequest.getParameter("name");
 			String headerTemplate = httpServletRequest.getParameter("headerTemplate");
+			String editorName = httpServletRequest.getParameter("editorName");
+			int editorId = Integer.parseInt(editorName);
 			boolean doesExist = helpManualService.manualTypeExist(name);
 			if(isEdit.equalsIgnoreCase("0")) {
 				if (doesExist) {
 					return "exist";
 				}
 			}
-			return helpManualService.saveManualType(manualId, name, isEdit,headerTemplate);
+			return helpManualService.saveManualType(manualId,name,isEdit,headerTemplate,editorId);
 		} catch (Exception a_exception) {
 			logger.error("Error while loding manual page ", a_exception);
 			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(),a_exception.getMessage());
@@ -158,7 +163,7 @@ public class HelpManualController {
 		}
 	}
 
-	@RequestMapping(value = "/shmd")
+	@PostMapping(value = "/shmd")
 	@ResponseBody
 	public Map<String,String> saveManualEntryDetails(@RequestBody HelpManualObjHolder objectNode,
 			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
@@ -259,6 +264,7 @@ public class HelpManualController {
 				parameterMap.put("mt", manualType);
 				parameterMap.put("mn", manualName);
 				parameterMap.put("headerTemplate", manualTypeDetails.getHeaderTemplate());
+				parameterMap.put("editorName", manualTypeDetails.getEditorName());
 	
 				return menuService.getTemplateWithSiteLayout("help-manual-entry-template", parameterMap);
 			}
@@ -275,8 +281,8 @@ public class HelpManualController {
 	}
 
 	@GetMapping(value = "/hmem", produces = MediaType.TEXT_HTML_VALUE)
-	@PreAuthorize("hasPermission('module','Help Manual')")
-	public String editHelpManual(@RequestParam String mt, HttpServletRequest httpServletRequest,
+	@Authorized(moduleName = Constants.HELPMANUAL)
+	public String editHelpManual(@RequestParam("mt") String mt, HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) throws IOException {
 		try {			
 				String manualType = mt;
@@ -284,6 +290,8 @@ public class HelpManualController {
 				int sortIndex = Integer.parseInt(helpManualService.findlastSortIndex(mt));
 				parameterMap.put("sortIndex", sortIndex);
 				parameterMap.put("mt", manualType);
+				Optional<ManualType>	manualTypeOptional = iManualTypeRepository.findById(manualType);
+				parameterMap.put("editorName", manualTypeOptional.get().getEditorName());
 				return menuService.getTemplateWithSiteLayout("help-manual-edit-template", parameterMap);
 		} catch (Exception a_exception) {
 			logger.error("Error while loading Manual Listing page. ", a_exception);
@@ -296,7 +304,7 @@ public class HelpManualController {
 	}
 
 	@GetMapping(value = "hmfc")
-	public String fetchContent(@RequestParam String id, HttpServletRequest httpServletRequest,
+	public String fetchContent(@RequestParam("id") String id, HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) throws IOException {
 		try {
 
@@ -307,19 +315,19 @@ public class HelpManualController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(),a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse, HttpStatus.INTERNAL_SERVER_ERROR.value(),
+					a_exception.getMessage());
 			return null;
 		}
 	}
-
 	
 	@GetMapping(value = { "hmfn" })
-	public List<TreeNode> fetchSubNodes(@RequestParam String id, @RequestParam String mt,
+	public List<TreeNode> fetchSubNodes(@RequestParam("id") String id, @RequestParam("mt") String mt,
 			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			// Fetch Parent Nodes.
-			List<ManualEntryDetails> parentslist = null;
-			String manualId = mt;
+			List<ManualEntryDetails>	parentslist	= null;
+			String						manualId	= mt;
 			if (null == id || "#".equalsIgnoreCase(id) || "".equalsIgnoreCase(id))
 				parentslist = helpManualService.fetchParentNodes(manualId);
 			else
@@ -330,7 +338,7 @@ public class HelpManualController {
 				node.setId(parent.getManualEntryId());
 				node.setText(parent.getEntryName());
 				node.setChildren(helpManualService.hasChild(node.getId()));
-				//node.setEntryContent(parent.getEntryContent());
+				// node.setEntryContent(parent.getEntryContent());
 				if (node.isChildren()) {
 					node.setType("folder");
 				}
@@ -342,13 +350,14 @@ public class HelpManualController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(),a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse, HttpStatus.INTERNAL_SERVER_ERROR.value(),
+					a_exception.getMessage());
 			return null;
 		}
 	}
 
 	@GetMapping(value = { "hmefn" })
-	public List<TreeNode> fetchNodesInEdit(@RequestParam String id, @RequestParam String mt,
+	public List<TreeNode> fetchNodesInEdit(@RequestParam("id") String id, @RequestParam("mt") String mt,
 			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			// Fetch Parent Nodes.
@@ -382,7 +391,7 @@ public class HelpManualController {
 	}
 	
 	@GetMapping(value = "/search", produces = "application/json")
-	public ArrayList<String> search(@RequestParam String str, @RequestParam String mt,
+	public ArrayList<String> search(@RequestParam("str") String str, @RequestParam("mt") String mt,
 			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			List<ManualEntryDetails> searchList = null;
@@ -421,7 +430,7 @@ public class HelpManualController {
 
 	@GetMapping(value = "/searchRD", produces = "application/json")
 	@ResponseBody
-	public List<TreeNode> searchRD(@RequestParam String str, @RequestParam String mt,
+	public List<TreeNode> searchRD(@RequestParam("str") String str, @RequestParam("mt") String mt,
 			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			List<ManualEntryDetails> searchList = null;
@@ -527,7 +536,7 @@ public class HelpManualController {
 	
 	public ManualType convertManualTypeVoToEntity(HelpManualTypeExportVO entry) {
 		ManualType manualType = new ManualType(entry.getManualId(),entry.getName(),
-				entry.getIsSystemManual(),entry.getHeaderTemplate(), entry.getCreatedBy(),entry.getCreatedDate(),entry.getLastUpdatedBy(),entry.getLastUpdatedTs());
+				entry.getIsSystemManual(),entry.getHeaderTemplate(),entry.getEditorName(),entry.getCreatedBy(),entry.getCreatedDate(),entry.getLastUpdatedBy(),entry.getLastUpdatedTs());
 		return manualType;
 	}
 	
@@ -540,7 +549,7 @@ public class HelpManualController {
 	
 	public FileUpload convertFileUploadExportVOToEntity(FileUploadExportVO entry) {
 		FileUpload fileUpload = new FileUpload(entry.getFileUploadId(),entry.getPhysicalFileName(),entry.getOriginalFileName(),
-				entry.getFilePath(),entry.getUpdatedBy(),entry.getFileBinId(),entry.getFileAssociationId());
+				entry.getFilePath(),entry.getUpdatedBy(),entry.getLastUpdatedTs(),entry.getFileBinId(),entry.getFileAssociationId());
 		return fileUpload;
 	}
 	
@@ -550,6 +559,44 @@ public class HelpManualController {
 			throws Exception {
 		int sortIndex = Integer.parseInt(helpManualService.findlastSortIndex(mt));
 		return sortIndex;
+	}
+	
+	/**
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 * written for implementing Import Functionality of Help Manual, Uncomment the below commented lines for future implementation.
+	 */
+	@RequestMapping(value = "/ihm")
+	@ResponseBody
+	public String importExport(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		try {
+			Part file = request.getPart("filePath");
+			return helpManualService.importHelpManualData(request, response, file,Constant.MASTER_SOURCE_VERSION_TYPE);
+
+		} catch (Exception exception) {
+			logger.error("Error occured while importing data.", exception);
+			return "fail:" + exception.getMessage();
+		}
+	}
+	
+	/**
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 * written for implementing Import Functionality of Help Manual, Uncomment the below commented lines for future implementation.
+	 */
+	@RequestMapping(value = "/ehm")
+	@ResponseBody
+	public void exportHelpManual(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		try {
+			 helpManualService.exportHelpManualData(request, response);
+
+		} catch (Exception exception) {
+			logger.error("Error occured while importing data.", exception);
+			return;
+		}
 	}
 	
 	

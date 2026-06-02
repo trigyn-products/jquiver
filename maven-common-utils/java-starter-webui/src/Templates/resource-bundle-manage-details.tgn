@@ -2,6 +2,7 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="${(contextPath)!''}/webjars/1.0/resourcebundle/addEditResourceBundle.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
 <style type="text/css">
 .area{
   width:100%;
@@ -83,12 +84,14 @@
 						</div>							  
 					</div>
 				</#list>
+                <input id="moduleId" value="5559212c-8c8f-11eb-8dcd-0242ac130003" name="moduleId"  type="hidden">
 			</div>
 		</form>
 				
 	<div class="row">
-		<div class="col-12">
-			<div class="text-end">
+		<div class="d-flex justify-content-end align-items-center gap-2">
+            <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_resource_bundle')">Create/Link Module</button>
+			<!-- <div class="text-end"> -->
 				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('resource-bundle-manage-details', this, isEdit, addEditResourceBundle.saveResourceBundle.bind(addEditResourceBundle), addEditResourceBundle.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
@@ -104,10 +107,12 @@
 				<span onclick="addEditResourceBundle.backToResourceBundleListing();">
 					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 				</span> 
-			</div>
+			<!-- </div> -->
 		</div>
 	</div>
-	
+	<div id="moduleAutocomplete">
+      <@templateWithoutParams "common-modal-template"/>
+    </div>
 
  </div>
  <script>
@@ -121,6 +126,11 @@
     }
 	var resourceBundleFormData = new Array();
 	let addEditResourceBundle;
+    let moduleIdList = [];
+    let deleteModuleIdList = [];
+    let newAddedModuleIdList = [];
+    let existingModuleIdList = [];
+    let allModuleList = [];
 	$(function() {
         $( ".txtWrapper i" ).click(function() {
             let elem = $(this).prev().get()[0];
@@ -139,6 +149,13 @@
 		addEditResourceBundle.loadAddEditResourceBundlePage();
 		savedAction("resource-bundle-manage-details", isEdit);
 		hideShowActionButtons();
+        if(isEdit == 1){
+            getModuleNames(resourceBundleKey,$("#moduleId").val());
+             /** Added for resetting the values of BusinessModule Dialog after save and edit. **/
+	        document.getElementById("saveAndEdit").addEventListener("click", function () {
+	            resetBusModuleModal();
+	        });
+        }
 	});
     </#outputformat>
 
@@ -150,4 +167,23 @@
         input.remove();
         showMessage("Data copied successfully", "success");
 	}
+
+    function saveModDetails(isEdit,entityId){
+        var busmoduleName = $("#busmoduleName").val();
+        var cmvEntityName = document.getElementById("cmvEntityName").value;
+        if(checkExistingBusinessModuleName(busmoduleName) == true){
+            showMessage("Module Name already exists","warn");
+            $("#busmoduleName").val("");
+            return false;
+        }
+        var isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked;  
+        if (existingModuleIdList.includes(busmoduleName)) {
+            showMessage("Module Name already exists for this entity.", "info");
+            return false;
+        }
+        if(busmoduleName != "" || moduleIdList.length > 0 || deleteModuleIdList.length > 0){
+            saveModuleDetails(busmoduleName,entityId,$("#moduleId").val(),isEdit,moduleIdList,deleteModuleIdList,isShowCreateLinkChkBox,cmvEntityName);
+        }
+        return true;
+    }
 </script>

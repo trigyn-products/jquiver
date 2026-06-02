@@ -1,3 +1,5 @@
+<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
+<#assign hideFav = (innerTemplateObj.hideFav?exists && (innerTemplateObj.hideFav?string?lower_case == "true"))>
 <head>
 <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
@@ -28,11 +30,13 @@
 </head>
         <div class="favrightblock"> 
             <div class="favblock">
-                <div class="fav-image" data-hover="&#9733" title="Add/Remove Favourite" onclick="addRemoveFav()">&#9734;</div>         
+            <#if !hideFav>
+                <div class="fav-image" data-hover="&#9733" title="Add/Remove Favourite" onclick="addRemoveFav()">&#9734;</div> 
+            </#if>            
             </div>
 
             <div class="selectblock"> 
-                 ${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                 ${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" >${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>
@@ -50,7 +54,7 @@
             </div> 
        
         </div>
-<script>
+<script ${scriptNonce}>
 contextPath = "${(contextPath)!''}";
 
 //adding quickJumpAutocomplete for fields all, custom, system and favourites
@@ -91,6 +95,16 @@ let autocompleteQJ;
     });
 
     $(document).ready(function() {
+        //Added these blocks here to remove inline call from html , because of csp issue
+	    $("#typeSelect").on("change", function () {
+            changeType();
+        });
+
+		$(".fav-image").on("click", function () {
+            addRemoveFav();
+        });
+		//Done csp issue related changes
+		
         setTimeout(function() {
             if ($("#typeSelect").val() == '3') {
                 autocompleteQJ.options["autocompleteId"] = "user-favorite-entity-autocomplete";

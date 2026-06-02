@@ -1,0 +1,473 @@
+<head>
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+    <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>    
+    <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script>
+     <script src="/wfi/webjars/1.0/common/jQuiverCommon.js"></script>
+</head>
+<style>
+.select_btn_new {
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0 3px; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+}
+
+.selectallcls,
+.deslectcls {
+    border: 1px solid var(--bluebgcolor);
+    border-radius: 4px;
+    color: var(--bluebgcolor);
+    cursor: pointer;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: all 0.2s ease-in-out;
+    padding: 6px;
+}
+
+
+.selectallcls:hover,
+.deslectcls:hover {
+    background-color: var(--bluebgcolor);
+    color: #fff;
+}
+
+
+.pq-grid-header-search-row td:last-child {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+
+.pq-grid-header-search-row {
+    height: 40px !important;
+}
+
+</style>    
+<div class="container">
+    <div class="topband">
+         
+        <h2 class="title-cls-name float-left"> ${messageSource.getMessage('jws.manageTags')} </h2>
+       
+            <span >
+                <button type="button" id="viewTag" class="btn btn-primary" >ViewTag</button>
+                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+            </span>
+     </div>
+    <div class="row" style="padding-bottom: 10px;">
+    <div id="divManageTagsGrid"></div>
+    </div>
+   <div class="row">
+    <div class="d-flex justify-content-end align-items-center gap-2">
+        <button type="button" id="create" class="btn btn-primary">
+            Create Tag
+        </button>
+
+      <!--  <div class="btn-group dropup custom-grp-btn">
+            <div id="savedAction">
+                <button type="button" id="saveAndReturn" class="btn btn-primary">
+                    Save &amp; Return
+                </button>
+            </div>
+
+            <button id="actionDropdownBtn"
+                    type="button"
+                    class="btn btn-primary dropdown-toggle panel-collapsed"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+            </button>
+
+            <div class="dropdown-menu action-cls" id="actionDiv">
+                <ul class="dropdownmenu">
+                    <li id="saveAndCreateNew">Save &amp; Create New</li>
+                </ul>
+            </div>
+        </div>-->
+
+        <!--<span>
+            <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+        </span>-->
+    </div>
+</div>
+<div id="moduleAutocomplete">
+      <@templateWithoutParams "common-modal-template-tags"/>
+  </div>   
+</div>
+<script ${scriptNonce}>
+document.title = "Manage Tags";
+viewPath = "${(viewPath)!'/view'}";
+
+// ========== Global Variables ==========
+let checkedEntityMap = new Map();
+let grid;
+let moduleType = [{ "": "All" }];
+// ========== On Page Load ==========
+$(function () {
+    // Load module types
+    $.ajax({
+        type: "GET",
+        url: contextPath + "/cf/modules",
+        async: false,
+        success: function (data) {
+            data.forEach(obj => {
+              if (obj["moduleName"] !== "Master module") {
+                let item = {};
+                item[obj["moduleId"]] = obj["moduleName"];
+                moduleType.push(item);
+              }
+            });
+            let applicationConfiguration = {};
+            applicationConfiguration["76270518-8c8f-11eb-8dcd-0242ac130003"] = "Application Configuration";
+            moduleType.push(applicationConfiguration);
+            let filesModule = {};
+            filesModule["5c4358e2-b69a-11ed-983d-7c8ae1bb24d8"] = "Files";
+            moduleType.push(filesModule);
+            let internalizationModule = {};
+            internalizationModule["5559212c-8c8f-11eb-8dcd-0242ac130003"] = "Internalization";
+            moduleType.push(internalizationModule);
+
+            let additionalDatasourceModule = {};
+            additionalDatasourceModule["799947cc-b6cb-11eb-8529-0242ac130003"] = "Additional Datasource";
+            moduleType.push(additionalDatasourceModule);
+
+            let notificationModule = {};
+            notificationModule["6ac6a54c-8d3f-11eb-8dcd-0242ac130003"] = "Notification";
+            moduleType.push(notificationModule);
+
+            let schedulerModule = {};
+            schedulerModule["fcd0df1f-783f-11eb-94ed-f48e38ab8cd6"] = "Scheduler";
+            moduleType.push(schedulerModule);
+
+            let apiClient={};
+            apiClient["ded49cbd-ed7c-40ce-b1f8-c2e34ad33473"] = "API Clients";
+            moduleType.push(apiClient);   
+
+            moduleType = [{ "": "All" }].concat(
+            moduleType
+                .slice(1)
+                .sort((a, b) => {
+                const nameA = Object.values(a)[0].toLowerCase();
+                const nameB = Object.values(b)[0].toLowerCase();
+                return nameA.localeCompare(nameB);
+                })
+            );
+        }
+    });
+
+    // Column definitions
+    const colM = [
+        {
+            title: "${messageSource.getMessage('jws.entityType')}",
+            width: 120,
+            dataIndx: "moduleId",
+            align: "left",
+            halign: "center",
+            render: moduleTypes,
+            filter: { type: "select", id:"moduleId",condition: "eq", options: moduleType, listeners: [{
+                    'change': function () {
+                        const $grid = $("#divManageTagsGrid");
+                        const gridObj = $grid.pqGrid("getInstance").grid;
+                        let selectedVal = $(this).val() || "";
+                        if (selectedVal === "") {
+                            // Reset filter and dropdown
+                            gridObj.filter({ oper: "replace", data: [] });
+                            $grid.find(".pq-grid-header input[type='text']").val("");
+
+                            //  Refresh grid data
+                            gridObj.refreshDataAndView();
+
+                            //  Wait until pqGrid finishes refresh, then mark “All” selected
+                            setTimeout(() => {
+                                $grid.find(".pq-grid-header select").first().val("").trigger("change.pqfilter");
+                            }, 200);
+
+
+                        } else {
+                            // Apply filter normally
+                            $grid.pqGrid("filter", {
+                                oper: "replace",
+                                data: [{
+                                    dataIndx: "moduleId",
+                                    condition: "equal",
+                                    value: selectedVal
+                                }]
+                            });
+                        }
+                    }
+        }] }
+        },
+        {
+            title: "${messageSource.getMessage('jws.entityname')}",
+            width: 400,
+            dataIndx: "entityname",
+            align: "left",
+            halign: "center",
+            filter: { type: "textbox", condition: "contain", listeners: ["change"] }
+        },
+        {
+            title: "${messageSource.getMessage('jws.action')}",
+            width: 120,
+            dataIndx: "is_active",
+            halign: "center",
+            render: addCheckBox,
+            attr: "role_id",
+            filter: {
+                type: `
+                    <button type='button' class='select_btn_new' value='Select All'>
+                        <i class='fa fa-check-square selectallcls'></i>
+                    </button>
+                    <button type='button' class='select_btn_new' value='Deselect All'>
+                        <i class='fa fa-window-close deslectcls'></i>
+                    </button>`
+            }
+        }
+    ];
+
+    // Initialize grid
+    const dataModel = { url: contextPath + "/cf/pq-grid-data" };
+    grid = $("#divManageTagsGrid").grid({
+        gridId: "manageTagsGrid",
+        colModel: colM,
+        resizable: true,
+        freezeCols: 2,
+        dataModel: dataModel
+    });
+
+$("#divManageTagsGrid").on("pqgridbeforeload pqgridbeforetableview pqgridpagebeforechange", function () {
+    // Save all checkbox states before data reload
+    $("input[name='isActiveCheckbox']").each(function () {
+        const key = this.dataset.key;
+        checkedEntityMap.set(key, this.checked);
+    });
+});
+    // Restore checkbox states on refresh
+    $("#divManageTagsGrid").on("pqgridrefresh", function () {
+        checkedEntityMap.forEach((isChecked, key) => {
+            //$("#" + key).prop("checked", isChecked);
+            const checkbox = $("#" + key);
+        if (checkbox.length) {
+            checkbox.prop("checked", isChecked);
+        }
+        });
+    });
+
+    
+
+    // ========== Save Button Click ==========
+    document.querySelector('#modalSaveBtn').addEventListener('click', function () {
+         
+        const tagName = document.getElementById("tagName").value.trim();
+        const cmvEntityName = document.getElementById("cmvEntityName").value;
+        //const isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked ? 1 : 0;
+
+        if (tagName === "") {
+            showMessage("Please enter a tag name", "warn");
+            return;
+        }
+
+        const selectedEntities = [];
+        checkedEntityMap.forEach((checked, key) => {
+            if (checked === true) {
+               // const [entityid] = key.split("_");
+               // selectedEntities.push({ entityid });
+               const parts = key.split("_");
+                selectedEntities.push({
+                    entityId: parts[0],
+                    moduleId: parts[1]
+                });
+            }
+        });
+
+        if (selectedEntities.length === 0) {
+            showMessage("Please select at least one entity before saving", "warn");
+            return;
+        }
+         
+        $.ajax({
+            url: contextPath +"/cf/st",
+            contentType: "application/json",
+            type: "POST",
+            data: JSON.stringify({
+                tagName: tagName,
+                entityMappings: selectedEntities  
+            }),
+             beforeSend: function() {
+                $.blockUI({ message: "<img src='" + contextPathHome + "/webjars/1.0/images/loading.gif' />" });
+            },
+            success: function (response) {
+                if (response.status === "success") {// since your controller returns a String
+                    showMessage(response.message, "success");
+                    $('#tagName').val("");
+                    $('input[name="isActiveCheckbox"]').prop('checked', false);
+                    checkedEntityMap.clear();
+                    $('#busModuleModalDialog').modal('hide');
+                } else {
+                    showMessage(response.message, "error");
+                }
+                $.unblockUI();
+            },
+            error: function(xhr) {
+                 let errorMessage = "Error occurred while saving tag";
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                showMessage(errorMessage, "error");
+                 $.unblockUI();
+            }
+        });
+    });
+});
+
+// ========== Utility Functions ==========
+function moduleTypes(uiObject) {
+    if (!uiObject) return "";
+    const moduleId = uiObject.rowData.moduleid || "";
+    if (!moduleId) return "All"; // show "All" for empty moduleId
+    const typeObj = moduleType.find(obj => obj[moduleId]);
+    return typeObj ? typeObj[moduleId] : moduleId;
+}
+
+
+function backToPreviousPage() {
+    location.href = contextPath + "/cf/home";
+}
+
+function viewTagsPage() {
+    
+    $.ajax({
+        type : "POST",
+        async: "false",
+        contentType : "application/json",
+        url : "${contextPath}${apiPath}/tagExists",
+        success: function(data) {
+            if(data == undefined || data.count == 0) {
+                showMessage("No tags found.", "warn");
+                return;
+            } else {
+                window.open(contextPath+viewPath+"/tev", "_blank");
+            }
+        },
+        error: function(data) {
+            showMessage("Error occurred while retrieving details", "error");
+        },
+    });
+    
+}
+
+// ========== Checkbox Handlers ==========
+function addCheckBox(uiObject) {
+    const row = uiObject.rowData;
+    const rowIndxPage = uiObject.rowIndxPage;
+    const moduleId = row.moduleid || row.moduleId || "";
+    const modulename = row.modulename || "";
+   const entityId = row.entityid || row.entityId || "";
+    const key =entityId + "_" + moduleId;
+    const isChecked = checkedEntityMap.get(key) === true ? "checked" : "";
+
+   // Build checkbox HTML (CSP-safe, no inline JS)
+    var addChkBoxString = ""
+        + "<div style='width:100%; text-align:center;'>"
+        + "<input type='checkbox' "
+        + "name='isActiveCheckbox' "
+        + "id='" + key + "' "
+        + "data-key='" + key + "' "
+        + "data-moduleid='" + moduleId + "' "
+        + "data-entityid='" + entityId + "' "
+        + "data-rowindxpage='" + rowIndxPage + "' "
+        + isChecked + ">"
+        + "</div>";
+
+    return addChkBoxString;
+}
+
+function checkAllBoxes(uiObject) {
+    const attrChecked = uiObject.value === "Select All";
+    const currentPageRecords = grid.pqGrid("option", "dataModel.data");
+
+    $.each(currentPageRecords, function(_, value) {
+        
+        const moduleId = value["moduleid"] || value["moduleId"] || "";
+        const entityId = value["entityid"] || value["entityId"] || "";
+        const moduleName = value["modulename"] ?? "";
+        const key = entityId+"_"+moduleId;
+        $("#" + key).prop("checked", attrChecked);
+        checkedEntityMap.set(key, attrChecked);
+    });
+
+    // Update button state after bulk selection
+    updateButtonState();
+}
+
+// ========== Modal Handling ==========
+function openmodal() {
+    const modal = new bootstrap.Modal(document.getElementById('busModuleModalDialog'));
+    modal.show();
+}
+
+// ========== Button State Logic ==========
+function updateButtonState() {
+    const checkedBoxes = document.querySelectorAll("input[name='isActiveCheckbox']:checked");
+    const createBtn = document.getElementById("create");
+    if (createBtn) {
+        createBtn.disabled = checkedBoxes.length === 0;
+    }
+}
+
+// ========== DOM Event Listeners ==========
+document.addEventListener("DOMContentLoaded", function () {
+    const createBtn = document.getElementById("create");
+    const backBtn = document.getElementById("backBtn");
+    const viewTagBtn = document.getElementById("viewTag");
+
+    // Checkbox change event
+    document.addEventListener("change", function (e) {
+        if (e.target && e.target.name === "isActiveCheckbox") {
+            checkedEntityMap.set(e.target.dataset.key, e.target.checked);
+            updateButtonState();
+        }
+    });
+
+    // Handle select/deselect all buttons
+    document.addEventListener("click", function (e) {
+        if (e.target.closest(".select_btn_new")) {
+            const btn = e.target.closest(".select_btn_new");
+            checkAllBoxes(btn);
+        }
+    });
+
+    // Create button handler
+    if (createBtn) {
+       createBtn.addEventListener("click", function () {
+    // Check both current page and saved selections
+            const hasChecked = Array.from(checkedEntityMap.values()).some(v => v === true);
+            if (!hasChecked) {
+                showMessage("Please select at least one checkbox before creating.", "warn");
+                return;
+            }
+            openmodal();
+        });
+
+    }
+
+    // Back button handler
+    if (backBtn) {
+        backBtn.addEventListener("click", backToPreviousPage);
+    }
+    
+    // View button handler
+    if (viewTagBtn) {
+        viewTagBtn.addEventListener("click", viewTagsPage);
+    }
+
+    // Initialize button state
+    updateButtonState();
+});
+</script>

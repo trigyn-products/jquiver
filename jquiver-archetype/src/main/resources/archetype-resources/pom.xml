@@ -16,7 +16,7 @@
 
 	<properties>
 		<java.version>22</java.version>
-		<jws.version>2.2</jws.version>
+		<jws.version>2.9</jws.version>
 	</properties>
 
 	<dependencies>

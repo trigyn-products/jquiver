@@ -1,12 +1,9 @@
 <#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}" ', '') />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/jqplot/1.0.9.d96a669/jquery.jqplot.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/gridstack/0.4.0_gridstack.css" />
-<script src="${(contextPath)!''}/webjars/lodash/4.17.21/lodash.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/jqplot/1.0.9.d96a669/jquery.jqplot.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.categoryAxisRenderer.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.canvasAxisTickRenderer.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.canvasTextRenderer.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.pointLabels.js"></script>
+<script src="${(contextPath)!''}/webjars/gridstack/0.5.0/src/gridstack.js"></script>
+<script src="${(contextPath)!''}/webjars/gridstack/0.5.0/src/gridstack.jQueryUI.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/blockui/jquery.blockUI.js"></script>
 
 <script ${scriptNonce}>
     let crntdashletId;

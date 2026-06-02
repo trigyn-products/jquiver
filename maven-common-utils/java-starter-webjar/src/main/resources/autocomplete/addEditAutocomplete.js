@@ -88,6 +88,7 @@ class AddEditAutocomplete {
 			});
 			context.sqlQuery.onDidChangeModelContent(function() {
 				$('#errorMessage').hide();
+				userActivityDetected(); // for salt refresh
 			});
 			//	        	$("#contentDiv").remove();
 		});
@@ -96,8 +97,9 @@ class AddEditAutocomplete {
 	saveAutocompleteDetail = function() {
 		const context = this;
 		let isDataSaved = false;
+		let autocompleteId = $.trim($("#autoId").val());
 		const validData = this.validateData();
-		if (validData == false) {
+		if (validData == false || saveModDetails(isEdit, autocompleteId) == false) {
 			return false;
 		}
 		const sqlEditor = context.sqlQuery.getValue();
@@ -118,7 +120,10 @@ class AddEditAutocomplete {
 			success: function(data) {
 				isDataSaved = true;
 				context.saveEntityRoleAssociation(data);
-				showMessage("Autocomplete saved successfully", "success");
+				showMessage("Information saved successfully", "success");
+				if (isEdit == 0) {
+					saveModDetails(isEdit, data);
+				}
 			},
 			error: function(xhr, error) {
 				showMessage("Error occurred while saving", "error");

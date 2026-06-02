@@ -11,6 +11,8 @@ class JQFormIO {
 			loadFormIODefaultTab("formio-default-template", context.updateFormIOTemplate, formioid);
 		} else if (persistenceType === "2") {
 			loadFormIODefaultTab("formio-external-template", context.updateFormIOTemplate, formioid);
+		} else if (persistenceType === "3") {
+           loadFormIODefaultTab("formio-custom-pluggable-template", context.updateFormIOTemplate, formioid);
 		}
 
 	};
@@ -27,7 +29,7 @@ class JQFormIO {
 		}
 	}
 
-	
+
 	initEventListeners = () => {
 
 		$(document).on("click", "#reloadCaptcha", function(event) {
@@ -51,16 +53,24 @@ function loadFormIODefaultTab(templateName, callbackFun, formioid) {
 			$("#jsContent").hide();
 			$("#htmlContent").show();
 			$("#selectContent").hide();
+			$("#customPluggableContent").hide();
 		} else if (selectedTab === "selectPreview") {
 			previewTabName = "selectPreview";
 			$("#jsContent").hide();
 			$("#htmlContent").hide();
 			$("#selectContent").show();
+			$("#customPluggableContent").hide();
 		} else if (selectedTab === "jsPreview") {
 			previewTabName = "jsPreview";
 			$("#jsContent").show();
 			$("#htmlContent").hide();
-			$("#selectContent").hide();
+			$("#customPluggableContent").hide();
+		} else if (selectedTab === "customPluggableContent") {
+			previewTabName = "customPluggableHtmlContentPreview";
+			$("#customPluggableContent").show();
+			$("#jsContent").hide();
+		    $("#htmlContent").hide();
+		    $("#selectContent").hide();
 		}
 
 		$.ajax({
@@ -100,11 +110,18 @@ function displayFormIOTabContent(data, selectedTab, callbackFun) {
 		$('#selectContent').html("");
 		$('#selectContent').wrapInner(simplemde.options.previewRender(simplemde.value()));
 		$("#selectContent").scrollTop(0);
-	} else {
+	} if (selectedTab == "jsContent") {
 		$('#jsPreview').html("");
 		$('#jsPreview').wrapInner(simplemde.options.previewRender(simplemde.value()));
 		$("#jsPreview").scrollTop(0);
 		callbackFun();
+	} if (selectedTab == "customPluggableContent") {
+		let routeName = $("#routeName").val().trim();
+		const renderedContent = simplemde.options.previewRender(simplemde.value().replace(/routeName/g, routeName));
+		$('#customPluggableHtmlContentPreview').html("");
+		$('#customPluggableHtmlContentPreview').wrapInner(renderedContent);
+		$("#customPluggableHtmlContentPreview").scrollTop(0);
+			//callbackFun();
 	}
 }
 
@@ -151,24 +168,72 @@ function reloadCptcha() {
 	$("#formCaptcha").val('');
 }
 
-$(document).ready(function() {
-	$('.form-check-input').change(function() {
-		var inputType = $(this).attr('type');
-		if (inputType == "checkbox") {
-			var id = this.name;
-			id = id.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '-');
-			$('#hidden-' + id).remove();
-			var val = 0;
-			if (this.checked) {
-				this.value = 1;
-			} else {
-				this.value = val;
-				$(this).after('<input id = "hidden-' + id + '" name = "' + this.name + '" type="hidden" value = "' + val + '" />');
 
-			}
+/*
+ * In case of custom UI, this method will be called.
+ */
+function fileListing(fileObj) {
+	let input = $("<input id='" + fileObj["id"] + "' value='" + fileObj["id"] + "' type='text'>");
+	//    input.insertAfter($("#fileIdDiv"));
+}
+
+/*
+ * This is just for demo purpose, to show sample function from the button
+ */
+function fileName(a_fileName) {
+	showMessage("File Name: " + a_fileName, "success");
+}
+
+/*
+ * This is just for demo purpose, to show sample function from the button
+ */
+function copyFilePath(a_fileUploadId) {
+	let input = $("<input>");
+	$("body").append(input);
+	input.val(window.location.origin + contextPath + "/cf/files/" + a_fileUploadId).select();
+	document.execCommand("copy");
+	input.remove();
+	showMessage("File path copied successfully", "success");
+}
+
+function deduplicateFileUploadUI() {
+
+	const master = document.querySelector('#fileUploadMaster');
+	if (!master) return;
+
+	// ✅ Deduplicate: Instruction block (only inside cm-uploadwrap)
+	const instructionBlocks = master.querySelectorAll('.cm-uploadwrap .dropzone-title');
+	instructionBlocks.forEach((el, i) => i > 0 && el.remove());
+
+	// ✅ Deduplicate: Copy-paste blocks (Click and paste)
+	const copyBlocks = master.querySelectorAll('.copyblock.dropzone-title');
+	copyBlocks.forEach((el, i) => i > 0 && el.remove());
+
+	// ✅ Deduplicate: File preview cards by file name
+	const previews = master.querySelectorAll('.dz-preview');
+	const seen = new Set();
+	previews.forEach(preview => {
+		const name = preview.querySelector('[data-dz-name]')?.textContent.trim();
+		if (seen.has(name)) {
+			preview.remove();
+		} else {
+			seen.add(name);
 		}
 	});
 
+	// ✅ Remove empty duplicate <label class="dropzone-container ...">
+	const labels = master.querySelectorAll('label.dropzone-container');
+	labels.forEach((label, i) => {
+		const hasTitle = label.querySelector('.dropzone-title');
+		if (!hasTitle || i > 0) {
+			label.remove();
+		}
+	});
+}
+
+
+$(document).ready(function() {
+	
 });
 
 

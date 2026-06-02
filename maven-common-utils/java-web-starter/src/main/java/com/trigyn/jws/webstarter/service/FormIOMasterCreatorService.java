@@ -22,12 +22,17 @@ import com.trigyn.jws.dynamicform.service.DynamicFormHelperService;
 import com.trigyn.jws.dynamicform.service.DynamicFormIoService;
 import com.trigyn.jws.formio.dao.IFormIORepository;
 import com.trigyn.jws.formio.entities.FormIO;
+import com.trigyn.jws.formio.utils.Constants;
 import com.trigyn.jws.formio.utils.FormFieldFactory;
 import com.trigyn.jws.formio.utils.FormFieldGenerator;
+import com.trigyn.jws.formio.utils.FormIOUtils;
+import com.trigyn.jws.formio.vo.FormIOLogicAction;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.webstarter.utils.Constant;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 @Transactional(readOnly = false)
@@ -49,6 +54,10 @@ public class FormIOMasterCreatorService {
 	private DynamicFormIoService dynamicFormIoService = null;
 	@Autowired
 	private DynamicFormHelperService dynamicFormHelperService =null;
+	
+	@Autowired
+	private HttpServletRequest 			request 			= null;
+
 
 	String generateSelectQueryForFormIO(String tableName, List<Map<String, Object>> formDetails,
 			String primaryKey, String dataSourceId, String dbProductName) throws Exception {
@@ -93,7 +102,7 @@ public class FormIOMasterCreatorService {
 
 	}
 
-	public FormIO generateFormIoStructure(List<Map<String, Object>> matchedColumnDetails, Map<String, Object> formData, boolean isCaptchaEnabled) 
+	public FormIO generateFormIoStructure(List<Map<String, Object>> matchedColumnDetails, Map<String, Object> formData, boolean isCaptchaEnabled, String fileBinId) 
 	        throws Exception {
 		
 	    List<Map<String, Object>> nestedComponents = new ArrayList<>();
@@ -117,6 +126,26 @@ public class FormIOMasterCreatorService {
 			columns.put("columnType", columnType);
 			columns.put("fieldName", fieldName);
 			columns.put("columnName", fieldName.toLowerCase());
+			FormFieldGenerator	generator	= FormFieldFactory.getFieldGenerator(columnType);
+			Map<String, Object>	fieldMap	= generator.generateField(columns);
+			nestedComponents.add(fieldMap);
+		}
+	    
+	    if (fileBinId != null && fileBinId.isBlank() == false) {
+	    	Map<String, Object>	columns		= new HashMap<>();
+			String				columnType	= "filebincomponent";
+			String fieldName 				= fileBinId;
+			columns.put("columnType", columnType);
+			columns.put("fieldName", fieldName);
+			columns.put("columnName", fieldName.toLowerCase());
+			columns.put("content", Constants.FILE_BIN_HTML_CONTENT);
+			String fileBinType 		= fieldName;
+			String contextPath = request.getContextPath();
+			FormIOUtils fmioUtils = new FormIOUtils();
+			List<FormIOLogicAction> logic = fmioUtils.injectLogic(fileBinType, Constants.FILE_BIN_JS_CONTENT,
+					"yourFileBinId", fileBinType, contextPath);
+			columns.put("jsContent", logic.get(0).getTrigger().getJavascript());
+			
 			FormFieldGenerator	generator	= FormFieldFactory.getFieldGenerator(columnType);
 			Map<String, Object>	fieldMap	= generator.generateField(columns);
 			nestedComponents.add(fieldMap);
@@ -154,7 +183,7 @@ public class FormIOMasterCreatorService {
 	}
 	
 	public FormIO updateFormIoDetails(MultiValueMap<String, String> inputDetails, Map<String, Object> formData,
-			String dataSourceId) throws JsonProcessingException, JsonMappingException, Exception {
+			String dataSourceId, String fileBinId) throws JsonProcessingException, JsonMappingException, Exception {
 		FormIO fmio;
 		String						formIoId;
 		String						tableName;
@@ -172,7 +201,7 @@ public class FormIOMasterCreatorService {
 		if (formData.get("toggleCaptcha").toString() != null && formData.get("toggleCaptcha").toString().equalsIgnoreCase("1")) {
 			isCaptchaEnabled = true;
 		}
-		fmio = generateFormIoStructure(tableDetails, formData, isCaptchaEnabled);
+		fmio = generateFormIoStructure(tableDetails, formData, isCaptchaEnabled, fileBinId);
 		formData.put("formIoId", fmio.getFormIoId());
 		return fmio;
 	}

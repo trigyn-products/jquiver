@@ -37,9 +37,9 @@ public class TwoFactorGoogleUtil {
 
 	public void validateOTP(String enteredCode, String secretKey) {
 		if (enteredCode.equals(getTOTPCode(secretKey))) {
-			System.out.println("Logged in successfully");
+			logger.info("Logged in successfully");
 		} else {
-			System.out.println("Invalid 2FA Code");
+			logger.info("Invalid 2FA Code");
 		}
 	}
 

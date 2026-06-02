@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,12 +28,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import org.springframework.security.web.context.DelegatingSecurityContextRepository;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 
 import com.trigyn.jws.usermanagement.repository.JwsRoleMasterModulesAssociationRepository;
@@ -69,9 +64,6 @@ public class MultiHttpSecurityConfig {
 	private ApplicationSecurityDetails					applicationSecurityDetails				= null;
 
 	@Autowired
-	private DataSource									dataSource								= null;
-
-	@Autowired
 	private OAuth2HelperService							oAuth2HelperService						= null;
 
 	@Autowired
@@ -91,6 +83,9 @@ public class MultiHttpSecurityConfig {
 
 	@Autowired
 	private JQuiverProperties							jQuiverPropeties						= null;
+	
+	@Autowired
+	private JwtReEncryptionFilter						jwtReEncryptionFilter					= null;
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) {
@@ -208,18 +203,20 @@ public class MultiHttpSecurityConfig {
 														"/cf/resetPassword", "/cf/authenticate",
 														"/cf/saveOtpAndSendMail", "/cf/getResourceBundleData",
 														"/cf/hmfn", "/cf/search", "/cf/grid-data", "/cf/pq-grid-data",
-														"cf/hmfc", "/error")
+														"/cf/hmfc", "/error","/cf/cl/**","/cf/swf")
 												.permitAll()
 												.requestMatchers("/cf/register", "/cf/confirm-account",
 														"/cf/captcha/**", "/cf/changePassword", "/cf/updatePassword",
-														"/cf/configureTOTP", "/cf/sendConfigureTOTPMail", "/japi/**")
+														"/cf/configureTOTP", "/cf/sendConfigureTOTPMail", "/japi/**", "/cf/fetchSalt")
 												.permitAll().requestMatchers("/login/**", "/logout/**").permitAll()
 												.requestMatchers("/sch-api/**", "/japi/**").permitAll()
 												.requestMatchers(jQuiverPropeties.getApiPath() + "/**", "/cf/files/**",
-														jQuiverPropeties.getViewPath() + "/**", "/cf/gl", "/cf/psdf",
+														jQuiverPropeties.getViewPath() + "/**", "/cf/gl", "/cf/psdf", 
+														"/cf/fdbbi", "/cf/m-upload", 
 														"/cf/getResourceBundleData", "/cf/hmfn", "/cf/search",
-														"cf/hmfc", "/error")
+														"/cf/hmfc", "/error")
 												.permitAll().requestMatchers("/webjars/**").permitAll()
+												.requestMatchers("/cf/cl/**").permitAll()
 												.requestMatchers("/cf/**", jQuiverPropeties.getApiPath() + "/**",
 														"/japi/**", "/**", jQuiverPropeties.getMonitoringPath())
 												.authenticated()).csrf(csrf -> csrf.disable())
@@ -228,13 +225,11 @@ public class MultiHttpSecurityConfig {
 														.usernameParameter("email").permitAll()
 														.failureHandler(loginFailureHandler())
 														.successHandler(customAuthSuccessHandler()))
-												.rememberMe(rememberMe -> rememberMe.rememberMeParameter("remember-me")
-														.tokenRepository(tokenRepository()))
 												.authenticationProvider(customAuthenticationProvider())
 												.securityContext(secCon -> secCon
 														.securityContextRepository(securityContextRepository))
 												.logout(logout -> logout.addLogoutHandler(logoutHandler())
-														.deleteCookies("JSESSIONID"));
+														.deleteCookies("auth_token", "JSESSIONID"));
 									}
 									if (Constants.AuthType.SAML.getAuthType() == authType) {
 										http.cors(Customizer.withDefaults()).authorizeHttpRequests(auth -> auth
@@ -245,15 +240,16 @@ public class MultiHttpSecurityConfig {
 												.requestMatchers("/sch-api/**", "/japi/**").permitAll()
 												.requestMatchers("/cf/files/**", jQuiverPropeties.getViewPath() + "/**",
 														"/cf/gl", "/cf/psdf", "/cf/getResourceBundleData", "/cf/hmfn",
-														"/cf/search", "/cf/grid-data", "/cf/pq-grid-data", "cf/hmfc",
-														"/error", jQuiverPropeties.getMonitoringPath())
+														"/cf/search", "/cf/grid-data", "/cf/pq-grid-data", "/cf/hmfc",
+														"/error", jQuiverPropeties.getMonitoringPath(),"/cf/cl/**","/cf/swf")
 												.permitAll().requestMatchers("/cf/**", "/japi/**", "/**")
 												.authenticated()).saml2Login(saml2 -> {
 													try {
 														saml2.relyingPartyRegistrationRepository(customSAMLUserService
 																.relyingPartyRegistrationRepository())
 																.authenticationManager(new ProviderManager(
-																		customOpenSamlAuthenticationProvider));
+																		customOpenSamlAuthenticationProvider))
+																.successHandler(customAuthSuccessHandler());
 													} catch (Exception exc) {
 														logger.error("Error occured in SAML Authentication.", exc);
 													}
@@ -261,8 +257,9 @@ public class MultiHttpSecurityConfig {
 												.securityContext(secCon -> secCon
 														.securityContextRepository(securityContextRepository))
 												.logout(logout -> logout.addLogoutHandler(logoutHandler())
-														.deleteCookies("JSESSIONID"))
-												.csrf(csrf -> csrf.disable());
+														.deleteCookies("auth_token", "JSESSIONID", "okta-oauth-state", "okta-sess", "sid"))
+												.csrf(csrf -> csrf.disable()); 
+
 									}
 									if (Constants.AuthType.LDAP.getAuthType() == authType) {
 										http.cors(Customizer.withDefaults()).authorizeHttpRequests(auth -> auth
@@ -273,7 +270,7 @@ public class MultiHttpSecurityConfig {
 														"/cf/resetPassword", "/cf/authenticate",
 														"/cf/saveOtpAndSendMail", "/cf/getResourceBundleData",
 														"/cf/hmfn", "/cf/search", "/cf/grid-data", "/cf/pq-grid-data",
-														"cf/hmfc", "/error")
+														"/cf/hmfc", "/error","/cf/cl/**","/cf/swf")
 												.permitAll()
 												.requestMatchers(jQuiverPropeties.getApiPath() + "/**", "/cf/register",
 														"/cf/confirm-account", "/cf/captcha/**", "/cf/changePassword",
@@ -281,9 +278,10 @@ public class MultiHttpSecurityConfig {
 														"/cf/sendConfigureTOTPMail", "/japi/**")
 												.permitAll().requestMatchers("/login/**", "/logout/**").permitAll()
 												.requestMatchers("/sch-api/**", "/japi/**").permitAll()
+												.requestMatchers("/cf/cl/**").permitAll()
 												.requestMatchers("/cf/files/**", jQuiverPropeties.getViewPath() + "/**",
 														"/cf/gl", "/cf/psdf", "/cf/getResourceBundleData", "/cf/hmfn",
-														"/cf/search", "cf/hmfc", "/error")
+														"/cf/search", "/cf/hmfc", "/error")
 												.permitAll()
 												.requestMatchers("/cf/**", jQuiverPropeties.getApiPath() + "/**",
 														"/japi/**", "/**", jQuiverPropeties.getMonitoringPath())
@@ -292,12 +290,10 @@ public class MultiHttpSecurityConfig {
 														.usernameParameter("email").permitAll()
 														.failureHandler(loginFailureHandler())
 														.successHandler(customAuthSuccessHandler()))
-												.rememberMe(rememberMe -> rememberMe.rememberMeParameter("remember-me")
-														.tokenRepository(tokenRepository()))
 												.securityContext(secCon -> secCon
 														.securityContextRepository(securityContextRepository))
 												.logout(logout -> logout.addLogoutHandler(logoutHandler())
-														.deleteCookies("JSESSIONID"));
+														.deleteCookies("auth_token", "JSESSIONID"));
 
 									}
 
@@ -309,8 +305,8 @@ public class MultiHttpSecurityConfig {
 												.requestMatchers("/sch-api/**", "/japi/**").permitAll()
 												.requestMatchers("/cf/files/**", jQuiverPropeties.getViewPath() + "/**",
 														"/cf/gl", "/cf/psdf", "/cf/getResourceBundleData", "/cf/hmfn",
-														"/cf/search", "/cf/grid-data", "/cf/pq-grid-data", "cf/hmfc",
-														"/error")
+														"/cf/search", "/cf/grid-data", "/cf/pq-grid-data", "/cf/hmfc",
+														"/error","/cf/cl/**")
 												.permitAll()
 												.requestMatchers("/cf/**", "/japi/**", "/**",
 														jQuiverPropeties.getMonitoringPath())
@@ -335,7 +331,7 @@ public class MultiHttpSecurityConfig {
 												.securityContext(secCon -> secCon
 														.securityContextRepository(securityContextRepository))
 												.logout(logout -> logout.addLogoutHandler(logoutHandler())
-														.deleteCookies("JSESSIONID"))
+														.deleteCookies("auth_token", "JSESSIONID"))
 												.csrf(csrf -> csrf.disable());
 									}
 								}
@@ -388,21 +384,13 @@ public class MultiHttpSecurityConfig {
 					sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 			http.headers(headers -> headers.xssProtection(Customizer.withDefaults()).contentSecurityPolicy(
 					contentSecurityPolicy -> contentSecurityPolicy.policyDirectives(" ").reportOnly()));
+			http.exceptionHandling(
+					exception -> exception.authenticationEntryPoint(new CustomAuthenticationEntryPoint()));
+			http.addFilterBefore(new SavedRequestCookieFilter(), UsernamePasswordAuthenticationFilter.class);
+			http.addFilterAfter(jwtReEncryptionFilter, UsernamePasswordAuthenticationFilter.class);
 			return http.build();
 		}
 
 	}
 
-	@Bean
-	public PersistentTokenRepository tokenRepository() {
-		JdbcTokenRepositoryImpl jdbcTokenRepositoryImpl = new JdbcTokenRepositoryImpl();
-		jdbcTokenRepositoryImpl.setDataSource(dataSource);
-		return jdbcTokenRepositoryImpl;
-	}
-
-	@Bean
-	public SecurityContextRepository securityContextRepository() {
-		return new DelegatingSecurityContextRepository(new RequestAttributeSecurityContextRepository(),
-				new HttpSessionSecurityContextRepository());
-	}
 }

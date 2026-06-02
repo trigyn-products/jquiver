@@ -17,6 +17,35 @@ public class JQuiverProperties {
 
 	@Value("${javamelody.init-parameters.monitoring-path:/monitoring}")
     private String monitoringPath;
+	
+	@Value("${jquiver.enableSecuredAuthentication:false}")
+    private boolean enableSecuredAuthentication;
+	
+	@Value("${jquiver.authTokenExpiryTime:90}")
+    private int authTokenExpiryTime;
+	
+	@Value("${server.port:8080}")
+    private int serverPort;
+
+	public int getServerPort() {
+		return serverPort;
+	}
+
+	public int getAuthTokenExpiryTime() {
+		return authTokenExpiryTime;
+	}
+
+	public void setAuthTokenExpiryTime(int authTokenExpiryTime) {
+		this.authTokenExpiryTime = authTokenExpiryTime;
+	}
+
+	public boolean isEnableSecuredAuthentication() {
+		return enableSecuredAuthentication;
+	}
+
+	public void setEnableSecuredAuthentication(boolean enableSecuredAuthentication) {
+		this.enableSecuredAuthentication = enableSecuredAuthentication;
+	}
 
 	public String getBaseUrl() {
 		return baseUrl;

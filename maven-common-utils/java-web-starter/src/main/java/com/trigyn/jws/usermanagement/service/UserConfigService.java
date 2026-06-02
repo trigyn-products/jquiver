@@ -22,6 +22,7 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
@@ -64,7 +65,7 @@ public class UserConfigService {
 		if (applicationSecurityDetails.getAuthenticationDetails() != null) {
 			Map<String, Object>	authenticationDetails	= applicationSecurityDetails.getAuthenticationDetails();
 			Boolean				isAuthenticationEnabled	= applicationSecurityDetails.getIsAuthenticationEnabled();
-			String databaseDisplayName = null;
+			String databaseDisplayName = "databaseDisplayName";
 			String ldapDisplayName = null;
 			mapDetails.put("isAuthenticationEnabled", isAuthenticationEnabled);
 			mapDetails.put("enableGoogleAuthenticator", false);
@@ -285,6 +286,10 @@ public class UserConfigService {
 				salt = saltDetails.getSalt();
 			}
 		}
+		if(salt == null) {
+			throw new UsernameNotFoundException("Login page expired. Please relogin.");
+		}
+		
 		String	paddedKey			= padOrTruncateKey(salt, 16);
 		String	decryptedPassword	= CipherUtilFactory
 				.getCipherUtil(Constant.AES, Constant.ECB, Constant.PKCS5PADDING, 128)
@@ -305,14 +310,10 @@ public class UserConfigService {
 	public Map<String, String> fetchSalt() {
 		Map<String, String> responseMap = new HashMap<>();
 		try {
-			dynamicFormDAO.deleteOldRecords();
-			String		requestId	= UUID.randomUUID().toString();
-			String		salt		= RandomStringUtils.randomAlphanumeric(16).toString();
-			SaltDetails	saltEntity	= new SaltDetails(requestId, salt, LocalDateTime.now());
-			saltDetailsRepository.save(saltEntity);
+			SaltDetails saltDetails = generateAndStoreSalt();
 
-			responseMap.put("requestId", requestId);
-			responseMap.put("salt", salt);
+			responseMap.put("requestId", saltDetails.getRequestId());
+			responseMap.put("salt", saltDetails.getSalt());
 		} catch (Exception exc) {
 			logger.error("Error Occured in fetchSalt().", exc);
 		}
@@ -334,5 +335,17 @@ public class UserConfigService {
 			}
 		}
 		return authType;
+	}
+	
+	public SaltDetails generateAndStoreSalt() throws NumberFormatException, Exception {
+		dynamicFormDAO.deleteOldRecords();
+
+		String requestId = UUID.randomUUID().toString();
+		String salt = RandomStringUtils.randomAlphanumeric(16);
+		SaltDetails saltEntity = new SaltDetails(requestId, salt, LocalDateTime.now());
+
+		saltDetailsRepository.save(saltEntity);
+
+		return saltEntity;
 	}
 }

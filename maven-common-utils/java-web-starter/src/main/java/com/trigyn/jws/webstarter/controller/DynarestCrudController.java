@@ -31,6 +31,7 @@ import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.security.config.JwtUtil;
+import com.trigyn.jws.usermanagement.vo.JwtRequestDetails;
 import com.trigyn.jws.webstarter.service.DynarestCrudService;
 import com.trigyn.jws.webstarter.utils.JQuiverProperties;
 
@@ -167,11 +168,12 @@ public class DynarestCrudController {
 		return resp;
 	}
 
-	@RequestMapping(value = "/getJwtToken/{userName}", method = RequestMethod.GET)
-	public String getJwtToken(@PathVariable(name="userName") String userName)
+	@GetMapping(value = "/getJwtToken/{userName}")
+	public String getJwtToken(@PathVariable(name="userName") String userName, HttpServletResponse httpServletResponse)
 			throws Exception {
-		String token = jwtUtil.generateToken(userDetailsService.loadUserByUsername(userName));
-		return token;
+		JwtRequestDetails jwtRequestDetails = jwtUtil.generateToken(userDetailsService.loadUserByUsername(userName));
+		jwtUtil.createTokenCookie(httpServletResponse, jwtRequestDetails);
+		return jwtRequestDetails.getToken();
 	}
 	
 	@PostMapping(value = "/drabi")

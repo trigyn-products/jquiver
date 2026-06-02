@@ -74,7 +74,7 @@ function loadTable(zipFileJsonDataMap, versionMap, crcMap) {
 				let existingVersion = versionMap.get(moduleType.toLowerCase() + moduleID);
 				let isNonVersioningModule = "false";
 				if (moduleType == "FileManager" || moduleType == "Permission" || moduleType == "Router"
-					|| moduleType == "ManageUsers" || moduleType == "ManageRoles" || moduleType == "HelpManual") {
+					|| moduleType == "ManageUsers" || moduleType == "ManageRoles" || moduleType == "HelpManual" || moduleType == "BusinessModule" || moduleType == "BusinessEntityModules") {
 					isNonVersioningModule = "true";
 				}
 				let isCheckSumUpdated = crcMap.get(moduleType.toLowerCase() + moduleID);
@@ -324,7 +324,6 @@ function importSingle(moduleType, entityId) {
 
 function importAll() {
 
-	
 	//	let exportedFormatObject = localStorage.getItem("exportedFormatObject");
 	const map = Object.create(null);
 	map["imporatableData"] = imporatableData;

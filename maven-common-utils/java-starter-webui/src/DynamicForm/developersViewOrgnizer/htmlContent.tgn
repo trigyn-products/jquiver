@@ -1,0 +1,1191 @@
+<style>
+    /* Ensure the body has no margin or padding */
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Container for the layout (Left and Right columns) */
+    
+
+    /* Left column for Parent Modules */
+    .left-column {
+        /* This is the key change: Set the left column to 30% */
+        border-right: 1px solid #ccc; /* Adds separation between left and right columns */
+        padding-right:10px;
+    }
+
+    /* Right column for Child Entities */
+    .right-column {
+        
+     }
+
+    /* Styling for Parent Module Items */
+    .parent-item {
+        cursor: pointer;
+        margin-bottom: 0px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 0px;
+        background-color: #f9f9f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+     .parent-item.active{
+        background:#e9e9e;
+        color:var(--bluebgcolor);
+        font-weight:bold;
+    }
+    
+    .parent-item:hover {
+        background-color: #e9e9e9;
+    }
+
+    /* Styling for Edit/Delete Buttons */
+    .parent-item .button-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .button-group button {
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+
+    /* Styling for Child Entities */
+    .child-entities {
+        width:100%;
+        display: none; /* Initially hidden */
+    }
+
+    .grid_action_icons_ex a{
+        text-decoration:none;
+    } 
+
+    .grid_action_icons_ex {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+}
+
+    .child-entities table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .child-entities th, .child-entities td {
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+    
+    .parent-item .button-group .btn:hover{
+        background: var(--bluebgcolor);
+        color:#fff;
+    }
+
+    .parent-item .button-group .btn{
+        display: flex;
+        padding: 5px !important;
+        border:1px solid #ccc !important;
+        background: #f3f3f3;
+        margin: 0px 1px;
+        border-radius: 5px;
+        color:#292929;
+        align-items: center;
+    }
+
+    /* Styling for Action Icons */
+    .grid_action_icons_ex .fa {
+        display: flex;
+        padding: 5px;
+        background: #f3f3f3;
+        margin: 0px 5px;
+        border-radius: 5px;
+        color:#000;
+        align-items: center;
+    }
+
+    .parent-modules{
+        margin:20px 0px 0px;
+        border:1px solid #CCC;
+        padding:0px;
+    }
+
+    .cstomtble th{
+        background: #f2f2f2;
+    }
+
+    .search-cover{
+        width:100% !important;
+    }
+
+    .grid_action_icons_ex .fa:hover {
+        background: var(--bluebgcolor);
+        color:#fff;
+    }
+
+    /* Title Section */
+    .title-cls-name {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+      
+	<!-- Splitter css -->
+
+    .splitter-container {
+        display: flex;
+        width: 100%;
+        height: 600px;
+        overflow: hidden;
+    }
+
+    .left-column,
+    .right-column {
+        overflow: auto;
+        padding: 10px;
+    }
+
+    .splitter-bar {
+        background: #ccc;
+        width: 5px;
+        cursor: col-resize;
+    }
+
+    .module-name {
+        display: block;
+    	width: 69%;
+    	text-overflow: ellipsis;
+    	overflow: hidden;
+    	white-space: nowrap;
+    }
+
+	.splitter_panel {
+    	position: relative;
+    	min-height: 400px; /* ensures panels don't shrink too much */
+    	overflow: auto; /* so content scrolls if too big */
+	}
+
+    .disabled-history {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+</style>
+
+<head>
+    <script src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+    <script src="${(contextPath)!''}/webjars/1.0/nestedsortable/nestedSortable.js"></script>
+    <!-- For Splitter.js -->
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/splitter/jquery.splitter.css">
+    <script src="${(contextPath)!''}/webjars/1.0/splitter/jquery.splitter.js"></script>
+</head>
+
+<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="cmvEntityName" name="cmvEntityName" value="cmvEntityName">
+    <input type="hidden" id="entityId" name="entityId">
+    <input type="hidden" id="moduleName" name="moduleName">
+    <input type="hidden" id="moduleType" name="moduleType" value="template">
+    <input type="hidden" id="saveUrl" name="saveUrl">
+    <input type="hidden" id="previousPageUrl" name="previousPageUrl">
+    <input type="hidden" id="isDeveloperView" name="isDeveloperView">
+    <input type="hidden" id="nonVersioningFetchURL" name="nonVersioningFetchURL">
+    <input type="hidden" id="isNonVersioningModule" name="isNonVersioningModule">
+    <input type="hidden" id="previousPageUrl" name="previousPageUrl">
+    <input type="hidden" id="versioningFetchURL" name="versioningFetchURL">
+     <input type="hidden" id="moduleId" name="moduleId">
+</form>
+
+   
+
+<#if resultSetObject.businessModuleData?? && resultSetObject.businessModuleData?has_content>
+    <#assign businessDataMap = resultSetObject.businessModuleData>
+
+    <div class="container navdragdropblock">
+
+        <div class="row topband">
+        <div class="col-4">
+			    <h2 class="title-cls-name float-left">Business Module</h2> 
+	    </div>  
+       
+        <div class="col-7">                                      
+		        <#assign ufAttributes = {
+		            "entityType": "Templating",
+		            "entityId": "templateId",
+		            "entityName": "vmName",
+					"hideFav":"true"
+		        }>
+		        <@templateWithParams "user-favorite-template" ufAttributes />
+	    </div>
+	    
+	    <div class="col-1">
+			    <button type='button' id="back-btn" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+	    </div>
+                              
+        </div>
+
+        <div class="row">
+        <div id="business-module-splitter" class="splitter-container">
+        <div class="left-column">
+            <div class="search-cover">
+                <input type="text" class="form-control" id="linkModuleNameAutocomplete">
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </div>
+			
+            <ul class="parent-modules" id="parent-modules-list">
+                <#list businessDataMap as parentKey, parentVal>
+                    <#assign parent = parentVal>
+                    <li class="parent-item" data-id="${parent.businessModuleId}">
+                        <span class="module-name">${parent.businessModuleName}</span>
+                        <!-- Button Group for Edit/Delete -->
+                        <div class="button-group">
+                            <button type="button" class="edit-btn btn btn-sm btn-outline-primary" data-id="${parent.businessModuleId}" data-name="${parent.businessModuleName}" title="Edit">
+                                <i class="fa fa-pencil"></i>
+                            </button>
+                            <button type="button" class="delete-parent-btn btn btn-sm btn-outline-danger" data-id="${parent.businessModuleId}" title="Delete">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </li>
+                </#list>
+            </ul>
+        </div>
+
+        <div class="right-column col-9">
+            <#list businessDataMap as parentKey, parentVal>
+                <#assign parent = parentVal>
+                <#if parent.children?? && parent.children?has_content>
+                    <div class="child-entities" id="child-entities-${parent.businessModuleId}">
+                        <table class="table cstomtble">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" width="50%">Module</th>
+                                    <th class="text-center" width="40%">Entity</th>
+                                    <th class="text-center" width="10%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <#list parent.children as childKey, child>
+                                    <tr>
+                                        <td>${child.childModuleName}</td>
+                                        <td>${child.childEntityName}</td>
+                                       
+                                        <td>
+                                            <span class="grid_action_icons_ex">
+                                                <a href="#" class="view-icon" data-module-name="${child.childModuleName}" data-entity-id="${child.entityId}" data-entity-name="${child.childEntityName}" title="View">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
+                                                <a href="#" id="history-icon" class="history-icon" data-module-name="${child.childModuleName}" data-entity-id="${child.entityId}" data-module-id='${child.moduleId}' data-cmv-name="${child.cmvEntityName}" title="History">
+                                                    <i class="fa fa-history"></i>
+                                                </a>
+                                                <a href="#" class="unlink-icon" data-child-id="${child.businessModuleEntityDetailsId}" title="Unlink">
+                                                    <i class="fa fa-unlink"></i>
+                                                </a>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </#list>
+                            </tbody>
+                        </table>
+                    </div>
+                <#else>
+                    <div class="child-entities" id="child-entities-${parent.businessModuleId}">
+                       <p>No business entity found for ${parent.businessModuleName}.</p>
+                    </div>
+                </#if>
+            </#list>
+        </div>
+        </div> 
+		<!-- Splitter end -->
+		</div>
+    </div>
+
+<#else>
+    <div class="nodata_found">
+        <h3>No Business Modules found.</h3>
+    </div>
+</#if>
+
+<!-- Edit Module Modal -->
+<div class="modal fade" id="busModuleModalDialog" tabindex="-1" aria-labelledby="busModuleModalDialogLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="busModuleModalDialogLabel">Edit Module</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="busmoduleName" class="form-label">Module Name</label>
+            <input type="text" id="busmoduleName" name="busmoduleName" class="form-control" placeholder="Enter Module Name" autocomplete="off">
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="saveModuleBtn">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal content end -->
+
+<script ${scriptNonce}>
+    document.title = "Developer View"; 
+	var env = "${environment}";
+	let currentEditingModuleId = null;
+    const childDataCache = {};  // Global cache to store fetched child module data
+
+	document.addEventListener("DOMContentLoaded", function () {
+        const backButton = document.getElementById("back-btn");
+        if (backButton) {
+            backButton.addEventListener("click", function () {
+                location.href = contextPath + "/cf/home";
+            });
+        }
+    });
+
+    $(document).ready(function () {
+        $('#business-module-splitter').split({
+            orientation: 'vertical',
+            limit: 150,
+            position: ['25%'] // Left panel width
+        });
+    });
+
+	//For modal open
+	document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const name = this.getAttribute('data-name');
+            const parentModuleId = this.getAttribute('data-id');
+            openmodal(name,parentModuleId);
+        });
+    });
+
+function openmodal(name,parentModuleId) {
+    currentEditingModuleId = parentModuleId;
+    var myModal = new bootstrap.Modal(document.getElementById('busModuleModalDialog'));
+    myModal.show();
+    if (name) {
+      document.getElementById("busmoduleName").value = name || "";
+    }
+  }
+//Done modal section
+
+//For Updating Module Name 
+document.getElementById("saveModuleBtn").addEventListener("click", function () {
+    const updatedName = document.getElementById("busmoduleName").value;
+
+    //To check the duplicate name.
+	const allModuleButtons = document.querySelectorAll(".accordion-button");
+    let isDuplicate = false;
+
+    allModuleButtons.forEach(button => {
+        const moduleName = button.textContent.trim();
+        const parentId = button.getAttribute("data-bs-target")?.replace("#collapse-", "");
+       
+        // Ignore the current module being edited
+        if (moduleName.toLowerCase() === updatedName.toLowerCase() &&
+            parentId !== currentEditingModuleId) {
+            isDuplicate = true;
+        }
+    });
+
+    if (isDuplicate) {
+        showMessage("A module with this name already exists. Please change name.", "warn");
+        return;
+    }
+	//Done checking duplicate name
+    $.ajax({
+        async: false,
+        type: "POST",
+        url: contextPath + apiPath +"/ubmn", 
+        dataType: "text",
+        data: {
+            moduleId: currentEditingModuleId,
+            moduleName: updatedName
+        },
+        success: function (response) {
+		    showMessage("Module name updated successfully", "success");
+			setTimeout(() => location.reload(), 1000);
+        },
+        error: function (xhr, status, error) {
+            console.error("Failed to update module:", error);
+            showMessage("Error occurred while updating the module name", "error");
+        }
+    });
+});
+
+//Done updte Module name
+
+// Delete Parent section
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.delete-parent-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const parentId = this.getAttribute('data-id');
+      const parentElement = this.closest('.parent-item');
+      // Create the dialog element
+      const dialog = $('<div id="deleteParentConfirmDialog">Are you sure you want to delete this module?</div>');
+      $('body').append(dialog);
+
+      $('#deleteParentConfirmDialog').dialog({
+        bgiframe: true,
+        autoOpen: true,
+        modal: true,
+        closeOnEscape: true,
+        draggable: true,
+        resizable: false,
+        title: 'Delete',
+        position: { my: 'center', at: 'center' },
+        buttons: [
+          {
+            text: 'Delete',
+            class: 'btn btn-primary',
+            click: function () {
+              const dialogRef = $(this);
+              $.ajax({
+                type: 'POST',
+                url: contextPath + apiPath + '/dbm',
+                dataType: 'text',
+                data: { moduleId: parentId },
+                success: function (response) {
+                  if (parentElement) {
+                    parentElement.remove();
+                  }
+				   showMessage("Module deleted", "success");
+                },
+                error: function (xhr, status, error) {
+                  console.error('Failed to delete module:', error);
+                 showMessage("Error occurred while deleting the module", "error");
+                },
+                complete: function () {
+                  dialogRef.dialog('destroy').remove();
+                }
+              });
+            }
+          },
+          {
+            text: 'Cancel',
+            class: 'btn btn-secondary',
+            click: function () {
+              $(this).dialog('destroy').remove();
+            }
+          }
+        ],
+        open: function () {
+          $(".ui-dialog-titlebar button")
+            .removeClass("ui-dialog-titlebar-close")
+            .addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
+            .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
+            .append('<span class="ui-button-icon-space"></span>');
+        }
+      });
+    });
+  });
+});
+//Delete parent module done
+
+// for View icon
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('.view-icon').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        const moduleName = this.getAttribute('data-module-name');
+        const entityName = this.getAttribute('data-entity-name');
+        const entityId   = this.getAttribute('data-entity-id');
+         if(moduleName == "REST API"){
+                getModuleFormData(moduleName, entityName);
+            } else{
+                getModuleFormData(moduleName, entityId);
+            }
+      });
+    });
+  });
+
+  function getModuleFormData(moduleName, entityName) {
+    if( moduleName == "Template"){
+        moduleName = "Templating"
+    }
+    $.ajax({
+      type: "GET",
+      async: false,
+      url: contextPath + apiPath + "/gtvfd",
+      data: {
+        targetLookupId: moduleName,
+        targetTypeId: entityName
+      },
+      success: function (data) {
+        let form = $(JSON.parse(data[0].formData));
+        $("body").append(form);
+        $(form).attr("action", contextPath + $(form).attr("action"));
+        $(form).find("input").each(function (index, inputElem) {
+          if ($(inputElem).attr("name") !== "formId") {
+            $(inputElem).val(data[0].entityId);
+          }
+        });
+        $(form).attr('target', '_blank');
+        $(form).submit();
+      }
+    });
+  }
+//Done View icon
+
+// History compare Section
+document.addEventListener("DOMContentLoaded", function () {
+     // List of modules that do NOT support history
+    const noHistoryModules = [
+        "jq_module_listing",
+        "jq_api_client_details",
+        "jq_job_scheduler",
+        "jq_file_upload_config"
+    ];
+  
+  document.querySelectorAll('.history-icon').forEach(function (el) {
+
+    const cmvEntName = el.getAttribute('data-cmv-name');
+
+    // If this module doesn't support history
+    if (noHistoryModules.includes(cmvEntName)) {
+      // Option 1: Disable click
+      el.classList.add("disabled-history");
+      el.style.pointerEvents = "none"; // prevent clicks
+      el.style.opacity = "0.5";        // make it look disabled
+      el.title = "History not available for this module";
+    }
+     
+    el.addEventListener('click', function (e) {
+       if (el.classList.contains("disabled-history")) {
+            e.preventDefault();
+            return;
+      }
+      e.preventDefault(); // prevent anchor from jumping
+      const selectedId = this.getAttribute('data-entity-id'); 
+      const moduleName = this.getAttribute('data-module-name');
+	  const cmvEntityName = this.getAttribute('data-cmv-name');
+      const moduleId = this.getAttribute('data-module-id');
+
+    // Set hidden input values
+      document.getElementById("entityId").value = selectedId;
+      document.getElementById("moduleName").value = moduleName;
+	  document.getElementById("cmvEntityName").value = cmvEntityName;
+	  
+      const { moduleType, saveURL, isNonVersioningModule, nonVersioningFetchURL,versioningFetchURL } = getentityName(moduleId);
+      document.getElementById("moduleId").value = moduleId;
+      document.getElementById("isDeveloperView").value = "true";
+	  $("#isDeveloperView").val("true");
+      document.getElementById("moduleType").value = moduleType;
+      document.getElementById("isNonVersioningModule").value = isNonVersioningModule;
+   
+      if(saveURL == ""){
+          $("#saveUrl").val("");
+      }else{
+        $("#saveUrl").val(saveURL);
+      }
+      if(nonVersioningFetchURL == ""){
+          $("#nonVersioningFetchURL").val("");
+      }else{
+        $("#nonVersioningFetchURL").val(nonVersioningFetchURL);
+      }
+      if(versioningFetchURL == ""){
+          $("#versioningFetchURL").val("");
+      }else{
+        $("#versioningFetchURL").val(versioningFetchURL);
+      }
+     
+      // Submit the form
+      document.getElementById("revisionForm").submit();
+    });
+  });
+});
+
+// Done History compare section
+
+function getentityName(moduleId){
+    var cmvEntityName;
+    var moduleType;
+    var saveURL = "";
+    var tagList = [];
+    let isNonVersioningModule = "false";
+	let nonVersioningFetchURL = "";
+    let versioningFetchURL = "";
+    if(moduleId == "1b0a2e40-098d-11eb-9a16-f48e38ab9348"){
+        moduleType = "template";
+        saveURL = "/cf/stdv";
+        versioningFetchURL = "/cf/gtvd";
+    } else if(moduleId == "30a0ff61-0ecf-11eb-94b2-f48e38ab9348"){
+        moduleType = "dynamicForm";
+        versioningFetchURL = "/cf/uj";
+    } else if(moduleId == "07067149-098d-11eb-9a16-f48e38ab9348"){
+        moduleType = "grid";
+        versioningFetchURL = "/cf/ggvd";
+    } else if(moduleId == "47030ee1-0ecf-11eb-94b2-f48e38ab9348"){
+        moduleType = "dynarest";
+        versioningFetchURL = "/cf/uj";
+    } else if(moduleId == "248ffd91-7760-11eb-94ed-f48e38ab8cd7"){
+        moduleType = "fileManager";
+        saveURL = "/cf/sfuc";
+        isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/fuj";
+    } else if(moduleId == "1faee99c-021c-11ef-a019-7c8ae1bb24d8"){
+        moduleType = "formio";
+        versioningFetchURL = "/cf/gfiod";
+    } else if(moduleId == "5559212c-8c8f-11eb-8dcd-0242ac130003"){
+        moduleType = "resourceBundle";
+        saveURL = "/cf/srbv";
+    } else if(moduleId == "b0f8646c-0ecf-11eb-94b2-f48e38ab9348"){
+        moduleType = "dashboard";
+        saveURL = "/cf/sdbv";
+        versioningFetchURL = "/cf/gdashvd";
+    } else if(moduleId == "19aa8996-80a2-11eb-971b-f48e38ab8cd7"){
+        moduleType = "dashboard";
+        saveURL = "/cf/sdlv";
+        versioningFetchURL = "/cf/gdvd";
+    } else if(moduleId == "6ac6a54c-8d3f-11eb-8dcd-0242ac130003"){
+        moduleType = "notification";
+        isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/gn";
+    } else if(moduleId == "70bd445b-ae33-45dd-98f9-0a0c49463315"){
+        moduleType = "scriptlibrary";
+        versioningFetchURL = "/cf/uj";
+    } else if(moduleId == "76270518-8c8f-11eb-8dcd-0242ac130003"){
+        moduleType = "propertyMaster";
+        versioningFetchURL = "/cf/gacvd";
+        cmvEntityName = "jq_property_master";       
+    } else if(moduleId == "91a81b68-0ece-11eb-94b2-f48e38ab9348"){
+        moduleType = "autocomplete";
+        versioningFetchURL = "/cf/gavd";
+    } else if(moduleId == "c6cc466a-0ed3-11eb-94b2-f48e38ab9348"){
+        moduleType = "router";
+        saveURL = "/cf/sml";
+        isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/grvd";
+    } else if(moduleId == "ded49cbd-ed7c-40ce-b1f8-c2e34ad33473"){
+        moduleType = "apiclientdetails";
+        isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/apicd";
+    } else if(moduleId == "fcd0df1f-783f-11eb-94ed-f48e38ab8cd6"){
+        moduleType = "scheduler";
+        isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/schd";
+    } else if(moduleId == "799947cc-b6cb-11eb-8529-0242ac130003"){
+        moduleType = "additionaldatasource";
+        isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/adsd";
+    }
+    return { moduleType, saveURL, isNonVersioningModule, nonVersioningFetchURL, versioningFetchURL};
+}
+
+
+//Unlink child item
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll('.unlink-icon').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      const bmEntityId = this.getAttribute('data-child-id');
+      const row = this.closest('tr');
+      if (row) {
+	    
+let dialog = $('<div id="unlinkConfirmDialog">Are you sure you want to unlink this entity?</div>');
+$("body").append(dialog);
+
+$("#unlinkConfirmDialog").dialog({
+    bgiframe: true,
+    autoOpen: true,
+    modal: true,
+    closeOnEscape: true,
+    draggable: true,
+    resizable: false,
+    title: "Unlink",
+    position: { my: "center", at: "center" },
+    buttons: [
+        {
+            text: "Delete",
+            "class": 'btn btn-primary',
+            click: function () {
+                let thisDialog = $(this);
+
+                $.ajax({
+                    type: 'POST',
+                    url: contextPath + apiPath + "/dbme",
+                    data: { bmEntityId: bmEntityId },
+					dataType: 'text',
+                    success: function (response) {
+                        row.remove();
+                        showMessage("Entity unlinked", "success");
+                    },
+                    error: function (err) {
+                        console.error('Error unlinking child:', err);
+						showMessage("Error occurred while unlinking the entity", "error");
+                    },
+                    complete: function () {
+                        thisDialog.dialog("destroy").remove();
+                    }
+                });
+            }
+        },
+        {
+            text: "Cancel",
+            "class": "btn btn-secondary",
+            click: function () {
+                $(this).dialog("destroy").remove();
+            }
+        }
+    ],
+    open: function () {
+        $(".ui-dialog-titlebar button")
+            .removeClass("ui-dialog-titlebar-close")
+            .addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
+            .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
+            .append('<span class="ui-button-icon-space"></span>');
+    }
+});
+      } else {
+        console.warn('Could not find <tr> to remove.');
+      }
+    });
+  });
+});
+//Done unlinking child items
+
+//To make first row active by default
+document.addEventListener('DOMContentLoaded', function () {
+    const parentItems = document.querySelectorAll('.parent-item');
+
+    if (parentItems.length > 0) {
+        const firstItem = parentItems[0];
+        const firstParentId = firstItem.getAttribute('data-id');
+
+        // Show the first child-entities block
+        const firstChildEntities = document.getElementById('child-entities-' + firstParentId);
+        if (firstChildEntities) {
+            firstChildEntities.style.display = 'block';
+        }
+
+        // Optional: Add a highlight class to first parent item
+        firstItem.classList.add('active');
+    }
+
+    // Existing event listener for clicking parent items
+    parentItems.forEach(item => {
+        item.addEventListener('click', function () {
+            const parentId = this.getAttribute('data-id');
+
+            // Hide all child entities initially
+            const allChildEntities = document.querySelectorAll('.child-entities');
+            allChildEntities.forEach(entity => {
+                entity.style.display = 'none';
+            });
+
+            // Remove active class from all parent items
+            parentItems.forEach(el => el.classList.remove('active'));
+
+            // Add active class to the clicked item
+            this.classList.add('active');
+
+            // Show the selected child entities
+            const selectedChildEntities = document.getElementById('child-entities-' + parentId);
+            if (selectedChildEntities) {
+                selectedChildEntities.style.display = 'block';
+            }
+        });
+    });
+});
+
+//Done Active By default
+
+//Fetching child Data
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const parentItems = document.querySelectorAll('.parent-item');
+
+    parentItems.forEach(item => {
+        item.addEventListener('click', function () {
+            const businessModuleId = this.getAttribute('data-id');
+            loadBusinessModuleEntities(businessModuleId);});
+    });
+});
+
+function loadBusinessModuleEntities(businessModuleId) {
+    if (childDataCache[businessModuleId]) {
+        appendChildRows(businessModuleId, childDataCache[businessModuleId]);
+    } else {
+        const rightColumn = document.querySelector('.right-column');
+        rightColumn.innerHTML = '<p>Loading...</p>';
+
+        $.ajax({
+            async: false,
+            type: "GET",
+            url: contextPath + apiPath + "/fbme",
+            dataType: "json",
+            data: {
+                businessModuleId: businessModuleId
+            },
+            success: function (data) {
+                childDataCache[businessModuleId] = data;
+                appendChildRows(businessModuleId, data);
+            },
+            error: function (xhr, status, error) {
+                console.error("Failed to update module:", error);
+                showMessage("Error occurred while updating the module name", "error");
+            }
+        });
+    }
+}
+
+//Done fetching child data
+
+function bindChildIconEvents() {
+    document.querySelectorAll('.view-icon').forEach(el => {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+            const moduleName = this.getAttribute('data-module-name');
+            const entityName = this.getAttribute('data-entity-name');
+            const entityId   = this.getAttribute('data-entity-id');
+             if(moduleName == "REST API"){
+                getModuleFormData(moduleName, entityName);
+            } else{
+                getModuleFormData(moduleName, entityId);
+            }
+        });
+    });
+
+    document.querySelectorAll('.history-icon').forEach(el => {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+            const entityId = this.getAttribute('data-entity-id');
+            const moduleName = this.getAttribute('data-module-name');
+            var cmvEntityName = this.getAttribute('data-cmv-name');
+            const moduleId = this.getAttribute('data-module-id');
+            if(cmvEntityName == "jq_form_io"){
+                cmvEntityName = "FormIO";
+            }
+            // Set hidden input values
+            document.getElementById("entityId").value = entityId;
+            document.getElementById("moduleName").value = moduleName;
+            document.getElementById("cmvEntityName").value = cmvEntityName;
+            document.getElementById("moduleId").value = moduleId;
+            
+            const { moduleType, saveURL, isNonVersioningModule, nonVersioningFetchURL,versioningFetchURL } = getentityName(moduleId);
+       
+            document.getElementById("isDeveloperView").value = "true";
+            $("#isDeveloperView").val("true");
+            document.getElementById("moduleType").value = moduleType;
+            document.getElementById("isNonVersioningModule").value = isNonVersioningModule;
+        
+            if(saveURL == ""){
+                $("#saveUrl").val("");
+            }else{
+                $("#saveUrl").val(saveURL);
+            }
+            if(nonVersioningFetchURL == ""){
+                $("#nonVersioningFetchURL").val("");
+            }else{
+                $("#nonVersioningFetchURL").val(nonVersioningFetchURL);
+            }
+            if(versioningFetchURL == ""){
+                $("#versioningFetchURL").val("");
+            }else{
+                $("#versioningFetchURL").val(versioningFetchURL);
+            }
+           
+            document.getElementById("revisionForm").submit();
+        });
+    });
+
+    document.querySelectorAll('.unlink-icon').forEach(el => {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+            const bmEntityId = this.getAttribute('data-child-id');
+            const row = this.closest('tr');
+            if (row) {
+                let dialog = $('<div id="unlinkConfirmDialog">Are you sure you want to unlink this entity?</div>');
+                $("body").append(dialog);
+                $("#unlinkConfirmDialog").dialog({
+                    bgiframe: true,
+                    autoOpen: true,
+                    modal: true,
+                    closeOnEscape: true,
+                    draggable: true,
+                    resizable: false,
+                    title: "Unlink",
+                    position: { my: "center", at: "center" },
+                    buttons: [
+                        {
+                            text: "Delete",
+                            "class": 'btn btn-primary',
+                            click: function () {
+                                let thisDialog = $(this);
+                                $.ajax({
+                                    type: 'POST',
+                                    url: contextPath + apiPath + "/dbme",
+									dataType: 'text',
+                                    data: { bmEntityId: bmEntityId },
+                                    success: function (response) {
+                                        row.remove();
+                                        showMessage("Entity unlinked", "success");
+                                    },
+                                    error: function (err) {
+                                        console.error('Error unlinking child:', err);
+                                        showMessage("Error occurred while unlinking the entity", "error");
+                                    },
+                                    complete: function () {
+                                        thisDialog.dialog("destroy").remove();
+                                    }
+                                });
+                            }
+                        },
+                        {
+                            text: "Cancel",
+                            "class": "btn btn-secondary",
+                            click: function () {
+                                $(this).dialog("destroy").remove();
+                            }
+                        }
+                    ],
+                    open: function () {
+                        $(".ui-dialog-titlebar button")
+                            .removeClass("ui-dialog-titlebar-close")
+                            .addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
+                            .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
+                            .append('<span class="ui-button-icon-space"></span>');
+                    }
+                });
+            }
+        });
+    });
+}
+
+
+function appendChildRows(businessModuleId, data) {
+  const rightColumn = document.querySelector('.right-column');
+    rightColumn.innerHTML = ""; 
+	
+    if (data.businessModuleData && data.businessModuleData.length > 0) {
+        let tableHtml = `
+            <div class="child-entities" id="child-entities-"+businessModuleId style="display: block;">
+                <table class="table cstomtble">
+                    <thead>
+                        <tr>
+                            <th class="text-center" width="50%">Module</th>
+                            <th class="text-center" width="40%">Entity</th>
+                            <th class="text-center" width="10%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+        (data.businessModuleData || []).forEach(child => {
+            
+            tableHtml +=
+                 "<tr>" +
+                    "<td>" + child.child_module_name + "</td>" +
+                    "<td>" + child.child_entity_name + "</td>" +
+                    "<td>" +
+                        "<span class='grid_action_icons_ex'>" +
+                            "<a href='#' class='view-icon' " +
+                                "data-module-name='" + child.child_module_name + "' " +
+                                "data-entity-name='" + child.child_entity_name + "' " +
+                                " data-entity-id='" + child.child_entity_id + "' " +
+                            
+                                "title='View'>" +
+                                "<i class='fa fa-eye'></i>" +
+                            "</a>" +
+                            "<a href='#' class='history-icon' " +
+                                "data-module-name='" + child.child_module_name + "' " +
+                                "data-entity-id='" + child.child_entity_id + "' " +
+                                "data-cmv-name='" + child.cmv_entity_name + "' " +
+                                "data-module-id='" + child.module_id + "' " +                                  
+                                "title='History'>" +
+                                "<i class='fa fa-history'></i>" +
+                            "</a>" + 
+                            "<a href='#' class='unlink-icon' " +
+                                "data-child-id='" + child.business_module_entity_details_id + "' " +
+                                "title='Unlink'>" +
+                                "  <i class='fa fa-unlink'></i>" +
+                            "</a>" +
+                        "</span>" +
+                    "</td>" +
+                "</tr>";
+        });
+
+        tableHtml += `</tbody></table></div>`;
+        rightColumn.innerHTML = tableHtml;
+
+        // Re-bind events for view/history/unlink icons (after injecting new DOM)
+        bindChildIconEvents();
+        disableHistoryForModules();
+    } else {
+        rightColumn.innerHTML = `<div class="child-entities" id="child-entities-"+businessModuleId>
+            <p>No business entity found for this module.</p>
+        </div>`;
+    }
+}
+
+function disableHistoryForModules() {
+    // Same list as before
+    const noHistoryModules = [
+        "jq_module_listing",
+        "jq_api_client_details",
+        "jq_job_scheduler",
+        "jq_file_upload_config"
+    ];
+
+    document.querySelectorAll('.history-icon').forEach(function (el) {
+        const cmvEntName = el.getAttribute('data-cmv-name');
+
+        if (noHistoryModules.includes(cmvEntName)) {
+            el.classList.add("disabled-history");
+            el.style.pointerEvents = "none"; // disable click
+            el.style.opacity = "0.5";        // visually disabled
+            el.title = "History not available for this module";
+        }
+    });
+}
+
+
+//For # in URL
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('moduleSearchInput');
+
+    function clearSelection() {
+        document.querySelectorAll('.parent-item').forEach(item => {
+            item.classList.remove('active');
+            item.style.display = '';
+        });
+        document.querySelectorAll('.child-entities').forEach(panel => {
+            panel.style.display = 'none';
+        });
+    }
+
+    function selectParentModuleByIdOrName(identifier) {
+        const searchTerm = identifier.toLowerCase();
+        let matched = false;
+
+        document.querySelectorAll('.parent-item').forEach(item => {
+            const moduleId = item.getAttribute('data-id')?.toLowerCase();
+            const moduleName = item.querySelector('.module-name')?.textContent.trim().toLowerCase();
+
+            if (moduleId === searchTerm || moduleName === searchTerm) {
+                matched = true;
+
+                // Hide all others
+                document.querySelectorAll('.parent-item').forEach(i => i.style.display = 'none');
+
+                // Show only matched
+                item.style.display = '';
+                item.classList.add('active');
+
+                if (searchInput) {
+                    searchInput.value = item.querySelector('.module-name').textContent.trim();
+                }
+
+                const parentId = item.getAttribute('data-id');
+                loadBusinessModuleEntities(parentId); 
+            }
+        });
+
+        return matched;
+    }
+
+    // Input typing
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            const value = this.value.trim().toLowerCase();
+            if (value === '') {
+                clearSelection();
+                return;
+            }
+            selectParentModuleByIdOrName(value);
+        });
+    }
+
+    // Hash on load
+    const hash = window.location.hash;
+    if (hash) {
+        const identifier = hash.substring(1);
+        selectParentModuleByIdOrName(identifier);
+    }
+});
+//For New Autocomplete........	
+let linkModuleAutocomplete;
+$(function () {	
+	 linkModuleAutocomplete = $("#linkModuleNameAutocomplete").autocomplete({
+            autocompleteId: "getBusinessModuleName",
+            enableClearAll: true,
+            render: function(item) {
+                var renderStr ='';
+                if(item.emptyMsg == undefined || item.emptyMsg === '')
+                {
+                    renderStr = '<p>'+item.moduleName+'</p>';
+                }
+                else
+                {
+                    renderStr = item.emptyMsg;	
+                }	    				        
+                return renderStr;
+            },
+            extractText: function(item) {
+                return item.moduleName;
+            },
+            selectedItemRender: function(item){
+                return item.moduleName;
+            },
+            select: function(item) {
+                $("#linkModuleNameAutocomplete").blur();
+                selectModuleFromSearch(item.moduleId, item.moduleName);			
+            }, 	
+        });
+       
+	});
+//Done new Autocomplete.
+function selectModuleFromSearch(moduleId, moduleName) {
+    const parentItems = document.querySelectorAll('.parent-item');
+    let matched = false;
+
+    parentItems.forEach(item => {
+        const itemId = item.getAttribute('data-id');
+        const itemName = item.querySelector('.module-name')?.textContent.trim();
+
+        if (itemId == moduleId || itemName === moduleName) {
+            matched = true;
+            parentItems.forEach(i => {
+                i.style.display = 'none';
+                i.classList.remove('active');
+            });
+            item.style.display = '';
+            item.classList.add('active');
+
+            // Load child data
+            loadBusinessModuleEntities(moduleId);
+
+        } else {
+            item.classList.remove('active');
+        }
+    });
+
+    return matched;
+}
+document.getElementById('linkModuleNameAutocomplete').addEventListener('input', function () {
+    const value = this.value.trim();
+
+    if (value === '') {
+        document.querySelectorAll('.parent-item').forEach(item => {
+            item.style.display = '';
+            item.classList.remove('active');
+        });
+        // Hide all child modules (optional, or you can reset to default behavior)
+        document.querySelectorAll('.child-entities').forEach(panel => {
+            panel.style.display = 'none';
+        });
+    }
+});
+</script>

@@ -10,6 +10,7 @@ function  deleteEntityData(requestDetails, daoResults){
         jq_updateDBQuery("delete from jq_entity_role_association where entity_id=:entityId AND module_id='07067149-098d-11eb-9a16-f48e38ab9348'", null, params);   
         activityLog("Grid Utils",requestDetails["templateName"],requestDetails["loggedInUserName"],"Custom",requestDetails["updatedDate"]);
         jq_updateDBQuery("delete from jq_grid_details where grid_id=:entityId", null, params);
+        jq_updateDBQuery("delete from jq_business_module_entity_details where entity_id=:entityId", null, params);
 
     } else if(requestDetails["moduleType"] == "91a81b68-0ece-11eb-94b2-f48e38ab9348") {
         var HashMap = Java.type("java.util.HashMap");
@@ -20,6 +21,7 @@ function  deleteEntityData(requestDetails, daoResults){
         jq_updateDBQuery("delete from jq_entity_role_association where entity_id=:entityId AND module_id='91a81b68-0ece-11eb-94b2-f48e38ab9348'", null, params);  
         activityLog("TypeAhead/Autocomplete",requestDetails["templateName"],requestDetails["loggedInUserName"],"Custom",requestDetails["updatedDate"]);      
         jq_updateDBQuery("delete from jq_autocomplete_details where ac_id=:entityId", null, params);
+        jq_updateDBQuery("delete from jq_business_module_entity_details where entity_id=:entityId", null, params);
 
     } else if(requestDetails["moduleType"] == "1b0a2e40-098d-11eb-9a16-f48e38ab9348") {
         var HashMap = Java.type("java.util.HashMap");
@@ -31,6 +33,7 @@ function  deleteEntityData(requestDetails, daoResults){
        
         activityLog("Templates",requestDetails["templateName"],requestDetails["loggedInUserName"],"Custom",requestDetails["updatedDate"]);
         jq_updateDBQuery("delete from jq_template_master where template_id=:entityId", null, params);
+        jq_updateDBQuery("delete from jq_business_module_entity_details where entity_id=:entityId", null, params);
 
     } else if(requestDetails["moduleType"] == "30a0ff61-0ecf-11eb-94b2-f48e38ab9348") {
         var HashMap = Java.type("java.util.HashMap");
@@ -47,6 +50,7 @@ function  deleteEntityData(requestDetails, daoResults){
         activityLog("Dynamic Form",requestDetails["templateName"],requestDetails["loggedInUserName"],"Custom",requestDetails["updatedDate"]);
 
         jq_updateDBQuery("delete from jq_dynamic_form where form_id=:entityId", null, params);
+        jq_updateDBQuery("delete from jq_business_module_entity_details where entity_id=:entityId", null, params);
        
 
     } else if(requestDetails["moduleType"] == "47030ee1-0ecf-11eb-94b2-f48e38ab9348") {
@@ -60,7 +64,7 @@ function  deleteEntityData(requestDetails, daoResults){
         activityLog("REST API",requestDetails["templateName"],requestDetails["loggedInUserName"],"Custom",requestDetails["updatedDate"]); 
         jq_updateDBQuery("delete from jq_dynamic_rest_details where jws_dynamic_rest_id=:entityId", null, params);
          jq_updateDBQuery("delete from jq_script_lib_connect where entity_id=:entityId", null, params);
-
+         jq_updateDBQuery("delete from jq_business_module_entity_details where entity_id=:entityId", null, params);
 
     } else if(requestDetails["moduleType"] == "c6cc466a-0ed3-11eb-94b2-f48e38ab9348") {
         var HashMap = Java.type("java.util.HashMap");
@@ -70,17 +74,20 @@ function  deleteEntityData(requestDetails, daoResults){
         jq_updateDBQuery("delete from jq_module_listing_i18n where module_id=:entityId", null, params);
          activityLog("ROUTER",requestDetails["templateName"],requestDetails["loggedInUserName"],"Custom",requestDetails["updatedDate"]); 
         jq_updateDBQuery("delete from jq_module_listing where module_id=:entityId", null, params);
+        jq_updateDBQuery("delete from jq_business_module_entity_details where entity_id=:entityId", null, params);
     } else if(requestDetails["moduleType"] == "additional_datasource") {
         var HashMap = Java.type("java.util.HashMap");
         var params = new HashMap();
         params.put("entityId", requestDetails["entityId"]);
-        jq_updateDBQuery("delete from jq_additional_datasource where additional_datasource_id=:entityId", null, params);    
+        jq_updateDBQuery("delete from jq_additional_datasource where additional_datasource_id=:entityId", null, params);
+            
     } else if(requestDetails["moduleType"] == "6ac6a54c-8d3f-11eb-8dcd-0242ac130003") {
         var HashMap = Java.type("java.util.HashMap");
         var params = new HashMap();
         params.put("entityId", requestDetails["entityId"]);
         activityLog("NOTIFICATION","Notification-Listing",requestDetails["loggedInUserName"],"Custom",new Date()); 
-        jq_updateDBQuery("delete from jq_generic_user_notification where notification_id=:entityId", null, params);    
+        jq_updateDBQuery("delete from jq_generic_user_notification where notification_id=:entityId", null, params); 
+        jq_updateDBQuery("delete from jq_business_module_entity_details where entity_id=:entityId", null, params);   
     } else if(requestDetails["moduleType"] == "1faee99c-021c-11ef-a019-7c8ae1bb24d8") {		
 		var HashMap = Java.type("java.util.HashMap");
 		var params = new HashMap();
@@ -90,6 +97,7 @@ function  deleteEntityData(requestDetails, daoResults){
 		jq_updateDBQuery("delete from jq_entity_role_association where entity_id=:entityId AND module_id='1faee99c-021c-11ef-a019-7c8ae1bb24d8'", null, params);    
 		jq_updateDBQuery("UPDATE jq_dynamic_form SET form_io_id = NULL WHERE form_io_id IN(:entityId)", null, params);
 		jq_updateDBQuery("delete from jq_form_io where form_io_id=:entityId", null, params);
+        jq_updateDBQuery("delete from jq_business_module_entity_details where entity_id=:entityId", null, params);
 		activityLog("FormIO",requestDetails["templateName"],requestDetails["loggedInUserName"],"Custom",requestDetails["updatedDate"]);
 	}
 }

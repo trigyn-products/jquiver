@@ -1,5 +1,177 @@
-<#if isEdit == 1>
-      UPDATE jq_form_io SET form_name = :formIoName,form_description = :formDescription,form_io_json = :formIoJson,form_io_checksum = :formIoChecksum,form_io_type = :formIoType,is_custom_updated = :isCustomUpdated,persistence_type = :persistenceType,last_updated_by = :loggedInUserName,last_updated_ts = NOW()  WHERE form_io_id = :formIoId
-<#else>
-    INSERT INTO jq_form_io (form_io_id,form_name,form_description,form_io_json,form_io_checksum,form_io_type,is_custom_updated,persistence_type,created_by,created_date,last_updated_by,last_updated_ts) VALUES (:formIoId,:formIoName,:formDescription,:formIoJson,:formIoChecksum,:formIoType,:isCustomUpdated,:persistenceType,:loggedInUserName,NOW(),:loggedInUserName,NOW())
-</#if>
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+var UUID = Java.type("java.util.UUID");
+
+var moduleId ;
+var map = new HashMap();
+map.put('formIoId', requestDetails.formIoId);
+map.put('formIoName', requestDetails.formIoName);
+map.put('formDescription', requestDetails.formDescription);
+map.put('formIoJson', requestDetails.formIoJson);
+map.put('formIoChecksum', requestDetails.formIoChecksum);
+map.put('formIoType', requestDetails.formIoType);
+map.put('isCustomUpdated', requestDetails.isCustomUpdated);
+map.put('persistenceType', requestDetails.persistenceType);
+map.put('loggedInUserName', requestDetails.loggedInUserId);
+map.put('multiSubmit', requestDetails.multiSubmit);
+map.put('routeName', requestDetails.routeName);
+// Handle isEdit value
+var isEdit = (typeof requestDetails.isEdit === 'object' && requestDetails.isEdit[0] !== undefined)
+    ? requestDetails.isEdit[0]
+    : requestDetails.isEdit;
+map.put('isEdit', isEdit);
+
+function saveFormio() {
+    // Check if form name already exists
+     
+    var checkExistQuery = 'SELECT COUNT(*) AS count FROM jq_form_io WHERE form_name = :formIoName AND form_io_id != :formIoId';
+    var checkParams = new HashMap();
+    checkParams.put('formIoName', requestDetails.formIoName);
+    checkParams.put('formIoId', requestDetails.formIoId);
+    var result = jq_getDBResult(checkExistQuery, null, checkParams).data_list;
+
+    if (result && result.length > 0 && result[0].count > 0) {
+        jq_sendError("500", "Form Name already exists.");
+    }
+
+    if (requestDetails.persistenceType === "3") {
+        saveFormioWhenCustomPluggable();
+    } else {
+        if (isEdit == 1) {
+            jq_updateDBQuery(
+                'UPDATE jq_form_io SET form_name = :formIoName, form_description = :formDescription, form_io_json = :formIoJson, form_io_checksum = :formIoChecksum, form_io_type = :formIoType, is_custom_updated = :isCustomUpdated, persistence_type = :persistenceType, last_updated_by = :loggedInUserName, last_updated_ts = NOW() WHERE form_io_id = :formIoId',
+                null,
+                map
+            );
+        } else {
+            jq_updateDBQuery(
+                'INSERT INTO jq_form_io (form_io_id, form_name, form_description, form_io_json, form_io_checksum, form_io_type, is_custom_updated, persistence_type, created_by, created_date, last_updated_by, last_updated_ts) VALUES (:formIoId, :formIoName, :formDescription, :formIoJson, :formIoChecksum, :formIoType, :isCustomUpdated, :persistenceType, :loggedInUserName, NOW(), :loggedInUserName, NOW())',
+                null,
+                map
+            );
+        }
+    }
+}
+
+function saveFormioWhenCustomPluggable() {
+
+    //fetch ModuleId 
+    var fetchModuleIdQuery = 'SELECT module_id FROM jq_formio_route WHERE form_io_id = :formIoId';
+    var fetchParams = new HashMap();
+    fetchParams.put('formIoId', requestDetails.formIoId);
+    var result = jq_getDBResult(fetchModuleIdQuery, null, fetchParams).data_list;
+    if (result && result.length > 0) {
+        // Found existing module_id (edit mode)
+        moduleId = result[0].module_id;
+    } else {
+        // New module_id (create mode)
+        moduleId = UUID.randomUUID().toString();
+    }
+
+    // Check if route already exists
+    var checkExistQuery = 'SELECT COUNT(*) AS count FROM jq_module_listing WHERE module_url = :moduleUrl And module_Id != :moduleId' ;
+   
+    var checkParams = new HashMap();
+    checkParams.put('moduleUrl', requestDetails.routeName);
+    checkParams.put('moduleId', moduleId);
+    var result = jq_getDBResult(checkExistQuery, null, checkParams).data_list;
+
+   if (result && result.length > 0 && result[0].count > 0) {
+        jq_sendError("500", "Module URL already exists.");
+    }
+
+    if (isEdit == 1) {
+        jq_updateDBQuery(
+            'UPDATE jq_form_io SET form_name = :formIoName, form_description = :formDescription, form_io_json = :formIoJson, form_io_checksum = :formIoChecksum, form_io_type = :formIoType, is_custom_updated = :isCustomUpdated, persistence_type = :persistenceType, last_updated_by = :loggedInUserName, last_updated_ts = NOW(), multi_submit = :multiSubmit,route_name=:routeName WHERE form_io_id = :formIoId',
+            null,
+            map
+        );
+
+        var formioRouteMap = new HashMap();
+        formioRouteMap.put('moduleId', moduleId);
+        formioRouteMap.put('formIoId', requestDetails.formIoId);
+        formioRouteMap.put('multiSubmit', requestDetails.multiSubmit);
+        formioRouteMap.put('moduleUrl', requestDetails.routeName);
+        formioRouteMap.put('moduleName', requestDetails.routeName);
+        jq_updateDBQuery(
+            'UPDATE jq_formio_route SET multi_submit = :multiSubmit WHERE form_io_id = :formIoId',
+            null,
+            formioRouteMap
+        );
+        jq_updateDBQuery(
+            'UPDATE jq_module_listing SET module_url= :moduleUrl WHERE module_Id = :moduleId',
+            null,
+            formioRouteMap
+        );
+
+        jq_updateDBQuery(
+            'UPDATE jq_module_listing_i18n SET module_name= :moduleName WHERE module_Id = :moduleId',
+            null,
+            formioRouteMap
+        );
+
+    } else {
+        jq_updateDBQuery(
+            'INSERT INTO jq_form_io (form_io_id, form_name, form_description, form_io_json, form_io_checksum, form_io_type, is_custom_updated, persistence_type, created_by, created_date, last_updated_by, last_updated_ts, multi_submit,route_name) VALUES (:formIoId, :formIoName, :formDescription, :formIoJson, :formIoChecksum, :formIoType, :isCustomUpdated, :persistenceType, :loggedInUserName, NOW(), :loggedInUserName, NOW(), :multiSubmit,:routeName)',
+            null,
+            map
+        );
+
+      
+        var routeMap = new HashMap();
+        routeMap.put('moduleId', moduleId);
+        routeMap.put('moduleUrl', requestDetails.routeName);
+        routeMap.put('parentId', null);
+        routeMap.put('sequence', null);
+        routeMap.put('includeLayout', 0);
+        routeMap.put('targetLookupId', 5);
+        routeMap.put('targetTypeId', 'f5d2b82d-c64b-43f7-abc9-0a773fabffbf');
+        routeMap.put('headerJson', '{"Content-Language":"en_US","Powered-By":"JQuiver","Content-Type":"text/html; charset=UTF-8"}');
+        routeMap.put('moduleTypeId', 1);
+        routeMap.put('requestParamJson', '{"formIoId":"' + requestDetails.formIoId + '","multiSubmit":"' + requestDetails.multiSubmit + '"}');
+        routeMap.put('isHomePage', 0);
+        routeMap.put('isCustomUpdated', 1);
+        routeMap.put('lastUpdatedBy', requestDetails.loggedInUserId);
+
+        jq_updateDBQuery(
+            'INSERT INTO jq_module_listing (module_id, module_url, parent_id, sequence, include_layout, is_home_page, target_lookup_id, target_type_id, header_json, last_modified_date, module_type_id, request_param_json, is_custom_updated, last_updated_by) VALUES (:moduleId, :moduleUrl, :parentId, :sequence, :includeLayout, :isHomePage, :targetLookupId, :targetTypeId, :headerJson, NOW(), :moduleTypeId, :requestParamJson, :isCustomUpdated, :lastUpdatedBy)',
+            null,
+            routeMap
+        );
+
+        var insertEntityRoleQuery = 'INSERT INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id, is_custom_updated, role_type_id) VALUES (:entityRoleId, :entityId, :entityName, :routeId, :roleId, NOW(), :loggedInUserName, :isActive, :moduleTypeId, :isCustomUpdated, :roleTypeId)';
+        var roleIds = [
+            'ae6465b3-097f-11eb-9a16-f48e38ab9348',
+            'b4a0dda1-097f-11eb-9a16-f48e38ab9348'
+        ];
+
+        for (var i = 0; i < roleIds.length; i++) {
+            var roleMap = new HashMap();
+            roleMap.put("entityRoleId", UUID.randomUUID().toString());
+            roleMap.put("entityId", moduleId);
+            roleMap.put("entityName", requestDetails.routeName);
+            roleMap.put("routeId", 'c6cc466a-0ed3-11eb-94b2-f48e38ab9348');
+            roleMap.put("roleId", roleIds[i]);
+            roleMap.put("loggedInUserName", requestDetails.loggedInUserId);
+            roleMap.put("isActive", '1');
+            roleMap.put("moduleTypeId", '0');
+            roleMap.put("isCustomUpdated", '1');
+            roleMap.put("roleTypeId", '1');
+            jq_updateDBQuery(insertEntityRoleQuery, null, roleMap);
+        }
+
+        var routei18nMap = new HashMap();
+        routei18nMap.put('moduleId', moduleId);
+        routei18nMap.put('languageId', 1);
+        routei18nMap.put('moduleName', requestDetails.routeName);
+        jq_updateDBQuery('INSERT INTO jq_module_listing_i18n (module_id, language_id, module_name) VALUES (:moduleId, :languageId, :moduleName)', null, routei18nMap);
+
+        var formioRouteMap = new HashMap();
+        formioRouteMap.put('moduleId', moduleId);
+        formioRouteMap.put('formIoId', requestDetails.formIoId);
+        formioRouteMap.put('multiSubmit', requestDetails.multiSubmit);
+        jq_updateDBQuery('INSERT INTO jq_formio_route (module_id, form_io_id, multi_submit) VALUES (:moduleId, :formIoId, :multiSubmit)', null, formioRouteMap);
+    }
+}
+
+saveFormio();

@@ -20,11 +20,12 @@ import java.util.Map.Entry;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
+import org.quartz.JobDataMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -49,10 +50,14 @@ import com.trigyn.jws.dashboard.vo.DashboardVO;
 import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.entities.AdditionalDatasource;
 import com.trigyn.jws.dbutils.entities.AdditionalDatasourceRepository;
+import com.trigyn.jws.dbutils.entities.JwsBusinessModule;
+import com.trigyn.jws.dbutils.entities.JwsBusinessModuleEntity;
 import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.entities.ModuleListingI18n;
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.repository.AdditionalDatasourceDAO;
+import com.trigyn.jws.dbutils.repository.JwsBusinessModuleEntityRepository;
+import com.trigyn.jws.dbutils.repository.JwsBusinessModuleRepository;
 import com.trigyn.jws.dbutils.repository.ModuleDAO;
 import com.trigyn.jws.dbutils.repository.ModuleVersionDAO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
@@ -60,6 +65,7 @@ import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.AdditionalDatasourceVO;
+import com.trigyn.jws.dbutils.vo.JwsBusinessModuleVO;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 import com.trigyn.jws.dbutils.vo.ScriptLibraryVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
@@ -83,6 +89,8 @@ import com.trigyn.jws.dynamicform.entities.ManualType;
 import com.trigyn.jws.dynamicform.service.DynamicFormModule;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.dynamicform.vo.DynamicFormVO;
+import com.trigyn.jws.dynarest.cipher.utils.JwsSchedulerJob;
+import com.trigyn.jws.dynarest.cipher.utils.SchedulerConfiguration;
 import com.trigyn.jws.dynarest.dao.FileUploadConfigDAO;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.FileUpload;
@@ -105,6 +113,7 @@ import com.trigyn.jws.formio.entities.FormIO;
 import com.trigyn.jws.formio.vo.FormIOImportExportVO;
 import com.trigyn.jws.gridutils.dao.GridDetailsDAO;
 import com.trigyn.jws.gridutils.entities.GridDetails;
+import com.trigyn.jws.quartz.service.impl.JwsQuartzJobService;
 import com.trigyn.jws.resourcebundle.dao.ResourceBundleDAO;
 import com.trigyn.jws.resourcebundle.entities.ResourceBundle;
 import com.trigyn.jws.resourcebundle.service.ResourceBundleService;
@@ -136,6 +145,7 @@ import com.trigyn.jws.webstarter.utils.FileImportExportModule;
 import com.trigyn.jws.webstarter.utils.FileUploadExportModule;
 import com.trigyn.jws.webstarter.utils.FileUtil;
 import com.trigyn.jws.webstarter.utils.HelpManualImportExportModule;
+import com.trigyn.jws.webstarter.utils.WorkflowImportExportModule;
 import com.trigyn.jws.webstarter.utils.XMLUtil;
 import com.trigyn.jws.webstarter.utils.ZipUtil;
 import com.trigyn.jws.webstarter.vo.FileUploadConfigImportEntity;
@@ -149,6 +159,7 @@ import com.trigyn.jws.webstarter.vo.RestApiDetailsJsonVO;
 import com.trigyn.jws.webstarter.xml.AdditionalDatasourceXMLVO;
 import com.trigyn.jws.webstarter.xml.ApiClientDetailsXMLVO;
 import com.trigyn.jws.webstarter.xml.AutocompleteXMLVO;
+import com.trigyn.jws.webstarter.xml.BusinessModuleXMLVO;
 import com.trigyn.jws.webstarter.xml.DashboardXMLVO;
 import com.trigyn.jws.webstarter.xml.FormIOXMLVO;
 import com.trigyn.jws.webstarter.xml.GenericUserNotificationXMLVO;
@@ -161,7 +172,13 @@ import com.trigyn.jws.webstarter.xml.SchedulerXMLVO;
 import com.trigyn.jws.webstarter.xml.ScriptLibraryXMLVO;
 import com.trigyn.jws.webstarter.xml.SiteLayoutXMLVO;
 import com.trigyn.jws.webstarter.xml.UserXMLVO;
+import com.trigyn.jws.webstarter.xml.WorkflowXMLVO;
+import com.trigyn.jws.workflow.entities.WorkflowDefinition;
+import com.trigyn.jws.workflow.repository.interfaces.IWorkflowDefinitionRepository;
+import com.trigyn.jws.workflow.vo.WorkflowDefinitionExportVO;
+import com.trigyn.jws.workflow.vo.WorkflowDefinitionVO;
 
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.Part;
 import jakarta.xml.bind.JAXBException;
 
@@ -300,8 +317,30 @@ public class ImportService {
 	
 	@Autowired
 	private IFormIORepository						formIORepository					= null;
+	
+	@Autowired
+	private JwsQuartzJobService						jobService							= null;
+	
+	@Autowired
+	private ServletContext							servletContext						= null;
+	
+	@Autowired
+	private SchedulerConfiguration 					schedulerConfiguration				= null;
+	
+	@Autowired
+	private JwsBusinessModuleRepository			jwsBusinessModuleRepository				= null;
 
+	@Autowired
+	private JwsBusinessModuleEntityRepository	jwsBusinessModuleRepositoryRepository	= null;
+	
+	@Autowired
+	private IWorkflowDefinitionRepository		workflowDefinitionRepository			= null;
+	
+	
+	@Autowired
+	private WorkflowImportExportModule			workflowImportExportModule				= null;
 
+	
 	public Map<String, Object> importConfig(Part file, boolean isImportfromLocal,String filePath) throws Exception {
 
 		if (isImportfromLocal == false) {
@@ -432,6 +471,9 @@ public class ImportService {
 				} else if (fileName.toLowerCase()
 						.startsWith(Constant.MasterModuleType.SCRIPTLIBRARY.getModuleType().toLowerCase())) {
 					outputMap = getScriptLibrary(outputMap, file);
+				} else if (fileName.toLowerCase()
+						.startsWith(Constant.MasterModuleType.BUSINESSMODULE.getModuleType().toLowerCase())) {
+					outputMap = getBusinessModules(outputMap, file);
 				} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.FORMIO.getModuleType().toLowerCase())) {
 					outputMap = getFormIOImportDetails(outputMap, file);
 				}
@@ -450,6 +492,8 @@ public class ImportService {
 					outputMap = getImportDynaRestDetails(outputMap, filePath);
 				}else if (Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().equalsIgnoreCase(moduleName)) {
 					outputMap = getImportFileDetails(outputMap, filePath);
+				}else if (Constant.MasterModuleType.WORKFLOW.getModuleType().equalsIgnoreCase(moduleName)) {
+					outputMap = getImportWorkflowDetails(outputMap, filePath);
 				}
 			}
 		}
@@ -474,8 +518,7 @@ public class ImportService {
 				file.getAbsolutePath());
 
 		for (Autocomplete autocomplete : xmlVO.getAutocompleteDetails()) {
-			AutocompleteVO autocompleteVO = typeAheadService.convertEntityToVO(autocomplete.getAutocompleteId(),
-					autocomplete.getAutocompleteDesc(), autocomplete.getAutocompleteSelectQuery());
+			AutocompleteVO autocompleteVO = typeAheadService.convertEntityToVO(autocomplete);
 			updateOutputMap(outputMap, autocomplete.getAutocompleteId(), autocompleteVO, autocomplete,
 					Constant.MasterModuleType.AUTOCOMPLETE.getModuleType().toLowerCase());
 		}
@@ -556,7 +599,6 @@ public class ImportService {
 			String					moduleName			= module.getModuleName();
 			String					moduleID			= module.getModuleID();
 			DynaRestExportVO		dynaRestExportVO	= module.getDynaRestExportVO();
-
 			JwsDynamicRestDetail	dynaRest			= (JwsDynamicRestDetail) dynaRestModule
 					.importData(dynaRestFolderPath, moduleName, moduleID, dynaRestExportVO);
 			dynaRest = dynaRest.getObject();
@@ -687,6 +729,18 @@ public class ImportService {
 		}
 		return outputMap;
 	}
+	
+	private Map<String, Object> getBusinessModules(Map<String, Object> outputMap, File file) throws Exception {
+		BusinessModuleXMLVO xmlVO = (BusinessModuleXMLVO) XMLUtil.unMarshaling(BusinessModuleXMLVO.class, file.getAbsolutePath());
+
+		for (JwsBusinessModule businessModule : xmlVO.getBusinessModuleDetails()) {
+			JwsBusinessModuleVO businessModuleVO = convertBusinessModuleToVO(businessModule);
+			updateOutputMap(outputMap, businessModule.getBusinessModuleId(), businessModuleVO, businessModule,
+					Constant.MasterModuleType.BUSINESSMODULE.getModuleType().toLowerCase());
+		}
+		return outputMap;
+	}
+
 
 	private Map<String, Object> getImportTemplatesDetails(Map<String, Object> outputMap, String filePath)
 			throws Exception {
@@ -700,16 +754,49 @@ public class ImportService {
 
 			TemplateMaster		template			= (TemplateMaster) templateDownloadUploadModule
 					.importData(templateFolderPath, moduleName, moduleID, templateExportVO);
-			template = template.getObject();
-			TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(),
-					template.getTemplate(), template.getUpdatedDate());
-
-			updateOutputMap(outputMap, moduleID, templateVO, template,
+			if(template != null) {
+				template = template.getObject();
+				TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(),
+						template.getTemplate(),template.getTemplateTypeId(), template.getChecksum(), template.getCreatedBy(), template.getUpdatedBy(), template.getUpdatedDate());
+	
+				updateOutputMap(outputMap, moduleID, templateVO, template,
 					Constant.MasterModuleType.TEMPLATES.getModuleType().toLowerCase());
+			}
 		}
 		return outputMap;
 	}
 
+	private Map<String, Object> getImportWorkflowDetails(Map<String, Object> outputMap, String filePath)
+	        throws Exception {
+
+	    String workflowFolderPath = filePath + File.separator
+	            + com.trigyn.jws.templating.utils.Constant.WORKFLOW_DIRECTORY_NAME;
+
+	    MetadataXMLVO metadataXMLVO = readMetaDataXML(workflowFolderPath);
+
+	    for (Modules module : metadataXMLVO.getExportModules().getModule()) {
+
+	        String moduleName = module.getModuleName();
+	        String moduleID = module.getModuleID();
+
+	        WorkflowDefinitionExportVO workflowExportVO = module.getWorkflowDefinition();
+
+	        WorkflowDefinition workflow = (WorkflowDefinition) workflowImportExportModule
+	                .importData(workflowFolderPath, moduleName, moduleID, workflowExportVO);
+
+	        if (workflow != null) {
+
+	            workflow = workflow.getObject();
+
+	            WorkflowDefinitionVO workflowVO = convertWorkflowEntityToVO(workflow);
+
+	            updateOutputMap(outputMap, moduleID, workflowVO, workflow,
+	                    Constant.MasterModuleType.WORKFLOW.getModuleType().toLowerCase());
+	        }
+	    }
+
+	    return outputMap;
+	}
 	private Map<String, Object> getImportDashletDetails(Map<String, Object> outputMap, String filePath)
 			throws Exception {
 		String			dashletFolderPath	= filePath + File.separator + Constants.DASHLET_DIRECTORY_NAME;
@@ -996,6 +1083,8 @@ public class ImportService {
 							.equalsIgnoreCase(Constant.MasterModuleType.APICLIENTDETAILS.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SCHEDULER.getModuleType().toLowerCase())
+					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.BUSINESSMODULE.getModuleType().toLowerCase())
+					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.BUSINESSENTITYMODULES.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toLowerCase()))  {
 
 				if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase())) {
@@ -1031,6 +1120,18 @@ public class ImportService {
 						.equalsIgnoreCase(Constant.MasterModuleType.HELPMANUAL.getModuleType().toLowerCase())) {
 					ManualType manualType = iManualTypeRepository.findById(entityID).orElse(null);
 					if (manualType == null) {
+						version = "NE";
+					}
+				} else if (moduleType
+						.equalsIgnoreCase(Constant.MasterModuleType.BUSINESSMODULE.getModuleType().toLowerCase())) {
+					JwsBusinessModule businessModule = jwsBusinessModuleRepository.findById(entityID).orElse(null);
+					if (businessModule == null) {
+						version = "NE";
+					}
+				} else if (moduleType
+						.equalsIgnoreCase(Constant.MasterModuleType.BUSINESSENTITYMODULES.getModuleType().toLowerCase())) {
+					JwsBusinessModuleEntity businessModuleEntity = jwsBusinessModuleRepositoryRepository.findById(entityID).orElse(null);
+					if (businessModuleEntity == null) {
 						version = "NE";
 					}
 				} else if (moduleType.equalsIgnoreCase(
@@ -1465,7 +1566,8 @@ public class ImportService {
 				if(isOnLoad == false || existingObject == null
 						|| (isOnLoad && existingObject.getIsCustomUpdated() != null && existingObject.getIsCustomUpdated() == 0)) {
 					if(isOnLoad == true) gridDetails.setIsCustomUpdated(0);
-					
+					gridDetails.setLastUpdatedBy(user);
+					gridDetails.setLastUpdatedTs(date);
 					gridDetailsDAO.saveGridDetails(gridDetails);
 					GridDetailsJsonVO vo = convertGridEntityToVO(gridDetails);
 					moduleVersionService.saveModuleVersion(vo, null, gridDetails.getGridId(), tableName,
@@ -1478,9 +1580,9 @@ public class ImportService {
 				if(isOnLoad == false || existingObject == null 
 						|| (isOnLoad &&  existingObject.getIsCustomUpdated() != null && existingObject.getIsCustomUpdated() == 0)) {
 					if(isOnLoad == true) autocomplete.setIsCustomUpdated(0);
-					
-					AutocompleteVO	autocompleteVO	= typeAheadService.convertEntityToVO(autocomplete.getAutocompleteId(),
-							autocomplete.getAutocompleteDesc(), autocomplete.getAutocompleteSelectQuery());
+					autocomplete.setLastUpdatedBy(user);
+					autocomplete.setLastUpdatedTs(date);
+					AutocompleteVO	autocompleteVO	= typeAheadService.convertEntityToVO(autocomplete);
 					typeAheadDAO.saveAutocomplete(autocomplete);
 					moduleVersionService.saveModuleVersion(autocompleteVO, null, autocomplete.getAutocompleteId(),
 						tableName, Constant.IMPORT_SOURCE_VERSION_TYPE);
@@ -1523,6 +1625,7 @@ public class ImportService {
 								|| (isOnLoad &&  existingObject.getIsCustomUpdated() != null && existingObject.getIsCustomUpdated() == 0)) {
 							if(isOnLoad == true) dashboard.setIsCustomUpdated(0);
 				 }	
+				 dashboard.setLastUpdatedTs(date);
 				 DashboardVO	dashboardVO	= dashboardCrudService.convertDashboardEntityToVO(dashboard);
 				 
 				 dashboardCrudService.saveDashboardDetails(dashboardVO, "anonymous-user", Constant.MASTER_SOURCE_VERSION_TYPE);
@@ -1538,6 +1641,8 @@ public class ImportService {
 							|| (isOnLoad &&  existingObject.getIsCustomUpdated() != null && existingObject.getIsCustomUpdated() == 0)) {
 						if(isOnLoad == true) dashlet.setIsCustomUpdated(0);
 			 }
+				 dashlet.setUpdatedBy(user);
+				 dashlet.setLastUpdatedTs(date);
 				 DashletVO dashletVO = dashletDownloadUploadModule.convertDashletEntityToVO(dashlet);
 				 
 				 dashboardCrudService.saveDashlet(dashletVO, null);
@@ -1577,7 +1682,8 @@ public class ImportService {
 					
 					List<JwsDynamicRestDaoDetail>	jwsDynamicRestDaoDetails	= dynarest.getJwsDynamicRestDaoDetails();
 					dynarest.setJwsDynamicRestDaoDetails(null);
-					
+					dynarest.setLastUpdatedBy(user);
+					dynarest.setLastUpdatedTs(date);
 					jwsDynarestDAO.saveDynaRestDetail(dynarest, jwsDynamicRestDaoDetails);
 
 					dynarest.setJwsDynamicRestDaoDetails(jwsDynamicRestDaoDetails);
@@ -1622,7 +1728,8 @@ public class ImportService {
 				if(isOnLoad == false || existingObject == null
 						|| (isOnLoad && existingObject.getIsCustomUpdated() != null && existingObject.getIsCustomUpdated() == 0)) {
 					if(isOnLoad == true) module.setIsCustomUpdated(0);
-					
+					module.setLastUpdatedBy(user);
+					module.setUpdatedDate(date);
 					List<ModuleListingI18n>	moduleListingI18ns	= module.getModuleListingI18ns();
 					module.setModuleListingI18ns(null);
 					moduleDAO.saveModuleListing(module, moduleListingI18ns);
@@ -1634,7 +1741,8 @@ public class ImportService {
 				if(isOnLoad == false || existingObject == null   
 						|| (isOnLoad && existingObject.getIsCustomUpdated() != null && existingObject.getIsCustomUpdated() == 0)) {
 					if(isOnLoad == true) propertyMaster.setIsCustomUpdated(0);
-					
+					propertyMaster.setModifiedBy(user);
+					propertyMaster.setLastModifiedDate(date);
 					propertyMasterDAO.savePropertyMaster(propertyMaster);
 					PropertyMasterJsonVO vo = convertPropertyMasterEntityToVO(propertyMaster);
 					moduleVersionService.saveModuleVersion(vo, null, propertyMaster.getPropertyMasterId(), tableName,
@@ -1679,7 +1787,7 @@ public class ImportService {
 					}
 	
 					TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(),
-							template.getTemplate(), new Date());
+							template.getTemplate(),template.getTemplateTypeId(), template.getChecksum(), template.getCreatedBy(), template.getUpdatedBy(), new Date());
 					moduleVersionService.saveModuleVersion(templateVO, null, template.getTemplateId(), tableName,
 						Constant.IMPORT_SOURCE_VERSION_TYPE);
 				}
@@ -1696,6 +1804,8 @@ public class ImportService {
 						dynamicForm.setCreatedBy(user);
 						dynamicForm.setCreatedDate(date);
 					}
+					dynamicForm.setLastUpdatedBy(user);
+					dynamicForm.setLastUpdatedTs(date);
 					List<DynamicFormSaveQuery> dynamicFormSaveQueries = dynamicForm.getDynamicFormSaveQueries();
 					dynamicFormCrudDAO.saveDynamicForm(dynamicForm);
 	
@@ -1707,10 +1817,19 @@ public class ImportService {
 				}
 			} else if (Constant.MasterModuleType.SCRIPTLIBRARY.getModuleType().equalsIgnoreCase(moduleType)) {
 					ScriptLibraryDetails	scriptLibDetails	= g.fromJson(entityString, ScriptLibraryDetails.class);
-					List<ScriptLibraryConnection> scriptLibConns = scriptLibDetails.getScriptLibraryConnection();
-					dynamicFormService.saveScriptLibDetails(scriptLibDetails,Constant.IMPORT_SOURCE_VERSION_TYPE,tableName);
-					dynamicFormService.saveScriptConnDetails(scriptLibConns,Constant.IMPORT_SOURCE_VERSION_TYPE,Constant.DYNA_REST_MOD_ID);
+					dynamicFormService.saveScriptLibraryDetails(scriptLibDetails);
+					for(ScriptLibraryConnection slc : scriptLibDetails.getScriptLibraryConnection()) {
+						dynamicFormService.saveScriptLibConnDetails(slc);
+					}
 						
+			} else if (Constant.MasterModuleType.BUSINESSMODULE.getModuleType().equalsIgnoreCase(moduleType)) {
+				JwsBusinessModule	businessModuleDetails	= g.fromJson(entityString, JwsBusinessModule.class);
+				dynamicFormService.saveBusinessModuleDetails(businessModuleDetails);
+				for(JwsBusinessModuleEntity bme : businessModuleDetails.getBusinessModuleEntity()) {
+					dynamicFormService.saveBusinessModuleEntityDetails(bme);
+				}
+				
+					
 			} else if (Constant.MasterModuleType.HELPMANUAL.getModuleType().equalsIgnoreCase(moduleType)) {
 				HelpManual helpManual = g.fromJson(entityString, HelpManual.class);
 
@@ -1747,9 +1866,10 @@ public class ImportService {
 				JqScheduler existingObject = schedulerDAO.findJqSchedulerById(scheduler.getSchedulerId());
 				if(isOnLoad == false || existingObject == null   
 						|| (isOnLoad && existingObject.getIsCustomUpdated() != null && existingObject.getIsCustomUpdated() == 0)) {
-					if(isOnLoad == true) scheduler.setIsCustomUpdated(0);
-					
+					if(isOnLoad == true) scheduler.setIsCustomUpdated(0);	
 					schedulerDAO.saveScheduler(scheduler);
+					/*Written for Executing Scheduler*/
+					executeScheduler(scheduler);
 				}
 			} else if (Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().equalsIgnoreCase(moduleType)) {
 				FileUploadImportEntity	fileImportEntity	= g.fromJson(entityString,
@@ -1771,7 +1891,14 @@ public class ImportService {
 					moduleVersionService.saveModuleVersion(vo, null, formIoDetails.getFormIoId(), tableName,
 						Constant.IMPORT_SOURCE_VERSION_TYPE);
 				}
-			}
+				
+			} else if (Constant.MasterModuleType.WORKFLOW.getModuleType().equalsIgnoreCase(moduleType)) {
+				
+				WorkflowDefinition workflow = g.fromJson(entityString, WorkflowDefinition.class);
+				workflowDefinitionRepository.saveAndFlush(workflow);
+					
+		}
+			
 		}catch (FileUploadException fue) {
 			 throw new FileUploadException("fail:" + "Error while importing File Bin");
 		} catch (Exception exp) {
@@ -1780,15 +1907,45 @@ public class ImportService {
 			throw new Exception("Error while importing entity of id: " + importId + ", module type: " + moduleType);
 		}
 	}
+	
+	/**
+	 * Written for Executing Scheduler after
+	 * importing/saving Scheduler Details on Load
+	 **/
+	public void executeScheduler(JqScheduler scheduler) throws Exception {
+		String		cronExpression			= scheduler.getCronScheduler();
+		String		schedulerId				= scheduler.getSchedulerId();
 
+		String		schedulerUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url");
+		String		baseURL					= jobService.getBaseUrl();
 
-	private JwsEntityRoleAssociationVO convertJwsEntityRoleAssociationEntityToVO(
+		JobDataMap	map						= new JobDataMap();
+		map.put("baseURL", baseURL);
+		map.put("schedulerId", schedulerId);
+		map.put("schedulerUrlProperty", schedulerUrlProperty);
+		map.put("contextPath", servletContext.getContextPath());
+		String	jobGroup	= scheduler.getJwsDynamicRestId();
+		boolean	status		= jobService.scheduleCronJob(scheduler.getScheduler_name(), jobGroup, JwsSchedulerJob.class,
+				new Date(), cronExpression, map);
+		if (status) {
+			logger.info("Scheduler executed successfully.");
+		} else {
+			logger.info("Could not start job ");
+		}
+		if (Boolean.valueOf(schedulerConfiguration.isClustered()) != null
+				&& Boolean.valueOf(schedulerConfiguration.isClustered()) == false
+				&& Boolean.valueOf(schedulerConfiguration.isClustered())) {
+			schedulerConfiguration.updateClusterState();
+		}
+	}
+
+	public JwsEntityRoleAssociationVO convertJwsEntityRoleAssociationEntityToVO(
 			JwsEntityRoleAssociation entityRoleAssociation) {
 		JwsEntityRoleAssociationVO vo = new JwsEntityRoleAssociationVO();
 		return vo.convertEntityToVO(entityRoleAssociation);
 	}
 
-	private GridDetailsJsonVO convertGridEntityToVO(GridDetails grid) {
+	public GridDetailsJsonVO convertGridEntityToVO(GridDetails grid) {
 		GridDetailsJsonVO vo = new GridDetailsJsonVO();
 		
 		vo.setEntityName("jq_grid_details");
@@ -1807,29 +1964,37 @@ public class ImportService {
 		vo.setCreatedDate(grid.getCreatedDate());
 		vo.setGridTypeId(grid.getGridTypeId());
 		vo.setLastUpdatedTs(grid.getLastUpdatedTs());
+		vo.setLastUpdatedBy(grid.getLastUpdatedBy());
+		vo.setIsCustomUpdated(grid.getIsCustomUpdated());
 		return vo;
 	}
 
-	private GenericUserNotificationJsonVO convertNotificationEntityToVO(GenericUserNotification notitification) {
+	public GenericUserNotificationJsonVO convertNotificationEntityToVO(GenericUserNotification notitification) {
 		GenericUserNotificationJsonVO vo = new GenericUserNotificationJsonVO();
 
 		vo.setEntityName("jq_generic_user_notification");
 		vo.setFormId("e848b04c-f19b-11ea-9304-f48e38ab9348");
-		vo.setFromDate(notitification.getMessageValidFrom());
+		vo.setMessageValidFrom(notitification.getMessageValidFrom());
 		vo.setMessageText(notitification.getMessageText());
 		vo.setMessageType(notitification.getMessageType());
 		vo.setNotificationId(notitification.getNotificationId());
 		vo.setPrimaryKey(notitification.getNotificationId());
 		vo.setSelectionCriteria(notitification.getSelectionCriteria());
-		vo.setToDate(notitification.getMessageValidTill());
-
+		vo.setMessageValidTill(notitification.getMessageValidTill());
+		vo.setCreatedBy(notitification.getCreatedBy());
+		vo.setCreationDate(notitification.getCreationDate());
+		vo.setDatasourceId(notitification.getDatasourceId());
+		vo.setIsCustomUpdated(notitification.getIsCustomUpdated());
+		vo.setUpdatedBy(notitification.getUpdatedBy());
+		vo.setUpdatedDate(notitification.getUpdatedDate());
+		vo.setDisplayOnce(notitification.getDisplayOnce());
 		return vo;
 	}
 
-	private RestApiDetailsJsonVO convertDynaRestEntityToVO(JwsDynamicRestDetail dynaRest) throws Exception {
+	public RestApiDetailsJsonVO convertDynaRestEntityToVO(JwsDynamicRestDetail dynaRest) throws Exception {
 		RestApiDetailsJsonVO vo = new RestApiDetailsJsonVO();
 
-		vo.setAllowFiles(dynaRest.getJwsAllowFiles() != null ? dynaRest.getJwsAllowFiles().toString() : "");
+	//	vo.setAllowFiles(dynaRest.getJwsAllowFiles() != null ? dynaRest.getJwsAllowFiles().toString() : "");
 		JSONArray	daoDetailsId		= new JSONArray();
 		JSONArray	queryDetails		= new JSONArray();
 		JSONArray	variableNameDetails	= new JSONArray();
@@ -1864,33 +2029,39 @@ public class ImportService {
 		vo.setHeaderJson(dynaRest.getJwsHeaderJson());
 		vo.setHidedaoquery(dynaRest.getHidedaoquery());
 		vo.setDynarestSecured(dynaRest.getIsSecured());
-		vo.setScriptLibId(dynaRest.getScriptLibraryId());
+		vo.setCreatedBy(dynaRest.getCreatedBy());
+		vo.setCreatedDate(dynaRest.getCreatedDate());
+		vo.setLastUpdatedBy(dynaRest.getLastUpdatedBy());
+		vo.setLastUpdatedTs(dynaRest.getLastUpdatedTs());
+		
 		return vo;
 	}
 
-	private PropertyMasterJsonVO convertPropertyMasterEntityToVO(PropertyMaster propertyMaster) {
+	public PropertyMasterJsonVO convertPropertyMasterEntityToVO(PropertyMaster propertyMaster) {
 		PropertyMasterJsonVO vo = new PropertyMasterJsonVO();
 
 		vo.setEntityName("jq_property_master");
 		vo.setFormId("8a80cb8174bf3b360174bfae9ac80006");
 		vo.setAppVersion(propertyMaster.getAppVersion());
-		vo.setComment(propertyMaster.getComments());
+		vo.setComments(propertyMaster.getComments());
 		vo.setOwnerId(propertyMaster.getOwnerId());
 		vo.setOwnerType(propertyMaster.getOwnerType());
 		vo.setPrimaryKey(propertyMaster.getPropertyMasterId());
 		vo.setPropertyMasterId(propertyMaster.getPropertyMasterId());
 		vo.setPropertyName(propertyMaster.getPropertyName());
 		vo.setPropertyValue(propertyMaster.getPropertyValue());
-
+		vo.setIsDeleted(propertyMaster.getIsDeleted());
+		vo.setLastModifiedDate(propertyMaster.getLastModifiedDate());
+		vo.setModifiedBy(propertyMaster.getModifiedBy());
 		return vo;
 	}
 
-	private ScriptLibraryVO convertScriptLibEntityToVO(ScriptLibraryDetails scriptLibrary) {
+	public ScriptLibraryVO convertScriptLibEntityToVO(ScriptLibraryDetails scriptLibrary) {
 		ScriptLibraryVO vo = new ScriptLibraryVO();
 		vo.setEntityName("jq_script_lib_details");
 		vo.setFormId("229c8556-2a52-4765-95ab-d1254020e1f0");
 		vo.setPrimaryKey(scriptLibrary.getScriptLibId());
-		vo.setScriptlibId(scriptLibrary.getScriptLibId());
+		vo.setScriptLibId(scriptLibrary.getScriptLibId());
 		vo.setLibraryName(scriptLibrary.getLibraryName());
 		vo.setTemplateId(scriptLibrary.getTemplateId());
 		vo.setScriptType(scriptLibrary.getScriptType());
@@ -1903,7 +2074,21 @@ public class ImportService {
 
 		return vo;
 	}
-	private SchedulerVO convertSchedulerEntityToVO(JqScheduler scheduler) {
+	
+	private JwsBusinessModuleVO convertBusinessModuleToVO(JwsBusinessModule businessModule) {
+		JwsBusinessModuleVO vo = new JwsBusinessModuleVO();
+		vo.setEntityName(Constant.BUSINESSMODENTITY);
+	//	vo.setFormId("229c8556-2a52-4765-95ab-d1254020e1f0");
+		vo.setPrimaryKey(businessModule.getBusinessModuleId());
+		vo.setBusinessModuleId(businessModule.getBusinessModuleId());
+		vo.setModuleName(businessModule.getModuleName());
+		vo.setUpdatedDate(businessModule.getUpdatedDate());
+		vo.setCreatedBy(businessModule.getCreatedBy());
+		vo.setCreatedDate(businessModule.getCreatedDate());
+		return vo;
+	}
+	
+	public SchedulerVO convertSchedulerEntityToVO(JqScheduler scheduler) {
 		SchedulerVO vo = new SchedulerVO();
 
 		vo.setCronScheduler(scheduler.getCronScheduler());
@@ -1917,6 +2102,7 @@ public class ImportService {
 		vo.setScheduler_name(scheduler.getScheduler_name());
 		vo.setSchedulerId(scheduler.getSchedulerId());
 		vo.setSchedulerTypeId(scheduler.getSchedulerTypeId());
+		vo.setIsCustomUpdated(scheduler.getIsCustomUpdated());
 
 		return vo;
 	}
@@ -2017,6 +2203,28 @@ public class ImportService {
 		}
 		return jsonString;
 	}
+	
+	public String getNotificationJson(String entityId) throws Exception {
+		GenericUserNotification			notification	= notificationDao.getNotificationDetails(entityId);
+		String					jsonString	= "";
+		if (notification != null) {
+			notification = notification.getObject();
+
+			GenericUserNotificationJsonVO	vo				= convertNotificationEntityToVO(notification);
+			Gson					gson			= new Gson();
+			ObjectMapper			objectMapper	= new ObjectMapper();
+			String					dbDateFormat	= propertyMasterService.getDateFormatByName(
+					Constant.PROPERTY_MASTER_OWNER_TYPE, Constant.PROPERTY_MASTER_OWNER_ID,
+					Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
+					com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+			DateFormat				dateFormat		= new SimpleDateFormat(dbDateFormat);
+			objectMapper.setDateFormat(dateFormat);
+			Map<String, Object> objectMap = objectMapper.convertValue(vo, TreeMap.class);
+			jsonString = gson.toJson(objectMap);
+
+		}
+		return jsonString;
+	}
 
 	public void importFileOnLoad(File file, boolean isDevMode) {
 		try {
@@ -2100,6 +2308,7 @@ public class ImportService {
 		for (FileUpload fileUpload : fileUploadList) {
 			int		filePathIdx		= -1;
 			String	exportPath		= null;
+			String	fileName		= null;
 			int		folderPathIdx	= fileUpload.getFilePath().indexOf(fileUploadDir);
 			if (folderPathIdx > -1) {
 				filePathIdx	= folderPathIdx + fileUploadDir.length();
@@ -2112,6 +2321,7 @@ public class ImportService {
 				extZipFilePath += File.separator;
 			}
 			extZipFilePath += parentFolderName;
+			fileName = fileUpload.getOriginalFileName();
 
 			if(extZipFilePath.endsWith(File.separator) == false && exportPath.startsWith(File.separator) == false) {
 				extZipFilePath += File.separator;
@@ -2132,7 +2342,7 @@ public class ImportService {
 			}
 			
 			if (new File(extZipFilePath).exists() == false) {
-				throw new FileNotFoundException("File Not found!!: " + extZipFilePath);
+				throw new FileNotFoundException("Please validate the file path in the exported zip with file name: " + fileName);
 			}
 			FileUploadConfig fileUploadConfig = fileUploadConfigService
 					.getFileUploadConfigByBinId(fileUpload.getFileBinId());
@@ -2141,7 +2351,6 @@ public class ImportService {
 				throw new FileUploadException("File Bin Not found!!: " + fileUpload.getFileBinId());
 			}
 			FileInputStream fis = new FileInputStream(new File(extZipFilePath));
-
 			Files.deleteIfExists(root.resolve(fileUpload.getPhysicalFileName()));
 			Files.copy(fis, root.resolve(fileUpload.getPhysicalFileName()));
 			fileUpload.setFilePath(location.toString());
@@ -2225,7 +2434,9 @@ public class ImportService {
 		return outputMap;
 	}
 
-	private FormIOImportExportVO convertFormIOEntityToVO(FormIO fmioEntity) {
+
+	
+	public FormIOImportExportVO convertFormIOEntityToVO(FormIO fmioEntity) {
 		FormIOImportExportVO formIOImportExportVO =  new FormIOImportExportVO();
 		
 		formIOImportExportVO.setFormIoId(fmioEntity.getFormIoId());
@@ -2239,9 +2450,43 @@ public class ImportService {
 		formIOImportExportVO.setIsCustomUpdated(fmioEntity.getIsCustomUpdated());
 		formIOImportExportVO.setLastUpdatedBy(fmioEntity.getLastUpdatedBy());
 		formIOImportExportVO.setLastUpdatedTs(fmioEntity.getLastUpdatedTs());
+		formIOImportExportVO.setMultiSubmit(fmioEntity.getMultiSubmit());
+		formIOImportExportVO.setRouteName(fmioEntity.getRouteName());
+		formIOImportExportVO.setPersistenceType(fmioEntity.getPersistenceType());
 		
 		return formIOImportExportVO;
 	}
 
+	public TemplateVO convertTemplateEntityToVO(TemplateMaster templateEntity) {
+	    TemplateVO vo = new TemplateVO();
+
+	    vo.setTemplateId(templateEntity.getTemplateId());
+	    vo.setTemplateName(templateEntity.getTemplateName());
+	    vo.setTemplate(templateEntity.getTemplate());
+	    vo.setChecksum(templateEntity.getChecksum());
+	    vo.setChecksumChanged(false); 
+	    vo.setTemplateTypeId(templateEntity.getTemplateTypeId());
+	    vo.setCreatedBy(templateEntity.getCreatedBy());
+	    vo.setUpdatedBy(templateEntity.getUpdatedBy());
+	    vo.setUpdatedDate(templateEntity.getUpdatedDate());
+	    return vo;
+	}
+	
+	
+	
+	public WorkflowDefinitionVO convertWorkflowEntityToVO(WorkflowDefinition workflowEntity) {
+		WorkflowDefinitionVO vo = new WorkflowDefinitionVO();
+
+	    vo.setDefinitionId(workflowEntity.getDefinitionId());
+	    vo.setDefinitionName(workflowEntity.getDefinitionName());
+	    vo.setVersion(workflowEntity.getVersion());
+	    vo.setBpmnXml(workflowEntity.getBpmnXml());
+	    vo.setCreatedBy(workflowEntity.getCreatedBy());
+	    vo.setCreatedDate(workflowEntity.getCreatedDate());
+	    vo.setIsActive(workflowEntity.getIsActive());
+	    vo.setUploadedBy(workflowEntity.getUploadedBy());
+	    vo.setUploadedAt(workflowEntity.getUploadedAt());
+	    return vo;
+	}
 
 }

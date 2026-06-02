@@ -100,6 +100,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				String	authenticationType	= request.getParameter("enableAuthenticationType");
 				String	username			= null;
 				String	jwt					= null;
+				String	sri	= jwtUtil.extractJwtFromCookie(request, "r");
+				String	uri					= request.getRequestURI();
 				if(authTypeAtHeader !=null && null == AuthType.valueOfAt(authTypeAtHeader)){
 					fileUtilities.customSendError(response,HttpServletResponse.SC_PRECONDITION_FAILED, "Authentication not supported");
 					return;
@@ -114,7 +116,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 					jwt = authorizationHeader.substring(7);
 					if (jwt != null && Integer.valueOf(requestAuthType) == AuthType.DAO.getAuthType()
 							|| Integer.valueOf(requestAuthType) == Constants.AuthType.LDAP.getAuthType()) {
-						username = jwtUtil.extractUsername(jwt);
+						username = jwtUtil.extractUsername(jwt,sri,uri);
 					} else if (jwt != null && Integer.valueOf(requestAuthType) == AuthType.OAUTH.getAuthType()) {
 						username = retrieveUsernameFromJwtToken(jwt);
 						if("jq_532".equalsIgnoreCase(username)) {
@@ -122,7 +124,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 							return;
 						}
 						if (username == null) {
-							username = jwtUtil.extractUsername(jwt);
+							username = jwtUtil.extractUsername(jwt,sri,uri);
 						}
 					}
 				}
@@ -168,9 +170,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 							}
 							if (jwt != null && ((requestAuthType != null
 									&& Integer.valueOf(requestAuthType) != Constants.AuthType.OAUTH.getAuthType()
-									&& jwtUtil.validateToken(jwt, userDetails))
+									&& jwtUtil.validateToken(jwt, userDetails,sri,uri))
 									|| Integer.valueOf(requestAuthType) == Constants.AuthType.OAUTH.getAuthType())) {
-
 								UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
 										userDetails, null, userDetails.getAuthorities());
 								usernamePasswordAuthenticationToken

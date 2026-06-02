@@ -77,10 +77,6 @@ public class DBTemplatingService {
 		if (templateVO == null) {
 			throw new Exception("No template was found with the name " + templateName);
 		}
-		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
-		if (environment.equalsIgnoreCase("dev")) {
-			getTemplateContentsForDevEnvironment(templateName, templateVO);
-		}
 		return templateVO;
 	}
 
@@ -100,7 +96,7 @@ public class DBTemplatingService {
 		TemplateMaster templateMaster = dbTemplatingRepository.findById(encodedTemplateId)
 				.orElseThrow(() -> new Exception("Template not found with id : " + encodedTemplateId));
 		return new TemplateVO(templateMaster.getTemplateId(), templateMaster.getTemplateName(),
-				templateMaster.getTemplate(), templateMaster.getChecksum(), templateMaster.getTemplateTypeId());
+				templateMaster.getTemplate(),templateMaster.getTemplateTypeId(), templateMaster.getChecksum(), templateMaster.getCreatedBy(), templateMaster.getUpdatedBy(), templateMaster.getUpdatedDate());
 	}
 
 	public String checkVelocityData(String velocityName) throws Exception {
@@ -134,7 +130,7 @@ public class DBTemplatingService {
 		}
 		TemplateMaster	templateMaster	= dbTemplatingRepository.saveAndFlush(templateDetails);
 		TemplateVO		templateVO		= new TemplateVO(templateMaster.getTemplateId(), templateMaster.getTemplateName(),
-				templateMaster.getTemplate(), new Date());
+						templateMaster.getTemplate(),templateMaster.getTemplateTypeId(),templateMaster.getChecksum(),templateMaster.getCreatedBy(),templateMaster.getUpdatedBy(), new Date());
 		Integer			typeSelect		= templateMaster.getTemplateTypeId();
 		/* Method called for implementing Activity Log */
 		logActivity(templateName, typeSelect, templateId);

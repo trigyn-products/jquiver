@@ -110,6 +110,7 @@ public class DashboardService {
 			mapOfVariables.put("dashboardId", dashboardId);
 			mapOfVariables.put("dashboardName", dashboard.getDashboardName());
 			mapOfVariables.put("dashboard", dashboard);
+			mapOfVariables.put("dashboardBody", dashboard.getDashboardBody());
 			if (dashletUIs.isEmpty() == false) {
 				if (isLayoutRequired != null && isLayoutRequired == false) {
 					return menuService.getTemplateWithoutLayout("dashlets", mapOfVariables);

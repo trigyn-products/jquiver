@@ -22,6 +22,9 @@ public class MailHistory {
 
 	@Column(name = "mail_failed_time", nullable = false)
 	private Calendar	mailFailedTime;
+	
+	@Column(name = "failed_log", nullable = false)
+	private String		failedLog	;
 
 	public String getFailedMailId() {
 		return failedMailId;
@@ -63,4 +66,13 @@ public class MailHistory {
 		this.mailFailedTime = mailFaliedTime;
 	}
 
+	public String getFailedLog() {
+		return failedLog;
+	}
+
+	public void setFailedLog(String failedLog) {
+		this.failedLog = failedLog;
+	}
+
+	
 }

@@ -1,6 +1,7 @@
 package com.trigyn.jws.webstarter.vo;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class PropertyMasterJsonVO implements Serializable {
 
@@ -8,7 +9,7 @@ public class PropertyMasterJsonVO implements Serializable {
 
 	private Double				appVersion			= null;
 
-	private String				comment				= null;
+	private String				comments				= null;
 
 	private String				entityName			= null;
 
@@ -25,21 +26,18 @@ public class PropertyMasterJsonVO implements Serializable {
 	private String				propertyName		= null;
 
 	private String				propertyValue		= null;
+	
+	private Integer				isDeleted			= null;
+	
+	private Date				lastModifiedDate	= null;
 
+	private String				modifiedBy			= null;
 	public Double getAppVersion() {
 		return appVersion;
 	}
 
 	public void setAppVersion(Double appVersion) {
 		this.appVersion = appVersion;
-	}
-
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
 	}
 
 	public String getEntityName() {
@@ -106,8 +104,42 @@ public class PropertyMasterJsonVO implements Serializable {
 		this.propertyValue = propertyValue;
 	}
 
+	public Integer getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Integer isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+
+	public Date getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+
+	public void setLastModifiedDate(Date lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
+
+	public String getModifiedBy() {
+		return modifiedBy;
+	}
+
+	public void setModifiedBy(String modifiedBy) {
+		this.modifiedBy = modifiedBy;
+	}
+
+	public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
+	
+	
 
 }

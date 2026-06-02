@@ -75,19 +75,13 @@ public class StaticCodeImportConfiguration {
 			String lastDeployedVersion = propertyMasterService.findPropertyMasterValue("last-deployed-version");
 
 			if (isCodeImported == false) {
-				String profile = propertyMasterService.findPropertyMasterValue("profile");
 				if (lastDeployedVersion == null || currentVersion.equals(lastDeployedVersion) == false) {
 					logger.info("############# Importing through static code importer");
-					if (profile != null && profile.equalsIgnoreCase("dev")) {
-
-						// import file from temporary storage path
-						importService.importFileOnLoad(null, true);
-					} else {
-						String filePath = explodeJar();
-						if (filePath != null) {
+					String filePath = explodeJar();
+					if (filePath != null) {
 							importService.importFileOnLoad(new File(filePath), false);
-						}
 					}
+					
 
 					PropertyMaster lastDeployedVersionPropertyMaster = propertyMasterService
 							.findPropertyMasterByName("last-deployed-version");

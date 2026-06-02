@@ -104,7 +104,7 @@ public class DynamicFormHelperService {
 	}
 	
 	public StringJoiner createInsertQuery(StringJoiner insertValuesJoiner, String tableName, String columnName,
-			String dataType, String columnKey, String dbProductName, String isAutoIncrement,
+			String dataType, String columnKey, String dbProductName, String isAutoIncrement, String isHidden,
 			Map<String, Object> saveQueryparameters) {
 
 		logger.debug(
@@ -113,28 +113,32 @@ public class DynamicFormHelperService {
 		if (insertValuesJoiner == null) {
 			insertValuesJoiner = new StringJoiner("");
 		}
-		if (isAutoIncrement.equalsIgnoreCase("false")) {
-			if (columnKey != null && columnKey.equals(PRIMARY_KEY)) {
-				if (dataType.equalsIgnoreCase(TEXT)) {
+		if (columnKey != null && columnKey.equals(PRIMARY_KEY)) {
+			if ("false".equalsIgnoreCase(isAutoIncrement)) {
+				if ("hidden".equalsIgnoreCase(isHidden) == true) {
+					if (dataType.equalsIgnoreCase(TEXT)) {
 
-					String value = " VALUES (UUID(),";
-					if (dbProductName.contains(Constant.POSTGRESQL)) {
-						value = " VALUES (uuid_generate_v4(),";
-					} else if (dbProductName.contains(Constant.MSSQLSERVER)) {
-						value = " VALUES (NEWID(),";
-					} else if (dbProductName.contains(Constant.ORACLE)) {
-						value = " VALUES (sys_guid(),";
+						String value = " VALUES (UUID(),";
+						if (dbProductName.contains(Constant.POSTGRESQL)) {
+							value = " VALUES (uuid_generate_v4(),";
+						} else if (dbProductName.contains(Constant.MSSQLSERVER)) {
+							value = " VALUES (NEWID(),";
+						} else if (dbProductName.contains(Constant.ORACLE)) {
+							value = " VALUES (sys_guid(),";
+						}
+
+						insertValuesJoiner.add(value.replace("\\", ""));
+					} else if (dataType.equalsIgnoreCase(INT) || dataType.equalsIgnoreCase(DECIMAL)) {
+
+						String value = " SELECT  COALESCE(MAX(" + columnName + "),0) + 1 ,";
+						insertValuesJoiner.add(value.replace("\\", ""));
 					}
-
-					insertValuesJoiner.add(value.replace("\\", ""));
-				} else if (dataType.equalsIgnoreCase(INT) || dataType.equalsIgnoreCase(DECIMAL)) {
-
-					String value = " SELECT  COALESCE(MAX(" + columnName + "),0) + 1 ,";
+				} else {
+					String	formFieldName	= columnName.replace("_", "");
+					String value = " VALUES(:" + formFieldName + ",";
 					insertValuesJoiner.add(value.replace("\\", ""));
 				}
-			}
-		} else {
-			if (columnKey != null && columnKey.equals(PRIMARY_KEY)) {
+			} else {
 				String value = " VALUES(";
 				insertValuesJoiner.add(value.replace("\\", ""));
 			}
@@ -276,7 +280,6 @@ public class DynamicFormHelperService {
 			String fieldName = tmpName;
 			String dataType = saveQueryParamMap.get(fieldName);
 			value		= getDataInTypeFormat(data.get("value"), dataType);
-			//System.out.println(fieldName+" = "+value.toString());
 		}
 		if (formParameters!=null && formParameters.containsKey(tmpName)) {
 			tmpValue = (List) formParameters.get(tmpName + "_");

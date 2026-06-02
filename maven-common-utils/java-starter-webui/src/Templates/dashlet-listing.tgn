@@ -22,14 +22,6 @@
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
                   </select>       
                 </div> 
-			<#if environment == "dev">
-
-             <button  id="downloadDashlet" onclick= "dashletListing.downloadDashlet();"  type="button" class="spacingclss btn btn-primary ">Download Dashlets</button>
-
-           <button  id="uploadDashlet" onclick= "dashletListing.uploadDashlet();"   type="button" class="spacingclss btn btn-primary ">Upload Dashlets</button>			 
-
-
-			</#if>
 
                 <span class="iconscover spacingclss">
                  <button type='button' onclick="location.href='${(contextPath)!''}/cf/ad'" class="addonicons addresourceicon" title="Additional Datasource">
@@ -168,22 +160,14 @@
 		const revisionCount = uiObject.rowData.revisionCount;
 					
 		let actionElement;
-		<#if environment == "dev">
-			actionElement = "<span id='"+dashletId+"' class= 'grid_action_icons'><i class='fa fa-pencil' title='${messageSource.getMessage("jws.editDashlet")}'></i></span>";
-      		actionElement = actionElement + "<span id='"+dashletId+"' class= 'grid_action_icons' onclick='dashletListing.downloadDashletById(this)'><i class='fa fa-download'></i></span>";
-          	actionElement = actionElement + "<span id='"+dashletId+"_upload' name='"+dashletName+"' class= 'grid_action_icons' onclick='dashletListing.uploadDashletById(this)'><i class='fa fa-upload'></i></span>";
-		<#else>
-			actionElement = "<span id='"+dashletId+"' class= 'grid_action_icons'  onclick='dashletListing.submitForm(this)' title='${messageSource.getMessage("jws.editDashlet")}'><i class='fa fa-pencil'></i></span>";
-            actionElement += '<span onclick=\'copyId("'+dashletId+'")\' class= "grid_action_icons" title="Copy Id"><i class="fa fa-copy "></i></span>'.toString();	
-			if(revisionCount > 1){
-				actionElement = actionElement + '<span id="'+dashletId+'_entity" name="'+dashletName+'" onclick="dashletListing.submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
-			}else{
-				actionElement = actionElement + '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
-			}
-			return actionElement;		
-			
-		</#if>
-		return actionElement;
+		actionElement = "<span id='"+dashletId+"' class= 'grid_action_icons'  onclick='dashletListing.submitForm(this)' title='${messageSource.getMessage("jws.editDashlet")}'><i class='fa fa-pencil'></i></span>";
+        actionElement += '<span onclick=\'copyId("'+dashletId+'")\' class= "grid_action_icons" title="Copy Id"><i class="fa fa-copy "></i></span>'.toString();	
+		if(revisionCount > 1){
+			actionElement = actionElement + '<span id="'+dashletId+'_entity" name="'+dashletName+'" onclick="dashletListing.submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
+		}else{
+			actionElement = actionElement + '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
+		}
+		return actionElement;		
 	}
     function copyId(id){
         let input = $("<input>");

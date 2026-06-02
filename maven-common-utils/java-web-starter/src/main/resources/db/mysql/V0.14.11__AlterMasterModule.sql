@@ -1,0 +1,2 @@
+REPLACE INTO jq_master_modules(module_id, module_name,sequence,is_system_module, auxiliary_data, module_type_id,grid_details_id,module_type,is_entity_perm_supported,is_imp_exp_supported,is_perm_supported) VALUES
+('ba72cdd7-7ad3-4163-a98f-48847beee391', 'Business Module', 30,1, null, 20,'businessExportGrid','BusinessModule',0,1,0);

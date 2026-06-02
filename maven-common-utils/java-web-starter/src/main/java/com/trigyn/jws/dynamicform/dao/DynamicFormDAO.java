@@ -26,5 +26,16 @@ public class DynamicFormDAO extends DBConnection {
 		if(data != null) getCurrentSession().evict(data);
 		return data;
 	}
+	
+	public Object getFormIoMetaDataById(String formIoId) {
+		Query query = getCurrentSession()
+				.createQuery(" SELECT fio FROM FormIO fio WHERE fio.formIoId=:formIoId");
+		query.setParameter("formIoId", formIoId);		
+		Object data = (FormIO) query.getSingleResult();
+		if(data != null) getCurrentSession().evict(data);
+		return data;
+	}
+	
+	
 
 }

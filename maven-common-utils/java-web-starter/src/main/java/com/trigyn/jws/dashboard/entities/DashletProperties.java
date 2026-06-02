@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import org.hibernate.annotations.Where;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.trigyn.jws.dashboard.vo.DashletPropertyVO;
 import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
 
@@ -19,6 +20,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 @Entity
 @EntityListeners(value = { UUIDEntityListener.class })
@@ -65,6 +67,8 @@ public class DashletProperties implements Serializable {
 	@Column(name = "sequence")
 	private Integer								sequence						= null;
 
+	@XmlTransient
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "dashlet_id", referencedColumnName = "dashlet_id", nullable = false, insertable = false, updatable = false)
 	private Dashlet								dashlet							= null;
@@ -201,6 +205,7 @@ public class DashletProperties implements Serializable {
 		this.sequence = sequence;
 	}
 
+	@XmlTransient
 	public Dashlet getDashlet() {
 		return dashlet;
 	}

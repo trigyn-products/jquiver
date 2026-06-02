@@ -9,9 +9,9 @@ function saveFileDetails(){
     map.put('fileBinId', requestDetails.fileBinId);
     map.put('fileTypeSupported', requestDetails.fileTypeSupported);
     map.put('maxFileSize', requestDetails.maxFileSize);
-
-    if(requestDetails.noOfFiles < 256) {
-        map.put('noOfFiles', requestDetails.noOfFiles);
+    
+    if(requestDetails.noOfFiles[0] < 256) {
+        map.put('noOfFiles', requestDetails.noOfFiles[0]);
     } else {
         var nof = 256;
         var nofProperty = jq_getDBResult('SELECT property_value FROM jq_property_master WHERE property_name = "max-file-count"', null, null);

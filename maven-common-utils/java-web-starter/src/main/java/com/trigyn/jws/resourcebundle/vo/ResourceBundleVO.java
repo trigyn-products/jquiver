@@ -12,17 +12,22 @@ public class ResourceBundleVO implements Serializable {
 	private String				text				= null;
 	private String				createdBy			= null;
 	private Date				createdDate				= null;
+	private String				updatedBy			= null;
+	private Date				updatedDate				= null;
+	private Integer isCustomUpdated = 1;
 
 	public ResourceBundleVO() {
 
 	}
 
-	public ResourceBundleVO(Integer languageId, String resourceKey, String text,String createdBy,Date createdDate) {
+	public ResourceBundleVO(Integer languageId, String resourceKey, String text,String createdBy,Date createdDate,String updatedBy,Date updatedDate) {
 		this.languageId		= languageId;
 		this.resourceKey	= resourceKey;
 		this.text			= text;
 		this.createdBy      =createdBy;
 		this.createdDate    =createdDate;
+		this.updatedBy  =updatedBy;
+		this.updatedDate=updatedDate;
 	}
 
 	public Integer getLanguageId() {
@@ -65,6 +70,32 @@ public class ResourceBundleVO implements Serializable {
 		this.createdDate = createdDate;
 	}
 
+	
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	public Date getUpdatedDate() {
+		return updatedDate;
+	}
+
+	public void setUpdatedDate(Date updatedDate) {
+		this.updatedDate = updatedDate;
+	}
+
+	
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -90,7 +121,7 @@ public class ResourceBundleVO implements Serializable {
 			return false;
 		ResourceBundleVO other = (ResourceBundleVO) obj;
 		return Objects.equals(languageId, other.languageId) && Objects.equals(resourceKey, other.resourceKey)
-				&& Objects.equals(text, other.text) && Objects.equals(createdBy, other.createdBy) && Objects.equals(createdDate, other.createdDate);
+				&& Objects.equals(text, other.text) && Objects.equals(createdBy, other.createdBy) && Objects.equals(createdDate, other.createdDate) && Objects.equals(updatedBy, other.updatedBy)  && Objects.equals(updatedBy, other.updatedBy) && Objects.equals(updatedDate, other.updatedDate) && Objects.equals(isCustomUpdated, other.isCustomUpdated);
 	}
 
 	/*
@@ -100,9 +131,12 @@ public class ResourceBundleVO implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder stringBuilder = new StringBuilder().append("{ languageId = ").append(languageId).append(", text = ").append(text)
-				.append(", resourceKey = ").append(resourceKey).append(" , createdBy = ").append(createdBy).append(", createdDate = ").append(createdDate).append(" }");
-		return stringBuilder.toString();
+		return "ResourceBundleVO [languageId=" + languageId + ", resourceKey=" + resourceKey + ", text=" + text
+				+ ", createdBy=" + createdBy + ", createdDate=" + createdDate + ", updatedBy=" + updatedBy
+				+ ", updatedDate=" + updatedDate + ", isCustomUpdated=" + isCustomUpdated + "]";
 	}
+
+	
+
 
 }

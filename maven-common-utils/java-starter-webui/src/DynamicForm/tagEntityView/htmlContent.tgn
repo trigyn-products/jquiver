@@ -1,0 +1,1274 @@
+<style>
+    /* Ensure the body has no margin or padding */
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Container for the layout (Left and Right columns) */
+    
+
+    /* Left column for Parent Modules */
+    .left-column {
+        /* This is the key change: Set the left column to 30% */
+        border-right: 1px solid #ccc; /* Adds separation between left and right columns */
+        padding-right:10px;
+    }
+
+    /* Right column for Child Entities */
+    .right-column {
+        
+     }
+
+    /* Styling for Parent Module Items */
+    .parent-item {
+        cursor: pointer;
+        margin-bottom: 0px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 0px;
+        background-color: #f9f9f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+     .parent-item.active{
+        background:#e9e9e;
+        color:var(--bluebgcolor);
+        font-weight:bold;
+    }
+    
+    .parent-item:hover {
+        background-color: #e9e9e9;
+    }
+
+    /* Styling for Edit/Delete Buttons */
+    .parent-item .button-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .button-group button {
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+
+    /* Styling for Child Entities */
+    .child-entities {
+        width:100%;
+        display: none; /* Initially hidden */
+    }
+
+    .grid_action_icons_ex a{
+        text-decoration:none;
+    } 
+
+    .grid_action_icons_ex {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+}
+
+    .child-entities table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .child-entities th, .child-entities td {
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+    
+    .parent-item .button-group .btn:hover{
+        background: var(--bluebgcolor);
+        color:#fff;
+    }
+
+    .parent-item .button-group .btn{
+        display: flex;
+        padding: 5px !important;
+        border:1px solid #ccc !important;
+        background: #f3f3f3;
+        margin: 0px 1px;
+        border-radius: 5px;
+        color:#292929;
+        align-items: center;
+    }
+
+    /* Styling for Action Icons */
+    .grid_action_icons_ex .fa {
+        display: flex;
+        padding: 5px;
+        background: #f3f3f3;
+        margin: 0px 5px;
+        border-radius: 5px;
+        color:#000;
+        align-items: center;
+    }
+
+    .parent-modules{
+        margin:20px 0px 0px;
+        border:1px solid #CCC;
+        padding:0px;
+    }
+
+    .cstomtble th{
+        background: #f2f2f2;
+    }
+
+    .search-cover{
+        width:100% !important;
+    }
+
+    .grid_action_icons_ex .fa:hover {
+        background: var(--bluebgcolor);
+        color:#fff;
+    }
+
+    /* Title Section */
+    .title-cls-name {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+      
+	<!-- Splitter css -->
+
+    .splitter-container {
+        display: flex;
+        width: 100%;
+        height: 600px;
+        overflow: hidden;
+    }
+
+    .left-column,
+    .right-column {
+        overflow: auto;
+        padding: 10px;
+    }
+
+    .splitter-bar {
+        background: #ccc;
+        width: 5px;
+        cursor: col-resize;
+    }
+
+    .module-name {
+        display: block;
+    	width: 69%;
+    	text-overflow: ellipsis;
+    	overflow: hidden;
+    	white-space: nowrap;
+    }
+
+	.splitter_panel {
+    	position: relative;
+    	min-height: 400px; /* ensures panels don't shrink too much */
+    	overflow: auto; /* so content scrolls if too big */
+	}
+</style>
+
+<head>
+    <script src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+    <script src="${(contextPath)!''}/webjars/1.0/nestedsortable/nestedSortable.js"></script>
+    <!-- For Splitter.js -->
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/splitter/jquery.splitter.css">
+    <script src="${(contextPath)!''}/webjars/1.0/splitter/jquery.splitter.js"></script>
+</head>
+
+<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="cmvEntityName" name="cmvEntityName">
+    <input type="hidden" id="moduleJson" name="moduleJson" value="moduleJson">
+     <input type="hidden" id="isTagView" name="isTagView">
+     <input type="hidden" id="permissionJson" name="permissionJson">
+    <input type="hidden" id="entityId" name="entityId">
+    <input type="hidden" id="moduleId" name="moduleId">
+    <input type="hidden" id="moduleName" name="moduleName">
+    <input type="hidden" id="moduleType" name="moduleType">
+    <input type="hidden" id="saveUrl" name="saveUrl">
+    <input type="hidden" id="nonVersioningFetchURL" name="nonVersioningFetchURL">
+    <input type="hidden" id="isNonVersioningModule" name="isNonVersioningModule">
+    <input type="hidden" id="previousPageUrl" name="previousPageUrl">
+    <input type="hidden" id="versioningFetchURL" name="versioningFetchURL">
+    
+    
+</form>
+
+   
+
+<#if resultSetObject.tagData?? && resultSetObject.tagData?has_content>
+    <#assign tagDataMap = resultSetObject.tagData>
+
+    <div class="container navdragdropblock">
+
+        <div class="row topband">
+        <div class="col-4">
+			    <h2 class="title-cls-name float-left">Tag Entity View</h2> 
+	    </div>  
+       
+        <div class="col-7">                                      
+		        <#assign ufAttributes = {
+		            "entityType": "Templating",
+		            "entityId": "templateId",
+		            "entityName": "vmName",
+					"hideFav":"true",
+                    "hideRevAutocomplete":"true"
+		        }>
+		        <@templateWithParams "user-favorite-template" ufAttributes />
+              
+	    </div>
+	    
+	    <div class="col-1">
+			    <button type='button' id="back-btn" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+	    </div>
+                              
+        </div>
+
+        <div class="row">
+            
+        <div id="business-module-splitter" class="splitter-container">
+        <div class="left-column">
+            <div class="search-cover">
+                <input type="text" class="form-control" id="tagNameAutocomplete">
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </div>
+			
+            <ul class="parent-modules" id="parent-modules-list">
+                <#list tagDataMap as parentKey, parentVal>
+                    <#assign parent = parentVal>
+                    <li class="parent-item" data-id="${parent.tagId}">
+                        <span class="module-name">${parent.tagName}</span>
+                        <!-- Button Group for Edit/Delete -->
+                        <div class="button-group">
+                            <button type="button" class="edit-btn btn btn-sm btn-outline-primary" data-id="${parent.tagId}" data-name="${parent.tagName}" title="Edit">
+                                <i class="fa fa-pencil"></i>
+                            </button>
+                            <button type="button" class="delete-parent-btn btn btn-sm btn-outline-danger" data-id="${parent.tagId}" title="Delete">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                             <button type="button" class="restore-parent-btn btn btn-sm btn-outline-danger" data-id="${parent.tagId}" title="Restore">
+                               <i class="fa fa-undo"></i>
+                            </button>
+                        </div>
+                    </li>
+                </#list>
+            </ul>
+        </div>
+
+        <div class="right-column col-9">
+            <#list tagDataMap as parentKey, parentVal>
+                <#assign parent = parentVal>
+                <#if parent.children?? && parent.children?has_content>
+                    <div class="child-entities" id="child-entities-${parent.tagId}">
+                        <table class="table cstomtble">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" width="50%">Module</th>
+                                    <th class="text-center" width="40%">Entity</th>
+                                    <th class="text-center" width="10%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <#list parent.children as childKey, child>
+                                    <tr>
+                                        <td>${child.childModuleName}</td>
+                                        <td>${child.childEntityName}</td>
+                                      
+                                        <td>
+                                            <span class="grid_action_icons_ex">
+                                                <a href="#" class="view-icon" data-module-name="${child.childModuleName}" data-entity-id="${child.entityId}" data-entity-name="${child.childEntityName}" title="View">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
+                                                <a href="#" class="history-icon" data-module-name="${child.childModuleName}" data-entity-id="${child.entityId}" data-module-json='${child.moduleJson}' data-module-id='${child.moduleId}' data-permission-json = '${child.permissionJson}' title="History">
+                                                    <i class="fa fa-history"></i>
+                                                </a>
+                                                <a href="#" class="unlink-icon" data-child-id="${child.tagEntityDetailsId}" title="Untag">
+                                                 <i class="fa fa-times-circle"></i>
+                                                   
+                                                </a>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </#list>
+                            </tbody>
+                        </table>
+                    </div>
+                <#else>
+                    <div class="child-entities" id="child-entities-${parent.tagId}">
+                       <p>No tag entity found for ${parent.tagName}.</p>
+                    </div>
+                </#if>
+            </#list>
+        </div>
+        </div> 
+		<!-- Splitter end -->
+		</div>
+    </div>
+
+<#else>
+    <div class="nodata_found">
+        <h3>No tag entities found.</h3>
+    </div>
+</#if>
+
+<!-- Edit Module Modal -->
+<div class="modal fade" id="busModuleModalDialog" tabindex="-1" aria-labelledby="busModuleModalDialogLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="busModuleModalDialogLabel">Edit Tag</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="tagName" class="form-label">Tag Name</label>
+            <input type="text" id="tagName" name="tagName" class="form-control" placeholder="Enter Tag Name" autocomplete="off">
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="saveModuleBtn">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal content end -->
+
+<script ${scriptNonce}>
+    document.title = "Tag Entity View"; 
+	var env = "${environment}";
+	let currentEditingTagId = null;
+    const childDataCache = {};  // Global cache to store fetched child module data
+
+	document.addEventListener("DOMContentLoaded", function () {
+    const backButton = document.getElementById("back-btn");
+    if (backButton) {
+        backButton.addEventListener("click", function () {
+            location.href = contextPath + viewPath +"/tg";
+        });
+    }
+});
+
+    $(document).ready(function () {
+        $('#business-module-splitter').split({
+            orientation: 'vertical',
+            limit: 150,
+            position: ['25%'] // Left panel width
+        });
+    });
+
+	//For modal open
+	document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const name = this.getAttribute('data-name');
+            const parentModuleId = this.getAttribute('data-id');
+            openmodal(name,parentModuleId);
+        });
+});
+
+function openmodal(name,parentModuleId) {
+    currentEditingTagId = parentModuleId;
+    var myModal = new bootstrap.Modal(document.getElementById('busModuleModalDialog'));
+    myModal.show();
+    if (name) {
+      document.getElementById("tagName").value = name || "";
+    }
+  }
+//Done modal section
+
+//For Updating Module Name 
+document.getElementById("saveModuleBtn").addEventListener("click", function () {
+    const updatedName = document.getElementById("tagName").value;
+
+    //To check the duplicate name.
+	const allModuleButtons = document.querySelectorAll(".accordion-button");
+    let isDuplicate = false;
+
+    allModuleButtons.forEach(button => {
+        const tagName = button.textContent.trim();
+        const parentId = button.getAttribute("data-bs-target")?.replace("#collapse-", "");
+
+        // Ignore the current module being edited
+        if (tagName.toLowerCase() === updatedName.toLowerCase() &&
+            parentId !== currentEditingTagId) {
+            isDuplicate = true;
+        }
+    });
+
+    if (isDuplicate) {
+        showMessage("A module with this name already exists. Please change name.", "warn");
+        return;
+    }
+	//Done checking duplicate name
+    $.ajax({
+        async: false,
+        type: "POST",
+        url: contextPath + apiPath +"/utn", 
+        dataType: "text",
+        data: {
+            tagId: currentEditingTagId,
+            tagName: updatedName
+        },
+        success: function (response) {
+		    showMessage("Tag name updated successfully", "success");
+			setTimeout(() => location.reload(), 1000);
+        },
+        error: function (xhr, status, error) {
+            console.error("Failed to update tag:", error);
+            showMessage("Error occurred while updating the tag name", "error");
+        }
+    });
+});
+
+//Done updte Module name
+
+// Delete Parent section
+    document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.delete-parent-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const parentId = this.getAttribute('data-id');
+      const parentElement = this.closest('.parent-item');
+      const childElement = this.closest('.child-entities');
+      // Create the dialog element
+      const dialog = $('<div id="deleteParentConfirmDialog">Are you sure you want to delete this tag?</div>');
+      $('body').append(dialog);
+
+      $('#deleteParentConfirmDialog').dialog({
+        bgiframe: true,
+        autoOpen: true,
+        modal: true,
+        closeOnEscape: true,
+        draggable: true,
+        resizable: false,
+        title: 'Delete',
+        position: { my: 'center', at: 'center' },
+        buttons: [
+          {
+            text: 'Delete',
+            class: 'btn btn-primary',
+            click: function () {
+              const dialogRef = $(this);
+              $.ajax({
+                type: 'POST',
+                url: contextPath + apiPath + '/dtd',
+                dataType: 'text',
+                data: { tagId: parentId },
+                success: function (response) {
+                
+                  if (parentElement) {
+                    parentElement.remove();               
+                    //Clear the right side child table
+                  }
+                   setTimeout(() => location.reload(), 500);
+				   showMessage("Tag deleted", "success");
+                },
+                error: function (xhr, status, error) {
+                  console.error('Failed to delete tag:', error);
+                 showMessage("Error occurred while deleting the tag", "error");
+                },
+                complete: function () {
+                  dialogRef.dialog('destroy').remove();
+                }
+              });
+            }
+          },
+          {
+            text: 'Cancel',
+            class: 'btn btn-secondary',
+            click: function () {
+              $(this).dialog('destroy').remove();
+            }
+          }
+        ],
+        open: function () {
+          $(".ui-dialog-titlebar button")
+            .removeClass("ui-dialog-titlebar-close")
+            .addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
+            .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
+            .append('<span class="ui-button-icon-space"></span>');
+        }
+      });
+    });
+  });
+});
+//Delete parent module done
+
+// Restore Parent section
+    document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.restore-parent-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const parentId = this.getAttribute('data-id');
+      const parentElement = this.closest('.parent-item');
+      // Create the dialog element
+      const dialog = $('<div id="deleteParentConfirmDialog">Are you sure you want to restore this tag?</div>');
+      $('body').append(dialog);
+      $('#deleteParentConfirmDialog').dialog({
+        bgiframe: true,
+        autoOpen: true,
+        modal: true,
+        closeOnEscape: true,
+        draggable: true,
+        resizable: false,
+        title: 'Restore',
+        position: { my: 'center', at: 'center' },
+        buttons: [
+          {
+            text: 'Restore',
+            class: 'btn btn-primary',
+            click: function () {
+              const dialogRef = $(this);
+              $.ajax({
+                async: false,
+				type: "POST",
+				cache: false,
+                url: contextPath + "/cf/rt",
+
+                data: { tagId: parentId },
+                success: function (response) {
+				   showMessage("Tag restored", "success");
+                },
+                error: function (xhr, status, error) {
+                 showMessage("Error occurred while restoring the tag", "error");
+                },
+                complete: function () {
+                  dialogRef.dialog('destroy').remove();
+                }
+              });
+            }
+          },
+          {
+            text: 'Cancel',
+            class: 'btn btn-secondary',
+            click: function () {
+              $(this).dialog('destroy').remove();
+            }
+          }
+        ],
+        open: function () {
+          $(".ui-dialog-titlebar button")
+            .removeClass("ui-dialog-titlebar-close")
+            .addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
+            .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
+            .append('<span class="ui-button-icon-space"></span>');
+        }
+      });
+    });
+  });
+});
+//Restore parent module done
+
+// for View icon
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('.view-icon').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        const moduleName = this.getAttribute('data-module-name');
+        const entityName = this.getAttribute('data-entity-name');
+        const entityId   = this.getAttribute('data-entity-id');
+        if(moduleName == "REST API"){
+            getModuleFormData(moduleName, entityName);
+        } else{
+            getModuleFormData(moduleName, entityId);
+        }
+      });
+    });
+  });
+
+  function getModuleFormData(moduleName, entityName) {
+  
+        if( moduleName == "Template"){
+            moduleName = "Templating"
+        }
+        $.ajax({
+        type: "GET",
+        async: false,
+        url: contextPath + apiPath + "/gtvfd",
+        data: {
+            targetLookupId: moduleName,
+            targetTypeId: entityName
+        },
+        success: function (data) {
+            let form = $(JSON.parse(data[0].formData));
+            $("body").append(form);
+            $(form).attr("action", contextPath + $(form).attr("action"));
+            $(form).find("input").each(function (index, inputElem) {
+            if ($(inputElem).attr("name") !== "formId") {
+                $(inputElem).val(data[0].entityId);
+            }
+            });
+            $(form).attr('target', '_blank');
+            $(form).submit();
+        }
+        });
+  }
+//Done View iconist
+
+// History compare Section
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll('.history-icon').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      e.preventDefault(); // prevent anchor from jumping
+      const selectedId = this.getAttribute('data-entity-id'); 
+      const moduleName = this.getAttribute('data-module-name');
+	  const moduleJson = this.getAttribute('data-module-json');
+      const moduleId = this.getAttribute('data-module-id');
+      const permissionJson = this.getAttribute('data-permission-json');
+      const { cmvEntityName, moduleType, saveURL, isNonVersioningModule, nonVersioningFetchURL,versioningFetchURL } = getentityName(moduleId);
+      // Set hidden input values
+      document.getElementById("entityId").value = selectedId;
+      document.getElementById("moduleName").value = moduleName;
+	  document.getElementById("moduleJson").value = moduleJson;
+      document.getElementById("moduleId").value = moduleId;
+      document.getElementById("isTagView").value = "true";
+	  $("#isTagView").val("true");
+      document.getElementById("cmvEntityName").value = cmvEntityName;
+      document.getElementById("moduleType").value = moduleType;
+      document.getElementById("isNonVersioningModule").value = isNonVersioningModule;
+      document.getElementById("permissionJson").value = permissionJson;
+      
+      if(saveURL == ""){
+          $("#saveUrl").val("");
+      }else{
+        $("#saveUrl").val(saveURL);
+      }
+      if(nonVersioningFetchURL == ""){
+          $("#nonVersioningFetchURL").val("");
+      }else{
+        $("#nonVersioningFetchURL").val(nonVersioningFetchURL);
+      }
+      if(versioningFetchURL == ""){
+          $("#versioningFetchURL").val("");
+      }else{
+        $("#versioningFetchURL").val(versioningFetchURL);
+      }
+      // Submit the form
+      document.getElementById("revisionForm").submit();
+    });
+  });
+});
+
+// Done History compare section
+
+function getentityName(moduleId){
+    var cmvEntityName;
+    var moduleType;
+    var saveURL = "";
+    var tagList = [];
+    let isNonVersioningModule = "false";
+	let nonVersioningFetchURL = "";
+    let versioningFetchURL = "";
+    if(moduleId == "1b0a2e40-098d-11eb-9a16-f48e38ab9348"){
+        cmvEntityName = "jq_template_master";
+        moduleType = "template";
+        saveURL = "/cf/stdv";
+        versioningFetchURL = "/cf/gtvd";
+    } else if(moduleId == "30a0ff61-0ecf-11eb-94b2-f48e38ab9348"){
+        cmvEntityName = "jq_dynamic_form";
+        moduleType = "dynamicForm";
+        versioningFetchURL = "/cf/uj";
+    } else if(moduleId == "07067149-098d-11eb-9a16-f48e38ab9348"){
+        cmvEntityName = "jq_grid_details";
+        moduleType = "grid";
+        versioningFetchURL = "/cf/ggvd";
+    } else if(moduleId == "47030ee1-0ecf-11eb-94b2-f48e38ab9348"){
+        cmvEntityName = "jq_dynamic_rest_details";
+        moduleType = "dynarest";
+        versioningFetchURL = "/cf/uj";
+    } else if(moduleId == "248ffd91-7760-11eb-94ed-f48e38ab8cd7"){
+        cmvEntityName = "jq_file_upload_config";
+        moduleType = "fileManager";
+        saveURL = "/cf/sfuc";
+        isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/fuj";
+    } else if(moduleId == "1faee99c-021c-11ef-a019-7c8ae1bb24d8"){
+        cmvEntityName = "FormIO";
+        moduleType = "formio";
+        versioningFetchURL = "/cf/gfiod";
+    } else if(moduleId == "5559212c-8c8f-11eb-8dcd-0242ac130003"){
+        cmvEntityName = "jq_resource_bundle";
+        moduleType = "resourceBundle";
+        versioningFetchURL = "/cf/grbd";
+        saveURL = "/cf/srbv";
+    } else if(moduleId == "b0f8646c-0ecf-11eb-94b2-f48e38ab9348"){
+        cmvEntityName = "jq_dashboard";
+        moduleType = "dashboard";
+        saveURL = "/cf/sdbv";
+        versioningFetchURL = "/cf/gdashvd";
+    } else if(moduleId == "19aa8996-80a2-11eb-971b-f48e38ab8cd7"){
+        cmvEntityName = "jq_dashlet";
+        moduleType = "dashboard";
+        saveURL = "/cf/sdlv";
+        versioningFetchURL = "/cf/gdvd";
+    } else if(moduleId == "6ac6a54c-8d3f-11eb-8dcd-0242ac130003"){
+        cmvEntityName = "jq_generic_user_notification";
+        moduleType = "notification";
+        isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/gn";
+    } else if(moduleId == "70bd445b-ae33-45dd-98f9-0a0c49463315"){
+        cmvEntityName = "jq_script_lib_details";
+        moduleType = "scriptlibrary";
+        versioningFetchURL = "/cf/uj";
+    } else if(moduleId == "76270518-8c8f-11eb-8dcd-0242ac130003"){
+        cmvEntityName = "jq_property_master";
+        moduleType = "propertyMaster";
+        versioningFetchURL = "/cf/gacvd";       
+    } else if(moduleId == "91a81b68-0ece-11eb-94b2-f48e38ab9348"){
+        cmvEntityName = "jq_autocomplete_details";
+        moduleType = "autocomplete";
+        versioningFetchURL = "/cf/gavd";
+    } else if(moduleId == "c6cc466a-0ed3-11eb-94b2-f48e38ab9348"){
+        cmvEntityName = "jq_module_listing";
+        moduleType = "router";
+        saveURL = "/cf/sml";
+        isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/grvd";
+    } else if(moduleId == "ded49cbd-ed7c-40ce-b1f8-c2e34ad33473"){
+        cmvEntityName = "jq_api_client_details";
+        moduleType = "apiclientdetails";
+        isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/apicd";
+    } else if(moduleId == "fcd0df1f-783f-11eb-94ed-f48e38ab8cd6"){
+        cmvEntityName = "jq_job_scheduler";
+        moduleType = "scheduler";
+        isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/schd";
+    } else if(moduleId == "799947cc-b6cb-11eb-8529-0242ac130003"){
+        cmvEntityName = "jq_additional_datasource";
+        moduleType = "additionaldatasource";
+        isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/adsd";
+    }
+    return { cmvEntityName, moduleType, saveURL, isNonVersioningModule, nonVersioningFetchURL, versioningFetchURL};
+}
+
+//Unlink child item
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll('.unlink-icon').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      e.preventDefault();
+      var parentDiv = $(this).closest(".child-entities");
+      var fullId = parentDiv.attr("id"); // e.g. "child-entities-79375953-55c1-4b6e-97ef-cefb4fd3131a"
+      var tagId = fullId.replace("child-entities-", "");
+      const tagEntityId = this.getAttribute('data-child-id');
+      const row = this.closest('tr');
+      if (row) {
+	    
+let dialog = $('<div id="unlinkConfirmDialog">Are you sure you want to untag this entity?</div>');
+$("body").append(dialog);
+
+$("#unlinkConfirmDialog").dialog({
+    bgiframe: true,
+    autoOpen: true,
+    modal: true,
+    closeOnEscape: true,
+    draggable: true,
+    resizable: false,
+    title: "Untag",
+    position: { my: "center", at: "center" },
+    buttons: [
+        {
+            text: "Delete",
+            "class": 'btn btn-primary',
+            click: function () {
+                let thisDialog = $(this);
+
+                $.ajax({
+                    type: 'POST',
+                    url: contextPath + apiPath + "/dted",
+                    data: { 
+                        tagEntityId: tagEntityId,
+                        tagId : tagId 
+                    },
+					dataType: 'text',
+                    success: function (response) {
+                        row.remove();
+                        setTimeout(() => location.reload(), 500);
+                        showMessage("Entity untagged", "success");
+                    },
+                    error: function (err) {
+                        console.error('Error untagging child:', err);
+						showMessage("Error occurred while untagging the entity", "error");
+                    },
+                    complete: function () {
+                        thisDialog.dialog("destroy").remove();
+                    }
+                });
+            }
+        },
+        {
+            text: "Cancel",
+            "class": "btn btn-secondary",
+            click: function () {
+                $(this).dialog("destroy").remove();
+            }
+        }
+    ],
+    open: function () {
+        $(".ui-dialog-titlebar button")
+            .removeClass("ui-dialog-titlebar-close")
+            .addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
+            .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
+            .append('<span class="ui-button-icon-space"></span>');
+    }
+});
+      } else {
+        console.warn('Could not find <tr> to remove.');
+      }
+    });
+  });
+});
+//Done unlinking child items
+
+//To make first row active by default
+document.addEventListener('DOMContentLoaded', function () {
+    const parentItems = document.querySelectorAll('.parent-item');
+
+    if (parentItems.length > 0) {
+        const firstItem = parentItems[0];
+        const firstParentId = firstItem.getAttribute('data-id');
+
+        // Show the first child-entities block
+        const firstChildEntities = document.getElementById('child-entities-' + firstParentId);
+        if (firstChildEntities) {
+            firstChildEntities.style.display = 'block';
+        }
+
+        // Optional: Add a highlight class to first parent item
+        firstItem.classList.add('active');
+    }
+
+    // Existing event listener for clicking parent items
+    parentItems.forEach(item => {
+        item.addEventListener('click', function () {
+            const parentId = this.getAttribute('data-id');
+
+            // Hide all child entities initially
+            const allChildEntities = document.querySelectorAll('.child-entities');
+            allChildEntities.forEach(entity => {
+                entity.style.display = 'none';
+            });
+
+            // Remove active class from all parent items
+            parentItems.forEach(el => el.classList.remove('active'));
+
+            // Add active class to the clicked item
+            this.classList.add('active');
+
+            // Show the selected child entities
+            const selectedChildEntities = document.getElementById('child-entities-' + parentId);
+            if (selectedChildEntities) {
+                selectedChildEntities.style.display = 'block';
+            }
+        });
+    });
+});
+
+//Done Active By default
+
+//Fetching child Data
+
+document.addEventListener('DOMContentLoaded', function () {
+    const parentItems = document.querySelectorAll('.parent-item');
+    parentItems.forEach(item => {
+        item.addEventListener('click', function () {
+            const tagId = this.getAttribute('data-id');
+			loadtagEntities(tagId);});
+});
+});
+
+function loadtagEntities(tagId) {
+    if (childDataCache[tagId]) {
+        appendChildRows(tagId, childDataCache[tagId]);
+    } else {
+        const rightColumn = document.querySelector('.right-column');
+        rightColumn.innerHTML = '<p>Loading...</p>';
+
+        $.ajax({
+            async: false,
+            type: "GET",
+            url: contextPath + apiPath + "/gted",
+            dataType: "json",
+            data: {
+                tagId: tagId
+            },
+            success: function (data) {
+                childDataCache[tagId] = data;
+                appendChildRows(tagId, data);
+            },
+            error: function (xhr, status, error) {
+                console.error("Failed to update module:", error);
+                showMessage("Error occurred while updating the module name", "error");
+            }
+        });
+    }
+}
+
+//Done fetching child data
+
+function bindChildIconEvents() {
+    document.querySelectorAll('.view-icon').forEach(el => {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+            const moduleName = this.getAttribute('data-module-name');
+            const entityName = this.getAttribute('data-entity-name');
+            const entityId   = this.getAttribute('data-entity-id');
+            if(moduleName == "REST API"){
+                getModuleFormData(moduleName, entityName);
+            } else{
+                getModuleFormData(moduleName, entityId);
+            }
+            
+          
+        });
+    });
+
+    document.querySelectorAll('.history-icon').forEach(el => {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+            const entityId = this.getAttribute('data-entity-id');
+            const moduleName = this.getAttribute('data-module-name');
+            const moduleJson = this.getAttribute('data-module-json');
+            const moduleId = this.getAttribute('data-module-id');
+            const permissionJson = this.getAttribute('data-permission-json');
+            const { cmvEntityName, moduleType, saveURL, isNonVersioningModule, nonVersioningFetchURL, versioningFetchURL } = getentityName(moduleId);
+            // Set hidden input values
+            document.getElementById("entityId").value = entityId;
+            document.getElementById("moduleName").value = moduleName;
+            document.getElementById("moduleJson").value = moduleJson;
+            document.getElementById("moduleId").value = moduleId;
+            document.getElementById("isTagView").value = "true";
+            $("#isTagView").val("true");
+            document.getElementById("cmvEntityName").value = cmvEntityName;
+            document.getElementById("moduleType").value = moduleType;
+            document.getElementById("isNonVersioningModule").value = isNonVersioningModule;
+            document.getElementById("permissionJson").value = permissionJson;
+            if(saveURL == ""){
+                $("#saveUrl").val("");
+            }else{
+                $("#saveUrl").val(saveURL);
+            }
+            if(nonVersioningFetchURL == ""){
+                $("#nonVersioningFetchURL").val("");
+            }else{
+                $("#nonVersioningFetchURL").val(nonVersioningFetchURL);
+            }
+             if(versioningFetchURL == ""){
+                $("#versioningFetchURL").val("");
+            }else{
+                $("#versioningFetchURL").val(versioningFetchURL);
+            }       
+                    
+            document.getElementById("revisionForm").submit();
+        });
+    });
+
+    document.querySelectorAll('.unlink-icon').forEach(el => {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+            const tagEntityId = this.getAttribute('data-child-id');
+            const row = this.closest('tr');
+            if (row) {
+                let dialog = $('<div id="unlinkConfirmDialog">Are you sure you want to untag this entity?</div>');
+                $("body").append(dialog);
+                $("#unlinkConfirmDialog").dialog({
+                    bgiframe: true,
+                    autoOpen: true,
+                    modal: true,
+                    closeOnEscape: true,
+                    draggable: true,
+                    resizable: false,
+                    title: "Untag",
+                    position: { my: "center", at: "center" },
+                    buttons: [
+                        {
+                            text: "Delete",
+                            "class": 'btn btn-primary',
+                            click: function () {
+                                let thisDialog = $(this);
+                                $.ajax({
+                                    type: 'POST',
+                                    url: contextPath + apiPath + "/dted",
+									dataType: 'text',
+                                    data: { tagEntityId: tagEntityId },
+                                    success: function (response) {
+                                        row.remove();
+                                        showMessage("Entity untagged", "success");
+                                    },
+                                    error: function (err) {
+                                        console.error('Error untagging child:', err);
+                                        showMessage("Error occurred while untagging the entity", "error");
+                                    },
+                                    complete: function () {
+                                        thisDialog.dialog("destroy").remove();
+                                    }
+                                });
+                            }
+                        },
+                        {
+                            text: "Cancel",
+                            "class": "btn btn-secondary",
+                            click: function () {
+                                $(this).dialog("destroy").remove();
+                            }
+                        }
+                    ],
+                    open: function () {
+                        $(".ui-dialog-titlebar button")
+                            .removeClass("ui-dialog-titlebar-close")
+                            .addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
+                            .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
+                            .append('<span class="ui-button-icon-space"></span>');
+                    }
+                });
+            }
+        });
+    });
+}
+
+
+function appendChildRows(tagId, data) {
+    const rightColumn = document.querySelector('.right-column');
+    rightColumn.innerHTML = ""; 
+	
+    if (data.tagData && data.tagData.length > 0) {
+        let tableHtml = `
+            <div class="child-entities" id="child-entities-"+tagId style="display: block;">
+                <table class="table cstomtble">
+                    <thead>
+                        <tr>
+                            <th class="text-center" width="50%">Module</th>
+                            <th class="text-center" width="40%">Entity</th>
+                            <th class="text-center" width="10%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+        (data.tagData || []).forEach(child => {
+            if (child.module_id === "ded49cbd-ed7c-40ce-b1f8-c2e34ad33473") {
+                let moduleObj = JSON.parse(child.moduleJson || "{}");
+                if (moduleObj.clientName) {
+                    child.child_entity_name = moduleObj.clientName;
+                }
+            } else if (child.module_id === "fcd0df1f-783f-11eb-94ed-f48e38ab8cd6") {
+                let moduleObj = JSON.parse(child.moduleJson || "{}");
+                if (moduleObj.scheduler_name) {
+                    child.child_entity_name = moduleObj.scheduler_name;
+                }
+            } else if (child.module_id === "799947cc-b6cb-11eb-8529-0242ac130003") {
+                let moduleObj = JSON.parse(child.moduleJson || "{}");
+                if (moduleObj.datasourceName) {
+                    child.child_entity_name = moduleObj.datasourceName;
+                }
+            } else if (child.module_id === "5559212c-8c8f-11eb-8dcd-0242ac130003") {
+                let moduleObj = JSON.parse(child.moduleJson || "{}");
+                if (Array.isArray(moduleObj) && moduleObj.length > 0 && moduleObj[0].resourceKey) {
+                    child.child_entity_name = moduleObj[0].resourceKey;
+                }
+             } else if (child.module_id === "6ac6a54c-8d3f-11eb-8dcd-0242ac130003") {
+                let moduleObj = JSON.parse(child.moduleJson || "{}");
+                if (moduleObj.entityName) {
+                    child.child_entity_name = moduleObj.entityName;
+                }
+             } else if (child.module_id === "70bd445b-ae33-45dd-98f9-0a0c49463315") {
+                let moduleObj = JSON.parse(child.moduleJson || "{}");
+                if (moduleObj.libraryName) {
+                    child.child_entity_name = moduleObj.libraryName;
+                }
+             }  else if (child.module_id === "76270518-8c8f-11eb-8dcd-0242ac130003") {
+                let moduleObj = JSON.parse(child.moduleJson || "{}");
+                if (moduleObj.propertyName) {
+                    child.child_entity_name = moduleObj.propertyName;
+                }
+             }
+            tableHtml +=
+        "<tr>" +
+            "<td>" + child.child_module_name + "</td>" +
+            "<td>" + child.child_entity_name + "</td>" +
+            "<td>" +
+                "<span class='grid_action_icons_ex'>" +
+                    "<a href='#' class='view-icon' " +
+                        "data-module-name='" + child.child_module_name + "' " +
+                        "data-entity-name='" + child.child_entity_name + "' " +
+                        " data-entity-id='" + child.child_entity_id + "' " +
+                       
+                        "title='View'>" +
+                        "<i class='fa fa-eye'></i>" +
+                    "</a>" +
+                    "<a href='#' class='history-icon' " +
+                        "data-module-name='" + child.child_module_name + "' " +
+                        "data-entity-id='" + child.child_entity_id + "' " +
+                        "data-module-json='" + child.moduleJson + "' " +
+                        "data-module-id='" + child.module_id + "' " +
+                        "data-permission-json='" + child.permissionJson + "' " +
+                      
+                       
+                        "title='History'>" +
+                        "<i class='fa fa-history'></i>" +
+                    "</a>" + 
+                    "<a href='#' class='unlink-icon' " +
+                        "data-child-id='" + child.tag_entity_details_id + "' " +
+                        "title='Untag'>" +
+                        "<i class='fa fa-times-circle'></i>" +
+                    "</a>" +
+                "</span>" +
+            "</td>" +
+        "</tr>";
+        });
+
+        tableHtml += `</tbody></table></div>`;
+        rightColumn.innerHTML = tableHtml;
+
+        // Re-bind events for view/history/unlink icons (after injecting new DOM)
+        bindChildIconEvents();
+    } else {
+        rightColumn.innerHTML = `<div class="child-entities" id="child-entities-"+tagId>
+            <p>No tag entity found for this module.</p>
+        </div>`;
+    }
+}
+
+//For # in URL
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('moduleSearchInput');
+
+    function clearSelection() {
+        document.querySelectorAll('.parent-item').forEach(item => {
+            item.classList.remove('active');
+            item.style.display = '';
+        });
+        document.querySelectorAll('.child-entities').forEach(panel => {
+            panel.style.display = 'none';
+        });
+    }
+
+    function selectParentModuleByIdOrName(identifier) {
+        const searchTerm = identifier.toLowerCase();
+        let matched = false;
+
+        document.querySelectorAll('.parent-item').forEach(item => {
+            const moduleId = item.getAttribute('data-id')?.toLowerCase();
+            const moduleName = item.querySelector('.module-name')?.textContent.trim().toLowerCase();
+
+            if (moduleId === searchTerm || moduleName === searchTerm) {
+                matched = true;
+
+                // Hide all others
+                document.querySelectorAll('.parent-item').forEach(i => i.style.display = 'none');
+
+                // Show only matched
+                item.style.display = '';
+                item.classList.add('active');
+
+                if (searchInput) {
+                    searchInput.value = item.querySelector('.module-name').textContent.trim();
+                }
+
+                const parentId = item.getAttribute('data-id');
+                loadtagEntities(parentId); 
+            }
+        });
+
+        return matched;
+    }
+
+    // Input typing
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            const value = this.value.trim().toLowerCase();
+            if (value === '') {
+                clearSelection();
+                return;
+            }
+            selectParentModuleByIdOrName(value);
+        });
+    }
+
+    // Hash on load
+    const hash = window.location.hash;
+    if (hash) {
+        const identifier = hash.substring(1);
+        selectParentModuleByIdOrName(identifier);
+    }
+});
+//For New Autocomplete........	
+let tagNameAutocomplete;
+$(function () {	
+	 tagNameAutocomplete = $("#tagNameAutocomplete").autocomplete({
+            autocompleteId: "getTagName",
+            enableClearAll: true,
+            render: function(item) {
+                var renderStr ='';
+                if(item.emptyMsg == undefined || item.emptyMsg === '')
+                {
+                    renderStr = '<p>'+item.moduleName+'</p>';
+                }
+                else
+                {
+                    renderStr = item.emptyMsg;	
+                }	    				        
+                return renderStr;
+            },
+            extractText: function(item) {
+                return item.moduleName;
+            },
+            selectedItemRender: function(item){
+                return item.moduleName;
+            },
+            select: function(item) {
+                $("#tagNameAutocomplete").blur();
+                selectModuleFromSearch(item.moduleId, item.moduleName);			
+            }, 	
+        });
+       
+	});
+//Done new Autocomplete.
+function selectModuleFromSearch(moduleId, moduleName) {
+    const parentItems = document.querySelectorAll('.parent-item');
+    let matched = false;
+
+    parentItems.forEach(item => {
+        const itemId = item.getAttribute('data-id');
+        const itemName = item.querySelector('.module-name')?.textContent.trim();
+
+        if (itemId == moduleId || itemName === moduleName) {
+            matched = true;
+            parentItems.forEach(i => {
+                i.style.display = 'none';
+                i.classList.remove('active');
+            });
+            item.style.display = '';
+            item.classList.add('active');
+
+            // Load child data
+            loadtagEntities(moduleId);
+
+        } else {
+            item.classList.remove('active');
+        }
+    });
+
+    return matched;
+}
+document.getElementById('tagNameAutocomplete').addEventListener('input', function () {
+    const value = this.value.trim();
+
+    if (value === '') {
+        document.querySelectorAll('.parent-item').forEach(item => {
+            item.style.display = '';
+            item.classList.remove('active');
+        });
+        // Hide all child modules (optional, or you can reset to default behavior)
+        document.querySelectorAll('.child-entities').forEach(panel => {
+            panel.style.display = 'none';
+        });
+    }
+});
+</script>

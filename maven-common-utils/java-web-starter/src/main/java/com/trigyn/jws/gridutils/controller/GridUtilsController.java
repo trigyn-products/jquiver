@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -50,38 +52,38 @@ public class GridUtilsController {
 
 	private String					moduleId				= "07067149-098d-11eb-9a16-f48e38ab9348";
 
-	@RequestMapping(value = "/grid-data", produces = MediaType.APPLICATION_JSON_VALUE)
-	@Authorized(moduleName = Constants.GRIDUTILS)
-	public CustomGridsResponse loadGridData(HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse) throws Exception {
-		logger.debug("Inside GridUtilsController.loadGridData(gridId: {})", httpServletRequest.getParameter("gridId"));
-		String gridId = httpServletRequest.getParameter("gridId");
-		try {
-			UserDetailsVO		detailsVO		= detailsService.getUserDetails();
-			Map<String, Object>	requestParam	= new HashMap<>();
-			requestParam.put("httpServletRequest", httpServletRequest);
-			requestParam.put("session", httpServletRequest.getSession());
-			requestParam.put("userObject", detailsVO);
-			
-			GenericGridParams			gridParams			= new GenericGridParams(httpServletRequest, detailsService);
-			Integer						matchingRowCount	= genericGridService.findCount(gridId, gridParams,
-					requestParam);
-			List<Map<String, Object>>	list				= genericGridService.findAllRecords(gridId, gridParams,
-					requestParam);
-			GridResponse				gridResponse		= new GridResponse(list, matchingRowCount, gridParams);
-			
-			return gridResponse.getResponse();
-		} catch (Exception exception) {
-			logger.error("Error occured while fetching grid response(gridId: {})", gridId, exception);
-			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
-				return null;
-			}
-			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
-			return null;
-		}
-	}
+//	@RequestMapping(value = "/grid-data", produces = MediaType.APPLICATION_JSON_VALUE)
+//	@Authorized(moduleName = Constants.GRIDUTILS)
+//	public CustomGridsResponse loadGridData(HttpServletRequest httpServletRequest,
+//			HttpServletResponse httpServletResponse) throws Exception {
+//		logger.debug("Inside GridUtilsController.loadGridData(gridId: {})", httpServletRequest.getParameter("gridId"));
+//		String gridId = httpServletRequest.getParameter("gridId");
+//		try {
+//			UserDetailsVO		detailsVO		= detailsService.getUserDetails();
+//			Map<String, Object>	requestParam	= new HashMap<>();
+//			requestParam.put("httpServletRequest", httpServletRequest);
+//			requestParam.put("username", detailsVO.getUserName());
+//			requestParam.put("userObject", detailsVO);
+//			
+//			GenericGridParams			gridParams			= new GenericGridParams(httpServletRequest, detailsService);
+//			Integer						matchingRowCount	= genericGridService.findCount(gridId, gridParams,
+//					requestParam);
+//			List<Map<String, Object>>	list				= genericGridService.findAllRecords(gridId, gridParams,
+//					requestParam);
+//			GridResponse				gridResponse		= new GridResponse(list, matchingRowCount, gridParams);
+//			
+//			return gridResponse.getResponse();
+//		} catch (Exception exception) {
+//			logger.error("Error occured while fetching grid response(gridId: {})", gridId, exception);
+//			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+//				return null;
+//			}
+//			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+//			return null;
+//		}
+//	}
 
-	@RequestMapping(value = "/pq-grid-data", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/pq-grid-data", produces = MediaType.APPLICATION_JSON_VALUE)
 	@Authorized(moduleName = Constants.GRIDUTILS)
 	public DataGridResponse loadPQGridWithData(HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) throws Exception {
@@ -109,7 +111,7 @@ public class GridUtilsController {
 			UserDetailsVO detailsVO, String strPQSort, String filters) throws Exception {
 		Map<String, Object> requestParam = new HashMap<>();
 		requestParam.put("httpServletRequest", httpServletRequest);
-		requestParam.put("session", httpServletRequest.getSession());
+		requestParam.put("username", detailsVO.getUserName());
 		requestParam.put("userObject", detailsVO);
 		
 		GenericGridParams gridParams = new GenericGridParams();

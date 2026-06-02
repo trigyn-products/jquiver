@@ -1,0 +1,164 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+
+// Helper function to split the field name before the `-` (column name) and after the `-` (file name)
+function splitColumnName(entityInfoField) {
+    var columnName = '';
+    var fileName = '';
+
+    if (entityInfoField && entityInfoField.indexOf('-') !== -1) {
+        var parts = entityInfoField.split('-');
+        
+        // Extract the column name
+        columnName = parts.slice(0, -1).join('-'); // join all parts except the last one
+        
+        // Extract the file name (last part)
+        fileName = parts[parts.length - 1];
+    } else {
+        // If no `-` exists, treat the whole string as the file name
+        columnName = entityInfoField;  // If no `-`, use the entire string as column name
+        fileName = entityInfoField;
+    }
+
+    return { columnName: columnName, fileName: fileName };
+}
+
+function getEntities() {
+    var map = new HashMap();
+    var queryResult = {};
+
+    //For Business Module..
+    var bmResult = jq_getDBResult(
+        "SELECT bmed.entity_id AS entityId, bm.business_module_id,bm.module_name FROM "+ " jq_business_module_entity_details bmed JOIN jq_business_module bm ON bm.business_module_id = bmed.business_module_id ",
+           null,
+           map
+    );
+
+    var businessModuleMap = {};
+
+    for (var bml = 0; bml < bmResult.data_list.length; bml++) {
+        var row = bmResult.data_list[bml];
+       if (!businessModuleMap[row.entityId]) {
+            businessModuleMap[row.entityId] = [];
+        }
+
+        businessModuleMap[row.entityId].push({
+            id: row.business_module_id,
+            name: row.module_name
+        });
+    }
+    //Done Business Module query
+
+    queryResult = jq_getDBResult(
+        "SELECT id, module_name AS moduleName, entity_type AS entityType, entity_id AS entityId, entity_name AS entityName, entity_info AS entityInfo,master_module_id FROM jq_entities_details_view",
+        null,
+        map
+    );
+
+    var moduleMap = {}; 
+
+    for (var qrl = 0; qrl < queryResult.data_list.length; qrl++) {
+        var row = queryResult.data_list[qrl];
+
+        var module = row.moduleName;
+        var type = row.entityType;
+        var masterModuleId = row.master_module_id;
+
+        //For adding business Module Rows 
+        var businessInfoList = businessModuleMap[row.entityId] || [];
+        row.businessModuleList = businessInfoList;       
+        //Added business module Rows
+
+        // Parse JSON string if needed
+        var entityInfo = row.entityInfo;
+        if (typeof entityInfo === "string") {
+            entityInfo = JSON.parse(entityInfo);
+        }
+
+        // Process selectQuery, html, and savedQueries variableName
+        var selectQueryColumn = '';
+        var selectQueryFile = '';
+        if (entityInfo.selectQuery) {
+            var result = splitColumnName(entityInfo.selectQuery);
+            selectQueryColumn = result.columnName;
+            selectQueryFile = result.fileName;
+        }
+
+        var htmlColumn = '';
+        var htmlFile = '';
+        if (entityInfo.html) {
+            var result = splitColumnName(entityInfo.html);
+            htmlColumn = result.columnName;
+            htmlFile = result.fileName;  
+        }
+
+        // Process savedQueries variableName
+        var savedQueries = entityInfo.savedQueries || [];
+        for (var sqCounter = 0; sqCounter < savedQueries.length; sqCounter++) {
+           var query = savedQueries[sqCounter];
+            if (query.variableName) {
+               var result = splitColumnName(query.variableName);
+                query.columnName = result.columnName;
+                query.fileName = result.fileName;
+            }
+        }
+
+        // INIT MODULE
+        if (!moduleMap[module]) {
+            moduleMap[module] = {
+                module: module,
+                masterModuleId: masterModuleId,
+                types: {}
+            };
+        }
+
+        // INIT TYPE
+        if (!moduleMap[module].types[type]) {
+            moduleMap[module].types[type] = {
+                type: type,
+                folders: []
+            };
+        }
+
+        moduleMap[module].types[type].folders.push({
+            folderName: row.entityName,
+            entityInfo: entityInfo,  // Retain the full entityInfo
+            selectQueryColumn: selectQueryColumn,
+            selectQueryFile: selectQueryFile,
+            htmlColumn: htmlColumn,
+            htmlFile: htmlFile,
+            businessModuleList: row.businessModuleList || [] //For business Module
+        });
+    }
+
+    // Convert moduleMap to final result
+    var finalResult = [];
+
+    for (var moduleKey in moduleMap) {
+        var moduleObj = moduleMap[moduleKey];
+        var typesArray = [];
+
+        for (var typeKey in moduleObj.types) {
+            typesArray.push(moduleObj.types[typeKey]);
+        }
+
+        finalResult.push({
+            module: moduleObj.module,
+            masterModuleId: moduleObj.masterModuleId,
+            types: typesArray
+        });
+    }
+    return JSON.stringify(finalResult);
+}
+
+function fetchEntities() {
+    var authResult = checkAuthentication();
+    if(authResult.status === 200){
+        return getEntities();
+    }else{
+        return authResult;
+    }
+}
+
+
+fetchEntities();

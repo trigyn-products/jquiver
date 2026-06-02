@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -40,7 +41,7 @@ public class ResourceBundleController {
 		return Boolean.TRUE;
 	}
 
-	@RequestMapping(value = "/getResourceBundleData", method = RequestMethod.POST)
+	@PostMapping(value = "/getResourceBundleData")
 	@ResponseBody
 	public Object getResourceBundleData(HttpServletRequest request) throws Exception {
 		try {

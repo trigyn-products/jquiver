@@ -169,6 +169,7 @@ public class ResourceBundleService {
 		try {
 			List<ResourceBundle> resourceBundleList = new ArrayList<>();
 			List<ResourceBundleVO> oldResourceBundleVOObj = new ArrayList<>();
+			List<ResourceBundleVO> latestResourceBundleVOList = new ArrayList<>();
 			String action = "";
 			UserDetailsVO detailsVO = null;
 			if ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes() != null) {
@@ -202,12 +203,14 @@ public class ResourceBundleService {
 							resourceBundle.setUpdatedBy(user);
 							resourceBundle.setUpdatedDate(new Date());
 						}
+						ResourceBundleVO rbvo=convertResourceBundleEntityToVO(resourceBundle);
+						latestResourceBundleVOList.add(rbvo);
 						resourceBundleList.add(resourceBundle);
 				}
 
 				logActivity(resourceBundleKey, action);
 				iResourceBundleRepository.saveAll(resourceBundleList);
-				moduleVersionService.saveModuleVersion(resourceBundleVOList, null, resourceBundleKey,
+				moduleVersionService.saveModuleVersion(latestResourceBundleVOList, null, resourceBundleKey,
 						"jq_resource_bundle", sourceTypeId);
 				
 				// Invalidate the Hibernate 2nd-level query cache region
@@ -276,6 +279,11 @@ public class ResourceBundleService {
 		resourceBundleVO.setLanguageId(resourceBundle.getId().getLanguageId());
 		resourceBundleVO.setResourceKey(resourceBundle.getId().getResourceKey());
 		resourceBundleVO.setText(resourceBundle.getText());
+		resourceBundleVO.setCreatedBy(resourceBundle.getCreatedBy());
+		resourceBundleVO.setCreatedDate(resourceBundle.getCreatedDate());
+		resourceBundleVO.setUpdatedBy(resourceBundle.getUpdatedBy());
+		resourceBundleVO.setUpdatedDate(resourceBundle.getUpdatedDate());
+		resourceBundleVO.setIsCustomUpdated(resourceBundle.getIsCustomUpdated());
 		return resourceBundleVO;
 	}
 

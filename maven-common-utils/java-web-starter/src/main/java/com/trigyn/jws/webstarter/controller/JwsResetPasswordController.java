@@ -45,6 +45,7 @@ import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 import com.trigyn.jws.usermanagement.security.config.JwtUtil;
 import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
+import com.trigyn.jws.usermanagement.vo.JwtRequestDetails;
 import com.trigyn.jws.webstarter.dao.ICaptchRepository;
 import com.trigyn.jws.webstarter.service.CaptchaService;
 import com.trigyn.jws.webstarter.service.UserManagementService;
@@ -52,6 +53,7 @@ import com.trigyn.jws.webstarter.vo.CaptchaDetails;
 
 import jakarta.mail.internet.InternetAddress;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -59,8 +61,9 @@ import jakarta.servlet.http.HttpSession;
 @RestController
 @RequestMapping("/cf")
 public class JwsResetPasswordController {
-	
-	private final static Logger logger = LoggerFactory.getLogger(JwsResetPasswordController.class);
+
+	private final static Logger				logger							= LoggerFactory
+			.getLogger(JwsResetPasswordController.class);
 
 	@Autowired
 	private JwsUserRepository				userRepository					= null;
@@ -94,27 +97,26 @@ public class JwsResetPasswordController {
 
 	@Autowired
 	private ServletContext					servletContext					= null;
-	
+
 	@Autowired
 
-   	private IUserDetailsService				userDetailsService				= null;
-	
+	private IUserDetailsService				userDetailsService				= null;
+
 	@Autowired
-   	private JwtUtil  						jwtUtil							= null;
+	private JwtUtil							jwtUtil							= null;
 
 	@Autowired
 	@Lazy
 	private UserDetailsService				userDetailsServiceImpl			= null;
-	
+
 	@Autowired
-	private FileUtilities 					fileUtilities 					= null;
-	
+	private FileUtilities					fileUtilities					= null;
+
 	@Autowired
-	private ICaptchRepository iCaptchRepository 				= null;
-	
+	private ICaptchRepository				iCaptchRepository				= null;
+
 	@Autowired
-	private CaptchaService 						captchaService 					= null;
-	
+	private CaptchaService					captchaService					= null;
 
 	@GetMapping(value = "/resetPasswordPage")
 	@ResponseBody
@@ -129,7 +131,8 @@ public class JwsResetPasswordController {
 				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 						mapDetails);
 			} else {
-				fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				fileUtilities.customSendError(response, HttpStatus.FORBIDDEN.value(),
+						"You dont have rights to access these module");
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -144,38 +147,40 @@ public class JwsResetPasswordController {
 	public String sendResetPasswordMail(HttpServletRequest request, HttpSession session, HttpServletResponse response)
 			throws Exception, CustomStopException {
 
-		String emailTo = request.getParameter("email");
-		Map<String, Object> mapDetails = new HashMap<>();
-		String viewName = null;
-		String						generatedCaptcha	= null;
-		String captchaRequest_Id=request.getHeader("r");
+		String				emailTo				= request.getParameter("email");
+		Map<String, Object>	mapDetails			= new HashMap<>();
+		String				viewName			= null;
+		String				generatedCaptcha	= null;
+		String				captchaRequest_Id	= request.getHeader("r");
 		try {
 			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 				userConfigService.getConfigurableDetails(mapDetails);
 				JwsUser existingUser = userManagementService.findByEmailIgnoreCase(emailTo);
 				if (existingUser != null) {
 
-//					if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
-//							&& session.getAttribute("resetCaptcha") != null && !(request.getParameter("captcha")
-//									.toString().equals(session.getAttribute("resetCaptcha").toString()))) {
-//						mapDetails.put("invalidCaptcha", "Please verify captcha!");
-//						mapDetails.put("previousMail", existingUser.getEmail());
-//						viewName = "jws-password-reset-mail";
-//						TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-//						return templatingUtils.processTemplateContents(templateVO.getTemplate(),
-//								templateVO.getTemplateName(), mapDetails);
-//					} else if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
-//						session.removeAttribute("resetCaptcha");
-//					}
+					// if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
+					// && session.getAttribute("resetCaptcha") != null &&
+					// !(request.getParameter("captcha")
+					// .toString().equals(session.getAttribute("resetCaptcha").toString()))) {
+					// mapDetails.put("invalidCaptcha", "Please verify captcha!");
+					// mapDetails.put("previousMail", existingUser.getEmail());
+					// viewName = "jws-password-reset-mail";
+					// TemplateVO templateVO = templatingService.getTemplateByName(viewName);
+					// return templatingUtils.processTemplateContents(templateVO.getTemplate(),
+					// templateVO.getTemplateName(), mapDetails);
+					// } else if
+					// (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
+					// session.removeAttribute("resetCaptcha");
+					// }
 					captchaService.deleteExpiredCaptcha();
 					CaptchaDetails captchaDetails = null;
-					if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true") && StringUtils.isBlank(captchaRequest_Id) == false) {
-						captchaDetails = iCaptchRepository.findById(captchaRequest_Id).orElse(null);;
-						if (null != captchaDetails)
-						{
-						 generatedCaptcha=captchaDetails.getCaptcha();
-						}
-						else {
+					if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
+							&& StringUtils.isBlank(captchaRequest_Id) == false) {
+						captchaDetails = iCaptchRepository.findById(captchaRequest_Id).orElse(null);
+						;
+						if (null != captchaDetails) {
+							generatedCaptcha = captchaDetails.getCaptcha();
+						} else {
 							mapDetails.put("invalidCaptcha", "Captcha has Expired!");
 							mapDetails.put("previousMail", existingUser.getEmail());
 							viewName = "jws-password-reset-mail";
@@ -184,30 +189,29 @@ public class JwsResetPasswordController {
 									templateVO.getTemplateName(), mapDetails);
 						}
 					}
-					if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
-					&& generatedCaptcha != null && !(request.getParameter("captcha")
-							.toString().equals(generatedCaptcha.toString()))) {
+					if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true") && generatedCaptcha != null
+							&& !(request.getParameter("captcha").toString().equals(generatedCaptcha.toString()))) {
 						mapDetails.put("invalidCaptcha", "Please verify captcha!");
 						if (StringUtils.isBlank(captchaRequest_Id) == false) {
-							   captchaService.deleteCaptcha(captchaRequest_Id);
-							}
+							captchaService.deleteCaptcha(captchaRequest_Id);
+						}
 						mapDetails.put("previousMail", existingUser.getEmail());
 						viewName = "jws-password-reset-mail";
 						TemplateVO templateVO = templatingService.getTemplateByName(viewName);
 						return templatingUtils.processTemplateContents(templateVO.getTemplate(),
 								templateVO.getTemplateName(), mapDetails);
 					} else if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
-						//session.removeAttribute("resetCaptcha");
+						// session.removeAttribute("resetCaptcha");
 						if (StringUtils.isBlank(captchaRequest_Id) == false) {
-							   captchaService.deleteCaptcha(captchaRequest_Id);
-							}
+							captchaService.deleteCaptcha(captchaRequest_Id);
+						}
 					}
-					
+
 					existingUser.setIsActive(Constants.INACTIVE);
 					existingUser.setForcePasswordChange(Constants.INACTIVE);
 					userRepository.save(existingUser);
-					JwsResetPasswordToken resetPassword = new JwsResetPasswordToken();
-					String tokenId = UUID.randomUUID().toString();
+					JwsResetPasswordToken	resetPassword	= new JwsResetPasswordToken();
+					String					tokenId			= UUID.randomUUID().toString();
 					resetPassword.setTokenId(tokenId);
 					resetPassword.setPasswordResetTime(Calendar.getInstance());
 					resetPassword.setUserId(existingUser.getUserId());
@@ -226,25 +230,25 @@ public class JwsResetPasswordController {
 					email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
 					email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
 					// email.setMailFrom("admin@jquiver.com");
-					Map<String, Object> mailDetails = new HashMap<>();
-					TemplateVO subjectTemplateVO = templatingService.getTemplateByName("reset-password-mail-subject");
-					String subject = templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
-							subjectTemplateVO.getTemplateName(), mailDetails);
+					Map<String, Object>	mailDetails			= new HashMap<>();
+					TemplateVO			subjectTemplateVO	= templatingService
+							.getTemplateByName("reset-password-mail-subject");
+					String				subject				= templatingUtils.processTemplateContents(
+							subjectTemplateVO.getTemplate(), subjectTemplateVO.getTemplateName(), mailDetails);
 					email.setSubject(subject);
-					String propertyAdminEmailId = propertyMasterService.findPropertyMasterValue("system", "system",
+					String	propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
 							"adminEmailId");
-					String adminEmail = propertyAdminEmailId == null ? "admin@jquiver.io"
+					String	adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
 							: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
 
 					mailDetails.put("firstName", existingUser.getFirstName() + " " + existingUser.getLastName());
 					mailDetails.put("baseURL", baseURL);
 					mailDetails.put("tokenId", tokenId);
 					mailDetails.put("adminEmailAddress", adminEmail);
-					TemplateVO templateVO = templatingService.getTemplateByName("reset-password-mail");
-					String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+					TemplateVO	templateVO	= templatingService.getTemplateByName("reset-password-mail");
+					String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 							templateVO.getTemplateName(), mailDetails);
 					email.setBody(mailBody);
-					// System.out.println(mailBody);
 					sendMailService.sendTestMail(email);
 
 					mapDetails.put("successResetPasswordMsg",
@@ -258,7 +262,8 @@ public class JwsResetPasswordController {
 				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 						mapDetails);
 			} else {
-				fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				fileUtilities.customSendError(response, HttpStatus.FORBIDDEN.value(),
+						"You dont have rights to access these module");
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -272,19 +277,19 @@ public class JwsResetPasswordController {
 	public String resetPasswordByURL(@RequestParam("token") String tokenId, HttpServletResponse response)
 			throws Exception, CustomStopException {
 
-		Map<String, Object> mapDetails = new HashMap<>();
-		String viewName = null;
+		Map<String, Object>	mapDetails	= new HashMap<>();
+		String				viewName	= null;
 		try {
 			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 				userConfigService.getConfigurableDetails(mapDetails);
-				JwsResetPasswordToken tokenDetails = resetPasswordTokenRepository.findByTokenId(tokenId);
-				Boolean isInvalidLink = false;
+				JwsResetPasswordToken	tokenDetails	= resetPasswordTokenRepository.findByTokenId(tokenId);
+				Boolean					isInvalidLink	= false;
 				if (tokenDetails != null && tokenDetails.getPasswordResetTime() != null
 						&& tokenDetails.getIsResetUrlExpired() != Boolean.TRUE) {
-					long linkSendTimestamp = tokenDetails.getPasswordResetTime().getTimeInMillis();
-					long maxLinkActiveTime = TimeUnit.MINUTES.toMillis(20);
-					Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
-					long milliseconds = currentTimestamp.getTime() - linkSendTimestamp;
+					long		linkSendTimestamp	= tokenDetails.getPasswordResetTime().getTimeInMillis();
+					long		maxLinkActiveTime	= TimeUnit.MINUTES.toMillis(20);
+					Timestamp	currentTimestamp	= new Timestamp(System.currentTimeMillis());
+					long		milliseconds		= currentTimestamp.getTime() - linkSendTimestamp;
 
 					if (milliseconds > maxLinkActiveTime) {
 						isInvalidLink = Boolean.TRUE;
@@ -311,7 +316,8 @@ public class JwsResetPasswordController {
 				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 						mapDetails);
 			} else {
-				fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				fileUtilities.customSendError(response, HttpStatus.FORBIDDEN.value(),
+						"You dont have rights to access these module");
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -324,33 +330,34 @@ public class JwsResetPasswordController {
 	@ResponseBody
 	public String createPassword(HttpServletRequest request, HttpSession session, HttpServletResponse response)
 			throws Exception, CustomStopException {
-		Map<String, Object> mapDetails = new HashMap<>();
-		String viewName = null;
-		String decryptedPassword = null;
-		String decryptedConfirmPassword = null;
-		String requestId = null;
-		String password = null;
-		String confirmpassword = null;
-		String generatedCaptcha	= null;
-		String captchaRequest_Id=request.getHeader("r");
-		if(request.getParameter("password") != null) {
+		Map<String, Object>	mapDetails					= new HashMap<>();
+		String				viewName					= null;
+		String				decryptedPassword			= null;
+		String				decryptedConfirmPassword	= null;
+		String				requestId					= null;
+		String				password					= null;
+		String				confirmpassword				= null;
+		String				generatedCaptcha			= null;
+		String				captchaRequest_Id			= request.getHeader("r");
+		if (request.getParameter("password") != null) {
 			password = request.getParameter("password");
 		}
-		if(request.getParameter("confirmpassword") != null) {
+		if (request.getParameter("confirmpassword") != null) {
 			confirmpassword = request.getParameter("confirmpassword");
 		}
-		String resetEmailId = request.getParameter("resetEmailId");
-		String tokenId = request.getParameter("token");
-		if(request.getParameter("requestId") != null) {
+		String	resetEmailId	= request.getParameter("resetEmailId");
+		String	tokenId			= request.getParameter("token");
+		if (request.getParameter("requestId") != null) {
 			requestId = request.getParameter("requestId");
 		}
-		decryptedPassword = userConfigService.decryptPassword(password,requestId);
-		decryptedConfirmPassword = userConfigService.decryptPassword(confirmpassword,requestId);
+		decryptedPassword			= userConfigService.decryptPassword(password, requestId);
+		decryptedConfirmPassword	= userConfigService.decryptPassword(confirmpassword, requestId);
 		try {
 			mapDetails.put("token", tokenId);
 			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 				userConfigService.getConfigurableDetails(mapDetails);
-				if (decryptedPassword == null || (decryptedPassword != null && decryptedPassword.trim().isEmpty()) || decryptedConfirmPassword == null
+				if (decryptedPassword == null || (decryptedPassword != null && decryptedPassword.trim().isEmpty())
+						|| decryptedConfirmPassword == null
 						|| (decryptedConfirmPassword != null && decryptedConfirmPassword.trim().isEmpty())) {
 					mapDetails.put("nonValidPassword", "Enter valid password and confirm password");
 					viewName = "jws-password-reset-page";
@@ -359,38 +366,37 @@ public class JwsResetPasswordController {
 					viewName = "jws-password-reset-page";
 				} else if (decryptedPassword.equals(decryptedConfirmPassword)) {
 					if (userManagementService.validatePassword(decryptedPassword)) {
-						
-						//fetch captcha for database
+
+						// fetch captcha for database
 						captchaService.deleteExpiredCaptcha();
 						CaptchaDetails captchaDetails = null;
-						if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true") && StringUtils.isBlank(captchaRequest_Id) == false) {
+						if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
+								&& StringUtils.isBlank(captchaRequest_Id) == false) {
 							captchaDetails = iCaptchRepository.findById(captchaRequest_Id).orElse(null);
-							if (null != captchaDetails)
-							{
-							 generatedCaptcha=captchaDetails.getCaptcha();
-							}
-							else {
+							if (null != captchaDetails) {
+								generatedCaptcha = captchaDetails.getCaptcha();
+							} else {
 								mapDetails.put("invalidCaptcha", "Captcha has Expired!");
 								viewName = "jws-password-reset-page";
 								TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-								return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-										mapDetails);
+								return templatingUtils.processTemplateContents(templateVO.getTemplate(),
+										templateVO.getTemplateName(), mapDetails);
 							}
 						}
-						
+
 						if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
-								&& generatedCaptcha != null && !(request.getParameter("captcha")
-										.toString().equals(generatedCaptcha.toString()))) {
+								&& generatedCaptcha != null
+								&& !(request.getParameter("captcha").toString().equals(generatedCaptcha.toString()))) {
 							mapDetails.put("invalidCaptcha", "Please verify captcha!");
 							viewName = "jws-password-reset-page";
 						} else {
 							if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
 								if (StringUtils.isBlank(captchaRequest_Id) == false) {
-									   captchaService.deleteCaptcha(captchaRequest_Id);
-									}
+									captchaService.deleteCaptcha(captchaRequest_Id);
+								}
 							}
-							String encodedPassword = passwordEncoder.encode(decryptedPassword);
-							JwsUser user = userRepository.findByEmailIgnoreCase(resetEmailId);
+							String	encodedPassword	= passwordEncoder.encode(decryptedPassword);
+							JwsUser	user			= userRepository.findByEmailIgnoreCase(resetEmailId);
 							user.setIsActive(Constants.ISACTIVE);
 							user.setPassword(encodedPassword);
 							userRepository.save(user);
@@ -418,7 +424,8 @@ public class JwsResetPasswordController {
 				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 						mapDetails);
 			} else {
-				fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				fileUtilities.customSendError(response, HttpStatus.FORBIDDEN.value(),
+						"You dont have rights to access these module");
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -432,8 +439,8 @@ public class JwsResetPasswordController {
 	public String changePasswordPage(@RequestParam("token") String tokenId, HttpServletRequest request,
 			HttpServletResponse response) throws Exception, CustomStopException {
 
-		String isChangePassword = request.getParameter("icp");
-		Map<String, Object> mapDetails = new HashMap<>();
+		String				isChangePassword	= request.getParameter("icp");
+		Map<String, Object>	mapDetails			= new HashMap<>();
 		try {
 			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 				userConfigService.getConfigurableDetails(mapDetails);
@@ -445,12 +452,14 @@ public class JwsResetPasswordController {
 						mapDetails.put("tokenId", tokenId);
 						mapDetails.put("icp", isChangePassword);
 					} else {
-						fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+						fileUtilities.customSendError(response, HttpStatus.FORBIDDEN.value(),
+								"You dont have rights to access these module");
 						return null;
 					}
 
 				} else {
-					fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+					fileUtilities.customSendError(response, HttpStatus.FORBIDDEN.value(),
+							"You dont have rights to access these module");
 					return null;
 				}
 
@@ -458,7 +467,8 @@ public class JwsResetPasswordController {
 				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 						mapDetails);
 			} else {
-				fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				fileUtilities.customSendError(response, HttpStatus.FORBIDDEN.value(),
+						"You dont have rights to access these module");
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -472,34 +482,34 @@ public class JwsResetPasswordController {
 	public String updatePasswordPage(HttpServletRequest request, HttpServletResponse response, HttpSession session)
 			throws Exception, CustomStopException {
 
-		Map<String, Object> mapDetails = new HashMap<>();
-		String viewName = null;
-		String isChangePassword = request.getParameter("icp");
+		Map<String, Object>	mapDetails			= new HashMap<>();
+		String				viewName			= null;
+		String				isChangePassword	= request.getParameter("icp");
 		try {
 			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 				userConfigService.getConfigurableDetails(mapDetails);
-				String decryptedOldPassword = null;
-				String decryptedNewPassword = null;
-				String requestId = null;
-				String oldPassword = null;
-				String newPassword = null;
-				String tokenId = request.getParameter("tokenId");
-				if(request.getParameter("password") != null) {
+				String	decryptedOldPassword	= null;
+				String	decryptedNewPassword	= null;
+				String	requestId				= null;
+				String	oldPassword				= null;
+				String	newPassword				= null;
+				String	tokenId					= request.getParameter("tokenId");
+				if (request.getParameter("password") != null) {
 					oldPassword = request.getParameter("password");
 				}
-				if(request.getParameter("newPassword") != null) {
+				if (request.getParameter("newPassword") != null) {
 					newPassword = request.getParameter("newPassword");
 				}
-				if(request.getParameter("requestId") != null) {
+				if (request.getParameter("requestId") != null) {
 					requestId = request.getParameter("requestId");
 				}
-		        decryptedOldPassword = userConfigService.decryptPassword(oldPassword,requestId);
-				decryptedNewPassword = userConfigService.decryptPassword(newPassword,requestId);
+				decryptedOldPassword	= userConfigService.decryptPassword(oldPassword, requestId);
+				decryptedNewPassword	= userConfigService.decryptPassword(newPassword, requestId);
 				mapDetails.put("tokenId", tokenId);
-				JwsUser jwsUser = userRepository.findByUserId(tokenId);
-				String						generatedCaptcha	= null;
-				String captchaRequest_Id=request.getHeader("r");
-				
+				JwsUser	jwsUser				= userRepository.findByUserId(tokenId);
+				String	generatedCaptcha	= null;
+				String	captchaRequest_Id	= request.getHeader("r");
+
 				if (jwsUser != null
 						&& (jwsUser.getForcePasswordChange() == Constants.ISACTIVE || "1".equals(isChangePassword))) {
 					BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
@@ -510,37 +520,35 @@ public class JwsResetPasswordController {
 						if (BCrypt.checkpw(decryptedOldPassword, jwsUser.getPassword())) {
 							if (userManagementService.validatePassword(decryptedNewPassword)) {
 
-								//fetch captcha for database
+								// fetch captcha for database
 								captchaService.deleteExpiredCaptcha();
 								CaptchaDetails captchaDetails = null;
-								if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true") && StringUtils.isBlank(captchaRequest_Id) == false) {
+								if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
+										&& StringUtils.isBlank(captchaRequest_Id) == false) {
 									captchaDetails = iCaptchRepository.findById(captchaRequest_Id).orElse(null);
-									if (null != captchaDetails)
-									{
-									 generatedCaptcha=captchaDetails.getCaptcha();
-									}
-									else {
+									if (null != captchaDetails) {
+										generatedCaptcha = captchaDetails.getCaptcha();
+									} else {
 										mapDetails.put("invalidCaptcha", "Captcha has Expired!");
 										mapDetails.put("icp", isChangePassword);
 										viewName = "jws-change-password";
 										TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-										return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-												mapDetails);
+										return templatingUtils.processTemplateContents(templateVO.getTemplate(),
+												templateVO.getTemplateName(), mapDetails);
 									}
 								}
 								if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
-										&& generatedCaptcha != null
-										&& !(request.getParameter("captcha").toString()
+										&& generatedCaptcha != null && !(request.getParameter("captcha").toString()
 												.equals(generatedCaptcha.toString()))) {
 									mapDetails.put("invalidCaptcha", "Please verify captcha!");
 									mapDetails.put("icp", isChangePassword);
 									viewName = "jws-change-password";
 								} else {
 									if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
-										//session.removeAttribute("updateCaptcha");
+										// session.removeAttribute("updateCaptcha");
 										if (StringUtils.isBlank(captchaRequest_Id) == false) {
-											   captchaService.deleteCaptcha(captchaRequest_Id);
-											}
+											captchaService.deleteCaptcha(captchaRequest_Id);
+										}
 									}
 									jwsUser.setIsActive(Constants.ISACTIVE);
 									jwsUser.setPassword(passwordEncoder.encode(decryptedNewPassword));
@@ -553,9 +561,26 @@ public class JwsResetPasswordController {
 									 * applicationSecurityDetails.getAuthenticationType()); }
 									 */
 									userConfigService.getConfigurableDetails(mapDetails);
+
+									Cookie clearCookie = new Cookie("SAVED_REQUEST_URL", null);
+									clearCookie.setPath(
+											request.getContextPath().isEmpty() ? "/" : request.getContextPath());
+									clearCookie.setMaxAge(0);
+									clearCookie.setHttpOnly(true);
+									response.addCookie(clearCookie);
 									mapDetails.put("resetPasswordSuccess",
 											"Congratulations.You have successfully updated your password.");
-									viewName = "jws-login";
+									// viewName = "jws-login";
+
+									// System login flag
+									Cookie systemLogin = new Cookie("SYS_LOGIN", "true");
+									systemLogin.setPath("/");
+									systemLogin.setHttpOnly(true);
+									systemLogin.setMaxAge(5 * 60); // 5 minute
+									response.addCookie(systemLogin);
+									
+									response.sendRedirect(request.getContextPath() + "/cf/login");
+									return null;
 								}
 							} else {
 								viewName = "jws-change-password";
@@ -571,14 +596,16 @@ public class JwsResetPasswordController {
 						}
 					}
 				} else {
-					fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+					fileUtilities.customSendError(response, HttpStatus.FORBIDDEN.value(),
+							"You dont have rights to access these module");
 					return null;
 				}
 				TemplateVO templateVO = templatingService.getTemplateByName(viewName);
 				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 						mapDetails);
 			} else {
-				fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				fileUtilities.customSendError(response, HttpStatus.FORBIDDEN.value(),
+						"You dont have rights to access these module");
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -599,7 +626,8 @@ public class JwsResetPasswordController {
 				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 						mapDetails);
 			} else {
-				fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				fileUtilities.customSendError(response, HttpStatus.FORBIDDEN.value(),
+						"You dont have rights to access these module");
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -613,9 +641,9 @@ public class JwsResetPasswordController {
 	public String sendConfigureTOTPMail(HttpServletRequest request, HttpSession session, HttpServletResponse response)
 			throws Exception, CustomStopException {
 
-		String emailTo = request.getParameter("email");
-		Map<String, Object> mapDetails = new HashMap<>();
-		String viewName = null;
+		String				emailTo		= request.getParameter("email");
+		Map<String, Object>	mapDetails	= new HashMap<>();
+		String				viewName	= null;
 		try {
 			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 				userConfigService.getConfigurableDetails(mapDetails);
@@ -634,7 +662,8 @@ public class JwsResetPasswordController {
 				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 						mapDetails);
 			} else {
-				fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				fileUtilities.customSendError(response, HttpStatus.FORBIDDEN.value(),
+						"You dont have rights to access these module");
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -642,14 +671,14 @@ public class JwsResetPasswordController {
 			throw custStopException;
 		}
 	}
-	
+
 	@GetMapping(value = "/gt")
 	@ResponseBody
-	public String gt() throws Exception {
-		String token = jwtUtil.generateToken(userDetailsServiceImpl
-				.loadUserByUsername("anonymous"));
-		return token;
-		
+	public String gt(HttpServletResponse httpServletResponse) throws Exception {
+		JwtRequestDetails jwtRequestDetails = jwtUtil.generateToken(userDetailsServiceImpl.loadUserByUsername("anonymous"));
+		jwtUtil.createTokenCookie(httpServletResponse, jwtRequestDetails);
+		return jwtRequestDetails.getToken();
+
 	}
 
 }

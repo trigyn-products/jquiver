@@ -25,6 +25,7 @@ import com.trigyn.jws.webstarter.xml.SchedulerXMLVO;
 import com.trigyn.jws.webstarter.xml.ScriptLibraryXMLVO;
 import com.trigyn.jws.webstarter.xml.SiteLayoutXMLVO;
 import com.trigyn.jws.webstarter.xml.UserXMLVO;
+import com.trigyn.jws.webstarter.xml.WorkflowXMLVO;
 
 import jakarta.xml.bind.JAXBException;
 
@@ -90,7 +91,10 @@ public class ImportExportUtility {
 						xmlVO = XMLUtil.unMarshaling(SchedulerXMLVO.class, file.getAbsolutePath());
 					} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.SCRIPTLIBRARY.getModuleType().toLowerCase())) {
 						xmlVO = XMLUtil.unMarshaling(ScriptLibraryXMLVO.class, file.getAbsolutePath());
+					} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.WORKFLOW.getModuleType().toLowerCase())) {
+						xmlVO = XMLUtil.unMarshaling(WorkflowXMLVO.class, file.getAbsolutePath());
 					}
+					
 	
 					if(xmlVO != null) {
 						xmlVOMap.put(fileName, xmlVO);

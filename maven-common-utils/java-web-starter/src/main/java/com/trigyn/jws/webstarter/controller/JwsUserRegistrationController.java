@@ -2,37 +2,42 @@ package com.trigyn.jws.webstarter.controller;
 
 import java.awt.Dimension;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+import com.trigyn.jws.dynarest.service.FilesStorageService;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.entities.JwsConfirmationToken;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.entities.JwsUserRoleAssociation;
-import com.trigyn.jws.usermanagement.exception.InvalidLoginException;
 import com.trigyn.jws.usermanagement.repository.JwsConfirmationTokenRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
@@ -49,9 +54,9 @@ import com.trigyn.jws.webstarter.service.UserManagementService;
 import com.trigyn.jws.webstarter.vo.CaptchaDetails;
 
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/cf")
@@ -100,52 +105,70 @@ public class JwsUserRegistrationController {
 	
 	@Autowired
 	private CaptchaService 						captchaService 					= null;
-	
+
+	@Autowired
+	private FilesStorageService			filesStorageService			= null;
 	
 	@GetMapping("/login")
 	@ResponseBody
-	public String userLoginPage(HttpServletRequest request, HttpSession session, HttpServletResponse response) throws Exception {
+	public String userLoginPage(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		UserDetailsVO userDetailsVO = userDetails.getUserDetails();
 		if (userDetailsVO != null && !userDetailsVO.getUserName().equalsIgnoreCase("anonymous")) {
 			response.sendRedirect(servletContext.getContextPath() + "/cf/home");
 			return null;
-		} else {
-			Map<String, Object>	mapDetails	= new HashMap<>();
-
-			String				queryString	= request.getQueryString();
-			if (StringUtils.isNotEmpty(request.getQueryString())) {
-				mapDetails.put("queryString", queryString);
-				if (queryString.equalsIgnoreCase("error")) {
-					Exception excep = (Exception) session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
-					if (excep.getCause() instanceof InvalidLoginException) {
-						mapDetails.put("exceptionMessage", excep.getMessage());
-						if(((InvalidLoginException)excep).getPreviousEmail() != null) {
-							mapDetails.put("previousMail", ((InvalidLoginException)excep).getPreviousEmail());
-						}
-						if(((InvalidLoginException)excep).getPreviousAuth() != null) {
-							mapDetails.put("prevAuthType", ((InvalidLoginException)excep).getPreviousAuth());
-						}
+		} 
+		
+		Map<String, Object>	mapDetails	= new HashMap<>();
+		String				error		= getCookieValue(request, "error");
+		if ("true".equalsIgnoreCase(error)) {
+			mapDetails.put("queryString", "error");
+			Cookie[] cookies = request.getCookies();
+			if (cookies != null) {
+				for (Cookie cookie : cookies) {
+					switch (cookie.getName()) {
+						case "loginErrorMessage":
+							mapDetails.put("exceptionMessage", getCookieValue(request, "loginErrorMessage"));
+							break;
+						case "previousMail":
+							mapDetails.put("previousMail", getCookieValue(request, "previousMail"));
+							break;
+						case "prevAuthType":
+							mapDetails.put("prevAuthType", getCookieValue(request, "prevAuthType"));
+							break;
 					}
 				}
-			} else if (session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION") != null) {
-				Exception exc = (Exception) session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
-				if (exc != null && !exc.getMessage().isBlank()) {
-					mapDetails.put("queryString", "error");
-					mapDetails.put("exceptionMessage", exc.getMessage());
-					if(((InvalidLoginException)exc).getPreviousEmail() != null) {
-						mapDetails.put("previousMail", ((InvalidLoginException)exc).getPreviousEmail());
-					}
-					if(((InvalidLoginException)exc).getPreviousAuth() != null) {
-						mapDetails.put("prevAuthType", ((InvalidLoginException)exc).getPreviousAuth());
-					}
-				}
-				session.setAttribute("SPRING_SECURITY_LAST_EXCEPTION", null);
 			}
-			userConfigService.getConfigurableDetails(mapDetails);
-			TemplateVO templateVO = templatingService.getTemplateByName("jws-login");
-			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
 		}
+		userConfigService.getConfigurableDetails(mapDetails);
+
+		clearCookie(response, "loginErrorMessage");
+		clearCookie(response, "previousMail");
+		clearCookie(response, "prevAuthType");
+		clearCookie(response, "error");
+
+		TemplateVO templateVO = templatingService.getTemplateByName("jws-login");
+		return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+				mapDetails);
+
+	}
+	
+	private void clearCookie(HttpServletResponse response, String name) {
+		Cookie cookie = new Cookie(name, null);
+		cookie.setPath("/"); // Set path to your app root
+		cookie.setMaxAge(0); // Invalidate cookie
+		response.addCookie(cookie);
+	}
+
+	private String getCookieValue(HttpServletRequest request, String name) throws UnsupportedEncodingException {
+		if (request.getCookies() != null) {
+			for (Cookie cookie : request.getCookies()) {
+				if (cookie.getName().equals(name)) {
+					return URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8.name());
+				}
+			}
+		}
+		return null;
 	}
 
 	@GetMapping("/register")
@@ -378,6 +401,14 @@ public class JwsUserRegistrationController {
 				fileUtilities.customSendError(response,HttpStatus.NOT_FOUND.value(), "Invalid user");
 				return null;
 			}
+		
+			String isActiveUser = userManagementService.findbyEmailAndIsActive(userEmailId);
+
+			if (isActiveUser == null) {
+			    fileUtilities.customSendError(response, HttpStatus.UNAUTHORIZED.value(), "Inactive user");
+			    return null;
+			}
+			
 			String mailConfiguration = propertyMasterService.findPropertyMasterValue("mail-configuration");
 			if(mailConfiguration == null || mailConfiguration.isEmpty()) {
 				fileUtilities.customSendError(response,HttpStatus.SERVICE_UNAVAILABLE.value(), "SMTP configuration not available");
@@ -435,6 +466,27 @@ public class JwsUserRegistrationController {
 			fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 			return null;
 		}
+	}
+
+	@GetMapping(value = "/fetchSalt")
+	public Map<String, String> fetchSalt(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return userConfigService.fetchSalt();
+	}
+
+	@PostMapping(value = "/supd")
+	public Boolean saveUserProdifle(@RequestBody JwsUserVO userData) throws Exception {
+
+		userManagementService.saveUserProdifleData(userData);
+
+		if (userData.getFormData() != null) {
+			List<Map<String, String>> formData = new Gson().fromJson(userData.getFormData(), List.class);
+			for (Map<String, String> formEntry : formData) {
+				if (formEntry.containsKey("valueType") && formEntry.get("valueType").equalsIgnoreCase("fileBin")) {
+					filesStorageService.commitChanges(formEntry.get("FileBinID"), formEntry.get("fileAssociationID"));
+				}
+			}
+		}
+		return true;
 	}
 
 }

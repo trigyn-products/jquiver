@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,8 +69,14 @@ public class TypeAheadDAO extends DBConnection {
 				Object val = entry.getValue();
 				requestParamMap.put(key, val);
 			}
+			String						dataSourceId				= null;
+			if(requestParamMap.containsKey("datasourceId")) {
+				dataSourceId = String.valueOf(requestParamMap.get("datasourceId"));
+			} else {
+				dataSourceId = typeAheadRepository.getDataSourceId(autocompleteParams.getAutocompleteId());
+			}
 			String query = templatingUtils.processTemplateContents(list, "typeAheadQuery", requestParamMap);
-			List<Map<String, Object>> displayList = getAutocompleteDetails(query, autocompleteParams);
+			List<Map<String, Object>> displayList = getAutocompleteDetails(query, autocompleteParams, dataSourceId);
 			return displayList;
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured in getAutocompleteData.", custStopException);
@@ -77,9 +84,8 @@ public class TypeAheadDAO extends DBConnection {
 		}
 	}
 
-	private List<Map<String, Object>> getAutocompleteDetails(String a_autocompleteQuery, AutocompleteParams a_autocompleteParams) {
-		String						dataSourceId				= typeAheadRepository
-				.getDataSourceId(a_autocompleteParams.getAutocompleteId());
+	private List<Map<String, Object>> getAutocompleteDetails(String a_autocompleteQuery, AutocompleteParams a_autocompleteParams, 
+			String dataSourceId) {
 		NamedParameterJdbcTemplate	namedParameterJdbcTemplate	= updateNamedParameterJdbcTemplateDataSource(dataSourceId);
 
 		String dataSourceUserName = "";
@@ -163,9 +169,9 @@ public class TypeAheadDAO extends DBConnection {
 	public List<Map<String, Object>> getColumnNamesByTableName(String additionalDataSourceId, String tableName) throws SQLException {
 
 		DataSourceVO	dataSourceVO			= additionalDatasourceRepository.getDataSourceConfiguration(additionalDataSourceId);
-		Connection		additionalDataSourceConnection	= jdbcTemplate.getDataSource().getConnection();
+		Connection		additionalDataSourceConnection	= DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
 		if (dataSourceVO != null) {
-			additionalDataSourceConnection = DataSourceFactory.getDataSource(dataSourceVO).getConnection();
+			additionalDataSourceConnection = DataSourceUtils.getConnection(DataSourceFactory.getDataSource(dataSourceVO));
 		}
 		List<Map<String, Object>>	resultSet					= new ArrayList<>();
 

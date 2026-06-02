@@ -4,6 +4,18 @@
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
 <script src="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.css" />
+
+<style>
+    #importDiv{
+        margin:15px 0;
+    }
+    
+    #importDiv input{
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width:100%;
+    }
+</style>
 </head>
 
 <div class="container">
@@ -23,6 +35,10 @@
         		<#list loggedInUserRoleList as loggedInUserRole>
             		<#if (loggedInUserRole == "ADMIN" || loggedInUserRole == "AUTHENTICATED")>  
             			<button type="submit" class="spacingclss btn btn-primary" onclick="createNew()"> ${messageSource.getMessage('jws.createnewmanual')} </button>
+                       <button type='button' onclick="importhelpManual();getEditorName();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.import')}" ><i class="fa fa-download"></i>  
+                            <input type="file" id="my_file" style="display: none;" />                
+                        </button>
+                      
 						<#break>
         			</#if>
         		</#list>
@@ -30,7 +46,7 @@
 					
              <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
                 </button>
-
+            <div id="importDiv" style="display:none"></div>
         </div>
         </div>
         
@@ -43,23 +59,33 @@
     
 <form id="viewManualForm" action="${(contextPath)!''}/cf/hmvm" method="get" target="_blank">
   <input id="manualType" name="mt" type="hidden">
-  <input id="manualTypeName" name="mn" type="hidden">
 </form>
 
 <form id="viewManualEntry" action="${(contextPath)!''}/cf/hmem" method="get" target="_blank" class="margin-r-5 pull-left">
   		<input type="hidden" name="mt" id="manualTypeListing" />
-		<input type="hidden" name="mn" id="manualNameListing" />
+        <textarea id="htmlContent" style="display: none">
+	</textarea>
   </form>
 
+  <form id="manual-edit" action="${(contextPath)!''}${(viewPath)!''}/cht?isEdit=${(isEdit)!''}" method="get">
+    <input type="hidden" name="isEdit" id="isEdit" value="0" />
+  </form>
 <script>
 	document.title = "Manual Type Module List";
     contextPath = "${(contextPath)!''}";
-    let isEdit;
+//    let isEdit;
      $(function () {
+       let form = $("#manual-edit");
+        if (form.length > 0) {
+            let formElement = form[0].outerHTML;
+            let formDataJson = JSON.stringify(formElement);
+            sessionStorage.setItem("help-manual-header-template", formDataJson);
+        } 
+        
 		$("#typeSelect").each(function () {
 	        $(this).val($(this).find("option[selected]").val());
 	    });
-  
+         
     	//Add all columns that needs to be displayed in the grid
         let colM = [
             { title: "${messageSource.getMessage('jws.name')}", dataIndx: "name", width: 800, align: "left", align: "left", halign: "center",
@@ -69,7 +95,7 @@
     
     let dataModel = {
        	url: contextPath+"/cf/pq-grid-data",
-       	sortIndx: "name",
+       	sortIndx: "last_updated_ts",
         sortDir: "up"
     };
     //System will fecth grid data based on gridId
@@ -111,11 +137,13 @@
         	<#list loggedInUserRoleList as loggedInUserRole> 
             	<#if (loggedInUserRole == "ADMIN" || loggedInUserRole == "AUTHENTICATED")>
                   let res = '<span id="'+rowIndx+'" onclick="createNew(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>';
-                  res += '<span id="'+rowIndx+'" onclick="editEntityManual(this)" class= "grid_action_icons"><i class="fa fa-edit"></i></span>';
+                  res += '<span id="'+rowIndx+'" onclick="editEntityManual(this)" class= "grid_action_icons"><i title="Edit" class="fa fa-edit"></i></span>';
 
                   if(tcount > 0) {
-                      res += '<span id="'+rowIndx+'" onclick="viewManual(this)" class= "grid_action_icons"><i class="fa fa-eye"></i></span>';
+                      res += '<span id="'+rowIndx+'" onclick="viewManual(this)" class= "grid_action_icons"><i title="View" class="fa fa-eye"></i></span>';
                   }
+                // Uncomment for Export functionality of Help Manual
+                //    res += '<span id="'+rowIndx+'" onclick="exportHelpManual(this)" class= "grid_action_icons"><i title="${messageSource.getMessage("jws.export")}" class="fa fa-upload"></i></span>';
 
                   return res.toString();                    
         		<#break>
@@ -136,36 +164,288 @@
         	<#if (loggedInUserRole == "ADMIN" || loggedInUserRole == "AUTHENTICATED")>   
 
              function createNew(element) {
-                 if(element === undefined){ 
-			    		isEdit = 0;
-			    		$("#manualId").val(0);
-                         var params = new URLSearchParams({
-                            isEdit: isEdit
-                        }).toString();
-                        location.href = contextPath+viewPath+"/cht?" + params;
-			    	}else{
-				        isEdit = 1;
-				        const id = Number.parseInt(element.id);
-				        let rowData = $( "#manual-typeGrid" ).pqGrid("getRowData", {rowIndx: id});
-                        var manualId = rowData["manual_id"];
-                     //   var isSystemManual =rowData["is_system_manual"];
-                        // Encode values to handle special characters
+                if(element === undefined){ 
+                    isEdit = 0;
+                    $("#manualId").val(0);
                         var params = new URLSearchParams({
-                            manualId: manualId,
-                            isEdit: isEdit
-                        }).toString();
-                 	    location.href = contextPath+viewPath+"/cht?" + params;		
-					}         
-            }			
-			    function editEntityManual(element) {
-			    	const id = Number.parseInt(element.id);
-			    	let rowData = $( "#manual-typeGrid" ).pqGrid("getRowData", {rowIndx: id});
-			    	$("#manualTypeListing").val(rowData["manual_id"]);
-			    	$("#manualNameListing").val(rowData["name"]);
-			        $("#viewManualEntry").submit();
-			    }
-        		<#break>
-        	</#if>
+                        isEdit: isEdit
+                    }).toString();
+                    location.href = contextPath+viewPath+"/cht?" + params;
+			    } else {
+                    isEdit = 1;
+                    const id = Number.parseInt(element.id);
+                    let rowData = $( "#manual-typeGrid" ).pqGrid("getRowData", {rowIndx: id});
+                    var manualId = rowData["manual_id"];
+                    // Encode values to handle special characters
+                    var params = new URLSearchParams({
+                        manualId: manualId,
+                        isEdit: isEdit
+                    }).toString();
+                    location.href = contextPath+viewPath+"/cht?" + params;		
+                }         
+            }
+
+            function editEntityManual(element) {
+                const id = Number.parseInt(element.id);
+                let rowData = $( "#manual-typeGrid" ).pqGrid("getRowData", {rowIndx: id});
+                $("#manualTypeListing").val(rowData["manual_id"]);
+                $("#manualNameListing").val(rowData["name"]);
+                $("#viewManualEntry").submit();
+            }
+
+            function importhelpManual(){  
+
+                $("#importDiv").html(" <form id='importForm'  enctype='multipart/form-data' ><div><label for='manualName' class='form-label'><span class='asteriskmark'>*</span>Manual Name</label> <input type='text'  id='manualName' class='form-control' placeholder='Enter Manual Name'/>&nbsp;<br><label for='editorName' class='form-label'><span class='asteriskmark'>*</span>Editor Name</label>&nbsp;<br> <select id='editorName' class='form-control'/></select></div>&nbsp;<div><input type='file'  id='inputFile' accept='.doc,.docx'/></div></form>");
+
+                $("#importDiv").dialog({
+                bgiframe	: true,
+                autoOpen	: true, 
+                modal		: true,
+                closeOnEscape : true,
+                draggable	: true,
+                resizable	: false,
+                title		: "${messageSource.getMessage('jws.import')}"+" File",
+                position: {
+                    my: "center", at: "center"
+                },
+                buttons : [
+                    {
+                        text		: "${messageSource.getMessage('jws.import')}",
+                        class: 'btn btn-primary',
+                        click	: function() {
+
+                            var manualName = document.getElementById('manualName');
+                            if(checkExistingHelpManualName(manualName.value) == true){
+                                showMessage("Manual Name already exists","warn");
+                                return false;
+                            }
+
+                            var accepted_file_endings = ["doc", "docx"];
+                            var data= document.getElementById('inputFile');
+
+                            if(manualName.value == ""){
+                                manualName.focus();
+                                showMessage("Please enter Manual Name.", "warn");
+                                return false;
+                            } 
+
+                            if(data.files.length == 0){
+                                data.focus();
+                                showMessage("Please select a file to be imported", "warn");
+                                return false;
+                            } 
+
+                            var fileName = data.files[0].name;
+                            var fileExtension = fileName.split('.').pop().toLowerCase();
+
+                            if ($.inArray(fileExtension, accepted_file_endings) === -1) {
+                                showMessage("Only .doc and .docx files are allowed", "error");
+                                data.focus();
+                                return false;
+                            }
+
+                            var fileSize = Math.round((data.files[0].size / 1024));
+                            if (fileSize >= 2*1024) {
+                                showMessage("File too large .", "error");
+                                data.focus();
+                                return false;
+                            }
+                            confirmImportforMarkdown($("#manualName").val(),$("#editorName").val());         
+                        }                                                               
+                        },
+                        {
+                            text	:"Cancel",
+                            class: 'btn btn-secondary',
+                            click	: function() { 
+                                $(this).dialog('close');
+                            },
+                        }
+                ],	
+                open: function( event, ui ) {
+                    $('.ui-dialog-titlebar')
+                        .find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+                    .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+                    }	
+                });      
+            }
+
+            function getEditorName(){  
+                $.ajax({
+                    type : "GET",
+                    async: false,
+                    url : contextPath+apiPath+"/gen",
+                    data: {               
+                    },
+                    success : function(data) {				
+                        appendEditorName(data);					
+                    },
+                    error : function(xhr, error){				
+                        showMessage("Error occurred while fetching Editor Name", "error");
+                    },
+                });      
+            }
+
+            function appendEditorName(options) {
+                var editorName = $("#editorName").val();
+                var editorId = $("#editorId").val();
+                for (let property in options) {
+                    if(options[property].editorId != undefined){
+                        if(options[property].editorId != undefined ){
+                            if(options[property].editorId == editorId){
+                                $("#editorName").append("<option value="+options[property].editorId+" selected>"+options[property].editorName+"</option>");
+                            } else {
+                                $("#editorName").append("<option value="+options[property].editorId+">"+options[property].editorName+"</option>");
+                            }
+                                                                                
+                        } 
+                    }
+                }
+                document.getElementById("editorName").selectedIndex = 1;
+            }
+
+            function getHmCssDefaultContent() {
+                $.ajax({
+                    type: "GET",
+                    url: contextPath +apiPath +"/getHmCssDefaultContent",
+                    async: false,
+                    success: function(data) {
+                        $("#htmlContent").text(data);
+                    },
+                    error: function(xhr, error) {					
+                    },
+                });
+            }
+
+            function checkExistingHelpManualName(manualName){
+                let exists = false;
+                $.ajax({
+                    async: false,
+                    type: "POST",
+                    dataType: "text",
+                    url: contextPath + apiPath + "/ehmn",
+                    data: {
+                        manualName: manualName,
+                    },
+                    success: function(data) {
+                        if (data != "") {
+                            exists = true;
+                        }    
+                    },
+                    error: function(xhr, error) {
+                        showMessage("Error occurred while saving", "error");
+                    },
+                });
+                return exists;
+            } 
+
+            function confirmImportforMarkdown(manualName,editorName){
+
+                if(editorName == "1"){                   
+                    // Create the dialog element
+                    const dialog = $('<div id="proceedConfirmDialog">CK Editor is recommended for importing docs.Are you sure you want to proceed with Markdown Editor?</div>');
+                    $('body').append(dialog);
+
+                    $('#proceedConfirmDialog').dialog({
+                        bgiframe: true,
+                        autoOpen: true,
+                        modal: true,
+                        closeOnEscape: true,
+                        draggable: true,
+                        resizable: false,
+                        title: 'Proceed',
+                        position: { my: 'center', at: 'center' },
+                        buttons: [
+                        {
+                            text: 'Proceed',
+                            class: 'btn btn-primary',
+                            click: function () {
+                                importHelpManual(manualName,editorName); 
+                                // Close confirm dialog
+                                $(this).dialog('destroy').remove();
+
+                                // Close first dialog AFTER proceed
+                                $("#importDiv").dialog('close');
+                            //    $(this).dialog('close'); 
+                            }
+                        },
+                        {
+                            text: 'Cancel',
+                            class: 'btn btn-secondary',
+                            click: function () {
+                                $(this).dialog('destroy').remove();
+                            }
+                        }
+                        ],
+                        open: function () {
+                        $(".ui-dialog-titlebar button")
+                            .removeClass("ui-dialog-titlebar-close")
+                            .addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
+                            .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
+                            .append('<span class="ui-button-icon-space"></span>');
+                        }
+                    });
+                }else{
+                    importHelpManual(manualName,editorName);
+                    $("#importDiv").dialog('close');
+                }                
+            }
+
+            function importHelpManual(manualName,editorName) {  
+                var fileName = $('#inputFile').val().split('\\').pop();
+                var extension = fileName.split('.').pop();
+           //     if(extension == "docx" || extension == "doc") {
+                    getHmCssDefaultContent();
+                    var manualHeader =  $("#htmlContent").val();    
+                    var formData = new FormData();
+                    formData.append("filePath", document.getElementById("inputFile").files[0]);
+                    formData.append("manualName", manualName);
+                    formData.append("manualHeader", manualHeader);
+                    formData.append("editorName", editorName);
+                    $.ajax({
+                        url:contextPath+"/cf/ihm",
+                        type: "POST", 
+                        enctype: 'multipart/form-data',
+                        processData: false,
+                        contentType: false,
+                        data:formData,                
+                        success : function(data) {
+                            showMessage("Data imported successfully", "success");
+                            changeType();                      
+                        },                     
+                        error : function(xhr, error){
+                            showMessage("Error occurred while importing", "error");
+                        },                             
+                    });      
+            }
+
+        /* Uncomment for HelpManual Export functionality */
+
+         /*   function exportHelpManual(element) {   
+                var manual_type = $("#typeSelect").val();       
+                var gridParam = $( "#manual-typeGrid" ).pqGrid("saveState");
+
+                const id = Number.parseInt(element.id);
+                let rowData = $( "#manual-typeGrid" ).pqGrid("getRowData", {rowIndx: id});
+                var manualId = rowData["manual_id"];
+                
+                getHmCssDefaultContent();      
+                $.ajax({
+                    url:contextPath+"/cf/ehm",
+                    type: "POST", 
+                    async: false,
+                    data:{"manualId":manualId,"manual_type":manual_type},      
+                    success : function(data) {
+                        showMessage("Data exported successfully", "success");
+                        changeType();                      
+                    },                    
+                    error : function(xhr, error){
+                        showMessage("Error occurred while importing", "error");
+                    },                           
+                });      
+            } */
+
+                <#break>
+            </#if>
         </#list>
     </#if>
     

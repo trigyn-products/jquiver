@@ -1,12 +1,12 @@
 package com.trigyn.jws.dashboard.vo;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 
 @Tag(name = "This model is used to hold dashboard and its associated dashlet information.")
 public class DashboardVO implements Serializable {
@@ -30,9 +30,21 @@ public class DashboardVO implements Serializable {
 
 	@Schema(name = "isExportable")
 	private Integer				isExportable		= null;
-	
+
 	@Schema(name = "dashboardBody")
 	private String				dashboardBody		= null;
+
+	private Integer				dashboardType		= 1;
+
+	private String				createdBy			= null;
+
+	private Date				createdDate			= null;
+
+	private Date				lastUpdatedTs		= null;
+
+	private Integer				isDeleted			= 0;
+
+	private Integer				isCustomUpdated		= 1;
 
 	public DashboardVO() {
 
@@ -46,7 +58,7 @@ public class DashboardVO implements Serializable {
 		this.dashletIdList	= dashletIdList;
 		this.isDraggable	= isDraggable;
 		this.isExportable	= isExportable;
-		this.dashboardBody 	= dashboardBody;
+		this.dashboardBody	= dashboardBody;
 	}
 
 	public String getDashboardId() {
@@ -104,10 +116,61 @@ public class DashboardVO implements Serializable {
 	public void setDashboardBody(String dashboardBody) {
 		this.dashboardBody = dashboardBody;
 	}
+	
+	
+
+	public Integer getDashboardType() {
+		return dashboardType;
+	}
+
+	public void setDashboardType(Integer dashboardType) {
+		this.dashboardType = dashboardType;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public Date getLastUpdatedTs() {
+		return lastUpdatedTs;
+	}
+
+	public void setLastUpdatedTs(Date lastUpdatedTs) {
+		this.lastUpdatedTs = lastUpdatedTs;
+	}
+
+	public Integer getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Integer isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(dashboardId, dashboardName, dashletIdList, isDraggable, isExportable, roleIdList,dashboardBody);
+		return Objects.hash(dashboardId, dashboardName, dashletIdList, isDraggable, isExportable, roleIdList,
+				dashboardBody);
 	}
 
 	@Override
@@ -122,16 +185,15 @@ public class DashboardVO implements Serializable {
 			return false;
 		}
 		DashboardVO other = (DashboardVO) obj;
-		return Objects.equals(dashboardId, other.dashboardId)
-				&& Objects.equals(dashboardName, other.dashboardName) && Objects.equals(dashletIdList, other.dashletIdList)
-				&& Objects.equals(isDraggable, other.isDraggable) && Objects.equals(isExportable, other.isExportable)
-				&& Objects.equals(roleIdList, other.roleIdList);
+		return Objects.equals(dashboardId, other.dashboardId) && Objects.equals(dashboardName, other.dashboardName)
+				&& Objects.equals(dashletIdList, other.dashletIdList) && Objects.equals(isDraggable, other.isDraggable)
+				&& Objects.equals(isExportable, other.isExportable) && Objects.equals(roleIdList, other.roleIdList);
 	}
 
 	@Override
 	public String toString() {
-		return "DashboardVO [dashboardId=" + dashboardId + ", dashboardName=" + dashboardName + ", roleIdList=" + roleIdList
-				+ ", dashletIdList=" + dashletIdList + ", isDraggable=" + isDraggable + ", isExportable="
+		return "DashboardVO [dashboardId=" + dashboardId + ", dashboardName=" + dashboardName + ", roleIdList="
+				+ roleIdList + ", dashletIdList=" + dashletIdList + ", isDraggable=" + isDraggable + ", isExportable="
 				+ isExportable + ", dashboardBody=" + dashboardBody + "]";
 	}
 

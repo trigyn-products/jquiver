@@ -99,7 +99,7 @@ public class SchedulerConfiguration {
 		}
 	}
 	
-	private void updateClusterState() throws Exception {
+	public void updateClusterState() throws Exception {
 		String strClustereActiveTime = propertyMasterService.findPropertyMasterValue("clusterActiveTime");
 		Integer clustereActiveTime = (null == strClustereActiveTime || strClustereActiveTime.isEmpty()) ? 30 : StringUtils.isNumeric(strClustereActiveTime) ? Integer.parseInt(strClustereActiveTime) : 30;
 		Runnable clusterExecutor = new Runnable() {

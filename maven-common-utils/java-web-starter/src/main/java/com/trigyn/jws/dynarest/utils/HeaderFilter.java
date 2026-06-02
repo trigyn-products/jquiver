@@ -36,7 +36,6 @@ public class HeaderFilter extends OncePerRequestFilter {
 			
 			@Override
 			public void setHeader(String a_name, String a_value) {
-//				System.out.println("Setting header : " + a_name + " : " + a_value);
 				super.setHeader(a_name, a_value);
 				if(a_name == null) {
 					return;
@@ -57,7 +56,6 @@ public class HeaderFilter extends OncePerRequestFilter {
 			
 			@Override
 			public Collection<String> getHeaderNames() {
-//				System.out.println("ViewFiler.doFilterInternal(...).new HttpServletResponseWrapper() {...}.getHeaderNames()");
 				return header.keySet();
 			}
 			
@@ -66,8 +64,6 @@ public class HeaderFilter extends OncePerRequestFilter {
 				if(a_name == null) {
 					return null;
 				}
-//				System.out.println(requestURL);
-//				System.out.println("ViewFiler.doFilterInternal(...).new HttpServletResponseWrapper() {...}.getHeader() " + a_name + " = " + header.get(a_name));
 				if(header.get(a_name) == null) {
 					return super.getHeader(a_name);
 				}

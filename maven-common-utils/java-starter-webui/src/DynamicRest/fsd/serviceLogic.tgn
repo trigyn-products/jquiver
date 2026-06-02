@@ -1,0 +1,25 @@
+var HashMap =  Java.type('java.util.HashMap');
+var System = Java.type('java.lang.System');
+var params = new HashMap();
+var queryParam = new HashMap();
+
+function getSaltDetails(){ 
+	
+    params.put("osi", requestDetails.oldSaltId);
+    
+    var queryResult = jq_getDBResult("SELECT salt FROM jq_salt_details WHERE request_id=:osi",
+            null,
+            params);    
+        if(queryResult != null) {
+            return queryResult.data_list;
+        }
+    
+}
+
+function loadSaltDetails() {
+    var returnObject = new Object();    
+    returnObject = getSaltDetails();
+    return returnObject;
+}
+
+loadSaltDetails();

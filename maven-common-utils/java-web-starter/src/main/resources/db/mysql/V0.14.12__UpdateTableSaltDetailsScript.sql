@@ -1,0 +1,1 @@
+CREATE INDEX idx_request_time ON jq_salt_details(request_time);

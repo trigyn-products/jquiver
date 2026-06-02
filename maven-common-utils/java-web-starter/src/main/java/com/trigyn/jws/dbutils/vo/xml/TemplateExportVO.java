@@ -13,19 +13,27 @@ public class TemplateExportVO {
 	private String	templateFileName	= null;
 
 	private Date	updatedDate			= null;
+	
+	private String	updatedBy			= null;
+
+	private String	createdBy			= null;
+	
+	private String	checksum			= null;
 
 	public TemplateExportVO() {
 
 	}
 
 	public TemplateExportVO(String templateId, String templateName, Integer templateTypeId, String templateFileName,
-			Date updatedDate) {
-		super();
+			Date updatedDate, String updatedBy, String createdBy, String checksum) {
 		this.templateId			= templateId;
 		this.templateName		= templateName;
 		this.templateTypeId		= templateTypeId;
 		this.templateFileName	= templateFileName;
 		this.updatedDate		= updatedDate;
+		this.updatedBy			= updatedBy;
+		this.createdBy			= createdBy;
+		this.checksum			= checksum;
 	}
 
 	public String getTemplateId() {
@@ -66,6 +74,30 @@ public class TemplateExportVO {
 
 	public void setUpdatedDate(Date updatedDate) {
 		this.updatedDate = updatedDate;
+	}
+
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public String getChecksum() {
+		return checksum;
+	}
+
+	public void setChecksum(String checksum) {
+		this.checksum = checksum;
 	}
 
 }

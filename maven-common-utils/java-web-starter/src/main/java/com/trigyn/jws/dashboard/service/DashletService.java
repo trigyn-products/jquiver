@@ -164,20 +164,9 @@ public class DashletService {
 			String[] params, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, String properties)
 			throws Exception, CustomStopException {
 
-		String selectCriteria = null;
-		String htmlBody = null;
-		String selectQueryFile = "selectQuery";
-		String htmlBodyFile = "htmlContent";
-		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
-		if (environment.equalsIgnoreCase("dev")) {
-			selectCriteria = getContentForDevEnvironment(a_dashlet.getDashletName(), a_dashlet.getDashletQuery(),
-					selectQueryFile);
-			htmlBody = getContentForDevEnvironment(a_dashlet.getDashletName(), a_dashlet.getDashletBody(),
-					htmlBodyFile);
-		} else {
-			selectCriteria = a_dashlet.getDashletQuery();
-			htmlBody = a_dashlet.getDashletBody();
-		}
+		String selectCriteria = a_dashlet.getDashletQuery();
+		String htmlBody = a_dashlet.getDashletBody();
+		
 		List<Map<String, String>> resultSet = null;
 		Map<String, Object> templateMap = new HashMap<>();
 		String templateQuery = null;
@@ -363,12 +352,7 @@ public class DashletService {
 	boolean hasAccessToEntity(Dashlet dashlet) {
 
 		List<String> roleNames = new ArrayList<>();
-		Authentication authentication = null;
-		jakarta.servlet.http.HttpServletRequest requestObject = getRequest();
-		if (requestObject.getSession().getAttribute("SPRING_SECURITY_CONTEXT") != null) {
-			authentication = ((SecurityContextImpl) requestObject.getSession().getAttribute("SPRING_SECURITY_CONTEXT"))
-					.getAuthentication();
-		}
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null) {
 			authentication = SecurityContextHolder.getContext().getAuthentication();
 		}
@@ -492,7 +476,10 @@ public class DashletService {
 	
 	private void validateTextValues(DashletProperties property, Map<String, Object> map,
 	        MultiValueMap<String, String> propertyMap,HttpServletResponse httpServletResponse) throws IOException {
-	    String regexPattern = "^[a-zA-Z\\s]*$"; 
+	    String regexPattern = "^[a-zA-Z0-9-\\s]*$"; 
+	    if(property.getValidation() != null && property.getValidation().isEmpty() == false) {
+	    	regexPattern = property.getValidation();
+	    }
 	    for (Entry<String, Object> entry : map.entrySet()) {
 	        String textValue = entry.getValue().toString();
 	        if (textValue.matches(regexPattern)) {

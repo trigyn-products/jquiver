@@ -19,7 +19,7 @@ let multiselect;
 $(function () {	
 	multiselect = $("#rolesMultiselect").multiselect({
         autocompleteId: "rolesAutocomplete",
-        enableClearAll: false,
+        enableClearAll: true,
         render: function(item) {
         	var renderStr ="";  
             /**Written for preventing Cross Site Scripting*/
@@ -64,7 +64,7 @@ $(function () {
            if(liId == itemData.roleId+"_li"){
                 let itemSpan = $('<span class="ml-selected-item" id="'+itemData.roleId+'">'+encodedName+'</span>');
                 listsElement.append(itemSpan);
-                let deleteItemContext = $('<span class="float-right closeicon"><i class="fa fa-times-circle-o" aria-hidden="true"></i></span>');
+                let deleteItemContext = $('<span class="float-right closeicon"><i class="fa-regular fa-circle-xmark" aria-hidden="true"></i></span>');
                 if(itemData.roleName != "ADMIN"){
                         deleteItemContext.data("selected-item", itemData);
                     listsElement.append(deleteItemContext);

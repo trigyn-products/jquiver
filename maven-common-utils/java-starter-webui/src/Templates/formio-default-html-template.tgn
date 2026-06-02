@@ -1,143 +1,323 @@
 <#noparse>
-<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
+<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)
+    ?then('nonce="${dynamicNonce}"', '') />
 </#noparse>
+
+<!DOCTYPE html>
 <html>
 <head>
-	<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/bootstrap-icons.css">  
-	<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/bootstrap.min.css"> 
-	<link rel="stylesheet" type="text/css" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dropzone/dist/dropzone.css" />
-    <link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/pqGrid/pqgrid.min.css" />
-    <link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
-    <script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dropzone/dist/dropzone.js"></script>
-    <script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/fileupload/fileupload.js"></script>
+    <link rel="stylesheet"
+          href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/formio.full.min.css">
+    <link rel="stylesheet"
+          href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dropzone/dist/dropzone.css">
+    <link rel="stylesheet" 
+          href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />      
+
+    <script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dropzone/dist/dropzone.js"></script>
+    <script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/fileupload/fileupload.js"></script>
     <script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
-    <script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-	<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/gridutils/gridutils.js"></script> 
-	<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
-	<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/typeahead/typeahead.js"></script>
-	<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/formio.js"></script>
-	<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/formio/jqFormIO.js"></script>
+    <script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/formio.full.min.js"></script>
+    <script src="${(contextPath)!''}/webjars/1.0/formio/jqFormIO.js"></script>
+    <script src="${(contextPath)!''}/webjars/1.0/formio/JQFormIoAutocomplete.js"></script>
+    <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+    
+	<style>
+	  .customedropselctbox {
+	  }
+	
+	  .customedropselctbox .search-cover input {
+	    padding-left: 30px !important;
+	  }
+	
+	  .customedropselctbox .full-form-fields {
+	    margin-bottom: 0px;
+	  }
+	
+	  .customedropselctbox .jws-rich-autocomplete-multiple {
+	    display: flex;
+	    align-items: center;
+	    justify-content: space-between;
+	  }
+	
+	  .customedropselctbox .multiselectcount_clear_block {
+	    position: absolute;
+	    top: -20px;
+	    right: 15px;
+	    width: 110px;
+	  }
+	</style>
+
 </head>
-	<body>   
-        <form method="post" name="addEditForm" id="addEditForm">
-        	<div class="container">
-        	<input type="hidden" id="isFormIo" name="isFormIo" value="1"/>
-        	<input type="hidden" id="isCaptchaEnabled" name="isCaptchaEnabled" value="<#noparse>${(isCaptchaEnabled)!'0'}</#noparse>"/>
-        	<input  id="primaryKeyId"  type="hidden" name="${(primaryKeyColumnName)!''}" value="<#noparse>${(primaryKeyValue)!''}</#noparse>" />  
-            <input  id="isEdit"  type="hidden" name="isEdit" value="<#noparse>${(isEdit)!'0'}</#noparse>" />  
-            <input  id="saveQueryParametersType"  type="hidden" name="saveQueryParametersType" value='${(queryParametersType)!""}' />    
-            <div id="formioBody"></div> 
-            </div>   
-         </form>   
-	</body>
-   
-<script <#noparse>${scriptNonce} </#noparse>>
-    contextPath = <#noparse>"${contextPath}"</#noparse>;	 
-    formId = <#noparse>"${formId}"</#noparse>;        
-    let isEdit = <#noparse>"${(isEdit)!'0'}"</#noparse>;  
+
+<body>
+<form method="post" name="addEditForm" id="addEditForm">
+    <div class="container">
+        <input type="hidden" id="isFormIo" name="isFormIo" value="1"/>
+        <input type="hidden"
+               id="isCaptchaEnabled"
+               name="isCaptchaEnabled"
+               value="<#noparse>${(isCaptchaEnabled)!'0'}</#noparse>"/>
+
+        <input type="hidden"
+               id="primaryKeyId"
+               value="<#noparse>${(primaryKeyValue)!''}</#noparse>"/>
+
+        <input type="hidden"
+               id="isEdit"
+               name="isEdit"
+               value="<#noparse>${(isEdit)!'0'}</#noparse>"/>
+
+        <input type="hidden"
+               id="saveQueryParametersType"
+               name="saveQueryParametersType"
+               value='${(queryParametersType)!""?json_string}'/>
+
+        <div id="formioBody"></div>
+    </div>
+</form>
+</body>
+
+<script <#noparse>${scriptNonce}</#noparse>>
+    contextPath = <#noparse>"${contextPath}"</#noparse>;
+    formId = <#noparse>"${formId}"</#noparse>;
+
+    let isEdit = <#noparse>"${(isEdit)!'0'}"</#noparse>;
     let isCaptchaEnabled = <#noparse>"${(isCaptchaEnabled)!'0'}"</#noparse>;
     let formMetaData = <#noparse>${(formMetaData)!""}</#noparse>;
+    
+
     let formOptions = {
         disableAlerts: true,
         noAlerts: true
-    };      
-	Formio.createForm(document.getElementById('formioBody'), formMetaData, formOptions).then(function(form) {              
-        form.submission = {              
+    };
+    
+    //if Autocomplete is added in form io the config code should be copied from form io html help section for autocomplete here
+
+    <#if (toggleFileBin)?? && toggleFileBin == true>
+    function fileConfigRenderer(fileObj) {
+        let fileUploadId = fileObj["id"];
+        let fileName = fileObj["name"];
+        let btnTxt = resourceBundleData("jws.copyFilePath,jws.fileName");
+
+        return (
+            "<div class='fileicons'>" +
+                "<span class='iconcovercls' title='" + btnTxt["jws.copyFilePath"] + "'>" +
+                    "<i class='fileupload-actions fa fa-copy float-right' " +
+                        "onclick=\"copyFilePath('" + fileUploadId + "')\"></i>" +
+                "</span>" +
+                "<span class='iconcovercls' title='" + btnTxt["jws.fileName"] + "'>" +
+                    "<i class='fileupload-actions fa fa-info float-right' " +
+                        "onclick=\"fileName('" + fileName + "')\"></i>" +
+                "</span>" +
+                "<span class='iconcovercls' title='Delete'>" +
+                    "<i class='fileupload-actions fa fa-trash float-right' " +
+                        "data-fileid='" + fileUploadId + "'></i>" +
+                "</span>" +
+            "</div>"
+        );
+    }
+
+    function fileName(a_fileName) {
+        showMessage("File Name: " + a_fileName, "success");
+    }
+
+    function copyFilePath(a_fileUploadId) {
+        let input = $("<input>");
+        $("body").append(input);
+        input
+            .val(window.location.origin + contextPath + "/cf/files/" + a_fileUploadId)
+            .select();
+        document.execCommand("copy");
+        input.remove();
+        showMessage("File path copied successfully", "success");
+    }
+    </#if>
+
+    Formio.createForm(
+        document.getElementById("formioBody"),
+        formMetaData,
+        formOptions
+    ).then(function (form) {
+
+        form.submission = {
             data: <#noparse>${(resultSetObject.formData)!""}</#noparse>
         };
-        form.on('submit', function(submission) { 
-        	submission.data.id = <#noparse>$("#primaryKeyId").val(); </#noparse>               
-            if(submission["data"].${(primaryKeyColumnName)!''} != undefined){
-                $("#primaryKeyId").val(submission["data"].${(primaryKeyColumnName)!''});
-            }  
-           
+
+        form.on("submit", function (submission) {
+            submission.data.id =
+                <#noparse>$("#primaryKeyId").val();</#noparse>;
+
+            if (submission.data.${(primaryKeyColumnName)!''} !== undefined) {
+                $("#primaryKeyId").val(
+                    submission.data.${(primaryKeyColumnName)!''}
+                );
+            }
         });
-        if(isCaptchaEnabled == 1){ 
-        	reloadCptcha();
+
+        if (isCaptchaEnabled == 1) {
+            reloadCptcha();
         }
+
         form.ready.then(() => {
-        	let buttonElement = '<div class="row"><div class="col-12"><div class="text-end"><div class="btn-group dropup custom-grp-btn"><span id="savedAction"><button type="button" id="saveAndReturn" class="btn btn-primary" >Save & Return</button></span><span id="actionDropdownBtn"  data-bs-toggle="dropdown" aria-expanded="false" type="button" class="caret-icon btn btn-primary dropdown-toggle panel-collapsed" ></span><div class="dropdown-menu action-cls"  id="actionDiv"><ul class="dropdownmenu"><li id="saveAndCreateNew" >Save & Create New</li><li id="saveAndEdit" >Save & Edit</li></ul></div></div><span ><input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button"></span></div></div></div>';
+            $(".jqFmioFileUploadImg").hide();
+
+            if (isEdit !== "1") {
+                const observer = new MutationObserver(() => {
+                    const $uploadElems =
+                        $(".fileuploadmaster.dropzone.dz-clickable");
+
+                    if ($uploadElems.length) {
+                        $uploadElems.closest(".formio-component").hide();
+                        if (window.dropzoneElement) {
+                            window.dropzoneElement.disable();
+                        }
+                        observer.disconnect();
+                    }
+                });
+
+                observer.observe(
+                    document.getElementById("formioBody"),
+                    { childList: true, subtree: true }
+                );
+            } else {
+                $(".fileuploadmaster.dropzone.dz-clickable").show();
+                if (window.dropzoneElement) {
+                    window.dropzoneElement.enable();
+                }
+            }
+
+            let buttonElement =
+                '<div class="row">' +
+                    '<div class="col-12">' +
+                        '<div class="text-end">' +
+                            '<div class="btn-group dropup custom-grp-btn">' +
+                                '<span id="savedAction">' +
+                                    '<button type="button" id="saveAndReturn" ' +
+                                        'class="btn btn-primary">Save & Return</button>' +
+                                '</span>' +
+                                '<span id="actionDropdownBtn" ' +
+                                      'data-bs-toggle="dropdown" ' +
+                                      'aria-expanded="false" ' +
+                                      'class="caret-icon btn btn-primary dropdown-toggle"></span>' +
+                                '<div class="dropdown-menu action-cls" id="actionDiv">' +
+                                    '<ul class="dropdownmenu">' +
+                                        '<li id="saveAndCreateNew">Save & Create New</li>' +
+                                        '<li id="saveAndEdit">Save & Edit</li>' +
+                                    '</ul>' +
+                                '</div>' +
+                            '</div>' +
+                            '<span>' +
+                                '<input id="backBtn" class="btn btn-secondary spacingclss" ' +
+                                       'value="Cancel" type="button">' +
+                            '</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+
             $("#jqFmioSaveButton").html(buttonElement);
 
-             const actionDropdownBtn = document.getElementById("actionDropdownBtn");	
-                const backBtn = document.getElementById("backBtn");
-                const toggleBooleanChkBox = document.getElementById("toggleBooleanChkBox");
-                
-                actionDropdownBtn.addEventListener("click", function (event) {
-                    actionOptions();
-                });
-                
-                backBtn.addEventListener("click", function (event) {
-                    backToPreviousPage();
-                });
-                Object.keys(saveFunctionMap).forEach(actionId => {
-                const $el = $('#' + actionId);
+            document
+                .getElementById("actionDropdownBtn")
+                .addEventListener("click", actionOptions);
+
+            document
+                .getElementById("backBtn")
+                .addEventListener("click", backToPreviousPage);
+
+            Object.keys(saveFunctionMap).forEach(actionId => {
+                const $el = $("#" + actionId);
                 if ($el.length) {
                     $el.on("click", () => {
                         onSaveButtonClick(saveFunctionMap[actionId], isEdit);
                     });
                 }
             });
+
             changeDefaultAction();
-	        hideShowActionButtons();
+            hideShowActionButtons();
+
+            form.on("change", deduplicateFileUploadUI);
+
+            $(".form-check-input").change(function () {
+                if ($(this).attr("type") === "checkbox") {
+                    let id = this.name
+                        .replace(/[^a-z0-9\s]/gi, "")
+                        .replace(/[_\s]/g, "-");
+
+                    $("#hidden-" + id).remove();
+
+                    if (!this.checked) {
+                        $(this).after(
+                            '<input id="hidden-' + id + '" ' +
+                            'name="' + this.name + '" type="hidden" value="0"/>'
+                        );
+                    } else {
+                        this.value = 1;
+                    }
+                }
+            });
         });
     });
-   
-   function onValidation(a_serializedFormData){
-   		const rawFormData = a_serializedFormData.get('formData');
+
+    function onValidation(a_serializedFormData) {
+        const rawFormData = a_serializedFormData.get("formData");
         let parsedFormData;
+
         try {
-            parsedFormData = JSON.parse(rawFormData); 
-        } catch (exec) {
+            parsedFormData = JSON.parse(rawFormData);
+        } catch (e) {
             showMessage("Invalid JSON in formData", "error");
             return false;
-        }	       
-        let fieldList = ${(fieldList)!''}        
+        }
+
+        let fieldList = ${(fieldList)!''};
+
         for (let field of parsedFormData) {
-	        let fieldName = field.name;
-	        let fieldValue = field.value ?? '';     
-	        let match = fieldName.match(/^data\[(.+)\]$/);
-            let baseName = match ? match[1] : fieldName; 
-            let fieldConfig = fieldList.find(f => f.fieldName === baseName);                     
-            if (fieldConfig) {                       
-                let pattern =  fieldConfig.regexPattern;
-                let regex = new RegExp(pattern);
-                if (regex.test(fieldValue) == false) {
-                   var errorMessage = "Invalid value";
-                   let labelText = $("input[name='data["+baseName+"]']")
-	                .closest("[ref='component']")
-	                .find("label[ref='label']")
-	                .text()
-	                .trim();
-					if(labelText != ''){
-						errorMessage = errorMessage +" for "+labelText;
-					}
-	                showMessage(errorMessage, "warn");
-                    $('[name="data[' + baseName + ']"]').focus();
-                    $('[name="data[' + baseName + ']"]').effect("highlight", {}, 3000);
-                    return null;
-                }                    
+            let fieldName = field.name;
+            let fieldValue = field.value ?? "";
+
+            if (!fieldName) continue;
+
+            let match = fieldName.match(/^data\[(.+)\]$/);
+            let baseName = match ? match[1] : fieldName;
+
+            let fieldConfig = fieldList.find(f => f.fieldName === baseName);
+            if (!fieldConfig) continue;
+
+            let regex = new RegExp(fieldConfig.regexPattern);
+            if (!regex.test(fieldValue)) {
+                let labelText = $("input[name='data[" + baseName + "]']")
+                    .closest("[ref='component']")
+                    .find("label[ref='label']")
+                    .text()
+                    .trim();
+
+                let errorMessage =
+                    "Invalid value" + (labelText ? " for " + labelText : "");
+
+                showMessage(errorMessage, "warn");
+                $("[name='data[" + baseName + "]']").focus().effect("highlight", {}, 3000);
+                return null;
             }
-	    }	    
-		return a_serializedFormData;
-	}
-	    	
-    function onError(message, exception){   
-		showMessage(message, "error");
-	}
-	
-    function onSuccess(a_serverResponse){
-     
-	}
-	
-	//Code go back to previous page
-	function backToPreviousPage() {
-		<#if moduleURL?? && moduleURL?has_content>
-			location.href = contextPath+viewPath+"/${(moduleURL)!''}";
-		<#else>
-			location.href = contextPath+"/cf/home";
-		</#if>
-	}
-       
-	</script>
+        }
+
+        return a_serializedFormData;
+    }
+
+    function onError(message) {
+        showMessage(message, "error");
+    }
+
+    function onSuccess(a_serverResponse) {}
+
+    function backToPreviousPage() {
+        <#if moduleURL?? && moduleURL?has_content>
+            location.href = contextPath + viewPath + "/${(moduleURL)!''}";
+        <#else>
+            location.href = contextPath + "/cf/home";
+        </#if>
+    }
+</script>
 </html>

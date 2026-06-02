@@ -77,6 +77,11 @@ public class DynamicFormController {
 		logger.debug("Inside DynamicFormController.saveDynamicForm(formData: {})", formData.getFirst("formId"));
 		try {
 			return dynamicFormService.saveDynamicForm(formData,httpServletResponse);
+		} catch (CustomStopException cstExcp) { 
+			logger.error("Custom Stop Exception occured while saving dynamic form (formId: {})", formData.getFirst("formId"), cstExcp);
+			fileUtilities.customSendError(httpServletResponse, HttpStatus.PRECONDITION_FAILED.value(),
+					cstExcp.getMessage());
+			return null;
 		} catch (Exception exception) {
 			logger.error("Error occured while saving dynamic form (formId: {})", formData.getFirst("formId"), exception);
 			if(exception.getMessage().equalsIgnoreCase(HttpStatus.PRECONDITION_FAILED.toString()))
@@ -85,9 +90,12 @@ public class DynamicFormController {
 				return null;
 			}
 			else if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				logger.error("Error occured while saving dynamic form ", HttpStatus.FORBIDDEN.value(),
+						exception.getMessage());
 				return null;
 			}
-			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(),exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse, HttpStatus.INTERNAL_SERVER_ERROR.value(),
+					exception.getMessage());
 			return null;
 		}
 	}

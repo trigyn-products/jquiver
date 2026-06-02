@@ -83,7 +83,8 @@ public final class Constants {
 		contain("like"),
 		dnc("not like"),
 		sw("like"),
-		ew("like");
+		ew("like"),
+		btw("between");
 		
 		final String operation;
 		
@@ -96,7 +97,7 @@ public final class Constants {
 		}
 
 	
-		}
+	}
 
 	private static Map<String, String> LIMIT_CLAUSE_MAP = new HashMap<String, String>();
 

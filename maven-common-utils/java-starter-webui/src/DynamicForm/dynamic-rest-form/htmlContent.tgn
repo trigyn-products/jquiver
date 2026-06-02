@@ -87,6 +87,9 @@
 		<input type="hidden" id="dynarestId" name="dynarestId"/>
         <input type="hidden" id="hidedaoquery" name="hidedaoquery" value="${(restData.hide_dao_query)!""}"/>
         <input type="hidden" id="createdDate" name="createdDate" value="${(restData.created_date)!""}" />
+        <input type="hidden" id="createdby" name="createdby" value="${(restData.created_by)!""}" />
+        <input type="hidden" id="updatedby" name="updatedby" value="${(restData.last_updated_by)!""}" />
+         <input type="hidden" id="updatedDate" name="updatedDate" value="${(restData.last_updated_ts)!""}" />
          
 		<div class="row">
 			<div class="col-6">
@@ -312,8 +315,13 @@
     	</div>
     </div>  
     <div class="row">
-		<div class="col-12">
-			<div class="text-end">
+		<div class="d-flex justify-content-end align-items-center gap-2">
+            <#if resultSetObject.restData?? && resultSetObject.restData[0]?has_content && restData.jws_dynamic_rest_type_id != 2>
+                <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_dynamic_rest_details')">Create/Link Module</button>
+            <#else>
+                <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_dynamic_rest_details')">Create/Link</button>
+            </#if>
+			<!-- <div class="text-end"> -->
 				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('dynamic-rest-form', this, $('#isEdit').val(),dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
@@ -329,14 +337,17 @@
 				<span onclick="dynarest.backToDynarestListingPage();">
 					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 				</span> 
-			</div>
+			<!-- </div> -->
 		</div>
 	</div>
-	 <div id="dialogTitle" style="display:none;"></div>
-        <div id="btnDelete" style="display:none;"></div>
-        <div id="btnCancel" style="display:none;"></div>
-        <div id="scriptDetails" style="display:none;"></div>
-	    <div id="addEditDialog" class="addEditDialogclass"></div>
+    <div id="dialogTitle" style="display:none;"></div>
+    <div id="btnDelete" style="display:none;"></div>
+    <div id="btnCancel" style="display:none;"></div>
+    <div id="scriptDetails" style="display:none;"></div>
+    <div id="addEditDialog" class="addEditDialogclass"></div>
+	<div id="moduleAutocomplete">
+      <@templateWithoutParams "common-modal-template"/>
+    </div>    
     </div> 
 </div>
 <script type="text/javascript">
@@ -350,6 +361,11 @@
     var scriptDelArray = [];
     var deleteIdArray = new Array();
     var scriptMultiselect;
+    let moduleIdList = [];
+    let deleteModuleIdList = [];
+    let newAddedModuleIdList = [];
+    let existingModuleIdList = [];
+    let allModuleList = [];
     var jsonObj ="";
     <#if resultSetObject.scriptMultiData?has_content >
         jsonObj = JSON.stringify(${(resultSetObject.scriptMultiData)});
@@ -825,7 +841,14 @@
                 $("#dynarestSecured").val(isSecured);  
                
 				$("#isEdit").val(1);
-                 
+                
+                getModuleNames($("#dynarestId").val(),$("#moduleId").val());
+                
+                /** Added for resetting the values of BusinessModule Dialog after save and edit. **/
+			    document.getElementById("saveAndEdit").addEventListener("click", function () {
+			        resetBusModuleModal();
+			    });
+       
                 </#outputformat>    
 	            let jsonStr = '${(resultSetObject.restData[0].jws_header_json)!''}';
 	          	if(jsonStr !== ''){
@@ -895,7 +918,6 @@
             document.getElementById("hidedaoquery").value = 1;
          }   
         /**Ends here*/
-          
 	</#if>
 	
 	createHeaderResponseTable();
@@ -918,7 +940,7 @@
 	    collapsible: true,
 	    active: false
 	});
-	
+
   });
   
   function addRow(key, value){
@@ -962,20 +984,25 @@
 		position: {
 			my: "center", at: "center"
 		},
-		buttons : [{
-				text		:"Cancel",
-				click	: function() { 
-					$(this).dialog('close');
-				},
-			},
-			{
-				text		: "Delete",
+		buttons : [
+		{
+				text   : "${messageSource.getMessage('jws.deleteBtnText')}",
+				"class": 'btn btn-primary',
 				click	: function(){
 					$(this).dialog('close');
 					let rowId = $(rowElement).attr('id').split("_")[1];
 					$('#'+rowId).remove();
 				}
-           	},
+         },
+		
+		{
+				text	:"${messageSource.getMessage('jws.cancel')}",
+				"class" : 'btn btn-secondary',
+				click	: function() { 
+					$(this).dialog('close');
+				},
+		}
+			
        ],	
 	   open: function( event, ui ) {
 			 $('.ui-dialog-titlebar')
@@ -1077,7 +1104,6 @@
         }
 
         function openFormDialog(dialogDiv, data, title) {
-       
             $("#" + dialogDiv).html("");
             $("#" + dialogDiv).html(data);
             $("#" + dialogDiv).dialog({
@@ -1135,5 +1161,33 @@
         document.execCommand("copy");
         document.body.removeChild(tempTextarea);
         showMessage("Data copied", "success");
+    }
+
+      function saveModDetails(isEdit,entityId){
+        var busmoduleName = $("#busmoduleName").val();
+		var cmvEntityName = document.getElementById("cmvEntityName").value;        
+        if(checkExistingBusinessModuleName(busmoduleName) == true){
+            showMessage("Module Name already exists","warn");
+            $("#busmoduleName").val("");
+            return false;
+        }
+        var isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked;  
+        if (existingModuleIdList.includes(busmoduleName)) {
+            showMessage("Module Name already exists for this entity.", "info");
+            return false;
+        }
+        if(busmoduleName != "" || moduleIdList.length > 0 || deleteModuleIdList.length > 0){
+            saveModuleDetails(busmoduleName,entityId,$("#moduleId").val(),isEdit,moduleIdList,deleteModuleIdList,isShowCreateLinkChkBox,cmvEntityName);
+        }
+        return true;
+    }
+
+    function onValidation(a_serializedFormData){
+        /**Method called on click of save button for BusinessModule*/
+        if(saveModDetails(isEdit,$("#dynarestId").val()) == true)
+        {
+            return a_serializedFormData;
+	    }
+         
     }
 </script>

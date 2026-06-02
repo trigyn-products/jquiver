@@ -118,7 +118,7 @@ public class TemplateCrudController {
 				templateDetails.setTemplate("");
 				vmTemplateData.put("templateDetails", templateDetails);
 				String templateName = templateDetails.getTemplateName();
-				Integer typeSelect = templateDetails.getTemplateType();
+				Integer typeSelect = templateDetails.getTemplateTypeId();
 				/* Method called for implementing Activity Log */
 				logActivity(templateName, typeSelect);
 				vmTemplateData.put("environment", environment);
@@ -127,15 +127,7 @@ public class TemplateCrudController {
 			String contextSuggestions = IMonacoSuggestion.getTemplateSuggestion();
 			vmTemplateData.put("suggestions", contextSuggestions);
 
-
-			if (environment.equalsIgnoreCase("dev") && !StringUtils.isBlank(templateId)){
-				vmErrorData.put("statusCode", HttpStatus.RESET_CONTENT.value());
-				vmErrorData.put("errorMessage",
-						"The request was successful. Accessing template in DEV mode is restricted.");
-				return menuService.getTemplateWithSiteLayout("error-page", vmErrorData);
-			} else {
-				return menuService.getTemplateWithSiteLayout("template-manage-details", vmTemplateData);
-			}
+			return menuService.getTemplateWithSiteLayout("template-manage-details", vmTemplateData);
 
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured while loading Templating page.", custStopException);

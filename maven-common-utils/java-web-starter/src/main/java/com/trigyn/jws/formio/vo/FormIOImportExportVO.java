@@ -30,6 +30,10 @@ public class FormIOImportExportVO {
 	private String	lastUpdatedBy	= null;
 
 	private Date	lastUpdatedTs	= null;
+	
+    private Integer	multiSubmit	= null;
+	
+	private String	routeName	= null;
 
 	public String getFormIoId() {
 		return this.formIoId;
@@ -127,4 +131,21 @@ public class FormIOImportExportVO {
 		this.persistenceType = persistenceType;
 	}
 
+	public Integer getMultiSubmit() {
+		return multiSubmit;
+	}
+
+	public void setMultiSubmit(Integer multiSubmit) {
+		this.multiSubmit = multiSubmit;
+	}
+
+	public String getRouteName() {
+		return routeName;
+	}
+
+	public void setRouteName(String routeName) {
+		this.routeName = routeName;
+	}
+
+	
 }

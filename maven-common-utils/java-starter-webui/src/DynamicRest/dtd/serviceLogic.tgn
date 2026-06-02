@@ -1,0 +1,17 @@
+var HashMap = Java.type("java.util.HashMap");
+var System = Java.type("java.lang.System");
+
+function deleteTagDetails() {
+    var tagId = requestDetails.tagId;
+
+    var map = new HashMap();
+    map.put("tagId", tagId);
+
+    var deleteEnityQuery = "DELETE FROM jq_tag_entity_details WHERE tag_id = :tagId";
+    jq_updateDBQuery(deleteEnityQuery, null, map);
+
+    var deleteParentQuery = "DELETE FROM jq_tag_data WHERE tag_id = :tagId";
+    jq_updateDBQuery(deleteParentQuery, null, map);
+}
+
+deleteTagDetails();

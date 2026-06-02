@@ -11,6 +11,8 @@
 	<div class="topband">
 		<h2 class="title-cls-name ">${messageSource.getMessage('jws.applicationConfiguration')}</h2> 
 		<div class="topactionbuttons">
+		     <button type='button' onclick="downloadVsConfig();" class="spacingclss btn btn-primary" title="Download VS Config"> Download VS Config                 
+              </button>
 			 <form id="addEditMailConfiguration" action="${(contextPath)!''}/cf/df" method="post" style="margin:0px">
               <div class="addonbtnblock">
                 <input type="hidden" name="formId" value="193d770c-1217-11eb-980f-802bf9ae2eda"/>
@@ -145,5 +147,13 @@
     function formatLastUpdatedDate(uiObject){
         const lastUpdatedTs = uiObject.rowData.lastModifiedDate;
         return formatDate(lastUpdatedTs);
+    }
+    
+    function downloadVsConfig(){
+        var form = document.createElement("form");
+                form.method = "POST";
+                form.action = "${contextPath!''}" + apiPath + "/dvsc";
+                document.body.appendChild(form);
+                form.submit();
     }
 </script>

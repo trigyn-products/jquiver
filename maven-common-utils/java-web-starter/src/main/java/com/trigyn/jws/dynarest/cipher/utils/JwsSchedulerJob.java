@@ -100,7 +100,9 @@ public class JwsSchedulerJob implements Job {
 				Map<String, String>		headerMap				= g.fromJson(jqScheduler.getHeaderJson().toString(),
 						Map.class);
 				
-				baseURL	= jobService.getBaseUrl();
+				//baseURL	= jobService.getBaseUrl();    commented to check url issue with apache server
+				baseURL = "http://localhost:"+jQuiverPropeties.getServerPort() ;
+				
 				StringBuilder			fullRestApiUrl			= new StringBuilder().append(baseURL);
 				 
 				JwsDynamicRestDetail	jwsDynamicRestDetail	= jwsDynarestDAO

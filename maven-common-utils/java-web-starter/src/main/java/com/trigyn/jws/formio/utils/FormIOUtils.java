@@ -25,12 +25,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.trigyn.jws.dbutils.service.ApplicationContextProvider;
 import com.trigyn.jws.dynamicform.dao.DynamicFormDAO;
+import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.formio.entities.FormIO;
 import com.trigyn.jws.formio.vo.FormIOLogicAction;
 import com.trigyn.jws.formio.vo.FormIOVO;
 import com.trigyn.jws.formio.vo.Trigger;
 import com.trigyn.jws.resourcebundle.dao.ResourceBundleDAO;
-import com.trigyn.jws.resourcebundle.repository.interfaces.IResourceBundleRepository;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,9 +41,6 @@ public class FormIOUtils {
 
 	private DynamicFormDAO dynamicFormDAO = ApplicationContextProvider.getBean(DynamicFormDAO.class);
 
-	private IResourceBundleRepository iResourceBundleRepository = ApplicationContextProvider
-			.getBean(IResourceBundleRepository.class);
-	
 	private ResourceBundleDAO	resourceBundleDAO	= ApplicationContextProvider
 			.getBean(ResourceBundleDAO.class);
 
@@ -66,7 +63,20 @@ public class FormIOUtils {
 		}
 		return null;
 	}
+	
+	public Object getFormMetaDataById(String formIoId) throws Exception {
+		FormIO form = (FormIO) dynamicFormDAO.getFormIoMetaDataById(formIoId);
 
+		if (form != null && form.getFormIoJson() != null) {
+			String formJsonMetaData = form.getFormIoJson();
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode jsonNode = objectMapper.readTree(formJsonMetaData);
+			String modJson = jsonNode.toString();
+			return modJson;
+		}
+		return null;
+	}
+	
 	public void updateLabelMap(JsonNode node, Map<String, String> labelMap) {
 		if (node.isObject()) {
 			node.fields().forEachRemaining(entry -> {
@@ -80,32 +90,58 @@ public class FormIOUtils {
 		} else if (node.isArray()) {
 			node.elements().forEachRemaining(element -> updateLabelMap(element, labelMap));
 		} else {
-			// System.out.println("Value: " + node);
+			// logger.info("Value: " + node);
 		}
 	}
 
-	public static void updateLabelJsonNode(JsonNode node, Map keyMap) {
-		if (node.isObject()) {
-			node.fields().forEachRemaining(entry -> {
-				String val = entry.getValue().toString();
-				if (entry.getValue() != null) {
-					String result = entry.getValue().toString().replaceAll("\"", "");
-					;
-					if (result != null && keyMap.get(result) != null) {
-						String keyMapKey = (String) keyMap.get(result);
-						if (keyMapKey != null) {
-							((ObjectNode) node).put("label", keyMapKey);
-						}
-					}
+	public static void updateLabelJsonNode(JsonNode node, Map<String, String> keyMap) {
+		if (node.isObject()) { // checks whether node is a json Object
+			Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
 
+			while (fields.hasNext()) { // Loop through each field in the JSON object
+				Map.Entry<String, JsonNode>	entry		= fields.next();
+				String						fieldName	= entry.getKey();
+				JsonNode					value		= entry.getValue();
+
+				// Only update "label" if:
+				// 1. The parent is a component (has a "key")
+				// 2. Not inside a "data.values" structure
+				if ("label".equals(fieldName) && value != null && value.isTextual() && node.has("key") // Ensure it's a
+																										// component
+						&& isInsideValuesArray(node) == false) {
+
+					String	oldLabel	= value.asText();		// Gets the current label text
+					String	newLabel	= keyMap.get(oldLabel);	// Looks up the corresponding new label in keyMap.
+
+					if (newLabel != null) {
+						((ObjectNode) node).put("label", newLabel);// If a new label is found, updates the "label" in
+																	// the JSON.
+					}
 				}
-				updateLabelJsonNode(entry.getValue(), keyMap);
-			});
-		} else if (node.isArray()) {
-			node.elements().forEachRemaining(element -> updateLabelJsonNode(element, keyMap));
-		} else {
-			// System.out.println("Value: " + node);
+
+				// Recurse
+				updateLabelJsonNode(value, keyMap);// This ensures deep traversal through the entire JSON tree.
+			}
+
+		} else if (node.isArray()) { // If the current node is an array
+			for (JsonNode element : node) {
+				updateLabelJsonNode(element, keyMap); // If the node is an array (like "components": [ {...}, {...} ]),
+														// apply the same recursive logic for each item.
+			}
 		}
+	}
+
+	// Utility: Check if the node is inside "data.values"
+	private static boolean isInsideValuesArray(JsonNode node) {
+		JsonNode parent = node;
+		while (parent != null) {
+			if (parent.has("dataSrc") && "values".equals(parent.get("dataSrc").asText())) {
+				return true;
+			}
+			parent = parent.get("parent"); // This line is symbolic: Jackson nodes don't track parents
+			break; // Stop here since we can't actually go up
+		}
+		return false;
 	}
 
 	public static Cookie getCookie(HttpServletRequest req, String name) {
@@ -193,7 +229,7 @@ public class FormIOUtils {
 		FormIO formIO = new FormIO();
 		formIO.setFormIoId(formIoVo.getFormIoId());
 		formIO.setCreatedBy(formIoVo.getCreatedBy());
-		// formIO.setCreatedDate(formIoVo.getCreatedDate());
+		formIO.setCreatedDate(formIoVo.getCreatedDate());
 		formIO.setFormDescription(formIoVo.getFormDescription());
 		formIO.setFormIoChecksum(formIoVo.getFormIoChecksum());
 		formIO.setFormIoJson(formIoVo.getFormIoJson());
@@ -201,8 +237,31 @@ public class FormIOUtils {
 		formIO.setFormName(formIoVo.getFormName());
 		formIO.setIsCustomUpdated(formIoVo.getIsCustomUpdated());
 		formIO.setLastUpdatedBy(formIoVo.getLastUpdatedBy());
+		formIO.setMultiSubmit(formIoVo.getMultiSubmit());
+		formIO.setRouteName(formIoVo.getRouteName());
+		formIO.setPersistenceType(formIoVo.getPersistenceType());
 		// formIO.setLastUpdatedTs(formIoVo.getLastUpdatedTs());
 		return formIO;
+	}
+	
+	
+	public static FormIOVO convertToFormIoVO(FormIO formIo) {
+		FormIOVO formIOVo = new FormIOVO();
+		formIOVo.setFormIoId(formIo.getFormIoId());
+		formIOVo.setCreatedBy(formIo.getCreatedBy());
+		formIOVo.setCreatedDate(formIo.getCreatedDate());
+		formIOVo.setFormDescription(formIo.getFormDescription());
+		formIOVo.setFormIoChecksum(formIo.getFormIoChecksum());
+		formIOVo.setFormIoJson(formIo.getFormIoJson());
+		formIOVo.setFormIoType(formIo.getFormIoType());
+		formIOVo.setFormName(formIo.getFormName());
+		formIOVo.setIsCustomUpdated(formIo.getIsCustomUpdated());
+		formIOVo.setLastUpdatedBy(formIo.getLastUpdatedBy());
+		formIOVo.setMultiSubmit(formIo.getMultiSubmit());
+		formIOVo.setRouteName(formIo.getRouteName());
+		formIOVo.setPersistenceType(formIo.getPersistenceType());
+		formIOVo.setLastUpdatedTs(formIo.getLastUpdatedTs());
+		return formIOVo;
 	}
 
 	public static void checkJsonNodeExist(JsonNode root, String key, Map<String, Object> additionalParams) {
@@ -229,94 +288,91 @@ public class FormIOUtils {
 
 	public void updateJsonNode(JsonNode node, String replaceType) {
 		try {
-			if (node != null && node.fields() != null && node.isObject()) {
-				if (node.has("type")) {
-					if (node.has("fileBinType")
-							&& node.get("type").toString().replaceAll("\"", "").equalsIgnoreCase("filebincomponent")) {
-						String fileBinType = node.get("fileBinType").toString().replaceAll("\"", "");
-						String contextPath = request.getContextPath();
-						String defaultJsContent = Constants.FILE_BIN_JS_CONTENT;
-						List<FormIOLogicAction> fios = new ArrayList<FormIOLogicAction>();
-						FormIOLogicAction fio = new FormIOLogicAction();
-						fio.setName(fileBinType);
-						Trigger trigger = new Trigger();
-						trigger.setType("javascript");
-						String replaceString = defaultJsContent.replaceAll("yourFileBinId", fileBinType);
-						String contextReplaceString = replaceString.replaceAll("yourContextPath", contextPath);
-						trigger.setJavascript(contextReplaceString);
-						fio.setTrigger(trigger);
-						fios.add(fio);
-						((ObjectNode) node).putPOJO("logic", fios);
+			if (node == null)
+				return;
+
+			if (node.isObject()) {
+				ObjectNode objNode = (ObjectNode) node;
+
+				if (objNode.has("type")) {
+					String type = objNode.get("type").asText();
+
+					String contextPath = request.getContextPath();
+
+					if ("filebincomponent".equalsIgnoreCase(type) && objNode.has("fileBinType")) {
+						String fileBinType = objNode.get("fileBinType").asText();
+						List<FormIOLogicAction> logic = injectLogic(fileBinType, Constants.FILE_BIN_JS_CONTENT,
+								"yourFileBinId", fileBinType, contextPath);
+						objNode.putPOJO("logic", logic);
+
+					} else if ("gridutilscomponent".equalsIgnoreCase(type) && objNode.has("gridUtilsType")) {
+						String gridUtilsType = objNode.get("gridUtilsType").asText();
+						if (objNode.has("content")) {
+							String updatedContent = objNode.get("content").asText().replace("yourGridId",
+									gridUtilsType);
+							ObjectMapper mapper = new ObjectMapper();
+							JsonNode contentNode = mapper.readTree(updatedContent);
+							objNode.set("content", contentNode);
+						}
+
+						List<FormIOLogicAction> logic = injectLogic(gridUtilsType, Constants.GRID_UTILS_JS_CONTENT,
+								"yourGridId", gridUtilsType, contextPath);
+						objNode.putPOJO("logic", logic);
+
+					} else if ("typeautocompletecomponent".equalsIgnoreCase(type) && objNode.has("typeautotype")) {
+						String autoCompId = objNode.get("typeautotype").asText();
+						if (objNode.has("content")) {
+						        String content = objNode.get("content").asText();
+						        String updatedContent = content.replaceAll("autocompleteId", autoCompId);
+						        objNode.put("content", updatedContent);							
+
+						}
+
+						List<FormIOLogicAction> logic = injectLogic(autoCompId,
+								Constants.TYPEAHEADAUTOCOMPLETE_UTILS_JS_CONTENT, "autoCompId", autoCompId,
+								contextPath);
 					}
-					if (node.has("gridUtilsType") && node.get("type").toString().replaceAll("\"", "")
-							.equalsIgnoreCase("gridutilscomponent")) {
-						String gridUtilsType = node.get("gridUtilsType").toString().replaceAll("\"", "");
-
-						String contentReplaceString = node.get("content").toString().replaceAll("yourGridId",
-								gridUtilsType);
-						ObjectMapper mapper = new ObjectMapper();
-
-						JsonNode contentNode = mapper.readTree(contentReplaceString);
-						((ObjectNode) node).put("content", contentNode);
-
-						String defaultJsContent = Constants.GRID_UTILS_JS_CONTENT;
-						List<FormIOLogicAction> fios = new ArrayList<FormIOLogicAction>();
-						FormIOLogicAction fio = new FormIOLogicAction();
-						fio.setName(gridUtilsType);
-						Trigger trigger = new Trigger();
-						trigger.setType("javascript");
-						String gridReplaceString = defaultJsContent.replaceAll("yourGridId", gridUtilsType);
-						String contextPath = request.getContextPath();
-						String contextPathReplaceString = gridReplaceString.replaceAll("yourContextPath", contextPath);
-						trigger.setJavascript(contextPathReplaceString);
-						fio.setTrigger(trigger);
-						fios.add(fio);
-						((ObjectNode) node).putPOJO("logic", fios);
-					}
-					// typeautocompletecomponent
-					if (node.has("typeautotype") && node.get("type").toString().replaceAll("\"", "")
-							.equalsIgnoreCase("typeautocompletecomponent")) {
-						String autocompleteId = node.get("typeautotype").toString().replaceAll("\"", "");
-
-						String contentReplaceString = node.get("content").toString().replaceAll("autocompleteId",
-								autocompleteId);
-						ObjectMapper mapper = new ObjectMapper();
-
-						JsonNode contentNode = mapper.readTree(contentReplaceString);
-						((ObjectNode) node).put("content", contentNode);
-
-						String defaultJsContent = Constants.TYPEAHEADAUTOCOMPLETE_UTILS_JS_CONTENT;
-						List<FormIOLogicAction> fios = new ArrayList<FormIOLogicAction>();
-						FormIOLogicAction fio = new FormIOLogicAction();
-						fio.setName(autocompleteId);
-						Trigger trigger = new Trigger();
-						trigger.setType("javascript");
-						String gridReplaceString = defaultJsContent.replaceAll("autoCompId", autocompleteId);
-						String contextPath = request.getContextPath();
-						String contextPathReplaceString = gridReplaceString.replaceAll("yourContextPath", contextPath);
-						trigger.setJavascript(contextPathReplaceString);
-						fio.setTrigger(trigger);
-						fios.add(fio);
-						((ObjectNode) node).putPOJO("logic", fios);
-					}
-
-				} else {
-					node.fields().forEachRemaining(entry -> {
-						updateJsonNode(entry.getValue(), replaceType);
-					});
 				}
+
+				// Recursively check all object fields
+				Iterator<Map.Entry<String, JsonNode>> fields = objNode.fields();
+				while (fields.hasNext()) {
+					Map.Entry<String, JsonNode> entry = fields.next();
+					updateJsonNode(entry.getValue(), replaceType);
+				}
+
 			} else if (node.isArray()) {
-				node.elements().forEachRemaining(element -> updateJsonNode(element, replaceType));
-			} else {
-				// System.out.println("Value: " + node);
+				for (JsonNode arrayElement : node) {
+					updateJsonNode(arrayElement, replaceType);
+				}
 			}
-		} catch (JsonMappingException jme) {
-			logger.error("Error occured while Update JsonNode)", jme);
-			throw new RuntimeException(jme.getMessage());
-		} catch (JsonProcessingException jpe) {
-			logger.error("Error occured while Update JsonNode)", jpe);
-			throw new RuntimeException(jpe.getMessage());
+
+		} catch (JsonProcessingException ex) {
+			logger.error("Error while updating JSON node", ex);
+			throw new RuntimeException("Error processing JSON: " + ex.getMessage(), ex);
 		}
+	}
+	
+	public List<FormIOLogicAction> injectLogic(String name, String jsTemplate, String placeholderKey, String idValue, String contextPath) {
+	    String script = jsTemplate
+	        .replace(placeholderKey, idValue)
+	        .replace("yourContextPath", contextPath);
+
+	    Trigger trigger = new Trigger();
+	    trigger.setType("javascript");
+	    trigger.setJavascript(script);
+
+	    FormIOLogicAction logicAction = new FormIOLogicAction();
+	    logicAction.setName(name);
+	    logicAction.setTrigger(trigger);
+	    
+		if (logicAction.getActions() == null) {
+			logicAction.setActions(new String[] {});
+		}
+
+	    List<FormIOLogicAction> actions = new ArrayList<>();
+	    actions.add(logicAction);
+	    return actions;
 	}
 
 	public static void updateKeyJsonNode(JsonNode node) {
@@ -330,7 +386,10 @@ public class FormIOUtils {
 							&& (result.equalsIgnoreCase("filebincomponent")
 									|| result.equalsIgnoreCase("gridutilscomponent")
 									|| result.equalsIgnoreCase("typeautocompletecomponent"))) {
-						((ObjectNode) node).put(key, "htmlelement");
+						if(result.equalsIgnoreCase("typeautocompletecomponent")) {
+							((ObjectNode) node).put(key, "typeautocompletecomponent");
+						}else {
+						((ObjectNode) node).put(key, "htmlelement");}
 					}
 				}
 				updateKeyJsonNode(entry.getValue());
@@ -338,7 +397,7 @@ public class FormIOUtils {
 		} else if (node.isArray()) {
 			node.elements().forEachRemaining(element -> updateKeyJsonNode(element));
 		} else {
-			// System.out.println("Value: " + node);
+			// logger.info("Value: " + node);
 		}
 	}
 
@@ -354,6 +413,9 @@ public class FormIOUtils {
 		String pgNullIntCast = String.format("COALESCE(NULLIF(%s::text, '')::int, NULL)", columnName);
 		String pgNullDecimalCast = String.format("COALESCE(NULLIF(%s::text, '')::numeric, NULL)", columnName);
 		String pgNullBoolCast = String.format("COALESCE(NULLIF(%s::text, '')::boolean, NULL)", columnName);
+		String 	pgNullJsonCast 		= String.format("COALESCE(NULLIF(%s::text, '')::json, NULL)", columnName);
+		String 	pgNullXmlCast 		= String.format("COALESCE(NULLIF(%s::text, '')::xml, NULL)", columnName);
+		String 	pgNullUuidCast 		= String.format("COALESCE(NULLIF(%s::text, '')::uuid, NULL)", columnName);
 
 		boolean isPostgres = dbProductName.contains(com.trigyn.jws.dynamicform.utils.Constant.POSTGRESQL);
 		boolean isMSSQL = dbProductName.contains(com.trigyn.jws.dynamicform.utils.Constant.MSSQLSERVER);
@@ -368,7 +430,8 @@ public class FormIOUtils {
 			if (isPostgres) {
 				return pgNullBoolCast;
 			} else if (isMySQL) {
-				return String.format("CAST(NULLIF(%s, '') AS UNSIGNED)", columnName);
+				//return String.format("CAST(COALESCE(NULLIF(%s, ''), '0') AS UNSIGNED)", columnName);
+				return String.format("COALESCE(IF(TRIM(%s) = '', 0, CAST(%s AS UNSIGNED)), 0)", columnName, columnName);
 			} else if (isMSSQL) {
 				return String.format("CAST(%s AS bit)", nullSafeParam);
 			} else if (isOracle) {
@@ -376,18 +439,14 @@ public class FormIOUtils {
 			}
 
 		case "json":
-		case "jsonb":
-			return isPostgres
-					? String.format("CASE WHEN %s IS NULL OR %s = '' THEN NULL ELSE %s::json END", columnName,
-							columnName, columnName)
-					: columnName;
+			if (isPostgres) {
+				return pgNullJsonCast;
+			}
 		case "xml":
-			return isPostgres
-					? String.format("CASE WHEN %s IS NULL OR %s = '' THEN NULL ELSE xmlparse(document %s) END",
-							columnName, columnName, columnName)
-					: columnName;
+			if (isPostgres) {
+			return pgNullXmlCast;
+			}
 		case "time":
-		case "timetz":
 			if (isPostgres) {
 				return String.format("NULLIF(%s::text, '')::time", columnName);
 			} else if (isMySQL) {
@@ -395,9 +454,8 @@ public class FormIOUtils {
 				return String.format("STR_TO_DATE(%s, '%%H:%%i:%%s')", nullSafeParam);
 			}
 			break;
-		case "date":
 		case "datetime":
-		case "timestamp":
+		case "date":
 			if ("hidden".equalsIgnoreCase(dataType)) {
 				if (isMSSQL) {
 					return "GETDATE()";
@@ -420,39 +478,38 @@ public class FormIOUtils {
 			}
 			break;
 		case "int":
-		case "integer":
-		case "smallint":
-		case "tinyint":
-		case "bigint":
 			if (isPostgres) {
 				return pgNullIntCast;
 			} else if (isMySQL || isOracle) {
 				return String.format("COALESCE(NULLIF(TRIM(%s), ''), NULL)", columnName);
 			} else if (isMSSQL) {
-				Map<String, String> mssqlNumericCastTypes = Map.of("tinyint", "TINYINT", "smallint", "SMALLINT", "int",
-						"INT", "integer", "INT", "bigint", "BIGINT");
-				String castType = mssqlNumericCastTypes.getOrDefault(dataType.toLowerCase(), "INT");
-				return String.format("TRY_CAST(NULLIF(%s, '') AS %s)", columnName, castType);
-
+				return String.format("TRY_CAST(NULLIF(%s, '') AS INT)", columnName);
 			}
 			break;
 		case "decimal":
-		case "numeric":
-		case "float":
-		case "double":
 			if (isPostgres) {
 				return pgNullDecimalCast;
 			} else if (isMSSQL) {
-				Map<String, String> mssqlFloatTypes = Map.of("decimal", "DECIMAL(18,4)", "numeric", "NUMERIC(18,4)",
-						"float", "FLOAT", "real", "REAL", "double", "FLOAT");
-				String castType = mssqlFloatTypes.getOrDefault(dataType, "DECIMAL");
-				return String.format("TRY_CAST(NULLIF(%s, '') AS %s)", columnName, castType);
+				return String.format("TRY_CAST(NULLIF(%s, '') AS DECIMAL(18,4))", columnName);
+			} else if (isMySQL) {
+				return String.format("COALESCE(NULLIF(TRIM(%s), ''), NULL)", columnName);
 			}
 			break;
-
-		case "uniqueidentifier":
-			if (isMSSQL) {
+		case "uuid":
+			if (isPostgres) {
+				return pgNullUuidCast;
+			} else if (isMSSQL) {
+				return String.format("TRY_CAST(NULLIF(TRIM(%s), '') AS uuid)", columnName);
+			}
+			break;
+		case Constant.UNIQUEID:
+			if (isMSSQL || isPostgres) {
 				return String.format("TRY_CAST(NULLIF(TRIM(%s), '') AS UNIQUEIDENTIFIER)", columnName);
+			}
+			break;
+		case "tinyint":
+			if (isMySQL || isMSSQL) {
+				return String.format("COALESCE(NULLIF(TRIM(%s), ''), NULL)", columnName);
 			}
 			break;
 
@@ -462,7 +519,7 @@ public class FormIOUtils {
 		return columnName;
 
 	}
-
+	
 	public static String getCastExpressionForSelect(String columnName, String dataType, String dbProductName) {
 		String columnAlias = columnName + " AS " + columnName;
 		dataType = dataType.toLowerCase();

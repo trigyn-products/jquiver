@@ -6,8 +6,9 @@
 <script src="${(contextPath)!''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.css">
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/addEditGridDetails.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 </head>
@@ -122,6 +123,11 @@
     	<input type="hidden" id="primaryKey" name="primaryKey">
 		<input type="hidden" id="entityName" name="entityName" value="jq_grid_details">
 		<input type="hidden" id="isEdit" name="isEdit" value="0">
+		<input type="hidden" data-type="varchar" id="createdBy" name="createdBy"  value="${loggedInUserName!''}" >
+        <input type="hidden" data-type="timestamp" id="createdDate" name="createdDate" >   
+        <input type="hidden" data-type="varchar" id="lastUpdatedBy" name="lastUpdatedBy"  value="${loggedInUserName!''}" >
+		<input type="hidden" data-type="timestamp" id="lastUpdatedTs" name="lastUpdatedTs">
+        <input type="hidden" data-type="varchar" id="isCustomUpdated" name="isCustomUpdated"  value="1" >
 	</form>	
 	<div id="ftlParameterDiv" class="col-12">
                             <div class="collapse tipsdetailsblock" id="tipscolpase" style="margin-bottom :20px">
@@ -210,8 +216,9 @@
 	
 	<br>
 	<div class="row">
-		<div class="col-12">
-			<div class="text-end">
+		<div class="d-flex justify-content-end align-items-center gap-2">
+            <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_grid_details')">Create/Link Module</button>
+			<!-- <div class="text-end"> -->
 				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('grid-details-form', this, $('#isEdit').val(), saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
@@ -227,10 +234,12 @@
 				<span onclick="backToPreviousPage();">
 					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 				</span> 
-			</div>
+		
 		</div>
 	</div>
-
+        <div id="moduleAutocomplete">
+            <@templateWithoutParams "common-modal-template"/>
+        </div>
 </div>
 
 <script>
@@ -238,7 +247,12 @@
 	let formId = "${formId}";
 	//contextPath = "${contextPath}";
 	let oldGridId = "yourGridId";
-     var env = '${(environment)!""}';
+    var env = '${(environment)!""}';
+    let moduleIdList = [];
+    let deleteModuleIdList = [];
+    let newAddedModuleIdList = [];
+    let existingModuleIdList = [];
+    let allModuleList = [];
 	$(function() {
         $( ".txtWrapper i" ).click(function() {
             let elem = $(this).prev().get()[0];
@@ -276,6 +290,11 @@
       		isEdit = 1;
       		$("#isEdit").val(1);
       		getEntityRoles();
+            getModuleNames($("#gridId").val(),$("#moduleId").val());
+            /** Added for resetting the values of BusinessModule Dialog after save and edit. **/
+	        document.getElementById("saveAndEdit").addEventListener("click", function () {
+	            resetBusModuleModal();
+	        });
       	<#else>
       		let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
             multiselect.setSelectedObject(defaultAdminRole);
@@ -290,7 +309,7 @@
 		hideShowActionButtons();
      
 		$("a[href='#htmlContent']").click();
-      
+
 	});   
 
 	function validateFields(){
@@ -374,5 +393,25 @@
 		function updateOldVal(){ 
 			oldGridId = $("#gridId").val().trim();
 		}
+
+        function saveModDetails(isEdit,entityId){
+            var busmoduleName = $("#busmoduleName").val();
+            var cmvEntityName = document.getElementById("cmvEntityName").value;
+            if(checkExistingBusinessModuleName(busmoduleName) == true){
+                showMessage("Module Name already exists","warn");
+                $("#busmoduleName").val("");
+                return false;
+            }
+            var isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked;  
+            var busmoduleName = $("#busmoduleName").val();
+            if (existingModuleIdList.includes(busmoduleName)) {
+                showMessage("Module Name already exists for this entity.", "info");
+                return false;
+            }
+            if(busmoduleName != "" || moduleIdList.length > 0 || deleteModuleIdList.length > 0){
+                saveModuleDetails(busmoduleName,entityId,$("#moduleId").val(),isEdit,moduleIdList,deleteModuleIdList,isShowCreateLinkChkBox,cmvEntityName);
+            }
+            return true;
+        }
 	
 </script>

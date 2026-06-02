@@ -371,8 +371,10 @@
 	</div>
 
 	<div class="row">
-		<div class="col-12">
-			<div class="text-end">
+		<div class="d-flex justify-content-end align-items-center gap-2">
+          
+            <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_file_upload_config')">Create/Link Module</button>
+			<!-- <div class="text-end"> -->
 				<div class="btn-group dropup custom-grp-btn">
 					<div id="savedAction">
 						<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('file-upload-config', this, $('#isEdit').val(),fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
@@ -392,13 +394,18 @@
 				<span onclick="fileBinMaster.backToPreviousPage();">
 					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 				</span>
-			</div>
+			<!-- </div> -->
 		</div>
          <div id="dialogTitle" style="display:none;"></div>
         <div id="btnDelete" style="display:none;"></div>
         <div id="btnCancel" style="display:none;"></div>
         <div id="scriptDetails" style="display:none;"></div>
 	    <div id="addEditDialog" class="addEditDialogclass"></div>
+         <div id="moduleAutocomplete">
+            <@templateWithoutParams "common-modal-template"/>
+        </div>   
+
+
     </div> 
 	</div>
 
@@ -413,6 +420,11 @@
     var fileBinDisplayTexts = null;
 	let edit = 0;
 	let fileBinMaster;
+    let moduleIdList = [];
+    let deleteModuleIdList = [];
+    let newAddedModuleIdList = [];
+    let existingModuleIdList = [];
+    let allModuleList = [];
    	 /*Written for Updating Monaco Suggestions*/
 	let monacoSugg;
     let suggestionArray;
@@ -464,11 +476,11 @@
 			$("#previousFileSize").val('${(resultSetObject.fileBinData[0].max_file_size)!''}');
 			$("#slider").slider("value", '${(resultSetObject.fileBinData[0].no_of_files)!''}');
 			$("#noOfFiles").val('${(resultSetObject.fileBinData[0].no_of_files)!''}');
-            		let nofiles = '${(resultSetObject.fileBinData[0].no_of_files)!''}';
-            		if(parseInt(nofiles) > 256) {
-                		nofiles = 256;
-            		}
-            		$("#custom-handle").html(nofiles);
+            let nofiles = '${(resultSetObject.fileBinData[0].no_of_files)!''}';
+            if(parseInt(nofiles) > 256) {
+                nofiles = 256;
+            }
+            $("#custom-handle").html(nofiles);
 			$("#custom-handle").text(nofiles);
             		$("#customFileStorageClass").val('${(resultSetObject.fileBinData[0].custom_file_storage_class)!''}');
 			if(${resultSetObject.fileBinData[0]?api.get("is_file_storage_enable")!""} == 1){ 
@@ -477,14 +489,24 @@
                  $("#customFileStorageClass").prop("disabled", false);
                  $("#fileStorageClassDiv").show();
                 $("#fileStorageClassDiv").css('display', 'block');
-                } else {
-                    $("#isFileStorageEnable").prop("checked",false);
-                    $("#fileStorageTxt").val(0);
-                    $("#customFileStorageClass").prop("disabled", true);
-                    $("#fileStorageClassDiv").hide();
-                    $("#fileStorageClassDiv").css('display', 'none');
-                }
+            } else {
+                $("#isFileStorageEnable").prop("checked",false);
+                $("#fileStorageTxt").val(0);
+                $("#customFileStorageClass").prop("disabled", true);
+                $("#fileStorageClassDiv").hide();
+                $("#fileStorageClassDiv").css('display', 'none');
+            }
 			
+            	
+            getAllDatasourceForContainer(edit, "datasource_uploadValidator");			
+            $("#datasource_uploadValidator > option").each(function(index, element){
+                if(index == 0){
+                    return;
+                }
+                $('#datasource_viewValidator').append($(element).clone());
+                $('#datasource_deleteValidator').append($(element).clone());
+            });
+
 			<#if (resultSetObject.fileBinData[0].upload_query_type)?has_content>
 				$("#queryType_uploadValidator").val('${(resultSetObject.fileBinData[0].upload_query_type)!''}');	
                 queryTypeUploadval = $("#queryType_uploadValidator").val();
@@ -541,10 +563,25 @@
 				$("#datasource_deleteValidator").val('${(resultSetObject.fileBinData[0].datasource_delete_validator)!''}');
 			</#if>	
             
-            $("#isEdit").val(1);		
-		
+            $("#isEdit").val(1);
+
+            getModuleNames($("#fileBinId").val(),$("#moduleId").val());
+            
+            /** Added for resetting the values of BusinessModule Dialog after save and edit. **/
+	        document.getElementById("saveAndEdit").addEventListener("click", function () {
+	            resetBusModuleModal();
+	        });	
+       	
         <#else>
             $("#isEdit").val(0);
+            getAllDatasourceForContainer(edit, "datasource_uploadValidator");			
+            $("#datasource_uploadValidator > option").each(function(index, element){
+                if(index == 0){
+                    return;
+                }
+                $('#datasource_viewValidator').append($(element).clone());
+                $('#datasource_deleteValidator').append($(element).clone());
+            });
 	  </#if>
 
         <#if (resultSetObject.fileBinData[0].file_bin_id)?has_content>
@@ -555,19 +592,13 @@
 		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
 			getSavedEntity();
 		} 		
-		getAllDatasourceForContainer(edit, "datasource_uploadValidator");			
-        $("#datasource_uploadValidator > option").each(function(index, element){
-            if(index == 0){
-                return;
-            }
-            $('#datasource_viewValidator').append($(element).clone());
-            $('#datasource_deleteValidator').append($(element).clone());
-        });
+		
 		savedAction("file-upload-config", edit);
 		hideShowActionButtons();
 		fileBinMaster.setQueryContent();
 		fileBinMaster.loadFinBinDetails();
-		$("a[href='#htmlContent']").click();		
+		$("a[href='#htmlContent']").click();	
+
 	}); 
     function addNewScript(fileBinId,jsonObj,editorName,scriptEdit) {
         $("#scriptDetails").html("Add Script")
@@ -665,5 +696,24 @@
                 $("#fileStorageClassDiv").css('display', 'none');
             }
         }
+
+     function saveModDetails(isEdit,entityId){
+        var busmoduleName = $("#busmoduleName").val();
+        var cmvEntityName = document.getElementById("cmvEntityName").value;
+        if(checkExistingBusinessModuleName(busmoduleName) == true){
+            showMessage("Module Name already exists","warn");
+            $("#busmoduleName").val("");
+            return false;
+        }
+        var isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked;  
+        if (existingModuleIdList.includes(busmoduleName)) {
+            showMessage("Module Name already exists for this entity.", "info");
+            return false;
+        }
+        if(busmoduleName != "" || moduleIdList.length > 0 || deleteModuleIdList.length > 0){
+            saveModuleDetails(busmoduleName,entityId,$("#moduleId").val(),isEdit,moduleIdList,deleteModuleIdList,isShowCreateLinkChkBox,cmvEntityName);
+        }
+        return true;
+    }
    
 </script>

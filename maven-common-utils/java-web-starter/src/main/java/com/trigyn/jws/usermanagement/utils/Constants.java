@@ -250,11 +250,11 @@ public final class Constants {
 	
 	public static String getAuthType(String authType, String authTypeHeader) {
 		if (authType == null || authType.isEmpty()|| authType.isBlank()) {
-			if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey())) {
+			if (Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey().equals(authTypeHeader)) {
 				authType = Constants.DAO_ID;
-			} else if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey())) {
+			} else if (Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey().equals(authTypeHeader)) {
 				authType = Constants.LDAP_ID;
-			} else if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey())) {
+			} else if (Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey().equals(authTypeHeader)) {
 				authType = Constants.OAUTH_ID;
 			}
 		}

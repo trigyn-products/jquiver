@@ -14,4 +14,7 @@ public interface JwsDynamicRestDAORepository extends JpaRepositoryImplementation
 
 	@Query(QueryStore.QUERY_TO_ALL_API_QUERIES)
 	List<RestApiDaoQueries> getRestApiDaoQueriesByApiId(@Param("dynarestId") String dynarestId);
+	
+	@Query(QueryStore.QUERY_TO_DATA_SOURCE_ID)
+	List<String> getRestApiDaoDataSourceByApiId(@Param("dynarestId") String dynarestId);
 }

@@ -80,7 +80,6 @@ public class DynarestCrudService {
 		String							daoQueryDetails		= formData.getFirst("daoQueryDetails");
 		String							datasourceDetails   = formData.getFirst("datasourceDetails");
 			
-		String 							entityid			= formData.getFirst("dynarestId");
 		String							dynamicRestId		= dynamicRestDetailsRepository
 				.findByJwsDynamicRestId(dynarestUrl, dynarestMethodName);
 

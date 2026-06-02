@@ -1,5 +1,6 @@
 package com.trigyn.jws.gridutils.utility;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import org.apache.commons.lang3.EnumUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
 
 import com.nimbusds.oauth2.sdk.util.StringUtils;
@@ -66,21 +68,29 @@ public class GridUtility extends DBConnection {
 			}
 			
 			if(gridParams.isMobile() == true) {
-				String searchVal = "";
-				
-				for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
-					if(sf.getData() != null && sf.getData() != "") {
-						searchVal = sf.getData();
-					}
-				}
+				String catalog = "";
 				JdbcTemplate	jdbcTemplate	= updateJdbcTemplateDataSource(gridDetails.getDatasourceId());
-				StringBuilder colQuery = new StringBuilder("SELECT GROUP_CONCAT(CONCAT('`', COLUMN_NAME, '` "
-						+ " LIKE \"%" + searchVal  + "%\"') SEPARATOR ' OR ')"
-						+ " FROM INFORMATION_SCHEMA.COLUMNS "
-						+ " WHERE TABLE_NAME = '" + gridDetails.getGridTableName() + "' AND TABLE_SCHEMA = '"
-						+ jdbcTemplate.getDataSource().getConnection().getCatalog() + "'");
-				List<String> colList = jdbcTemplate.queryForList(colQuery.toString(), String.class);
-				query.append(" (" + colList.get(0) + ")");
+				Connection con = DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
+				try {
+					catalog = con.getCatalog();
+				} finally {
+				    DataSourceUtils.releaseConnection(con, jdbcTemplate.getDataSource());
+				}
+					String searchVal = "";
+					
+					for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
+						if(sf.getData() != null && sf.getData() != "") {
+							searchVal = sf.getData();
+						}
+					}
+					StringBuilder colQuery = new StringBuilder("SELECT GROUP_CONCAT(CONCAT('`', COLUMN_NAME, '` "
+							+ " LIKE \"%" + searchVal  + "%\"') SEPARATOR ' OR ')"
+							+ " FROM INFORMATION_SCHEMA.COLUMNS "
+							+ " WHERE TABLE_NAME = '" + gridDetails.getGridTableName() + "' AND TABLE_SCHEMA = '"
+							+ catalog + "'");
+					List<String> colList = jdbcTemplate.queryForList(colQuery.toString(), String.class);
+					query.append(" (" + colList.get(0) + ")");
+				
 				
 			} else {
 			
@@ -91,7 +101,11 @@ public class GridUtility extends DBConnection {
 					if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
 						query.append("(CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
 					} else if (sf.getOp() != null && EnumUtils.isValidEnum(Comparator.class, sf.getOp())) {
-						query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
+						if (Comparator.btw.toString().equals(sf.getOp())) {
+							query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? AND ? ");
+						} else {
+							query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
+						}
 					} else {
 						query.append("(" + sf.getField() +" = ?");
 					}
@@ -101,8 +115,8 @@ public class GridUtility extends DBConnection {
 						for(int valueCounter = 1; valueCounter < values.length; valueCounter++) {
 							if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
 								query.append("OR CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
-							} else {
-							query.append( "OR " + sf.getField() + " LIKE ? ");
+							} else if (Comparator.btw.toString().equals(sf.getOp()) == false) {
+								query.append( "OR " + sf.getField() + " LIKE ? ");
 							}
 						}
 					}
@@ -116,6 +130,7 @@ public class GridUtility extends DBConnection {
 		}
 		generateCustomCriteria(gridDetails, criteriaParamsPressent, filterParamsPresent, query, requestParam);
 
+	//	System.out.println(query.toString());
 		return query.toString();
 	}
 
@@ -152,6 +167,8 @@ public class GridUtility extends DBConnection {
 							params.add(data + "%");
 						} else if (Comparator.ew.toString().equals(sf.getOp())) {
 							params.add("%" + data);
+						} else if (Comparator.btw.toString().equals(sf.getOp()) && "int".equals(sf.getType())) {
+							params.add(Long.parseLong(data));
 						} else {
 							params.add(data);
 						}
@@ -194,6 +211,15 @@ public class GridUtility extends DBConnection {
 			}
 			
 			if(gridParams.isMobile() == true) {
+				String catalog = "";
+				JdbcTemplate	jdbcTemplate	= updateJdbcTemplateDataSource(gridDetails.getDatasourceId());
+				Connection con = DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
+				try {
+					catalog = con.getCatalog();
+				} finally {
+				    DataSourceUtils.releaseConnection(con, jdbcTemplate.getDataSource());
+				}
+				
 				String searchVal = "";
 				
 				for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
@@ -201,12 +227,11 @@ public class GridUtility extends DBConnection {
 						searchVal = sf.getData();
 					}
 				}
-				JdbcTemplate	jdbcTemplate	= updateJdbcTemplateDataSource(gridDetails.getDatasourceId());
 				StringBuilder colQuery = new StringBuilder("SELECT GROUP_CONCAT(CONCAT('`', COLUMN_NAME, '` "
 						+ " LIKE \"%" + searchVal  + "%\"') SEPARATOR ' OR ')"
 						+ " FROM INFORMATION_SCHEMA.COLUMNS "
 						+ " WHERE TABLE_NAME = '" + gridDetails.getGridTableName() + "' AND TABLE_SCHEMA = '"
-						+ jdbcTemplate.getDataSource().getConnection().getCatalog() + "'");
+						+ catalog + "'");
 				List<String> colList = jdbcTemplate.queryForList(colQuery.toString(), String.class);
 				query.append(" (" + colList.get(0) + ")");
 				
@@ -218,7 +243,11 @@ public class GridUtility extends DBConnection {
 					if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
 						query.append("(CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
 					} else if (sf.getOp() != null && EnumUtils.isValidEnum(Comparator.class, sf.getOp())) {
-						query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
+						if (Comparator.btw.toString().equals(sf.getOp())) {
+							query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? AND ? ");
+						} else {
+							query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
+						}
 					} else {
 						query.append("(" + sf.getField() +" = ?");
 					}
@@ -228,15 +257,18 @@ public class GridUtility extends DBConnection {
 						for(int valueCounter = 1; valueCounter < values.length; valueCounter++) {
 							if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
 								query.append("OR CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
-							}  
-							else {
-							query.append( "OR " + sf.getField() + " LIKE ? ");
+							} else if (Comparator.btw.toString().equals(sf.getOp()) == false) {
+								query.append( "OR " + sf.getField() + " LIKE ? ");
 							}
 						}
 					}
 					query.append(") ");
 					if(counter < (gridParams.getFilterParams().getRules().size()-1)) {
-						query.append(conditionType);
+						if(sf.getLogicalOp() != null) {
+							query.append(sf.getLogicalOp() + " ");
+						} else {
+							query.append(conditionType);
+						}
 						counter++;
 					}
 				}
@@ -259,6 +291,7 @@ public class GridUtility extends DBConnection {
 			Map<String, String> QUERY_NAME_MAP = Constants.getLimitClause();
 			query.append(QUERY_NAME_MAP.get(dbProductName));
 		}
+	//	System.out.println(query.toString());
 		return query.toString();
 	}
 
@@ -316,6 +349,8 @@ public class GridUtility extends DBConnection {
 						params.add(data + "%");
 					} else if (Comparator.ew.toString().equals(sf.getOp())) {
 						params.add("%" + data);
+					} else if (Comparator.btw.toString().equals(sf.getOp()) && "int".equals(sf.getType())) {
+						params.add(Long.parseLong(data));
 					} else {
 						params.add(data);
 					}

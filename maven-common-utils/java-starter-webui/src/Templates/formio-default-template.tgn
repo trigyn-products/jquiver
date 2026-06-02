@@ -31,7 +31,234 @@
         let formOptions = {
             disableAlerts: true,
             noAlerts: true
-        };    
+        };   
+        
+           //For Autocomplete 
+	window.formioTypeAheadConfig = {
+	    Autocomplete Id: {              // Autocomplete Id should be replaced with the actual Autocomplete id
+	    prefetch: true,
+	    multiple: false,
+	    render: function(item) {
+	        if (!item) return '';
+	        return '<div style="padding:4px;">' +
+	                   '<strong>' + (item.targetTypeName || '') + '</strong><br/>' +   
+	                   '<small>' + (item.targetTypeId || '') + '</small>' +
+	               '</div>';
+	               //targetTypeId, targetTypeName should be replaced with actual column which needs to be shown in text box
+	    },
+	    extractText: function(item) {
+	        if (!item) return '';
+	        let parts = [];
+	        if (item.targetTypeName) parts.push(item.targetTypeName);          //targetTypeName should be replaced with actual column which needs to be shown in text box
+	        if (item.targetTypeId) parts.push('[' + item.targetTypeId + ']');  //targetTypeId should be replaced with actual column which needs to be shown in text box
+	        return parts.join(' '); 
+	    },
+	
+	    select: function(item, component) {
+	    if (!item || !component) return;
+	
+	    const cfg = component.getRuntimeConfig();
+	
+	    const text = cfg.extractText ? cfg.extractText(item) : '';
+	
+	    if (component.input) component.input.value = text;
+	    if (component.hiddenInput) component.hiddenInput.value = item.targetTypeId || ''; //targetTypeId should be replaced with actual id(primary key) column
+	
+	    component.selectedLabel = text;
+	    component.selectedValue = item.targetTypeId || '';  //targetTypeId should be replaced with actual id(primary key) column
+	    component.dataValue = item.targetTypeId || '';      //targetTypeId should be replaced with actual id(primary key) column
+	},
+	    resetAutocomplete: function(component) {
+	        if (!component) return;
+	        if (component.input) component.input.value = '';
+	        if (component.hiddenInput) component.hiddenInput.value = '';
+	        component.selectedLabel = null;
+	        component.selectedValue = null;
+	        component.dataValue = null;
+	    }
+	}
+	//if there are mulitple autocompletes then need to add above configuration accordingly for all Autocompletes after adding comma(,)
+	};
+	    //Autocomplete End
+	    
+	    //Multiple Autocomplete
+	window.formioTypeAheadConfig = {
+	    Autocomplete Id: {              // Autocomplete Id should be replaced with the actual Autocomplete id
+	    prefetch: true,
+	    multiple: true,
+	    render: function(item) {
+	        if (!item) return '';
+	        return '<div style="padding:4px;">' +
+	                   '<strong>' + (item.targetTypeName || '') + '</strong><br/>' +   
+	                   '<small>' + (item.targetTypeId || '') + '</small>' +
+	               '</div>';
+	               //targetTypeId, targetTypeName should be replaced with actual column which needs to be shown in text box
+	    },
+	    extractText: function(item) {
+	        if (!item) return '';
+	        let parts = [];
+	        if (item.targetTypeName) parts.push(item.targetTypeName);          //targetTypeName should be replaced with actual column which needs to be shown in text box
+	        if (item.targetTypeId) parts.push('[' + item.targetTypeId + ']');  //targetTypeId should be replaced with actual column which needs to be shown in text box
+	        return parts.join(' '); 
+	    },
+	
+	    select: function(item, component) {
+	    if (!item || !component) return;
+	
+	    const cfg = component.getRuntimeConfig();
+	
+	    const text = cfg.extractText ? cfg.extractText(item) : '';
+	
+	    if (component.input) component.input.value = text;
+	    if (component.hiddenInput) component.hiddenInput.value = item.targetTypeId || ''; //targetTypeId should be replaced with actual id(primary key) column
+	
+	    component.selectedLabel = text;
+	    component.selectedValue = item.targetTypeId || '';  //targetTypeId should be replaced with actual id(primary key) column
+	    component.dataValue = item.targetTypeId || '';      //targetTypeId should be replaced with actual id(primary key) column
+	},
+	    resetAutocomplete: function(component) {
+	        if (!component) return;
+	        if (component.input) component.input.value = '';
+	        if (component.hiddenInput) component.hiddenInput.value = '';
+	        component.selectedLabel = null;
+	        component.selectedValue = null;
+	        component.dataValue = null;
+	    }
+	}
+	//if there are mulitple autocompletes then need to add above configuration accordingly for all Autocompletes after adding comma(,)
+	};  
+	    //End Multiple Autocomplete
+	    
+	    //Dependent Autocomplete
+	    
+	window.formioTypeAheadConfig = {
+	    Parent Autocomplete Id: {              // Autocomplete Id should be replaced with the actual Autocomplete id
+	    prefetch: true,
+	    multiple: false,
+	    render: function(item) {
+	        if (!item) return '';
+	        return '<div style="padding:4px;">' +
+	                   '<strong>' + (item.targetTypeName || '') + '</strong><br/>' +   
+	                   '<small>' + (item.targetTypeId || '') + '</small>' +
+	               '</div>';
+	               //targetTypeId, targetTypeName should be replaced with actual column which needs to be shown in text box
+	    },
+	    extractText: function(item) {
+	        if (!item) return '';
+	        let parts = [];
+	        if (item.targetTypeName) parts.push(item.targetTypeName);          //targetTypeName should be replaced with actual column which needs to be shown in text box
+	        if (item.targetTypeId) parts.push('[' + item.targetTypeId + ']');  //targetTypeId should be replaced with actual column which needs to be shown in text box
+	        return parts.join(' '); 
+	    },
+	
+	    select: function(item, component) {
+	    if (!item || !component) return;
+	
+	    const cfg = component.getRuntimeConfig();
+	
+	    const text = cfg.extractText ? cfg.extractText(item) : '';
+	
+	    if (component.input) component.input.value = text;
+	    if (component.hiddenInput) component.hiddenInput.value = item.targetTypeId || ''; //targetTypeId should be replaced with actual id(primary key) column
+	
+	    component.selectedLabel = text;
+	    component.selectedValue = item.targetTypeId || '';  //targetTypeId should be replaced with actual id(primary key) column
+	    component.dataValue = item.targetTypeId || '';      //targetTypeId should be replaced with actual id(primary key) column
+	},
+	    resetAutocomplete: function(component) {
+	        if (!component) return;
+	        if (component.input) component.input.value = '';
+	        if (component.hiddenInput) component.hiddenInput.value = '';
+	        component.selectedLabel = null;
+	        component.selectedValue = null;
+	        component.dataValue = null;
+	    }
+	},
+	    child Autocomplete Id: {              // Autocomplete Id should be replaced with the actual Autocomplete id
+	    additionalParamaters: {parent_id:"ac_id" || ""},    //ac_id is propertyname of parent autocomplete from form io
+	    prefetch: true,
+	    multiple: false,
+	    render: function(item) {
+	        if (!item) return '';
+	        return '<div style="padding:4px;">' +
+	                   '<strong>' + (item.targetTypeName || '') + '</strong><br/>' +   
+	                   '<small>' + (item.targetTypeId || '') + '</small>' +
+	               '</div>';
+	               //targetTypeId, targetTypeName should be replaced with actual column which needs to be shown in text box
+	    },
+	    extractText: function(item) {
+	        if (!item) return '';
+	        let parts = [];
+	        if (item.targetTypeName) parts.push(item.targetTypeName);          //targetTypeName should be replaced with actual column which needs to be shown in text box
+	        if (item.targetTypeId) parts.push('[' + item.targetTypeId + ']');  //targetTypeId should be replaced with actual column which needs to be shown in text box
+	        return parts.join(' '); 
+	    },
+	
+	    select: function(item, component) {
+	    if (!item || !component) return;
+	
+	    const cfg = component.getRuntimeConfig();
+	
+	    const text = cfg.extractText ? cfg.extractText(item) : '';
+	
+	    if (component.input) component.input.value = text;
+	    if (component.hiddenInput) component.hiddenInput.value = item.targetTypeId || ''; //targetTypeId should be replaced with actual id(primary key) column
+	
+	    component.selectedLabel = text;
+	    component.selectedValue = item.targetTypeId || '';  //targetTypeId should be replaced with actual id(primary key) column
+	    component.dataValue = item.targetTypeId || '';      //targetTypeId should be replaced with actual id(primary key) column
+	},
+	    resetAutocomplete: function(component) {
+	        if (!component) return;
+	        if (component.input) component.input.value = '';
+	        if (component.hiddenInput) component.hiddenInput.value = '';
+	        component.selectedLabel = null;
+	        component.selectedValue = null;
+	        component.dataValue = null;
+	    }
+	}
+	};
+	    //End Dependent Autocomplete
+
+    //For file bin
+    function fileConfigRenderer(fileObj) {
+    let fileUploadId = fileObj["id"];
+    let fileName = fileObj["name"];
+    let btnTxt = resourceBundleData("jws.copyFilePath,jws.fileName");
+
+    // Create a single root <div> with all actions inside
+    let actionElem = 
+        "<div class='fileicons'>" +
+            "<span class='iconcovercls' title='" + btnTxt["jws.copyFilePath"] + "'>" +
+                "<i class='fileupload-actions fa fa-copy float-right' onclick=\"copyFilePath('" + fileUploadId + "')\"></i>" +
+            "</span>" +
+            "<span class='iconcovercls' title='" + btnTxt["jws.fileName"] + "'>" +
+                "<i class='fileupload-actions fa fa-info float-right' onclick=\"fileName('" + fileName + "')\"></i>" +
+            "</span>" +
+            "<span class='iconcovercls' title='Delete'>" +
+                "<i class='fileupload-actions fa fa-trash float-right' data-fileid='" + fileUploadId + "'></i>" +
+            "</span>" +
+        "</div>";
+
+    return actionElem;
+    }
+
+    function fileName(a_fileName){
+        showMessage("File Name: " + a_fileName, "success");
+    }
+
+    function copyFilePath(a_fileUploadId){
+        let input = $("<input>");
+        $("body").append(input);
+        input.val(window.location.origin + contextPath+"/cf/files/" + a_fileUploadId).select();
+        document.execCommand("copy");
+        input.remove();
+        showMessage("File path copied successfully", "success");
+    }
+
+    //Done file config Render
+    //File Bin Config End
+         
 		Formio.createForm(document.getElementById('formioBody'), formMetaData, formOptions).then(function(form) {              
             form.submission = {              
                 data: <#noparse>${(resultSetObject.formData)!""}</#noparse>
@@ -223,7 +450,7 @@
 	var FormIOUtils = Java.type("com.trigyn.jws.formio.utils.FormIOUtils");
 
 	var dataSourceId = null;
-	var dbProductName = "${dbProductName}";
+	var dbProductName = "${(dbProductName)!''}";
 	function saveFormDetails() {
 
 		var queryParam = new HashMap();

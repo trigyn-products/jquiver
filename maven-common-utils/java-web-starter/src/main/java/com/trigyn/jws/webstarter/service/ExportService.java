@@ -3,6 +3,7 @@ package com.trigyn.jws.webstarter.service;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,10 +17,10 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -33,12 +34,19 @@ import com.trigyn.jws.dashboard.entities.Dashlet;
 import com.trigyn.jws.dashboard.service.DashletModule;
 import com.trigyn.jws.dashboard.utility.Constants;
 import com.trigyn.jws.dbutils.entities.AdditionalDatasource;
+import com.trigyn.jws.dbutils.entities.DatasourceLookUpRepository;
+import com.trigyn.jws.dbutils.entities.JwsBusinessModule;
+import com.trigyn.jws.dbutils.entities.JwsBusinessModuleEntity;
 import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
+import com.trigyn.jws.dbutils.repository.JwsBusinessModuleEntityRepository;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dbutils.repository.ScriptLibraryConnRepository;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.CustomeFileStorageException;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
+import com.trigyn.jws.dbutils.vo.JwsBusinessModuleEntityVO;
+import com.trigyn.jws.dbutils.vo.ScriptLibConnectVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
 import com.trigyn.jws.dbutils.vo.xml.Modules;
@@ -46,6 +54,8 @@ import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.ManualType;
 import com.trigyn.jws.dynamicform.service.DynamicFormModule;
+import com.trigyn.jws.dynarest.dao.JwsDynamicRestDAORepository;
+import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.FileUpload;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 import com.trigyn.jws.dynarest.entities.JqApiClientDetails;
@@ -56,6 +66,7 @@ import com.trigyn.jws.dynarest.service.DynaRestModule;
 import com.trigyn.jws.formio.entities.FormIO;
 import com.trigyn.jws.gridutils.entities.GridDetails;
 import com.trigyn.jws.resourcebundle.entities.ResourceBundle;
+import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryConnection;
 import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryDetails;
 import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.service.TemplateModule;
@@ -65,7 +76,9 @@ import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
 import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationRepository;
+import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
+import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.webstarter.dao.CrudQueryStore;
 import com.trigyn.jws.webstarter.dao.GenerateModuleMasterQueries;
 import com.trigyn.jws.webstarter.dao.ImportExportCrudDAO;
@@ -76,12 +89,14 @@ import com.trigyn.jws.webstarter.utils.FileUploadExportModule;
 import com.trigyn.jws.webstarter.utils.FileUtil;
 import com.trigyn.jws.webstarter.utils.HelpManualImportExportModule;
 import com.trigyn.jws.webstarter.utils.ImportExportUtility;
+import com.trigyn.jws.webstarter.utils.WorkflowImportExportModule;
 import com.trigyn.jws.webstarter.utils.XMLUtil;
 import com.trigyn.jws.webstarter.utils.ZipUtil;
 import com.trigyn.jws.webstarter.vo.GenericUserNotification;
 import com.trigyn.jws.webstarter.xml.AdditionalDatasourceXMLVO;
 import com.trigyn.jws.webstarter.xml.ApiClientDetailsXMLVO;
 import com.trigyn.jws.webstarter.xml.AutocompleteXMLVO;
+import com.trigyn.jws.webstarter.xml.BusinessModuleXMLVO;
 import com.trigyn.jws.webstarter.xml.DashboardXMLVO;
 import com.trigyn.jws.webstarter.xml.FileUploadXMLVO;
 import com.trigyn.jws.webstarter.xml.FormIOXMLVO;
@@ -95,6 +110,8 @@ import com.trigyn.jws.webstarter.xml.SchedulerXMLVO;
 import com.trigyn.jws.webstarter.xml.ScriptLibraryXMLVO;
 import com.trigyn.jws.webstarter.xml.SiteLayoutXMLVO;
 import com.trigyn.jws.webstarter.xml.UserXMLVO;
+import com.trigyn.jws.webstarter.xml.WorkflowXMLVO;
+import com.trigyn.jws.workflow.entities.WorkflowDefinition;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -145,6 +162,9 @@ public class ExportService {
 
 	@Autowired
 	private FileImportExportModule fileImportExportModule = null;
+	
+	@Autowired
+	private WorkflowImportExportModule workflowImportExportModule = null; 
 
 	private String version = null;
 
@@ -160,7 +180,27 @@ public class ExportService {
 	private ModuleMasterExportableDataFactory  moduleMasterQueryFactory=null;
 
 	@Autowired
-	private JwsEntityRoleAssociationRepository entityRoleAssociationRepository = null;
+	private JwsEntityRoleAssociationRepository	entityRoleAssociationRepository	= null;
+
+	@Autowired
+	private JwsBusinessModuleEntityRepository	businessModuleEntityRepository	= null;
+
+	@Autowired
+	private ScriptLibraryConnRepository			scriptLibraryConnRepository		= null;
+
+	@Autowired
+	private JwsDynarestDAO						jwsDynarestDAO					= null;
+
+	@Autowired
+	private DatasourceLookUpRepository			datasourceLookUpRepository		= null;
+	
+	@Autowired
+	private JwsDynamicRestDAORepository			jwsDynamicRestDAORepository		= null;
+	
+	@Autowired
+	private JwsRoleRepository					jwsRoleRepository				= null;
+	
+	
 
 	public List<Map<String, Object>> getAllCustomEntity() {
 		return importExportCrudDAO.getAllCustomEntity();
@@ -187,6 +227,7 @@ public class ExportService {
 
 			String				systemPath		= System.getProperty("java.io.tmpdir");
 			moduleListMap = new HashMap<>();
+		
 
 			Map<String, XMLVO>	xmlVOMap			= new HashMap<>();
 			String				targetLocation	= null;
@@ -421,6 +462,15 @@ public class ExportService {
 					downloadFolderLocation, moduleType,
 					exportTableMap.get(Constant.MasterModuleType.FORMIO.getModuleType().toUpperCase()),
 					xmlVOMap.get(Constant.MasterModuleType.FORMIO.getModuleType().toLowerCase()));
+		}  else if (moduleType.equals(Constant.MasterModuleType.BUSINESSMODULE.getModuleType())) {
+			return retrieveBusinessModuleExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.BUSINESSMODULE.getModuleType().toUpperCase()),
+					xmlVOMap.get(Constant.MasterModuleType.BUSINESSMODULE.getModuleType().toLowerCase() + ".xml"),null,null,false);
+		}else if (moduleType.equals(Constant.MasterModuleType.WORKFLOW.getModuleType())) {
+			return downloadWorkflowExportData(systemConfigIncludeList, customConfigExcludeList, downloadFolderLocation,
+					moduleType, exportTableMap.get(Constant.MasterModuleType.WORKFLOW.getModuleType().toUpperCase()),
+					xmlVOMap.get(Constant.MasterModuleType.WORKFLOW.getModuleType().toLowerCase()),null,null,false);
+		
 		} else {
 			return null;
 		}
@@ -445,7 +495,7 @@ public class ExportService {
 				if(!autoExport)
 				{
 					if (!exportedList.contains(((GridDetails) obj).getGridId())) {
-					throw new Exception("Data mismatch while exporting Grid.");
+						throw new Exception("Data mismatch while exporting Grid.");
 				}
 			  }
 				Map<String, Integer> positionMap = new HashMap<>();
@@ -456,7 +506,7 @@ public class ExportService {
 						counter = counter + 1;
 					}
 				}
-
+				
 				GridDetails gridDetails = ((GridDetails) obj).getObject();
 				if (positionMap.containsKey(gridDetails.getGridId())) {
 					List<GridDetails> moduleList = gridXMLVO.getGridDetails();
@@ -507,6 +557,7 @@ public class ExportService {
 						counter = counter + 1;
 					}
 				}
+				
 				ResourceBundle resourceBundle = ((ResourceBundle) obj).getObject();
 				if (positionMap.containsKey(resourceBundle.getId().getResourceKey())) {
 					List<ResourceBundle> moduleList = resourceBundleXMLVO.getResourceBundleDetails();
@@ -551,7 +602,7 @@ public class ExportService {
 						counter = counter + 1;
 					}
 				}
-
+				
 				Autocomplete autocomplete = ((Autocomplete) obj).getObject();
 				if (positionMap.containsKey(autocomplete.getAutocompleteId())) {
 					List<Autocomplete> moduleList = autocompleteXMLVO.getAutocompleteDetails();
@@ -595,6 +646,7 @@ public class ExportService {
 						counter = counter + 1;
 					}
 				}
+				
 				JqScheduler scheduler = ((JqScheduler)  obj).getObject();
 				if (positionMap.containsKey(scheduler.getSchedulerId())) {
 					List<JqScheduler> moduleList = schedulerXMLVO.getSchedulerDetails();
@@ -644,6 +696,7 @@ public class ExportService {
 						counter = counter + 1;
 					}
 				}
+				
 				GenericUserNotification gnd = ((GenericUserNotification)  obj).getObject();
 				if (positionMap.containsKey(gnd.getNotificationId())) {
 					List<GenericUserNotification> moduleList = genericUserNotificationXMLVO
@@ -692,20 +745,155 @@ public class ExportService {
 						counter = counter + 1;
 					}
 				}
-				ScriptLibraryDetails scrlib = ((ScriptLibraryDetails) obj).getObject();
-				if (positionMap.containsKey(scrlib.getScriptLibId())) {
-					List<ScriptLibraryDetails> moduleList = scriptLibraryXMLVO.getScriptLibraryDetails();
-							
-					int o = positionMap.get(scrlib.getScriptLibId());
-					moduleList.remove(o);
-					scriptLibraryXMLVO.setScriptLibraryDetails(moduleList);
+				
+				if (!systemConfigIncludeList.isEmpty()) {
+					String[]	splitParts	= systemConfigIncludeList.get(0).split("_");
+					String		entityId	= splitParts[0];
+					String		moduleId	= splitParts[1];
+
+					for (String scriptLibID : exportedList) {
+
+						// fetch parent module
+						ScriptLibraryDetails			scriptLibraryDetails	= jwsDynarestDAO
+								.getScriptLibDetails(scriptLibID);
+
+						List<ScriptLibraryConnection>	scriptLibraryConnection	= new ArrayList<>();
+
+						if (moduleId.equals(Constant.DYNAFORM_MOD_ID)) {
+							List<String> dynamicFormSaveQueryIdList = jwsDynarestDAO.getdynamicFormQueryID(entityId);
+
+							for (String dynEntityId : dynamicFormSaveQueryIdList) {
+								List<ScriptLibraryConnection> conns = jwsDynarestDAO
+										.getscriptLibraryConnDetails(scriptLibID, dynEntityId, moduleId);
+
+								if (conns != null) {
+									scriptLibraryConnection.addAll(conns); // ✅ accumulate results
+								}
+							}
+						} else {
+							scriptLibraryConnection = jwsDynarestDAO.getscriptLibraryConnDetails(scriptLibID, entityId,
+									moduleId);
+						}
+
+						// fetch child entities
+						if (scriptLibraryConnection != null && !scriptLibraryConnection.isEmpty()) {
+							List<ScriptLibraryConnection> updatedEntities = new ArrayList<>();
+							for (ScriptLibraryConnection slc : scriptLibraryConnection) {
+								updatedEntities.add(slc.getObject());
+							}
+							scriptLibraryDetails.setScriptLibraryConnection(updatedEntities);
+						} else {
+							scriptLibraryDetails.setScriptLibraryConnection(new ArrayList<>());
+						}
+
+						// maintain order with positionMap
+						if (positionMap.containsKey(scriptLibraryDetails.getScriptLibId())) {
+							int index = positionMap.get(scriptLibraryDetails.getScriptLibId());
+							scriptLibraryXMLVO.getScriptLibraryDetails().set(index, scriptLibraryDetails);
+						} else {
+							scriptLibraryXMLVO.getScriptLibraryDetails().add(scriptLibraryDetails);
+							positionMap.put(scriptLibraryDetails.getScriptLibId(),
+									scriptLibraryXMLVO.getScriptLibraryDetails().size() - 1);
+						}
+					}
+				} else {
+					ScriptLibraryDetails scrlib = ((ScriptLibraryDetails) obj).getObject();
+					if (positionMap.containsKey(scrlib.getScriptLibId())) {
+						List<ScriptLibraryDetails>	moduleList	= scriptLibraryXMLVO.getScriptLibraryDetails();
+
+						int							o			= positionMap.get(scrlib.getScriptLibId());
+						moduleList.remove(o);
+						scriptLibraryXMLVO.setScriptLibraryDetails(moduleList);
+					}
+					scriptLibraryXMLVO.getScriptLibraryDetails().add(scrlib);
 				}
-				scriptLibraryXMLVO.getScriptLibraryDetails().add(scrlib);
 			}
 			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return scriptLibraryXMLVO;
-	}	
+	}
+	
+	private XMLVO retrieveBusinessModuleExportData(List<String> systemConfigIncludeList,
+			List<String> customConfigExcludeList, String moduleType, List<String> exportedList, XMLVO xmlVO,
+			Date modifiedAfter, String name, boolean autoExport) throws Exception {
+		List<Object>				exportableList	= new ArrayList<>();
+		GenerateModuleMasterQueries	moduleMaster	= moduleMasterQueryFactory.getModuleMaster(moduleType);
+		exportableList = moduleMaster.generateDynamicModuleQuery(systemConfigIncludeList, customConfigExcludeList,
+				moduleType, exportedList, xmlVO, modifiedAfter, null, name, autoExport);
+
+		if (!autoExport) {
+			validate(exportableList, exportedList, "BusinessModule");
+		}
+
+		BusinessModuleXMLVO businessModuleXMLVO = (xmlVO == null) ? null : (BusinessModuleXMLVO) xmlVO;
+
+		if (exportableList != null && !exportableList.isEmpty()) {
+			businessModuleXMLVO = (businessModuleXMLVO == null) ? new BusinessModuleXMLVO() : businessModuleXMLVO;
+			for (Object obj : exportableList) {
+				if (!autoExport) {
+					if (!exportedList.contains(((JwsBusinessModule) obj).getBusinessModuleId())) {
+						throw new Exception("Data mismatch while exporting Business Module.");
+					}
+				}
+				Map<String, Integer> positionMap = new HashMap<>();
+				if (businessModuleXMLVO != null && businessModuleXMLVO.getBusinessModuleDetails().isEmpty() == false) {
+					int counter = 0;
+					for (JwsBusinessModule busiModule : businessModuleXMLVO.getBusinessModuleDetails()) {
+						positionMap.put(busiModule.getBusinessModuleId(), counter);
+						counter = counter + 1;
+					}
+				}
+				if (!systemConfigIncludeList.isEmpty()) {
+					String[]	splitParts	= systemConfigIncludeList.get(0).split("_");
+					String		entityId	= splitParts[0];
+					String		moduleId	= splitParts[1];
+
+					for (String businessModId : exportedList) {
+
+						// fetch parent module
+						JwsBusinessModule				businessModuleDetails	= jwsDynarestDAO
+								.getBusinessModuleDetails(businessModId);
+
+						// fetch child entities
+						List<JwsBusinessModuleEntity>	businessModuleEntity	= jwsDynarestDAO
+								.getBusinessModuleEntityDetails(businessModId, entityId, moduleId);
+
+						if (businessModuleEntity != null && !businessModuleEntity.isEmpty()) {
+							List<JwsBusinessModuleEntity> updatedEntities = new ArrayList<>();
+							for (JwsBusinessModuleEntity bme : businessModuleEntity) {
+								updatedEntities.add(bme.getObject());
+							}
+							businessModuleDetails.setBusinessModuleEntity(updatedEntities);
+						} else {
+							businessModuleDetails.setBusinessModuleEntity(new ArrayList<>());
+						}
+
+						if (positionMap.containsKey(businessModuleDetails.getBusinessModuleId())) {
+							int index = positionMap.get(businessModuleDetails.getBusinessModuleId());
+							businessModuleXMLVO.getBusinessModuleDetails().set(index, businessModuleDetails);
+						} else {
+							businessModuleXMLVO.getBusinessModuleDetails().add(businessModuleDetails);
+							positionMap.put(businessModuleDetails.getBusinessModuleId(),
+									businessModuleXMLVO.getBusinessModuleDetails().size() - 1);
+						}
+					}
+				} else {
+					JwsBusinessModule busiModule = ((JwsBusinessModule) obj).getObject();
+					if (positionMap.containsKey(busiModule.getBusinessModuleId())) {
+						List<JwsBusinessModule>	moduleList	= businessModuleXMLVO.getBusinessModuleDetails();
+
+						int						o			= positionMap.get(busiModule.getBusinessModuleId());
+						moduleList.remove(o);
+						businessModuleXMLVO.setBusinessModuleDetails(moduleList);
+					}
+					businessModuleXMLVO.getBusinessModuleDetails().add(busiModule);
+				}
+			}
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
+		}
+		return businessModuleXMLVO;
+	}
+	
 	
 	private XMLVO retrieveFileManagerExportData(List<String> systemConfigIncludeList,
 			List<String> customConfigExcludeList, String downloadFolderLocation, String moduleType,
@@ -760,6 +948,7 @@ public class ExportService {
 	}
 
 
+		
 	private XMLVO downloadDynaRestExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList,
 			String downloadFolderLocation, String moduleType, List<String> exportedList, XMLVO xmlVO,Date modifiedAfter,String entityType,String name,boolean autoExport) throws Exception {
 		List<Object> exportableList = new ArrayList<>();
@@ -939,6 +1128,7 @@ public class ExportService {
 						counter = counter + 1;
 					}
 				}
+				
 				PropertyMaster propertyMaster = ((PropertyMaster) obj).getObject();
 				if (positionMap.containsKey(propertyMaster.getPropertyMasterId())) {
 					List<PropertyMaster> moduleList = propertyMasterXMLVO.getApplicationConfiguration();
@@ -1136,7 +1326,7 @@ public class ExportService {
 				if (!CollectionUtils.isEmpty(dashletRoleAssociation)) {
 					((Dashboard) obj).setDashboardRoles(dashletRoleAssociation);
 				}
-
+				
 				Dashboard dashboard = dashboardObj.getObject();
 				if (positionMap.containsKey(dashboard.getDashboardId())) {
 					List<Dashboard> moduleList = dashboardXMLVO.getDashboardDetails();
@@ -1182,6 +1372,7 @@ public class ExportService {
 						counter = counter + 1;
 					}
 				}
+				
 				Dashlet dashlet = (Dashlet) obj;
 				if (positionMap.containsKey(dashlet.getDashletId())) {
 					List<Modules> moduleList = metadataXMLVO.getExportModules().getModule();
@@ -1535,6 +1726,92 @@ public class ExportService {
 		}
 		return roleList;
 	}
+	
+	
+	public List<JwsRoleVO> getRoles(String entityId, String moduleId) {
+		List<JwsEntityRoleAssociation> entityRoleAssociations = entityRoleAssociationRepository.getEntityRoles(entityId,
+				moduleId);
+		List<JwsRoleVO> roleList = new ArrayList<>();
+		if (entityRoleAssociations != null) {
+			for (Iterator iterator = entityRoleAssociations.iterator(); iterator.hasNext();) {
+				JwsEntityRoleAssociation jwsEntityRoleAssociation = (JwsEntityRoleAssociation) iterator.next();
+				jwsEntityRoleAssociation = jwsEntityRoleAssociation.getObject();
+				JwsEntityRoleAssociationVO vo = new JwsEntityRoleAssociationVO();
+				vo = vo.convertEntityToVO(jwsEntityRoleAssociation);
+	            JwsRoleVO jwsRoleVo = new JwsRoleVO();
+				
+				JwsRole role=new JwsRole();
+				role=jwsRoleRepository.findByRoleId(vo.getRoleId());
+				jwsRoleVo = role.convertEntityToVO(role);
+				roleList.add(jwsRoleVo);
+			}
+
+		}
+		return roleList;
+	}
+	
+	public List<JwsBusinessModuleEntityVO> getBusinessModules(String entityId, String moduleId) {
+		List<JwsBusinessModuleEntity> businessModules = businessModuleEntityRepository.getBusinessModules(entityId,
+				moduleId);
+		List<JwsBusinessModuleEntityVO> moduleList = new ArrayList<>();
+		if (businessModules != null) {
+			for (Iterator iterator = businessModules.iterator(); iterator.hasNext();) {
+				JwsBusinessModuleEntity businessModuleEntity = (JwsBusinessModuleEntity) iterator.next();
+				businessModuleEntity = businessModuleEntity.getObject();
+				JwsBusinessModuleEntityVO vo = new JwsBusinessModuleEntityVO();
+				vo = vo.convertEntityToVO(businessModuleEntity);
+				moduleList.add(vo);
+			}
+		}
+		return moduleList;
+	}
+	
+	public List<String> getAdditionalDataSources(String entityId, String moduleId) {
+		List<String> jwsDynamicRestDaoDetail = new ArrayList<>();
+		if(moduleId.equals(Constant.DYNA_REST_MOD_ID)) {
+			jwsDynamicRestDaoDetail = jwsDynamicRestDAORepository.getRestApiDaoDataSourceByApiId(entityId);
+		}
+	
+		return jwsDynamicRestDaoDetail;
+	}
+	
+	public List<ScriptLibConnectVO> getscriptLibraries(String entityId, String moduleId) {
+	    List<ScriptLibraryConnection> scriptLibConns = new ArrayList<>();
+
+	    if (moduleId.equals(Constant.FILEBINMODID)) {
+	        List<String> entityIds = Arrays.asList(
+	            "upload_" + entityId,
+	            "view_" + entityId,
+	            "delete_" + entityId
+	        );
+	        scriptLibConns = scriptLibraryConnRepository.getScriptLibraryConnIds(entityIds, moduleId);
+	    } else if (moduleId.equals(Constant.DYNAFORM_MOD_ID)) {
+	        List<String> dynamicFormSaveQueryIdList = jwsDynarestDAO.getdynamicFormQueryID(entityId);
+	        for (String dynEntityId : dynamicFormSaveQueryIdList) {
+	            List<ScriptLibraryConnection> conns = scriptLibraryConnRepository.getScriptLibraryConnectionIds(dynEntityId, moduleId);
+	            if (conns != null) {
+	                scriptLibConns.addAll(conns);  
+	            }
+	        }
+	    } else if (moduleId.equals(Constant.DYNA_REST_MOD_ID)) {
+	            List<ScriptLibraryConnection> conns = scriptLibraryConnRepository.getScriptLibraryConnectionIds(entityId, moduleId);
+	            if (conns != null) {
+	                scriptLibConns.addAll(conns);  
+	        }
+	    }
+
+	    List<ScriptLibConnectVO> scriptLibIdList = new ArrayList<>();
+	    if (scriptLibConns != null) {
+	        for (ScriptLibraryConnection scriptLibraryConnection : scriptLibConns) {
+	            scriptLibraryConnection = scriptLibraryConnection.getObject();
+	            ScriptLibConnectVO vo = new ScriptLibConnectVO();
+	            vo = vo.convertEntityToVO(scriptLibraryConnection);
+	            scriptLibIdList.add(vo);
+	        }
+	    }
+	    return scriptLibIdList;
+	}
+
 
 	public String exportAutoConfigData(HttpServletRequest request, HttpServletResponse response,List<JwsMasterModules>		moduleVOList,String date, String entityType,String encodedName,String[] moduleTypes) throws Exception {
 		String expectedModuleType=null;
@@ -1709,6 +1986,11 @@ public class ExportService {
 					exportTableMap.get(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toUpperCase()),
 					downloadFolderLocation,
 					xmlVOMap.get(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toLowerCase()), modifiedAfter,name,true);
+		}else if (moduleType.equals(Constant.MasterModuleType.WORKFLOW.getModuleType())) {
+			return downloadWorkflowExportData(null, null, downloadFolderLocation,
+					moduleType, exportTableMap.get(Constant.MasterModuleType.WORKFLOW.getModuleType().toUpperCase()),
+					xmlVOMap.get(Constant.MasterModuleType.WORKFLOW.getModuleType().toLowerCase()),null,null,false);
+	
 		}
 		else {
 			return null;
@@ -1740,7 +2022,7 @@ public class ExportService {
 							counter = counter + 1;
 						}
 					}
-
+					
 					FormIO formIoDetails = ((FormIO) obj).getObject();
 					if (positionMap.containsKey(formIoDetails.getFormIoId())) {
 						List<FormIO>	moduleList	= formIoXMLVO.getFormIODetails();
@@ -1756,6 +2038,97 @@ public class ExportService {
 			logger.error("Error while exporting the Form IO details ", a_excep);
 		}
 		return formIoXMLVO;
+	}
+	
+	private XMLVO downloadWorkflowExportData(List<String> systemConfigIncludeList,
+	        List<String> customConfigExcludeList,
+	        String downloadFolderLocation,
+	        String moduleType,
+	        List<String> exportedList,
+	        XMLVO xmlVO,
+	        Date modifiedAfter,
+	        String name,
+	        boolean autoExport) throws Exception {
+
+	    List<Object> exportableList = new ArrayList<>();
+
+	    GenerateModuleMasterQueries moduleMaster = moduleMasterQueryFactory.getModuleMaster(moduleType);
+
+	    exportableList = moduleMaster.generateDynamicModuleQuery(
+	            systemConfigIncludeList,
+	            customConfigExcludeList,
+	            moduleType,
+	            exportedList,
+	            xmlVO,
+	            modifiedAfter,
+	            null,
+	            name,
+	            autoExport);
+
+	    if (!autoExport) {
+	        validate(exportableList, exportedList, "Workflow");
+	    }
+
+	    MetadataXMLVO metadataXMLVO = (MetadataXMLVO) xmlVO;
+
+	    workflowImportExportModule.setModuleDetailsMap(new HashMap<>());
+
+	    if (exportableList != null && !exportableList.isEmpty()) {
+
+	        for (Object obj : exportableList) {
+
+	            WorkflowDefinition workflow = (WorkflowDefinition) obj;
+
+	            if (!autoExport) {
+	                if (!exportedList.contains(workflow.getDefinitionId())) {
+	                    throw new Exception("Data mismatch while exporting Workflow Module.");
+	                }
+	            }
+
+	            Map<String, Integer> positionMap = new HashMap<>();
+
+	            if (metadataXMLVO != null
+	                    && metadataXMLVO.getExportModules() != null
+	                    && !metadataXMLVO.getExportModules().getModule().isEmpty()) {
+
+	                int counter = 0;
+
+	                for (Modules module : metadataXMLVO.getExportModules().getModule()) {
+	                    positionMap.put(module.getModuleID(), counter);
+	                    counter++;
+	                }
+	            }
+
+	            if (positionMap.containsKey(workflow.getDefinitionId())) {
+
+	                List<Modules> moduleList = metadataXMLVO.getExportModules().getModule();
+
+	                int index = positionMap.get(workflow.getDefinitionId());
+
+	                moduleList.remove(index);
+
+	                metadataXMLVO.getExportModules().setModule(moduleList);
+	            }
+
+	            // Export workflow files to folder
+	            workflowImportExportModule.exportData(workflow, downloadFolderLocation);
+	        }
+
+	        moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
+
+	        XMLUtil.generateMetadataXML(
+	                null,
+	                workflowImportExportModule.getModuleDetailsMap(),
+	                downloadFolderLocation + File.separator + "workflow",
+	                version,
+	                userName,
+	                "",
+	                (xmlVO != null ? metadataXMLVO.getExportModules().getModule() : null));
+
+	        workflowImportExportModule.setModuleDetailsMap(new HashMap<>());
+	    }
+
+	    return null;
 	}
 
 }

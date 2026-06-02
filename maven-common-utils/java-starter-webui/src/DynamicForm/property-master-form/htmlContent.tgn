@@ -2,6 +2,7 @@
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
 <style>
         .textarea-wrapper {
         background: white;
@@ -104,7 +105,7 @@
 				<div class="col-inner-form full-form-fields">
 					<label for="comment" >${messageSource.getMessage('jws.comments')}</label>
 					<div class="txtWrapper">
-					<textarea placeholder="Purpose of the property" id="comment" name="comment" rows="4" onkeydown="calculateLength();" onkeyup="calculateLength();" maxlength="100" class="form-control"></textarea>
+					<textarea placeholder="Purpose of the property" id="comment" name="comments" rows="4" onkeydown="calculateLength();" onkeyup="calculateLength();" maxlength="100" class="form-control"></textarea>
 					<i class="fa fa-arrows-alt" title="Click to enter full screen" aria-hidden="true"></i>
                     </div>
                      <div class="progress-bar">
@@ -115,14 +116,18 @@
 			</div>
 			
 			<input type="hidden" id="primaryKey" name="primaryKey">
+            <input type="hidden" id="isDeleted" name="isDeleted" value="0">
+            <input type="hidden" id="lastModifiedDate" name="lastModifiedDate">
+             <input type="hidden" id="modifiedBy" name="modifiedBy" value="${fullName  !''}">
 			<input type="hidden" id="entityName" name="entityName" value="jq_property_master">
 		    </div>
 		
 		
 	</form>
 	<div class="row margin-t-10">
-		<div class="col-12">
-			<div class="text-end">
+		<div class="d-flex justify-content-end align-items-center gap-2">
+            <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_property_master')">Create/Link Module</button>
+			<!-- <div class="text-end"> -->
 				<div class="btn-group dropup custom-grp-btn">
 			      <div id="savedAction">
 		    	  		<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('property-master-form', this, isEdit);">${messageSource.getMessage("jws.saveAndReturn")}</button>
@@ -138,8 +143,12 @@
 				<span onclick="backToPreviousPage();">
 					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 				</span> 
-			</div>
+			<!-- </div> -->
 		</div>
+        <input id="moduleId" value="76270518-8c8f-11eb-8dcd-0242ac130003" name="moduleId"  type="hidden">
+        <div id="moduleAutocomplete">
+            <@templateWithoutParams "common-modal-template"/>
+        </div>  
 	</div>
 		
 
@@ -152,11 +161,19 @@
 	//contextPath = "${contextPath}";
 	let formId = "${formId}";
 	let isEdit = 0;
-	
+	let moduleIdList = [];
+    let deleteModuleIdList = [];
+    let newAddedModuleIdList = [];
+    let existingModuleIdList = [];
+    let allModuleList = []; 
+
 	function saveData (){
 	    if(validateFields() == false){
 	        return false;
 	    }
+        if (saveModDetails(isEdit,$('#propertyMasterId').val()) == false) {
+            return false;
+        }
 	    let isDataSaved = false;
 		let propertyValue = $('#propertyValue').val().replace(/\\/g, "\\\\");
         $("#propertyValue").val(propertyValue);
@@ -168,7 +185,7 @@
 		  data : formData,
           success : function(data) {
           	isDataSaved = true;
-			showMessage("Information saved successfully", "success");
+			showMessage("Information saved successfully", "success");	
 			enableVersioning(formData);
 		  },
 	      error : function(xhr, error){			
@@ -298,6 +315,11 @@
                 calculateLength();
                                
         	</#list>
+             getModuleNames($("#propertyMasterId").val(),$("#moduleId").val());
+             /** Added for resetting the values of BusinessModule Dialog after save and edit. **/
+	        document.getElementById("saveAndEdit").addEventListener("click", function () {
+	            resetBusModuleModal();
+	        });
         <#else>
 			const generatedPrimaryKey = uuidv4();
 			let version = 0;
@@ -312,11 +334,29 @@
             $("#appVersion").val(arr.join("."));
 			$("#propertyMasterId").val(generatedPrimaryKey);
 			$("#primaryKey").val(generatedPrimaryKey);
+          
    
         </#if>
 		savedAction("property-master-form", isEdit);
         hideShowActionButtons();
+        var formattedDate = formatLastModifiedDate();
+        $("#lastModifiedDate").val(formattedDate);
+
 	});
+
+    function formatLastModifiedDate(){
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+        const formattedDateTime = day + '-' + month + '-' + year + ' ' + hours + ':' + minutes + ':' + seconds;
+        return formattedDateTime;
+    }
 
     
     function calculateLength() {
@@ -343,6 +383,25 @@
             progress.style.background = "transparent";
         }
         
+    }
+
+    function saveModDetails(isEdit,entityId){
+        var busmoduleName = $("#busmoduleName").val();
+        var cmvEntityName = document.getElementById("cmvEntityName").value;
+        if(checkExistingBusinessModuleName(busmoduleName) == true){
+            showMessage("Module Name already exists","warn");
+            $("#busmoduleName").val("");
+            return false;
+        }
+        var isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked;  
+        if (existingModuleIdList.includes(busmoduleName)) {
+            showMessage("Module Name already exists for this entity.", "info");
+            return false;
+        }
+        if(busmoduleName != "" || moduleIdList.length > 0 || deleteModuleIdList.length > 0){
+            saveModuleDetails(busmoduleName,entityId,$("#moduleId").val(),isEdit,moduleIdList,deleteModuleIdList,isShowCreateLinkChkBox,cmvEntityName);
+        }
+        return true;
     }
 
     

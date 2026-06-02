@@ -19,7 +19,8 @@ SELECT
   `jgd`.`last_updated_ts` AS `lastUpdatedTs`, 
   COUNT(`jmv`.`version_id`) AS `revisionCount`, 
   MAX(`jmv`.`version_id`) AS `max_version_id` ,
-  DATE(`jgd`.`last_updated_ts`) AS `isAfterDate`
+  DATE(`jgd`.`last_updated_ts`) AS `isAfterDate`,
+  `jgd`.`datasource_id` AS `datasourceId`
 FROM 
   (
     (
@@ -59,7 +60,8 @@ CREATE  OR REPLACE VIEW `jq_autocomplete_listing_view` AS
   `jau`.`ac_type_id` AS `autocompleteTypeId`, 
   COUNT(`jmv`.`version_id`) AS `revisionCount`, 
   MAX(`jmv`.`version_id`) AS `max_version_id`,
-  DATE(`jau`.`last_updated_ts`) AS `isAfterDate`
+  DATE(`jau`.`last_updated_ts`) AS `isAfterDate`,
+  `jau`.`datasource_id` AS `datasourceId`
 FROM 
   (
     (
@@ -98,7 +100,10 @@ CREATE  OR REPLACE VIEW `jq_file_upload_config_listing_view` AS
     )
   ) AS `lastUpdatedBy`, 
   `fuc`.`is_deleted` AS `isDeleted`,  
-   DATE(`fuc`.`last_updated_ts`) AS `isAfterDate`
+   DATE(`fuc`.`last_updated_ts`) AS `isAfterDate`,
+   `fuc`.`datasource_upload_validator` AS `uploadDataSourceId`,
+   `fuc`.`datasource_view_validator` AS `viewDataSourceId`,
+   `fuc`.`datasource_delete_validator` AS `deleteDataSourceId`
 FROM 
   (
     `jq_file_upload_config` `fuc` 
@@ -133,7 +138,9 @@ SELECT
       `df`.`last_updated_by`, `df`.`created_by`
     )
   ) AS `lastUpdatedBy`,
-  DATE(`df`.`last_updated_ts`) AS `isAfterDate`
+  DATE(`df`.`last_updated_ts`) AS `isAfterDate`,
+  `df`.`datasource_id` AS `datasourceid`,
+  GROUP_CONCAT(DISTINCT `dfsq`.`datasource_id` SEPARATOR ', ') AS `daodatasourceid`
 FROM 
   (
     (
@@ -149,6 +156,8 @@ FROM
       AND `jmv`.`entity_name` = 'jq_dynamic_form'
     )
   ) 
+  LEFT JOIN `jq_dynamic_form_save_queries` `dfsq` ON(
+	`dfsq`.`dynamic_form_id` = `df`.`form_id`)
 GROUP BY 
   `df`.`form_id` 
 ORDER BY 
@@ -180,13 +189,15 @@ SELECT
   ) AS lastUpdatedBy, 
   COUNT(jmv.version_id) AS revisionCount, 
   MAX(jmv.version_id) AS max_version_id ,
-  Date(jdrd.last_updated_ts) AS `isAfterDate`
-FROM 
-  jq_dynamic_rest_details AS jdrd 
-  LEFT JOIN jq_user AS jus ON jus.email = COALESCE(
-    jdrd.last_updated_by, jdrd.created_by
-  ) 
-  LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = jdrd.jws_dynamic_rest_id 
+  Date(jdrd.last_updated_ts) AS `isAfterDate`,
+  GROUP_CONCAT(DISTINCT `jdrdd`.`datasource_id` SEPARATOR ', ') AS `datasourceid`
+  FROM 
+  (((`jq_dynamic_rest_details` `jdrd` LEFT JOIN `jq_user` `jus` 
+  ON (`jus`.`email` = COALESCE(`jdrd`.`last_updated_by`,`jdrd`.`created_by`))) 
+  LEFT JOIN `jq_module_version` `jmv` 
+  ON(`jmv`.`entity_id` = `jdrd`.`jws_dynamic_rest_id`)) 
+  LEFT JOIN `jq_dynamic_rest_dao_details` `jdrdd` 
+  ON(`jdrdd`.`jws_dynamic_rest_details_id` = `jdrd`.`jws_dynamic_rest_id`))
 GROUP BY 
   dynarestId 
 ORDER BY 
@@ -462,3 +473,476 @@ LEFT JOIN `jq_user` `jus` ON(`jus`.`email` = COALESCE(`jmt`.`last_updated_by`,`j
 LEFT JOIN `jq_manual_entry` `jme` ON(`jme`.`manual_id` = `jmt`.`manual_id` ))
 GROUP BY jmt.manual_id
 ORDER BY last_updated_ts DESC ;
+
+
+
+CREATE OR REPLACE view `jq_custom_module_listing_view`
+AS
+  SELECT `m`.`module_id`      AS `moduleid`,
+         `m`.`module_name`    AS `moduleName`,
+         `d`.`dashboard_id`   AS `entityid`,
+         `d`.`dashboard_name` AS `entityname`,
+         'jq_dashboard'       AS `TABLE_NAME`
+  FROM   (`jq_dashboard` `d`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'Dashboard' ))
+  WHERE  `d`.`dashboard_type` = 1
+  UNION ALL
+  SELECT `m`.`module_id`        AS `moduleid`,
+         `m`.`module_name`      AS `moduleName`,
+         `me`.`manual_entry_id` AS `entityid`,
+         `me`.`entry_name`      AS `entityname`,
+         'jq_manual_entry'      AS `TABLE_NAME`
+  FROM   ((`jq_manual_entry` `me`
+           JOIN `jq_manual_type` `mt`
+             ON( `mt`.`manual_id` = `me`.`manual_id` ))
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'Help Manual' ))
+  WHERE  `mt`.`is_system_manual` = 1
+  UNION ALL
+  SELECT `m`.`module_id`      AS `moduleid`,
+         `m`.`module_name`    AS `moduleName`,
+         `t`.`template_id`    AS `entityid`,
+         `t`.`template_name`  AS `entityname`,
+         'jq_template_master' AS `TABLE_NAME`
+  FROM   (`jq_template_master` `t`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'Templating' ))
+  WHERE  `t`.`template_type_id` = 1
+  UNION ALL
+  SELECT `m`.`module_id`   AS `moduleid`,
+         `m`.`module_name` AS `moduleName`,
+         `g`.`grid_id`     AS `entityid`,
+         `g`.`grid_name`   AS `entityname`,
+         'jq_grid_details' AS `TABLE_NAME`
+  FROM   (`jq_grid_details` `g`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'Grid Utils' ))
+  WHERE  `g`.`grid_type_id` = 1
+  UNION ALL
+  SELECT `m`.`module_id`         AS `moduleid`,
+         `m`.`module_name`       AS `moduleName`,
+         `s`.`script_lib_id`     AS `entityid`,
+         `s`.`library_name`      AS `entityname`,
+         'jq_script_lib_details' AS `TABLE_NAME`
+  FROM   (`jq_script_lib_details` `s`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'Script Library' ))
+  WHERE  `s`.`script_type` = 1
+  UNION ALL
+  SELECT `m`.`module_id`           AS `moduleid`,
+         `m`.`module_name`         AS `moduleName`,
+         `a`.`ac_id`               AS `entityid`,
+         `a`.`ac_id`               AS `entityname`,
+         'jq_autocomplete_details' AS `TABLE_NAME`
+  FROM   (`jq_autocomplete_details` `a`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'TypeAhead Autocomplete' ))
+  WHERE  `a`.`ac_type_id` = 1
+  UNION ALL
+  SELECT `m`.`module_id`             AS `moduleid`,
+         `m`.`module_name`           AS `moduleName`,
+         `dr`.`jws_dynamic_rest_id`  AS `entityid`,
+         `dr`.`jws_dynamic_rest_url` AS `entityname`,
+         'jq_dynamic_rest_details'   AS `TABLE_NAME`
+  FROM   (`jq_dynamic_rest_details` `dr`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'REST API' ))
+  WHERE  `dr`.`jws_dynamic_rest_type_id` = 1
+  UNION ALL
+  SELECT `m`.`module_id`         AS `moduleid`,
+         `m`.`module_name`       AS `moduleName`,
+         `fuc`.`file_bin_id`     AS `entityid`,
+         `fuc`.`file_bin_id`     AS `entityname`,
+         'jq_file_upload_config' AS `TABLE_NAME`
+  FROM   (`jq_file_upload_config` `fuc`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'File Bin' ))
+  UNION ALL
+  SELECT `m`.`module_id`    AS `moduleid`,
+         `m`.`module_name`  AS `moduleName`,
+         `fio`.`form_io_id` AS `entityid`,
+         `fio`.`form_name`  AS `entityname`,
+         'jq_form_io'       AS `TABLE_NAME`
+  FROM   (`jq_form_io` `fio`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'Form IO' ))
+  WHERE  `fio`.`form_io_type` = 1
+  UNION ALL
+  SELECT `m`.`module_id`     AS `moduleid`,
+         `m`.`module_name`   AS `moduleName`,
+         `ml`.`module_id`    AS `entityid`,
+         `ml`.`module_url`   AS `entityname`,
+         'jq_module_listing' AS `TABLE_NAME`
+  FROM   (`jq_module_listing` `ml`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'Router' ))
+  WHERE  `ml`.`module_type_id` = 1
+  UNION ALL
+  SELECT `m`.`module_id`           AS `moduleid`,
+         `m`.`module_name`         AS `moduleName`,
+         `ml`.`file_upload_id`     AS `entityid`,
+         `ml`.`original_file_name` AS `entityname`,
+         'jq_file_upload'          AS `TABLE_NAME`
+  FROM   (`jq_file_upload` `ml`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'Files' ))
+  UNION ALL
+  SELECT `m`.`module_id`      AS `moduleid`,
+         `m`.`module_name`    AS `modulename`,
+         `rb`.`resource_key`  AS `entityid`,
+         `rb`.`resource_key`  AS `entityname`,
+         'jq_resource_bundle' AS `table_name`
+  FROM   (`jq_resource_bundle` `rb`
+          JOIN `jq_master_modules` `m`
+            ON ( `m`.`module_name` = 'Internalization' )) GROUP BY `rb`.`resource_key`
+  UNION ALL
+  SELECT `m`.`module_id`                AS `moduleid`,
+         `m`.`module_name`              AS `modulename`,
+         `gun`.`notification_id`        AS `entityid`,
+         `gun`.`notification_id`        AS `entityname`,
+         'jq_generic_user_notification' AS `table_name`
+  FROM   (`jq_generic_user_notification` `gun`
+          JOIN `jq_master_modules` `m`
+            ON ( `m`.`module_name` = 'Notification' ))
+  UNION ALL
+  SELECT `m`.`module_id`                 AS `moduleid`,
+         `m`.`module_name`               AS `modulename`,
+         `ad`.`additional_datasource_id` AS `entityid`,
+         `ad`.`datasource_name`          AS `entityname`,
+         'jq_additional_datasource'      AS `table_name`
+  FROM   (`jq_additional_datasource` `ad`
+          JOIN `jq_master_modules` `m`
+            ON ( `m`.`module_name` = 'Additional Datasource' ))
+  UNION ALL
+  SELECT `m`.`module_id`      AS `moduleid`,
+         `m`.`module_name`    AS `modulename`,
+         `s`.`scheduler_id`   AS `entityid`,
+         `s`.`scheduler_name` AS `entityname`,
+         'jq_job_scheduler'   AS `table_name`
+  FROM   (`jq_job_scheduler` `s`
+          JOIN `jq_master_modules` `m`
+            ON ( `m`.`module_name` = 'Scheduler' ))
+  WHERE  `s`.`scheduler_type_id` = 1
+  UNION ALL
+  SELECT `m`.`module_id`    AS `moduleid`,
+         `m`.`module_name`  AS `moduleName`,
+         `d`.`dashlet_id`   AS `entityid`,
+         `d`.`dashlet_name` AS `entityname`,
+         'jq_dashlet'       AS `TABLE_NAME`
+  FROM   (`jq_dashlet` `d`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'Dashlet' ))
+  WHERE  `d`.`dashlet_type_id` = 1
+  UNION ALL
+  SELECT `m`.`module_id`   AS `moduleid`,
+         `m`.`module_name` AS `moduleName`,
+         `d`.`form_id`     AS `entityid`,
+         `d`.`form_name`   AS `entityname`,
+         'jq_dynamic_form' AS `TABLE_NAME`
+  FROM   (`jq_dynamic_form` `d`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'Form Builder' ))
+  WHERE  `d`.`form_type_id` = 1
+  UNION ALL
+  SELECT `m`.`module_id`      AS `moduleid`,
+         `m`.`module_name`    AS `moduleName`,
+         `d`.`property_master_id`   AS `entityid`,
+         `d`.`property_name` AS `entityname`,
+         'jq_property_master'       AS `TABLE_NAME`
+  FROM   (`jq_property_master` `d`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'Application Configuration' ))
+  UNION ALL
+  SELECT `m`.`module_id`      AS `moduleid`,
+         `m`.`module_name`    AS `moduleName`,
+         `d`.`client_id`   AS `entityid`,
+         `d`.`client_name` AS `entityname`,
+         'jq_api_client_details'       AS `TABLE_NAME`
+  FROM   (`jq_api_client_details` `d`
+          JOIN `jq_master_modules` `m`
+            ON( `m`.`module_name` = 'API Clients' ));
+            
+            
+CREATE OR REPLACE VIEW jq_entities_details_view AS
+-- TEMPLATE
+	SELECT
+	    t.template_id AS id,
+	    'Template' AS module_name,
+	    m.module_id AS master_module_id,
+	    CASE 
+	        WHEN t.template_type_id = 2 THEN 'system'
+	        ELSE 'custom'
+	    END AS entity_type,
+	    t.template_id AS entity_id,
+	    t.template_name AS entity_name,
+	    
+	    JSON_OBJECT(
+	        'id', t.template_id,
+	            'savedQueries', JSON_ARRAY(
+	                JSON_OBJECT(
+	                    'name', CONCAT('html', '.html')
+	                )
+	            )
+	    ) AS entity_info,
+	
+	    NULL AS created_date,
+	    t.created_by,
+	    t.updated_date,
+	    t.updated_by
+	
+	FROM jq_template_master t
+	LEFT JOIN jq_master_modules m 
+	    ON m.module_name = 'Templating'
+	
+	UNION ALL
+	
+	-- Dynamic Form
+	SELECT
+	    f.form_id AS id,
+	    'DynamicForm' AS module_name,
+	    m.module_id AS master_module_id,
+	    CASE 
+	        WHEN f.form_type_id = 2 THEN 'system'
+	        ELSE 'custom'
+	    END AS entity_type,
+	    f.form_id AS entity_id,
+	    f.form_name AS entity_name,
+	
+	    JSON_OBJECT(
+	        'id', f.form_id,
+	        'selectQuery', CONCAT(
+	            'form_select_query-formSelectQuery',
+	            CASE f.query_type
+	                WHEN 1 THEN '.sql'
+	                WHEN 2 THEN '.js'
+	                WHEN 3 THEN '.py'
+	                WHEN 4 THEN '.php'
+	                ELSE '.txt'
+	            END
+	        ),
+	        'html', CONCAT('form_body-formBody', '.html'),
+	            'savedQueries', (
+	                SELECT JSON_ARRAYAGG(
+	                    JSON_OBJECT(
+	                        'id', q.dynamic_form_query_id,
+	                        'innerQuery', '1',
+	                        'variableName', CONCAT(q.sequence,q.result_variable_name, CASE q.dao_query_type
+	                            WHEN 1 THEN '.sql'
+	                            WHEN 2 THEN '.js'
+	                            WHEN 3 THEN '.py'
+	                            WHEN 4 THEN '.php'
+	                            ELSE '.txt'
+	                        END)
+	                    )
+	                )
+	                FROM jq_dynamic_form_save_queries q
+	                WHERE q.dynamic_form_id = f.form_id
+	            )
+	    ) AS entity_info,
+	
+	    f.created_date,
+	    f.created_by,
+	    f.last_updated_ts AS updated_date,
+	    f.last_updated_by AS updated_by
+	
+	FROM jq_dynamic_form f
+	LEFT JOIN jq_master_modules m 
+	    ON m.module_name = 'Form Builder'
+	
+	UNION ALL
+	-- Rest API
+	SELECT
+	    r.jws_dynamic_rest_id AS id,
+	    'RestAPI' AS module_name,
+	    m.module_id AS master_module_id,
+	    CASE 
+	        WHEN r.jws_dynamic_rest_type_id= 2 THEN 'system'
+	        ELSE 'custom'
+	    END AS entity_type,
+	    r.jws_dynamic_rest_id AS entity_id,
+	    r.jws_dynamic_rest_url AS entity_name,
+	
+	    JSON_OBJECT(
+	        'id', r.jws_dynamic_rest_id,
+	        'name', CONCAT(
+	            'serviceLogic',
+	            CASE r.jws_platform_id 
+	                WHEN 1 THEN '.java'
+	                WHEN 2 THEN '.ftl'
+	                WHEN 3 THEN '.js'
+	                WHEN 4 THEN '.py'
+	                WHEN 5 THEN '.php'
+	                ELSE '.txt'
+	            END
+	        ),
+	        'savedQueries', (
+	                SELECT JSON_ARRAYAGG(
+	                    JSON_OBJECT(
+	                        'id', d.jws_dao_details_id,
+	                        'innerQuery', '1',
+	                        'variableName', CONCAT(d.jws_query_sequence,d.jws_result_variable_name, CASE d.jws_dao_query_type
+	                            WHEN 1 THEN '.sql'
+	                            WHEN 2 THEN '.sql'
+	                            WHEN 3 THEN '.sql'
+	                            WHEN 4 THEN '.json'
+	                            ELSE '.txt'
+	                        END)
+	                    )
+	                )
+	                FROM jq_dynamic_rest_dao_details d
+	                WHERE d.jws_dynamic_rest_details_id = r.jws_dynamic_rest_id
+	            )
+	    ) AS entity_info,
+	
+	    r.created_date,
+	    r.created_by,
+	    r.last_updated_ts AS updated_date,
+	    r.last_updated_by AS updated_by
+	
+	FROM jq_dynamic_rest_details r
+	LEFT JOIN jq_master_modules m 
+	    ON m.module_name = 'REST API'
+	
+	UNION ALL
+	
+	-- Dashboard
+	
+	SELECT
+	    d.dashboard_id AS id,
+	    'Dashboard' AS module_name,
+	    m.module_id AS master_module_id,
+	    CASE 
+	        WHEN d.dashboard_type = 2 THEN 'system'
+	        ELSE 'custom'
+	    END AS entity_type,
+	    d.dashboard_id AS entity_id,
+	    d.dashboard_name AS entity_name,
+	
+	    JSON_OBJECT(
+	        'id', d.dashboard_id,
+			'html', CONCAT('dashboard_body-formBody', '.html')
+	    ) AS entity_info,
+	
+	    d.created_date,
+	    d.created_by,
+	    d.last_updated_ts AS updated_date,
+	    NULL AS updated_by
+	
+	FROM jq_dashboard d
+	LEFT JOIN jq_master_modules m 
+	    ON m.module_name = 'Dashboard'
+	
+	UNION ALL
+	
+	-- Dashlet
+	
+	SELECT
+	    d.dashlet_id AS id,
+	    'Dashlet' AS module_name,
+	    m.module_id AS master_module_id,
+	    CASE 
+	        WHEN d.dashlet_type_id = 2 THEN 'system'
+	        ELSE 'custom'
+	    END AS entity_type,
+	    d.dashlet_id AS entity_id,
+	    d.dashlet_name AS entity_name,
+	
+	    JSON_OBJECT(
+	        'id', d.dashlet_id,
+			'selectQuery', CONCAT(
+	            'dashlet_query-formSelectQuery',
+	            CASE d.dao_query_type
+	                WHEN 1 THEN '.sql'
+	                WHEN 2 THEN '.js'
+	                WHEN 3 THEN '.py'
+	                WHEN 4 THEN '.php'
+	                ELSE '.txt'
+	            END
+	        ),
+			'html', CONCAT('dashlet_body-formBody', '.html')
+	    ) AS entity_info,
+	
+	    d.created_date,
+	    d.created_by,
+	    d.last_updated_ts AS updated_date,
+	    d.updated_by
+	
+	FROM jq_dashlet d
+	LEFT JOIN jq_master_modules m 
+	    ON m.module_name = 'Dashlet'
+	
+	UNION ALL
+	
+	-- File Bin
+	SELECT
+	    f.file_bin_id AS id,
+	    'FileBin' AS module_name,
+	    m.module_id AS master_module_id,
+	    CASE 
+	        WHEN f.is_custom_updated = 0 THEN 'system'
+	        ELSE 'custom'
+	    END AS entity_type,
+	    f.file_bin_id AS entity_id,
+	    f.file_bin_id AS entity_name,
+	
+	    JSON_OBJECT(
+	    'id', f.file_bin_id,
+	    'savedQueries', JSON_ARRAY(
+	        
+	        JSON_OBJECT(
+	            'id', f.file_bin_id,
+	            'innerQuery', '1',
+	            'variableName', CONCAT(
+	                'upload_query_content-uploadQuery',
+	                CASE f.upload_query_type
+	                    WHEN 1 THEN '.sql'
+	                    WHEN 2 THEN '.py'
+	                    WHEN 3 THEN '.php'
+	                    WHEN 4 THEN '.js'
+	                    ELSE '.txt'
+	                END
+	            )
+	        ),
+	
+	        JSON_OBJECT(
+	            'id', f.file_bin_id,
+	            'innerQuery', '1',
+	            'variableName', CONCAT(
+	                'view_query_content-viewQuery',
+	                CASE f.view_query_type
+	                    WHEN 1 THEN '.sql'
+	                    WHEN 2 THEN '.py'
+	                    WHEN 3 THEN '.php'
+	                    WHEN 4 THEN '.js'
+	                    ELSE '.txt'
+	                END
+	            )
+	        ),
+	
+	        JSON_OBJECT(
+	            'id', f.file_bin_id,
+	            'innerQuery', '1',
+	            'variableName', CONCAT(
+	                'delete_query_content-deleteQuery',
+	                CASE f.delete_query_type
+	                    WHEN 1 THEN '.sql'
+	                    WHEN 2 THEN '.py'
+	                    WHEN 3 THEN '.php'
+	                    WHEN 4 THEN '.js'
+	                    ELSE '.txt'
+	                END
+	            )
+	        )
+	
+	    )
+	) AS entity_info,
+	
+	    f.created_date,
+	    f.created_by,
+	    f.last_updated_ts AS updated_date,
+	    f.last_updated_by AS updated_by
+	
+	FROM jq_file_upload_config f
+	LEFT JOIN jq_master_modules m 
+	    ON m.module_name = 'File Bin';         

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="${(baseUrl)!''}${(contextPath)!''}/webjars/1.0/formio/bootstrap-icons.css">  
+    <link rel="stylesheet" href="${(baseUrl)!''}${(contextPath)!''}/webjars/1.0/formio/bootstrap.min.css"> 
+    <link rel="stylesheet" href="${(baseUrl)!''}${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.css">
+    <script type="text/javascript" src="${(baseUrl)!''}${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.js"></script>
+    <script type="text/javascript" src="${(baseUrl)!''}${(contextPath)!''}/webjars/1.0/formio/formio.js"></script>
+    <script type="text/javascript" src="${(contextPath)!''}/webjars/jquery/3.7.1/jquery.min.js"></script>    
+    <script type="text/javascript" src="${(baseUrl)!''}${(contextPath)!''}/webjars/1.0/home/home.js"></script>
+
+    <style>
+        #formMessageBox {
+            transition: all 0.3s ease;
+            font-family: 'Arial', sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Message box container -->
+    <div id="formMessage" style="display: none; max-width: 600px; margin: 20px auto;">
+        <div id="formMessageBox" class="alert" role="alert"></div>
+    </div>
+
+    <!-- Warning banner if form is already submitted -->
+    <div id="alreadySubmittedBanner" style="display: none; padding: 20px; background-color: #fef3c7; border: 1px solid #facc15; border-radius: 8px; font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto;">
+        <h2 style="color: #92400e;">⚠️ Form Already Submitted</h2>
+        <p>It looks like you’ve already submitted this form. Duplicate submissions are not allowed.</p>
+        <p>If you believe this is an error or need to make changes, please <a href="mailto:admin@jquiver.io" style="color: #2563eb;">contact our support team</a>.</p>
+    </div>
+
+    <form>
+        <div class="container">
+            <div id="formioBody"></div>
+            <div id="jqFmioSaveButton"></div>
+        </div>
+    </form>
+
+<script>
+    let contextPath = "${contextPath}";
+    let dataId;
+    let formIoId = "${formIoId!''}";
+    let multiSubmit = "${multiSubmit!''}";
+    let cookieKey = "formSubmitted_" + formIoId;
+    let isAlreadySubmitted = getCookie(cookieKey);
+
+    $(document).ready(function () {
+        dataId = new URLSearchParams(window.location.search).get('formDataId');
+        loadFormIo();
+    });
+
+    function loadFormIo() {
+        if (!formIoId || formIoId === "<formIOId>") {
+            showMsg("Form IO ID is required.", "error");
+            return false;
+        }
+
+        const url = "${(baseUrl)!''}${(contextPath)!''}${(apiPath)!''}/fetchMetaData";
+        $.ajax({
+            type: "POST",
+            async: false,
+            url: url,
+            data: { formIoId: formIoId },
+            success: function (data) {
+                let formMetaData = JSON.parse(data.formMetaData['form_io_json']);
+                let formIoData;
+                if (dataId) formIoData = getFormData();
+
+                const builderOptions = { noDefaultSubmitButton: true };
+                Formio.createForm(document.getElementById('formioBody'), formMetaData, builderOptions).then(function (form) {
+                    if (formIoData) {
+                        form.submission = { data: JSON.parse(formIoData.formData) };
+                    }
+
+                    form.on('submit', function (submission) {
+                        submit(submission, form);
+                    });
+
+                    form.ready.then(() => {
+                        // Show warning banner and alert if already submitted and not multi-submit
+                        if (multiSubmit !== "1" && isAlreadySubmitted === "true") {
+                            document.getElementById('alreadySubmittedBanner').style.display = 'block';
+
+                            // Hide the form completely
+                            document.querySelector('form').style.display = 'none';
+
+                            // Optionally show a message
+                            showMsg("You have already submitted the form. It is now hidden.", "error");
+                            return;
+                        }
+
+
+                        // Build save and cancel buttons
+                        let buttonElement = `
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="text-end">
+                                    <div class="btn-group dropup custom-grp-btn">
+                                        <span id="savedAction">
+                                            <button type="button" id="save" class="btn btn-primary me-2">Save</button>
+                                        </span>
+                                    </div>
+                                    <span>
+                                        <input id="cancelBtn" class="btn btn-secondary spacingclss" name="cancelBtn" value="Cancel" type="button">
+                                    </span>
+                                </div>
+                            </div>
+                        </div>`;
+                        $("#jqFmioSaveButton").html(buttonElement);
+
+                        // Remove save button if already submitted and not multi-submit
+                        if (multiSubmit !== "1" && isAlreadySubmitted === "true") {
+                            $("#save").remove();
+                        }
+
+                        $("#save").on("click", function () {
+                            form.submit();
+                            if (multiSubmit !== "1") {
+                                setCookie(cookieKey, "true", 1);
+                                isAlreadySubmitted = "true";
+                            }
+                        });
+
+                        $("#cancelBtn").on("click", function () {
+                            form.setValue({});
+                        });
+                    });
+                });
+            },
+            error: function () {
+                showMsg("Error occurred while loading", "error");
+            }
+        });
+    }
+
+    function getFormData() {
+        let returnData;
+        const url = "${(baseUrl)!''}${(contextPath)!''}/api/fetchForm";
+        $.ajax({
+            type: "POST",
+            async: false,
+            url: url,
+            data: { formIoId: formIoId, dataId: dataId },
+            success: function (data) { returnData = data; },
+            error: function () { showMsg("Error occurred while loading the data", "error"); }
+        });
+        return returnData;
+    }
+
+    function submit(submission, form) {
+        let isEdit = dataId ? 1 : 0;
+        const url = "${(baseUrl)!''}${(contextPath)!''}${(apiPath)!''}/saveForm";
+        $.ajax({
+            type: "POST",
+            async: false,
+            url: url,
+            dataType: "text",
+            data: {
+                isEdit: isEdit,
+                formIoId: formIoId,
+                dataId: dataId,
+                formData: JSON.stringify(submission.data)
+            },
+            success: function () {
+                showMsg("Information saved successfully", "success");
+                if (isEdit === 0) {
+                    form.setPristine(true);
+                    form.submission = { data: {} };
+                    form.setValue({});
+                }
+                loadFormIo();
+            },
+            error: function () {
+                showMsg("Error occurred while saving the data", "error");
+                loadFormIo();
+            }
+        });
+    }
+
+    function showMsg(message, type) {
+        let messageBox = $("#formMessageBox");
+        let container = $("#formMessage");
+
+        if (type === "success") {
+            messageBox.removeClass().addClass("alert alert-success");
+        } else if (type === "error") {
+            messageBox.removeClass().addClass("alert alert-danger");
+        } else {
+            messageBox.removeClass().addClass("alert alert-info");
+        }
+
+        messageBox.text(message);
+        container.fadeIn();
+
+        setTimeout(() => container.fadeOut(), (type === "error" ? 6000 : 4000));
+    }
+
+   
+</script>
+</body>
+</html>

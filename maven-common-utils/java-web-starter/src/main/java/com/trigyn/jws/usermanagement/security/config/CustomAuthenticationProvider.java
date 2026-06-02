@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.ldap.CommunicationException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -42,7 +42,6 @@ import com.trigyn.jws.webstarter.vo.CaptchaDetails;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 
 /**
  * 
@@ -213,12 +212,14 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 			logger.error("Failed : Error while authenticating " + ce.getMessage());
 			if (ce.getCause().getClass().equals(CommunicationException.class)) {
 				String		ldapServerDisplayId	= request.getParameter("ldapConfig");
+				ce.printStackTrace();
 				throw new InvalidLoginException("Error while connecting "+ ldapServerDisplayId +" network! Make sure logged into domain");
 			} else {
 				ce.printStackTrace();
 			}
 		} catch (Exception exec) {
 			logger.error("Failed : Error while authenticating " + exec.getMessage());
+			exec.printStackTrace();
 			throw new InvalidLoginException(exec.getMessage());
 		}
 		return authentication;
@@ -254,7 +255,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 				ServletRequestAttributes	sra			= (ServletRequestAttributes) RequestContextHolder
 						.getRequestAttributes();
 				HttpServletRequest			request		= sra.getRequest();
-				HttpSession					session		= request.getSession();
 				String						generatedCaptcha	= null;
 				String captchaRequest_Id=request.getHeader("r");
 				if (loginAttributes.containsKey("enableCaptcha")) {
@@ -265,11 +265,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 						CaptchaDetails captchaDetails = null;
 						if (request.getParameter("captcha")!=null && StringUtils.isBlank(captchaRequest_Id) == false && captchaRequest_Id!=null ) {
 							captchaDetails = iCaptchRepository.findById(captchaRequest_Id).orElse(null);;
-							if (null != captchaDetails)
-							{
+							if (null != captchaDetails) {
 							 generatedCaptcha=captchaDetails.getCaptcha();
-							}
-							else {
+							} else {
 								throw new InvalidLoginException("Captcha has Expired!");
 							}
 						}

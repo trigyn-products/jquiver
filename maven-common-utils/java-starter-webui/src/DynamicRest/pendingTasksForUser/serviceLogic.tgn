@@ -1,0 +1,79 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+var UUID = Java.type("java.util.UUID");
+
+function getPendingTasksForUser() {
+    // === SQL to fetch pending tasks assigned to a user, across workflow definitions ===
+    var pendingTasksQuery =
+        "SELECT wt.task_id, wi.instance_id, wi.definition_id, wi.current_status_id, " +
+        "ws.status_name, wi.entity_id, wi.version " +
+        "FROM jq_workflow_task wt " +
+        "JOIN jq_workflow_instance wi ON wt.instance_id = wi.instance_id " +
+        "JOIN jq_workflow_status ws ON ws.status_id = wi.current_status_id " +
+        "WHERE wt.assigned_to = :assigneeId " +
+        "AND wt.is_completed = 0 " +  // Only pending tasks
+        "AND wi.is_active = 1";
+
+    var params = new HashMap();
+    params.put("assigneeId", requestDetails["assigneeId"]);
+
+    // Optional: filter by workflow definition
+    if (requestDetails["definitionId"] != null && requestDetails["definitionId"] !== undefined) {
+        pendingTasksQuery += " AND wi.definition_id = :definitionId";
+        params.put("definitionId", requestDetails["definitionId"]);
+    }
+
+    var taskResultList = jq_getDBResult(pendingTasksQuery, null, params);
+
+    var tasks = [];
+    if (taskResultList != null && taskResultList.containsKey("data_list")) {
+        var dataList = taskResultList.get("data_list");
+        if (dataList != null && dataList.size() > 0) {
+            for (var i = 0; i < dataList.size(); i++) {
+                var row = dataList.get(i);
+                var taskObj = {};
+
+                // Dynamically populate keys from the DB row
+                row.keySet().forEach(function(key) {
+                    var value = row.get(key);
+                    taskObj[key.toLowerCase()] = value;
+                });
+
+                // Compute next user task id (optional)
+                try {
+                    if (taskObj.current_status_id && taskObj.definition_id && taskObj.version != null) {
+                        var nextStatusId = getNextUserTaskStatus(
+                            taskObj.current_status_id,
+                            taskObj.definition_id,
+                            taskObj.version
+                        );
+                        if (nextStatusId) {
+                            taskObj.nextTaskId = UUID.randomUUID().toString(); // dummy ID
+                        } else {
+                            taskObj.nextTaskId = null;
+                        }
+                    } else {
+                        System.err.println(
+                            "Skipping nextTaskId calculation: missing params (currentStatusId=" +
+                            taskObj.current_status_id + ", definitionId=" + taskObj.definition_id +
+                            ", version=" + taskObj.version + ")"
+                        );
+                        taskObj.nextTaskId = null;
+                    }
+                } catch (e) {
+                    System.err.println("Error calculating nextTaskId for taskId=" + taskObj.task_id + ": " + e);
+                    taskObj.nextTaskId = null;
+                }
+
+                tasks.push(taskObj);
+            }
+        }
+    } else {
+        System.out.println("No pending tasks found for assigneeId: " + requestDetails["assigneeId"]);
+    }
+
+    return tasks;
+}
+
+// Run the script
+getPendingTasksForUser();

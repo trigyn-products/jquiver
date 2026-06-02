@@ -1,0 +1,51 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+var ECBCipherMode = Java.type("com.trigyn.jws.dbutils.cipher.modes.ECBCipherMode");
+var Files = Java.type("java.nio.file.Files");
+var Paths = Java.type("java.nio.file.Paths");
+var FileInfo = Java.type("com.trigyn.jws.dbutils.vo.FileInfo"); 
+var FileType = Java.type("com.trigyn.jws.dbutils.vo.FileInfo.FileType"); 
+var params = new HashMap();
+var queryParam = new HashMap();
+
+function downloadVSConfig(){ 
+    var map = new HashMap();
+    var queryResult ={};
+    var cipher = new ECBCipherMode("AES", "ECB", "PKCS5Padding", 128);
+
+    var encryptionKey = jq_getDBResult("SELECT property_value AS propertyName FROM jq_property_master WHERE property_name='jwsSecretKey'", null, new HashMap()).data_list[0].propertyName;  
+    
+    var encrypted = cipher.encrypt(requestDetails["loggedInUserId"], encryptionKey, "AES");
+    
+    var baseUrl = jq_getDBResult("SELECT property_value As baseUrl FROM jq_property_master WHERE property_name='base-url'", null, new HashMap()).data_list[0].baseUrl;
+    
+    var latestVersion = jq_getDBResult("SELECT property_value As latestVersion FROM jq_property_master WHERE property_name='last-deployed-version'", null, new HashMap()).data_list[0].latestVersion;
+    
+    var contextPath = requestDetails["contextPath"];
+
+    var downloadTime = System.currentTimeMillis();
+    
+    var jsonContent = '{\n' +
+    '  "server": "' + baseUrl + contextPath + '",\n' +
+    '  "token": "' + encrypted + '",\n' +
+    '  "version": "' + latestVersion + '",\n' +
+    '  "downloadTime": "' + downloadTime + '",\n' +
+    '  "_comment_autoRefreshInMinutes": "Allowed range is 1 to 30 minutes, default is 5 minutes",\n' +
+    '  "autoRefreshInMinutes": ' + 5 + ' \n' +
+    '}';
+
+    var tempFile = Files.createTempFile("config", ".jquiver");
+    Files.write(tempFile, new java.lang.String(jsonContent).getBytes("UTF-8"));
+    var fileName = "config" + ".jquiver";
+
+    var fileInfo = new FileInfo();
+    fileInfo.setAbsolutePath(tempFile.toAbsolutePath().toString());
+    fileInfo.setFileName(fileName);
+    fileInfo.setFileType(FileType.Physical);
+    fileInfo.setReturnAction("1"); // download
+    fileInfo.setMimeType("application/octet-stream");
+   
+    return fileInfo;
+}
+
+downloadVSConfig();

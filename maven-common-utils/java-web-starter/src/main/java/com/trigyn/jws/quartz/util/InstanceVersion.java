@@ -40,7 +40,6 @@ public class InstanceVersion implements InstanceIdGenerator {
 					logger.info("can't create instance id file. Exit application");
 					System.exit(-2);
 				}
-				// System.out.println("Instance file created");
 				instanceInformation.put("instanceID", UUID.randomUUID());
 				instanceId = ((UUID) instanceInformation.get("instanceID")).toString();
 
@@ -53,7 +52,6 @@ public class InstanceVersion implements InstanceIdGenerator {
 				instanceInformation	= (HashMap<String, Object>) in.readObject();
 				instanceId			= ((UUID) instanceInformation.get("instanceID")).toString();
 			}
-			// System.out.println("Instance ID : " + instanceId);
 		} catch (IOException exec) {
 			logger.error("Error while updating cluster state : " + ExceptionUtils.getStackTrace(exec.getCause()));
 		} catch (ClassNotFoundException clsExec) {

@@ -26,6 +26,8 @@ public class HelpManualTypeExportVO {
 	
 	private String	headerTemplate	= null;
 	
+	private Integer	editorName	= null;
+	
 	private List<ManualEntryDetailsExportVO> manualEntries = new ArrayList<>();
 	
 	private List<FileUploadExportVO> fileUploadList = new ArrayList<>();
@@ -34,13 +36,14 @@ public class HelpManualTypeExportVO {
 
 	public HelpManualTypeExportVO() {}
 	
-	public HelpManualTypeExportVO(String manualId, String name, Integer isSystemManual, String headerTemplate,
+	public HelpManualTypeExportVO(String manualId, String name, Integer isSystemManual, String headerTemplate, Integer editorName,
 			List<ManualEntryDetailsExportVO> manualEntries, String createdBy, Date createdDate, String lastUpdatedBy, Date lastUpdatedTs, FileUploadConfigExportVO fileUploadConfig,List<FileUploadExportVO> fileUploadList) {
 		super();
 		this.manualId			= manualId;
 		this.name				= name;
 		this.isSystemManual		= isSystemManual;
 		this.headerTemplate = headerTemplate;
+		this.editorName = editorName;
 		this.createdBy = createdBy;
 		this.createdDate = createdDate;
 		this.lastUpdatedBy = lastUpdatedBy;
@@ -136,5 +139,13 @@ public String getHeaderTemplate() {
 
 public void setHeaderTemplate(String headerTemplate) {
 	this.headerTemplate = headerTemplate;
+}
+
+public Integer getEditorName() {
+	return editorName;
+}
+
+public void setEditorName(Integer editorName) {
+	this.editorName = editorName;
 }
 }

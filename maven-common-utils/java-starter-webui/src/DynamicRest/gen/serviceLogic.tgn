@@ -1,0 +1,4 @@
+function getEditorName() {
+    return daoResults["editorName"];
+}
+getEditorName();

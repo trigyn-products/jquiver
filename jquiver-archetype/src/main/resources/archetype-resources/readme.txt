@@ -41,8 +41,8 @@
 	a. Build the application, which needs to be started.
 	a. Update the Dockerfile and docker-compose.yml, available in the project.
 	b. Run the below commands sequentially,
-		docker-compose build
-		docker-compose up
+		docker-compose build  (docker compose build is also ok)
+		docker-compose up     (docker compose up is also ok)
 		
 6. How to start the application using docker, if my application.yml file is to be referred from outside the application jar?
 	a. Build the application, which needs to be started.
@@ -64,3 +64,8 @@
 	c. Uncomment the redisson configuration in application.yml file.
 	d. Provide the redisson.yaml absolute file path, if it is an external file or mention the file name.
 	e. mark the "enabled" configuration as true.
+	
+9. How to configure Local server DB connection instead of Docker DB
+	a . In application.yml at the place of host we should define host.docker.internal:3306 like this
+	b . Comment the (maria db, environment and Port) configuration inside  docker-compose.yml . Not needed when connecting to Local DB.
+	c . For SMTP OTP configuration add host.docker.internal in place of localhost.	

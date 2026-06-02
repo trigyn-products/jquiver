@@ -6,7 +6,7 @@ server:
     session:
       persistent: false 
       timeout: -1
-spring:			
+spring:
   main:
     allow-bean-definition-overriding: true
   servlet:
@@ -16,7 +16,17 @@ spring:
       max-request-size: -1
   web:
     resources:
-      static-locations: classpath:/
+      static-locations: classpath:/static/,classpath:/META-INF/resources/
+      cache:
+       cachecontrol:
+        max-age: 365d
+        cache-public: true
+      chain:
+        enabled: true
+        strategy:
+          content:
+          enabled: true
+          paths: /**
   #comment the profile out if you don't need this
   profiles: ${profileName}
   flyway:
@@ -54,6 +64,9 @@ logging:
 jquiver:
 # Provide the base url of the application
   baseurl: http://localhost:8080
+# Below configuration will enable secured authentication where auth token will be encrypted in every request and response.
+  enableSecuredAuthentication: false
+  authTokenExpiryTime: 90
 ## Uncomment below code if Rest API and Router configuration has to be set.
 ## Below configuration will define the path prefix of Rest API and Router define in application.
 ## Default are view and api, but can be configured here, as per user preference. 
@@ -62,8 +75,8 @@ jquiver:
 #  api:
 #    path: /api
 # Uncomment below code to enable redis caching and modify enabled as true at line number 71
-  redis:
-    config:
+#  redis:
+#    config:
 ## Below either provide the absolute path of redisson.yaml file, if the file is at external location, or keep is as it is.
 #      path: redisson.yaml
 #    cache:

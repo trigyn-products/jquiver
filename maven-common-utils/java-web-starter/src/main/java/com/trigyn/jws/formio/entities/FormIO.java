@@ -62,6 +62,12 @@ public class FormIO implements Serializable {
 
 	@Column(name = "last_updated_ts")
 	private Date				lastUpdatedTs		= null;
+	
+	@Column(name = "multi_submit")
+	private Integer	multiSubmit	= null;
+	
+	@Column(name = "route_name")
+	private String	routeName	= null;
 
 	public String getFormIoId() {
 		return this.formIoId;
@@ -160,14 +166,33 @@ public class FormIO implements Serializable {
 	}
 
 	
+	public Integer getMultiSubmit() {
+		return multiSubmit;
+	}
+
+	public void setMultiSubmit(Integer multiSubmit) {
+		this.multiSubmit = multiSubmit;
+	}
+
+	
+	public String getRouteName() {
+		return routeName;
+	}
+
+	public void setRouteName(String routeName) {
+		this.routeName = routeName;
+	}
+
 	public FormIO getObject() {
 		return this;
 	}
+	
+	
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(createdBy, createdDate, formDescription, formIoChecksum, formIoId, formIoJson, formIoType,
-				formName, persistenceType, lastUpdatedBy, lastUpdatedTs);
+				formName, persistenceType, lastUpdatedBy, lastUpdatedTs,multiSubmit,routeName);
 	}
 
 	@Override
@@ -186,7 +211,9 @@ public class FormIO implements Serializable {
 				&& Objects.equals(formName, other.formName) && isCustomUpdated == other.isCustomUpdated
 				&& Objects.equals(persistenceType, other.persistenceType)
 				&& Objects.equals(lastUpdatedBy, other.lastUpdatedBy)
-				&& Objects.equals(lastUpdatedTs, other.lastUpdatedTs);
+				&& Objects.equals(lastUpdatedTs, other.lastUpdatedTs)
+				&& Objects.equals(multiSubmit, other.multiSubmit)
+				&& Objects.equals(routeName, other.routeName);
 	}
 
 }

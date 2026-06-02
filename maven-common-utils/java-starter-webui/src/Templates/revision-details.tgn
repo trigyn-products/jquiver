@@ -1,3 +1,5 @@
+<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
+
 <head>
 <script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
@@ -76,15 +78,18 @@ opacity: 0.8;
                     <div class="searchblockrevision">
 					<#if isImport == "true"> 
 						<label  style="    width: 118px;">${messageSource.getMessage('jws.importdata')} </label>
+                    <#elseif isTagView == "true">
+                        <label  style="    width: 118px;">TagView</label>
 					<#else>
 						<label for="revisionAutocomplete" style="    width: 118px;" >${messageSource.getMessage("jws.revisionTime")}: </label>
 					</#if>
 					<div class="col-inner-form full-form-fields" style="display:flex; width:100%;    align-items: center;">
-						<#if isImport == "false"> 
+						<#if isImport == "false" && isTagView == "false"> 
 							<div class="search-cover pull-left">
 								<input type="text" id="revisionAutocomplete" value= "" name="revisionAutocomplete" class="form-control">
 								<i class="fa fa-search" aria-hidden="true"></i>
 							</div>
+                       
 						</#if>
 						<span onclick="copyJsonData()" class="searchrevision">
                                 <i class="fa fa-regular fa-copy" aria-hidden="true"></i>
@@ -128,6 +133,8 @@ contextPath = "${(contextPath)!''}";
 const entityId = "${(entityId)!''}";
 const cmvEntityName = "${(cmvEntityName)!''}";
 let updatedJson;
+let updatedPermissionJson;
+let tagViewPermissionJson;
 let compareJsonEditor;
 let diffEditorArray = new Array();
 let autocomplete;
@@ -137,15 +144,26 @@ let isNonVersioningModule;
 let nonVersioningFetchURL;
 $(function(){
 	isImport = "${(isImport)!''}";
-	isNonVersioningModule = "${(isNonVersioningModule)!''}";
-	
-	if(isImport == "false" || isNonVersioningModule == "false") {
-		getUpdatedData();
-	} else {
+    isTagView = "${(isTagView)!''}";
+    moduleId = "${(moduleId)!''}";
+	isNonVersioningModule = "${(isNonVersioningModule)!''}";  
+	permissionJson = '${(permissionJson)!''}';
+    versioningFetchURL = "${(versioningFetchURL)!''}";
+	if(isImport == "false" ||  isNonVersioningModule == "false") {
+        if(isTagView == "true" && isImport == "false" && isNonVersioningModule == "false"){
+            getUpdatedVersioningData();
+        } else if(isTagView == "true" &&  isNonVersioningModule == "true"){
+            nonVersioningFetchURL = "${(nonVersioningFetchURL)!''}";
+            getNonVersioningModuleLatestData();
+        } else {
+		    getUpdatedData(); 
+        }
+
+    } else {
 		nonVersioningFetchURL = "${(nonVersioningFetchURL)!''}";
-		getNonVersioningModuleLatestData();
+		getNonVersioningModuleLatestData();        
 	}
-	
+
 	if(isImport == "true") {
 		let unorderedimportJson = JSON.parse(localStorage.getItem("importJson"));
         importJson = Object.keys(unorderedimportJson).sort().reduce(
@@ -157,7 +175,19 @@ $(function(){
         );
 		localStorage.removeItem("importJson");
 		setJsonEditorContent();
-	} else {
+	} else if(isTagView  == "true"){
+        let unorderedtagModuleJson = JSON.parse(${(tagModuleJson)!''});
+        tagModuleJson = Object.keys(unorderedtagModuleJson).sort().reduce(
+        (obj, key) => { 
+         obj[key] = unorderedtagModuleJson[key]; 
+         return obj;
+          }, 
+          {}
+        );
+        setJsonEditorContent();
+    }
+    
+    else {
 	  setJsonEditorContent();
 	  getUpdatedData();
         autocomplete = $('#revisionAutocomplete').autocomplete({
@@ -216,12 +246,40 @@ function setJsonEditorContent(){
 			wordWrap: 'on',
 	    });
 
-	    if(isImport == "true") {
+	    if(isImport == "true" ) {
 	    	processJSONData(importJson);
 	    }
+        if(isTagView == "true"){
+            processJSONData(tagModuleJson);
+        }
     });
 	
 }
+
+function getUpdatedVersioningData(){
+	$.ajax({
+		type : "POST",
+		url : contextPath + versioningFetchURL,
+		async: false,
+		data : {
+			entityId : entityId,
+            cmvEntityName : cmvEntityName
+		},
+		success : function(data) {
+			updatedJson = data;
+            if(isTagView == "true"){
+                getUpdatedPermissions();
+                getTagViewPermissions();
+            }
+		},
+	        
+	    error : function(xhr, error){
+	    	showMessage("Error occurred while fetching data", "error");
+	    },
+	        	
+	});
+}
+
 
 function getNonVersioningModuleLatestData(){
 	$.ajax({
@@ -233,6 +291,52 @@ function getNonVersioningModuleLatestData(){
 		},
 		success : function(data) {
 			updatedJson = data;
+            if(isTagView == "true"){
+                getUpdatedPermissions();
+                getTagViewPermissions();
+            }
+		},
+	        
+	    error : function(xhr, error){
+	    	showMessage("Error occurred while fetching data", "error");
+	    },
+	        	
+	});
+}
+
+function getUpdatedPermissions(){
+	$.ajax({
+		type : "POST",
+		url : contextPath+"/cf/pd",
+		async: false,
+		data : {
+			moduleId : moduleId,
+			entityId : entityId,
+		},
+		success : function(data) {
+			updatedPermissionJson = data;
+		},
+	        
+	    error : function(xhr, error){
+	    	showMessage("Error occurred while fetching data", "error");
+	    },
+	        	
+	});
+}
+
+function getTagViewPermissions(){
+    const tagPermissionJson = JSON.parse(permissionJson);  // parse string → array
+    const roleIds = tagPermissionJson.map(obj => obj.roleId);
+    console.log(roleIds);
+	$.ajax({
+		type : "POST",
+		url : contextPath+"/cf/tvp",
+		async: false,
+		data : {
+			roleIds : JSON.stringify(roleIds),		
+		},
+		success : function(data) {
+			tagViewPermissionJson = data;
 		},
 	        
 	    error : function(xhr, error){
@@ -253,6 +357,10 @@ function getUpdatedData(){
 		},
 		success : function(data) {
 			updatedJson = data;
+            if(isTagView == "true"){
+                getUpdatedPermissions();
+                getTagViewPermissions();
+            }
 		},
 	        
 	    error : function(xhr, error){
@@ -282,66 +390,172 @@ function getJsonData(selectedElementId){
 }
 
 function processJSONData(selectedVersionData){
-	let selectedVersionObj;
-	if(isImport == "true") {
+  let selectedVersionObj;
+	if(isImport == "true" ) {
 		selectedVersionObj = selectedVersionData;
 	} else {
-		selectedVersionObj = JSON.parse(selectedVersionData);
+		selectedVersionObj =
+		(typeof selectedVersionData === "string")
+			? JSON.parse(selectedVersionData)
+			: selectedVersionData;
+
+		//  Convert numeric-keyed objects to arrays 
+		if (!Array.isArray(selectedVersionObj) &&
+		    Object.keys(selectedVersionObj).every(k => !isNaN(k))) {
+			selectedVersionObj = Object.values(selectedVersionObj);
+		}
 	}
 	let updatedObj = JSON.parse(updatedJson);
+  //  let updatedPermissionObj = JSON.parse(updatedPermissionJson);
+    function decodeObjFields(obj) {
+        if (Array.isArray(obj)) {
+            obj.forEach(item => decodeObjFields(item));
+        } else if (typeof obj === 'object' && obj !== null) {
+            for (let key in obj) {
+                if (obj.hasOwnProperty(key) && typeof obj[key] === 'string') {
+                    obj[key] = decodeHtmlEntityIfNeeded(obj[key]);
+                } else if (typeof obj[key] === 'object') {
+                    decodeObjFields(obj[key]);
+                }
+            }
+        }
+    }
+
+    decodeObjFields(selectedVersionObj);
+    decodeObjFields(updatedObj);
+    
 	for (let prop in selectedVersionObj) {
 		if (Object.prototype.hasOwnProperty.call(selectedVersionObj, prop)) {
 			if(prop === "daoQueryDetails"){
 				dynarestDiff(selectedVersionObj, updatedObj);
+                if(isTagView == "true"){
+                    dynarestDiff(tagViewPermissionJson, updatedPermissionJson);
+                }
 			}else if(prop === "dynamicFormSaveQueries"){
 				formBuilderDiff(selectedVersionObj, updatedObj);
+                if(isTagView == "true"){
+                    formBuilderDiff(tagViewPermissionJson, updatedPermissionJson);
+                }
 			}else if(prop === "dashletBody"){
 				dashletDiff(selectedVersionObj, updatedObj);
+                 if(isTagView == "true"){
+                    dashletDiff(tagViewPermissionJson, updatedPermissionJson);
+                 }
 			}else if(prop === "template"){
 				templateDiff(selectedVersionObj, updatedObj);
-			}else if(prop === "autocompleteQuery"){
+                if(isTagView == "true"){
+                    templateDiff(tagViewPermissionJson, updatedPermissionJson);
+                }
+			}else if(prop === "autocompleteSelectQuery"){
 				autocompleteDiff(selectedVersionObj, updatedObj);
-			}
-		}
+                if(isTagView == "true"){
+                    autocompleteDiff(tagViewPermissionJson, updatedPermissionJson);
+                }
+			}else if(prop === "customFilterCriteria"){
+                if(isTagView == "true"){
+                    gridDiff(tagViewPermissionJson, updatedPermissionJson);
+                }
+		    } else if(prop === "dashboardBody"){
+                if(isTagView == "true"){
+                    dashBoardDiff(tagViewPermissionJson, updatedPermissionJson);
+                }
+		    } else if(prop === "fileBinId"){
+                if(isTagView == "true"){
+                    fileBinDiff(tagViewPermissionJson, updatedPermissionJson);
+                }
+            } else if(prop == "formIoJson") {
+                 if(isTagView == "true"){
+                    formIODiff(tagViewPermissionJson, updatedPermissionJson);
+                }
+           } else if(prop == "includeLayout") {
+                 if(isTagView == "true"){
+                    routerDiff(tagViewPermissionJson, updatedPermissionJson);
+                }
+            }
+        }
 	}
-
-	selectedVersionData = JSON.stringify(selectedVersionObj, null, '	');
-	updatedJson = JSON.stringify(updatedObj, null, '	');
-
-	let originalModel = monaco.editor.createModel(updatedJson, "json");
-	let modifiedModel = monaco.editor.createModel(selectedVersionData, "json");
-					
+        selectedVersionData = JSON.stringify(selectedVersionObj, null, '	');
+        updatedJson = JSON.stringify(updatedObj, null, '	');
+        let originalModel = monaco.editor.createModel(updatedJson, "json");
+        let modifiedModel = monaco.editor.createModel(selectedVersionData, "json");
+  		
 	compareJsonEditor.setModel({
 		original: originalModel,
 		modified: modifiedModel
 	});
 }
 
+function decodeHtmlEntityIfNeeded(str) {
+    if (!str) return str;
+    // Only decode if it contains numeric HTML entities like &#115;
+    if (/&#\d+;/.test(str)) {
+        const txt = document.createElement("textarea");
+        txt.innerHTML = str;
+        return txt.value;
+    }
+    return str; // leave normal text as-is
+}
+
 function templateDiff(selectedVersionObj, updatedObj){
 	let saveTemplate = selectedVersionObj["template"];
 	let updatedTemplate = updatedObj["template"];
-	
-	createDiffEditor(saveTemplate, updatedTemplate, "template", "html");
-	
-	delete selectedVersionObj["template"];
+
+    if (saveTemplate == undefined || updatedTemplate == undefined){
+        createDiffEditor(selectedVersionObj, updatedObj, "", "html");
+    } else{
+	    createDiffEditor(saveTemplate, updatedTemplate, "template", "html");
+    }
+
+    delete selectedVersionObj["template"];
 	delete updatedObj["template"];
+
+	
 }
 
+function gridDiff(selectedVersionObj, updatedObj){	
+    createDiffEditor(selectedVersionObj, updatedObj, "", "html"); 
+}
+
+function fileBinDiff(selectedVersionObj, updatedObj){
+    createDiffEditor(selectedVersionObj, updatedObj, "", "html");  
+}
+
+function dashBoardDiff(selectedVersionObj, updatedObj){
+    createDiffEditor(selectedVersionObj, updatedObj, "", "html");  
+}
+
+function formIODiff(selectedVersionObj, updatedObj){
+    createDiffEditor(selectedVersionObj, updatedObj, "", "html");  
+}
+
+function routerDiff(selectedVersionObj, updatedObj){
+    createDiffEditor(selectedVersionObj, updatedObj, "", "html");  
+}
+
+
 function autocompleteDiff(selectedVersionObj, updatedObj){
-	let saveTemplate = selectedVersionObj["autocompleteQuery"];
-	let updatedTemplate = updatedObj["autocompleteQuery"];
-	
-	createDiffEditor(saveTemplate, updatedTemplate, "autocompleteQuery");
-	
-	delete selectedVersionObj["autocompleteQuery"];
-	delete updatedObj["autocompleteQuery"];
+	let saveTemplate = selectedVersionObj["autocompleteSelectQuery"];
+	let updatedTemplate = updatedObj["autocompleteSelectQuery"];
+
+    if (saveTemplate == undefined || updatedTemplate == undefined){
+        createDiffEditor(selectedVersionObj, updatedObj, "", "html");
+    } else{
+	    createDiffEditor(saveTemplate, updatedTemplate, "autocompleteSelectQuery");
+    }
+	delete selectedVersionObj["autocompleteSelectQuery"];
+	delete updatedObj["autocompleteSelectQuery"];
 }
 
 
 function dynarestDiff(selectedVersionObj, updatedObj){
+    if(selectedVersionObj["daoQueryDetails"] != undefined || updatedObj["daoQueryDetails"] != undefined || selectedVersionObj["serviceLogic"] != undefined || updatedObj["serviceLogic"] != undefined){
 	let daoQueryDetailsArray = JSON.parse(selectedVersionObj["daoQueryDetails"]);
 	let updatedDaoQueryDetailsArray = JSON.parse(updatedObj["daoQueryDetails"]);
-	
+    let serviceLogicArray = selectedVersionObj["serviceLogic"];
+	let updatedserviceLogicArray = updatedObj["serviceLogic"];
+
+	createDiffEditor(serviceLogicArray, updatedserviceLogicArray, "serviceLogic", "html");
+
 	if(daoQueryDetailsArray.length > updatedDaoQueryDetailsArray.length){
 		$.each(daoQueryDetailsArray, function(index, value){
 			let saveQueryObj = value;
@@ -364,14 +578,19 @@ function dynarestDiff(selectedVersionObj, updatedObj){
 			createDiffEditor(saveQueryObj, updatedSaveQueryObj, "daoQueryDetails");
 		});
 	}
-	
 	delete selectedVersionObj["daoQueryDetails"];
 	delete updatedObj["daoQueryDetails"];
+    delete selectedVersionObj["serviceLogic"];
+	delete updatedObj["serviceLogic"];
+    } else{
+        createDiffEditor(selectedVersionObj, updatedObj, "", "html");
+    }
 
 }
 
 
 function formBuilderDiff(selectedVersionObj, updatedObj){
+     if(selectedVersionObj["formBody"] != undefined || updatedObj["formBody"] != undefined || selectedVersionObj["formSelectQuery"] != undefined || updatedObj["formSelectQuery"] != undefined || selectedVersionObj["dynamicFormSaveQueries"] != undefined || updatedObj["dynamicFormSaveQueries"] != undefined){
 	let saveFormHtml = selectedVersionObj["formBody"];
 	let updatedFormHtml = updatedObj["formBody"];
 	let saveFormSelectQuery = selectedVersionObj["formSelectQuery"];
@@ -410,29 +629,32 @@ function formBuilderDiff(selectedVersionObj, updatedObj){
 	delete updatedObj["formSelectQuery"];
 	delete selectedVersionObj["dynamicFormSaveQueries"];
 	delete updatedObj["dynamicFormSaveQueries"];
+    } else{
+        createDiffEditor(selectedVersionObj, updatedObj, "", "html");
+    }
 }
 
 
 function dashletDiff(selectedVersionObj, updatedObj){
-	let htmlContent = selectedVersionObj["dashletBody"];
-	let updatedHtmlContent = updatedObj["dashletBody"];
-	
-	createDiffEditor(htmlContent, updatedHtmlContent, "dashletBody", "html");
-		
-	delete selectedVersionObj["dashletBody"];
-	delete updatedObj["dashletBody"];
-	
-	let sqlQuery = selectedVersionObj["dashletQuery"];
-	let updatedSqlQuery = updatedObj["dashletQuery"];
-	
-	createDiffEditor(sqlQuery, updatedSqlQuery, "dashletQuery");
-		
-	delete selectedVersionObj["dashletQuery"];
-	delete updatedObj["dashletQuery"];
+    if(selectedVersionObj["dashletBody"] != undefined || updatedObj["dashletBody"] != undefined || selectedVersionObj["dashletQuery"] != undefined || updatedObj["dashletQuery"] != undefined){
+        let htmlContent = selectedVersionObj["dashletBody"];
+        let updatedHtmlContent = updatedObj["dashletBody"]; 
+        createDiffEditor(htmlContent, updatedHtmlContent, "dashletBody", "html");       
+        delete selectedVersionObj["dashletBody"];
+        delete updatedObj["dashletBody"];
+
+        let sqlQuery = selectedVersionObj["dashletQuery"];
+        let updatedSqlQuery = updatedObj["dashletQuery"];   
+        createDiffEditor(sqlQuery, updatedSqlQuery, "dashletQuery");       
+        delete selectedVersionObj["dashletQuery"];
+        delete updatedObj["dashletQuery"];
+   
+    }else{
+        createDiffEditor(selectedVersionObj, updatedObj, "", "html");
+    }
 }
 
 function createDiffEditor(selectedObj, currentObj, fieldName, a_languageName){
-	
 	require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
 	require(["vs/editor/editor.main"], function() {
 			
@@ -460,7 +682,6 @@ function createDiffEditor(selectedObj, currentObj, fieldName, a_languageName){
 			
 			let originalModel = monaco.editor.createModel(currentObj, languageName);
 			let modifiedModel = monaco.editor.createModel(selectedObj, languageName);
-							
 			diffEditor.setModel({
 				original: originalModel,
 				modified: modifiedModel
@@ -476,7 +697,7 @@ function createDiffEditor(selectedObj, currentObj, fieldName, a_languageName){
 
 
 function copyJsonData(){
-	if(isImport == "false") {
+	if(isImport == "false" && isTagView == "false") {
 		let selectedElementId = $("#moduleVersionId").val().trim();
 		if(selectedElementId == ""){
 			$("#errorMessage").html("Please select revision time");
@@ -532,7 +753,11 @@ function saveUpdatedJson(){
 				propertyArray.push(fieldVal);
 				contentJson[fieldName] = JSON.stringify(propertyArray);
 			}else{
-				contentJson[fieldName] = fieldVal;
+                if(isTagView == "true" && fieldName == ""){
+				    fieldVal = "";
+                } else{
+                    contentJson[fieldName] = fieldVal;
+                }
 			}
 		}
 	});
@@ -563,10 +788,11 @@ function saveUpdatedJson(){
 				if(!idList.includes(moduleType.toLowerCase()+entityId)) {
 			    		idList.push(moduleType.toLowerCase()+entityId);
 				}
-				localStorage.setItem("importedIdList", JSON.stringify(idList));
-                
+				localStorage.setItem("importedIdList", JSON.stringify(idList));          
 			}
-         //   saveScriptLibDetails(formId,contentJson);
+            if(isTagView == "true"){
+                savePermissionDetails(permissionJson);
+            }
 			showMessage("Information saved successfully", "success");
 		},
 				
@@ -578,24 +804,24 @@ function saveUpdatedJson(){
 
 }
 
-function saveScriptLibDetails(formId,contentJson){
+function savePermissionDetails(permissionJson){
      $.ajax({
        async: false,
         type: "POST",
-        url: contextPath+apiPath+"/saveScript", 
+        url : contextPath+"/cf/spd",
         data:{
-            formId: formId,
-            scriptIdArray : contentJson.scriptLibId,
-            formQueryId : contentJson.formQueryId,
-            isEdit : 1,
+            entityId : entityId,
+            moduleId : moduleId,
+            permissionJson: JSON.stringify(JSON.parse(permissionJson))
         },
-        success: function(data) {               
+        success: function(data) {      
+          
         },
         error: function(xhr, error) {
             showMessage("Error while loading", "error");
              
         },
-    });//end of ajax
+    });
 }
 
 function backToPreviousPage(){

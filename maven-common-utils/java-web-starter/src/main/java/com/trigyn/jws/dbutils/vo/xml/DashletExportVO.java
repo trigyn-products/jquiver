@@ -33,9 +33,12 @@ public class DashletExportVO {
 	
 	private List<DashletProperties>	properties	= new ArrayList<>();
 	
-	private String	resultVariableName		= null;
+	private String	resultVariableName	= null;
 	
-	private Integer	daoQueryType			= null;
+	private Integer	daoQueryType		= null;
+	
+	private String	datasourceId		= null;
+
 	
 	public DashletExportVO() {
 
@@ -43,7 +46,7 @@ public class DashletExportVO {
 
 	public DashletExportVO(String dashletId, String dashletName, String dashletTitle, Integer xCoordinate,
 			Integer yCoordinate, Integer width, Integer height,Integer showHeader, Integer isActive,
-			Integer dashletTypeId, String selectQueryFileName, String htmlBodyFileName,List<DashletProperties>	properties,Integer	daoQueryType,String	resultVariableName) {
+			Integer dashletTypeId, String selectQueryFileName, String htmlBodyFileName,List<DashletProperties>	properties,Integer	daoQueryType,String	resultVariableName,String datasourceId) {
 		this.dashletId				= dashletId;
 		this.dashletName			= dashletName;
 		this.dashletTitle			= dashletTitle;
@@ -59,6 +62,7 @@ public class DashletExportVO {
 		this.properties				= properties;
 		this.daoQueryType           = daoQueryType;
 		this.resultVariableName     = resultVariableName;
+		this.datasourceId			= datasourceId;
 	}
 
 	public String getDashletId() {
@@ -179,5 +183,13 @@ public class DashletExportVO {
 
 	public void setDaoQueryType(Integer daoQueryType) {
 		this.daoQueryType = daoQueryType;
+	}
+
+	public String getDatasourceId() {
+		return datasourceId;
+	}
+
+	public void setDatasourceId(String datasourceId) {
+		this.datasourceId = datasourceId;
 	}
 }

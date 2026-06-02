@@ -24,10 +24,13 @@ public class SchedulerVO {
 	private String	modifiedBy					= null;
 
 	private Date	modifiedDate				= null;
+	
+	private Integer	isCustomUpdated				= 1;
+
 
 	public SchedulerVO(String schedulerId, String scheduler_name, String cronScheduler, Integer isActive,
 			String headerJson, String requestParamJson, String jwsDynamicRestId, String failedNotificationParamJson,
-			Integer schedulerTypeId, String modifiedBy, Date modifiedDate) {
+			Integer schedulerTypeId, String modifiedBy, Date modifiedDate, Integer isCustomUpdated) {
 		super();
 		this.schedulerId					= schedulerId;
 		this.scheduler_name					= scheduler_name;
@@ -40,6 +43,7 @@ public class SchedulerVO {
 		this.schedulerTypeId				= schedulerTypeId;
 		this.modifiedBy						= modifiedBy;
 		this.modifiedDate					= modifiedDate;
+		this.isCustomUpdated                =isCustomUpdated;
 	}
 
 	public SchedulerVO() {
@@ -132,5 +136,15 @@ public class SchedulerVO {
 	public void setModifiedDate(Date modifiedDate) {
 		this.modifiedDate = modifiedDate;
 	}
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+	
+	
 
 }

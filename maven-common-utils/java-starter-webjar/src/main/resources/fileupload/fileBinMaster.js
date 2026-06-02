@@ -11,9 +11,9 @@ class FileBinMaster {
 
 	loadFinBinDetails = function() {
 		let context = this;
-		if(fileBinDisplayTexts == null){
-				 fileBinDisplayTexts = resourceBundleData("jws.fileBinAlreadyExist,jws.fileBinCannotBeBlank");
-			}
+		if (fileBinDisplayTexts == null) {
+			fileBinDisplayTexts = resourceBundleData("jws.fileBinAlreadyExist,jws.fileBinCannotBeBlank");
+		}
 		loadDefaultTab("filebin-default-template", context.updateFileBinTemplate);
 		if (edit == 1) {
 			context.getEntityRoles();
@@ -157,6 +157,7 @@ class FileBinMaster {
 			});
 			context.uploadValidator.onDidChangeModelContent(function() {
 				$("#errorMessage").hide();
+				userActivityDetected(); // for salt refresh
 			});
 			if ($("#uploadValidator_query").text().trim() !== "") {
 				$("#uploadValidator_chkbox").attr("checked", "checked");
@@ -244,6 +245,7 @@ class FileBinMaster {
 			});
 			context.viewValidator.onDidChangeModelContent(function() {
 				$("#errorMessage").hide();
+				userActivityDetected(); // for salt refresh
 			});
 			if ($("#viewValidator_query").text().trim() !== "") {
 				$("#viewValidator_chkbox").attr("checked", "checked");
@@ -331,6 +333,7 @@ class FileBinMaster {
 			});
 			context.deleteValidator.onDidChangeModelContent(function(event) {
 				$("#errorMessage").hide();
+				userActivityDetected(); // for salt refresh
 			});
 			if ($("#deleteValidator_query").text().trim() !== "") {
 				$("#deleteValidator_chkbox").attr("checked", "checked");
@@ -376,14 +379,14 @@ class FileBinMaster {
 			context.enableDisableValidator(elementId);
 		});
 	}
-	
+
 	getDefaultQueries = function() {
 		$.ajax({
 			type: "GET",
-			url: contextPath+apiPath+"/file-bin-default-queries",
+			url: contextPath + apiPath + "/file-bin-default-queries",
 			async: false,
 			success: function(data) {
-				for(let iCounter = 0; iCounter < data.children[0].children.length; iCounter++){
+				for (let iCounter = 0; iCounter < data.children[0].children.length; iCounter++) {
 					$("#" + data.children[0].children[iCounter].id).text(data.children[0].children[iCounter].childNodes[1].nodeValue);
 					defaultQueries[data.children[0].children[iCounter].id] = data.children[0].children[iCounter].childNodes[1].nodeValue;
 				}
@@ -394,7 +397,7 @@ class FileBinMaster {
 		});
 	}
 
-	enableDisableValidator = function(editorVariableName,jsonObj) {
+	enableDisableValidator = function(editorVariableName, jsonObj) {
 		let context = this;
 		let editor = context[editorVariableName];
 		if ($("#" + editorVariableName + "_chkbox").prop("checked")) {
@@ -402,30 +405,30 @@ class FileBinMaster {
 			$("#" + editorVariableName + "_container").show();
 			editor.setValue($("#" + editorVariableName + "_query").text());
 			editor.updateOptions({ readOnly: false });
-			$("#queryType_" + editorVariableName).prop("disabled", false); 
+			$("#queryType_" + editorVariableName).prop("disabled", false);
 			$("#datasource_" + editorVariableName).prop("disabled", false);
 			$("#script_" + editorVariableName).prop("disabled", false);
-			
+
 		} else {
-			 if((jsonObj == undefined) == false && jsonObj != "[]"){
-                showMessage("Please remove the Script Library and save the changes.", "warn");
-                $("#" + editorVariableName + "_chkbox").prop('checked', true);
-                $("#script_" + editorVariableName).prop("disabled", false);
+			if ((jsonObj == undefined) == false && jsonObj != "[]") {
+				showMessage("Please remove the Script Library and save the changes.", "warn");
+				$("#" + editorVariableName + "_chkbox").prop('checked', true);
+				$("#script_" + editorVariableName).prop("disabled", false);
 				$("#" + editorVariableName + "_div").css("opacity", "0.4");
 				$("#" + editorVariableName + "_query").text(editor.getValue().toString());
 				editor.setValue("");
 				editor.updateOptions({ readOnly: false });
-				$("#queryType_" + editorVariableName).prop("disabled", false); 
+				$("#queryType_" + editorVariableName).prop("disabled", false);
 				$("#datasource_" + editorVariableName).prop("disabled", false);
-                return false;
-                }
-              	$("#" + editorVariableName + "_div").css("opacity", "0.4");
-				$("#" + editorVariableName + "_query").text(editor.getValue().toString());
-				editor.setValue("");
-				editor.updateOptions({ readOnly: true });
-             	$("#queryType_" + editorVariableName).prop("disabled", true);
-				$("#datasource_" + editorVariableName).prop("disabled", true);
-				$("#script_" + editorVariableName).prop("disabled", true);
+				return false;
+			}
+			$("#" + editorVariableName + "_div").css("opacity", "0.4");
+			$("#" + editorVariableName + "_query").text(editor.getValue().toString());
+			editor.setValue("");
+			editor.updateOptions({ readOnly: true });
+			$("#queryType_" + editorVariableName).prop("disabled", true);
+			$("#datasource_" + editorVariableName).prop("disabled", true);
+			$("#script_" + editorVariableName).prop("disabled", true);
 		}
 	}
 
@@ -461,6 +464,12 @@ class FileBinMaster {
 	}
 
 	saveData = function() {
+		var fileBinId = $("#fileBinId").val().trim();
+		if (fileBinId != "") {
+			edit = 1;
+		} else {
+			edit = 0;
+		}
 		let context = this;
 		let isDataSaved = false;
 		let scriptLibInsertUploadArr = new Array();
@@ -483,42 +492,42 @@ class FileBinMaster {
 		$("#uploadValidator_query").val($("#uploadValidator_query").val());
 		$("#viewValidator_query").val($("#viewValidator_query").val());
 		$("#deleteValidator_query").val($("#deleteValidator_query").val());
-		let fileCount = $( "#custom-handle" ).text();
-		$("#noOfFiles").val(fileCount); 
-		
+		let fileCount = $("#custom-handle").text();
+		$("#noOfFiles").val(fileCount);
+
 		let form = $("#addEditForm");
-		
+
 		form.append('<input name="uploadScriptLibraryId" id="uploadScriptLibraryId" type="hidden" />');
 		form.append('<input name="viewScriptLibraryId" id="viewScriptLibraryId" type="hidden" />');
 		form.append('<input name="deleteScriptLibraryId" id="deleteScriptLibraryId" type="hidden" />');
 		form.append('<input name="scriptLibDeleteUpload" id="scriptLibDeleteUpload" type="hidden" />');
 		form.append('<input name="scriptLibDeleteView" id="scriptLibDeleteView" type="hidden" />');
 		form.append('<input name="scriptLibDelete" id="scriptLibDelete" type="hidden" />');
-		
+
 		let scriptLibInsertUpload = $('#inputscriptInsert_upload').val();
 		let scriptLibDeleteUpload = $('#inputscriptdelete_upload').val();
 		let scriptLibInsertView = $('#inputscriptInsert_view').val();
 		let scriptLibDeleteView = $('#inputscriptdelete_view').val();
 		let scriptLibInsertDelete = $('#inputscriptInsert_delete').val();
 		let scriptLibDelete = $('#inputscriptdelete_delete').val();
-		
+
 		scriptLibInsertUploadArr.push(scriptLibInsertUpload);
 		scriptLibInsertViewArr.push(scriptLibInsertView);
 		scriptLibInsertDeleteArr.push(scriptLibInsertDelete);
 		scriptLibDeleteUploadArr.push(scriptLibDeleteUpload);
 		scriptLibDeleteViewArr.push(scriptLibDeleteView);
 		scriptLibDeleteArr.push(scriptLibDelete);
-		
+
 		$("#uploadScriptLibraryId").val(JSON.stringify(scriptLibInsertUploadArr));
 		$("#viewScriptLibraryId").val(JSON.stringify(scriptLibInsertViewArr));
 		$("#deleteScriptLibraryId").val(JSON.stringify(scriptLibInsertDeleteArr));
 		$("#scriptLibDeleteUpload").val(JSON.stringify(scriptLibDeleteUploadArr));
 		$("#scriptLibDeleteView").val(JSON.stringify(scriptLibDeleteViewArr));
 		$("#scriptLibDelete").val(JSON.stringify(scriptLibDeleteArr));
-		
-	
-		if (isValidForm === true) {
-			let formData = $("#addEditForm").serialize() + "&formId=" + formId ;
+
+
+		if (isValidForm === true && saveModDetails(edit, fileBinId) == true) {
+			let formData = $("#addEditForm").serialize() + "&formId=" + formId;
 			if (edit === 1) {
 				formData = formData + "&edit=" + edit;
 			}
@@ -534,11 +543,11 @@ class FileBinMaster {
 					showMessage("Information saved successfully", "success");
 				},
 				error: function(xhr, error) {
-					if(xhr.status == 412){
-				       showMessage(fileBinDisplayTexts["jws.fileBinAlreadyExist"], "error");
-			        }
-				    else {
-					   showMessage("Error occurred while saving", "error");
+					if (xhr.status == 412) {
+						showMessage(fileBinDisplayTexts["jws.fileBinAlreadyExist"], "error");
+					}
+					else {
+						showMessage("Error occurred while saving", "error");
 					}
 				},
 			});
@@ -552,10 +561,10 @@ class FileBinMaster {
 		let fileBinId = $("#fileBinId").val().trim();
 		let maxFileSize = $("#maxFileSize").val().trim();
 		let fileTypeSupported = $("#fileTypeSupported").val().trim();
-		let customFileStorageClass=$("#customFileStorageClass").val().trim();
-//		if (fileBinId !== "" && fileTypeSupported !== "" && maxFileSize !== "" && maxFileSize >= 1) {
-//			return true;
-//		}
+		let customFileStorageClass = $("#customFileStorageClass").val().trim();
+		//		if (fileBinId !== "" && fileTypeSupported !== "" && maxFileSize !== "" && maxFileSize >= 1) {
+		//			return true;
+		//		}
 		if (fileBinId === "") {
 			$("#fileBinId").focus();
 			$("#fileBinId").closest("div").parent().effect("highlight", {}, 3000);
@@ -577,55 +586,55 @@ class FileBinMaster {
 			$("html, body").animate({ scrollTop: 0 }, "slow");
 			return false;
 		}
-		
-	    if ($("#isFileStorageEnable").prop("checked") ){
-	     if(customFileStorageClass === ""){             
-			$("#customFileStorageClass").focus();
-	        $("#customFileStorageClass").closest("div").parent().effect("highlight", {}, 3000);
-			showMessage("Custom File Storage Class cannot be blank", "warn");
-			$("html, body").animate({ scrollTop: 0 }, "slow");
-		    return false;			  
-            }
-     else{      
-		       var message=null;   
-		       let key = $("#customFileStorageClass").val().trim();
-		       const lastIndex = key.lastIndexOf(".");
-		       let className;
-		       let packageName;
-		       if (lastIndex !== -1) {
-				  const word = key.slice(lastIndex + 1).trim();
-				  const result = key.substring(0, lastIndex);
-				  className=word; 
-				  packageName=result;
+
+		if ($("#isFileStorageEnable").prop("checked")) {
+			if (customFileStorageClass === "") {
+				$("#customFileStorageClass").focus();
+				$("#customFileStorageClass").closest("div").parent().effect("highlight", {}, 3000);
+				showMessage("Custom File Storage Class cannot be blank", "warn");
+				$("html, body").animate({ scrollTop: 0 }, "slow");
+				return false;
+			}
+			else {
+				var message = null;
+				let key = $("#customFileStorageClass").val().trim();
+				const lastIndex = key.lastIndexOf(".");
+				let className;
+				let packageName;
+				if (lastIndex !== -1) {
+					const word = key.slice(lastIndex + 1).trim();
+					const result = key.substring(0, lastIndex);
+					className = word;
+					packageName = result;
 				} else {
-				   message="Class Name should contain package name ."
-				   context.getMessage(message);
-		           return false;   
+					message = "Class Name should contain package name ."
+					context.getMessage(message);
+					return false;
 				}
-				const re1 =/^[A-Z_$][A-Za-z0-9_$]*$/	 //validation for class name
-			    const re2 =/^[a-z]\w*(\.[a-z]\w*)+$/   //validation for package name
-			  
-			   	if(!re1.test(className)) {
-					  message="Class name begins with UpperCase and does not contain spaces/start with digit."  
-				} 
-				else if(!re2.test(packageName)) {
-					 message="Package name should start with small letter. "		
+				const re1 = /^[A-Z_$][A-Za-z0-9_$]*$/	 //validation for class name
+				const re2 = /^[a-z]\w*(\.[a-z]\w*)+$/   //validation for package name
+
+				if (!re1.test(className)) {
+					message = "Class name begins with UpperCase and does not contain spaces/start with digit."
+				}
+				else if (!re2.test(packageName)) {
+					message = "Package name should start with small letter. "
 				}
 				else {
-							  return true;
-					 } 
-		        context.getMessage(message);
-		        return false;    		    
-			  }
-           }
+					return true;
+				}
+				context.getMessage(message);
+				return false;
+			}
+		}
 		return true;
 	}
-    getMessage= function(msg) {
-		 $("#customFileStorageClass").focus();
-		 $("#customFileStorageClass").closest("div").parent().effect("highlight", {}, 3000);
-		 showMessage(msg, "warn");
-	     $("html, body").animate({ scrollTop: 0 }, "slow");	 
-	         
+	getMessage = function(msg) {
+		$("#customFileStorageClass").focus();
+		$("#customFileStorageClass").closest("div").parent().effect("highlight", {}, 3000);
+		showMessage(msg, "warn");
+		$("html, body").animate({ scrollTop: 0 }, "slow");
+
 	}
 	prepareValidatorContent = function() {
 		let context = this;
@@ -705,20 +714,20 @@ class FileBinMaster {
 		let selectedOptionQueryType = $("#queryType_" + editorIndex).find(":selected").val();
 		if (selectedOptionQueryType === "4") {
 			$("#dt-" + editorIndex).hide();
-			if(defaultQueries[editorIndex + "_script"]){
+			if (defaultQueries[editorIndex + "_script"]) {
 				editor.setValue(defaultQueries[editorIndex + "_script"]);
-		} 
-		} else if(selectedOptionQueryType === "2"){
+			}
+		} else if (selectedOptionQueryType === "2") {
 			$("#dt-" + editorIndex).hide();
-			if(defaultQueries[editorIndex + "_python"]){
+			if (defaultQueries[editorIndex + "_python"]) {
 				editor.setValue(defaultQueries[editorIndex + "_python"]);
-			} 
-		} else if(selectedOptionQueryType === "3"){
+			}
+		} else if (selectedOptionQueryType === "3") {
 			$("#dt-" + editorIndex).hide();
-			if(defaultQueries[editorIndex + "_php"]){
+			if (defaultQueries[editorIndex + "_php"]) {
 				editor.setValue(defaultQueries[editorIndex + "_php"]);
-			} 
-		} else{
+			}
+		} else {
 			$("#dt-" + editorIndex).show();
 			editor.setValue(defaultQueries[editorIndex + "_query"]);
 		}

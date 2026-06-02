@@ -1,0 +1,15 @@
+var HashMap = Java.type("java.util.HashMap");
+var System = Java.type("java.lang.System");
+
+function refreshSalt() {
+    var saltId = requestDetails.saltId;
+    
+    var map = new HashMap();
+    map.put("saltId", saltId);
+
+    var queryUpdate = "UPDATE jq_salt_details SET request_time = NOW() + INTERVAL 5 MINUTE WHERE request_id = :saltId";
+
+    jq_updateDBQuery(queryUpdate, null, map);
+}
+
+refreshSalt();

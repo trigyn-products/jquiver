@@ -19,9 +19,13 @@ $(document).ready(function(){
        $('#logintabs a:first').tab('show');    
     </#if>     
 });
+
 function generateCaptch(imagesrc) {
        // alert("generate Captch");
      const imgElement = document.getElementById('imgCaptcha');    
+     if (imgElement == null) {
+        return;
+    }
      fetch(imagesrc, {
         headers: {
 
@@ -49,8 +53,7 @@ function generateCaptch(imagesrc) {
                          if ($('#captcha').prop('disabled')) {
                            $("#captcha").removeAttr('disabled');
 			}
-		   }
-		else{
+		   } else {
 		     //set path and show error Message and disable text
 		      imgElement.src = "${(contextPath)!''}/webjars/1.0/images/noimg.png";
 		      $("#captcha").attr('disabled','disabled');
@@ -69,11 +72,11 @@ function generateCaptch(imagesrc) {
 
 <style>
     .form-signin .btn-primary {
-    padding: 10px;
-    font-size: 15px;
-    background-color: #005da3 !important;
-}
-    </style>
+        padding: 10px;
+        font-size: 15px;
+        background-color: #005da3 !important;
+    }
+</style>
 </head>
 <body>
 	<div class="container pagecenterbox">
@@ -99,7 +102,7 @@ function generateCaptch(imagesrc) {
 				<#if queryString?? && queryString?has_content>	
 					<#if queryString=="error">		
 						<#if exceptionMessage?? && exceptionMessage?has_content>			  
-							<div class="alert alert-danger" role="alert">${exceptionMessage}</div>	
+							<div id="exceptionMessage" class="alert alert-danger" role="alert">${exceptionMessage}</div>	
 						<#elseif queryString?? &&  queryString=="logout">
 							<div class="alert alert-success" role="alert"><@resourceBundle "jws.signedout"/></div>
 						<#else>
@@ -110,8 +113,10 @@ function generateCaptch(imagesrc) {
                 <div id="captchaGenerationError" class="alert alert-danger" role="alert" style="display: none"></div>
                 <div id="LoginFormError" class="alert alert-danger" role="alert" style="display: none"></div>
                                 
-				<div id="emailRequiredError" class="alert alert-danger" role="alert" style="display: none">Email is required</div>
+				<div id="emailRequiredError" class="alert alert-danger" role="alert" style="display: none">Email is required!</div>
+                <div id="validemailError" class="alert alert-danger" role="alert" style="display: none">Email is invalid!</div>
 				<div class="alert alert-danger" id="userNotFoundError" role="alert" style="display:none"><@resourceBundle "jws.usernotfound"/></div>
+                <div class="alert alert-danger" id="userInActiveError" role="alert" style="display:none"><@resourceBundle "jws.userinactive"/></div>
 				<div class="alert alert-success" id="otpSuccessMsg" role="alert" style="display:none"><@resourceBundle "jws.otpsuccessmsg"/></div>
 				<div class="alert alert-danger" id="smtpconfigerror" role="alert" style="display:none"><@resourceBundle "jws.smtpconfigerror"/></div>
 				<#if (activeAutenticationDetails)?? && activeAutenticationDetails?has_content>			
@@ -143,7 +148,7 @@ function generateCaptch(imagesrc) {
 											<#assign numConvert = "ldaputh">
 											<#assign labelConvert><@resourceBundle "jws.ldap"/></#assign>
 										</#if>
-										<li role="presentation" ><a href="#${numConvert}" aria-controls="${numConvert}" role="tab" data-toggle="tab">	${labelConvert}</a>
+										<li role="presentation" ><a href="#${numConvert}" aria-controls="${numConvert}" role="tab" data-bs-toggle="tab">	${labelConvert}</a>
 										</li>									
 									<!-- Tab panes -->									
 									</#if>
