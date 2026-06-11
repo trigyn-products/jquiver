@@ -180,7 +180,7 @@
                 <div class="col-inner-form full-form-fields">
                     <label for="flammableState">Template
                     </label>
-                    <input type="hidden" data-type="hidden" id="templateId" name="templateId" value="24f87d0c-6121-495c-9f3a-bbe07e5602cf">
+                    <input type="hidden" data-type="hidden" id="templateId" name="templateId" value="f5d2b82d-c64b-43f7-abc9-0a773fabffbf">
                     <span onclick="openFile()">
                     <a href="#" name="open_file" class="form-control disable-bg-cls resumelink">
                         <div id="formiolabel" class="overflowtext">custom-pluggable-template</div>
@@ -242,6 +242,8 @@
                         </li>
                         <li><a href="#jsContent" data-target="jsContent">${messageSource.getMessage("jws.saveScriptContent")}</a>
                         </li>
+						<li id="tabCustomPluggableContent"><a href="#customPluggableContent" data-target="customPluggableContent">${messageSource.getMessage("jws.customPluggableContent")}</a>
+                        </li>
                     </ul>
                     
                     <div id="htmlContent">
@@ -277,6 +279,17 @@
                             </div>
                         </div>
                     </div>
+					<div id="customPluggableContent">
+						<div class="cm-main-wrapper preview cm-scrollbar clearfix">
+							<div id="contentDiv">
+							<span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('customPluggableHtmlContentPreview');">
+													${messageSource.getMessage("jws.copyhtml")} 				 
+							<i class="fa fa-regular fa-copy" aria-hidden="true"></i>
+							</span>
+							<div id="customPluggableHtmlContentPreview" class="default-previews cm-scrollbar"></div>
+							</div>
+						</div>
+					</div>
                     <div id="manual-container" class="cm-rightbar">
                         <div class="row">
                             <div class="col-md-3">

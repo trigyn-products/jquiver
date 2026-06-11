@@ -644,7 +644,7 @@ function onDarkMode(){
     <div class="footer bg-dark">
         <div class="row">
             <div class="col-sm-8 col-8 text-end copyrighttext">${messageSource.getMessage('jws.copywright©')} <a href = "https://www.trigyn.com?utm_source=JQuiver&utm_medium=organic" target="_blank" rel="noopener noreferrer">${messageSource.getMessage('jws.trigyntech')}</a></div>
-           <div class="col-sm-4 col-4 text-end teamtext"></div>
+           <div class="col-sm-4 col-4 text-end teamtext">${(jquiverVersion)!'1.0.0'}</div>
         </div>
     </div>
 </footer>

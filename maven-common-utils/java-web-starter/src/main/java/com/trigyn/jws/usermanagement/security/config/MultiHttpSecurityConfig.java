@@ -383,7 +383,7 @@ public class MultiHttpSecurityConfig {
 			http.sessionManagement(
 					sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 			http.headers(headers -> headers.xssProtection(Customizer.withDefaults()).contentSecurityPolicy(
-					contentSecurityPolicy -> contentSecurityPolicy.policyDirectives(" ").reportOnly()));
+					contentSecurityPolicy -> contentSecurityPolicy.policyDirectives(" ").reportOnly()).frameOptions(frame -> frame.disable()));
 			http.exceptionHandling(
 					exception -> exception.authenticationEntryPoint(new CustomAuthenticationEntryPoint()));
 			http.addFilterBefore(new SavedRequestCookieFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -1,1 +1,0 @@
-SELECT id,rating,feedback,module,updated_date FROM feedback_data WHERE id =  <#if id??> :id <#else> 'null' </#if>
