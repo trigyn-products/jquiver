@@ -38,11 +38,26 @@ Use this file when creating, modifying, or troubleshooting a JQuiver Form Builde
 - Form -> security and role permissions through route/entity metadata.
 
 ## Safe AI-agent usage
+- Use JQuiver Form Builder metadata first; do not create Spring Boot Controller, Service, Repository/DAO, DTO, request/response, or Entity classes unless explicitly asked or verified metadata patterns are insufficient.
 - Verify query type meanings before writing metadata.
 - Recommend backup before changing form rows or save queries.
+- Do not attach multiple or unrelated save queries; select the save query verified for the target form/module.
 - Treat embedded JavaScript and SQL as executable behavior.
 - Identify whether a form is public or authenticated before suggesting changes.
 - Avoid exposing form data that contains PII.
+
+## Verified-example-first rule
+- Before generating or modifying a Form Builder HTML body, inspect at least one existing verified Form Builder example from the same instance or closest matching module.
+- Reuse the verified example's button layout, validation style, message handling, field highlighting, script functions, save behavior, and navigation pattern.
+- Do not invent custom Save/Cancel button HTML, generic onclick handlers, showMessage-only validation, or standalone Bootstrap/jQuery form structure when verified JQuiver examples exist.
+- Form action buttons must use the standard action/button container from existing examples. Do not left-align buttons unless an existing verified form does so.
+- Before generating save, cancel/back, grid action, or router URLs, read `application.yml`/`application.yaml`; use `{view.path}/{router-path}` and `{api.path}/{api-path}`. Do not hardcode `/cf/*` unless configured or verified.
+- If multiple save queries exist, compare form ID, module, table, and purpose before choosing. If uncertain, mark TODO instead of wiring unrelated save queries.
+
+## Form Builder body standard
+A generated body should follow verified JQuiver conventions for container structure, top band/header, field layout, required markers, date fields, dropdown population, validation, message display, button alignment, save/cancel behavior, router navigation, and script imports.
+
+Anti-pattern: left-aligned custom buttons, custom showMessage-only validation, `contextPath + '/cf/sdf'`, or `contextPath + '/cf/{module}'` unless that exact pattern is verified in the current instance.
 
 ## TODO items to verify
 - TODO: verify exact form lifecycle and supported query types from source code.
@@ -52,4 +67,3 @@ Use this file when creating, modifying, or troubleshooting a JQuiver Form Builde
 
 ## Example
 For an applicant form, inspect the route, form metadata, save queries, file upload bins, captcha settings, and any Dynamic REST APIs used by client-side scripts.
-

@@ -39,6 +39,11 @@ Use this file when creating or reviewing templates, forms, grids, dashboards, pu
 - Avoid adding hidden side effects to buttons.
 - Check mobile/responsive behavior for public pages.
 
+## Form Builder UI rules
+- For Form Builder forms, copy and adapt the closest verified JQuiver form pattern. Buttons should live in the standard action/button container and follow existing alignment, normally right-aligned unless a verified form differs.
+- Do not invent custom Save/Cancel buttons, generic handlers, or custom validation/message behavior when existing JQuiver examples provide a pattern.
+- Required-field validation must match existing examples, including field highlighting, focus behavior, messages, and success/error display.
+
 ## TODO items to verify
 - TODO: verify official UI component classes and layout conventions.
 - TODO: verify validation message style.
@@ -47,4 +52,3 @@ Use this file when creating or reviewing templates, forms, grids, dashboards, pu
 
 ## Example
 For a public job listing page, keep filters visible, grid results readable, and action buttons clear. Verify exact CSS and component patterns from the running instance or template metadata.
-

@@ -36,6 +36,38 @@ For any JQuiver task, read these first:
 3. `reference/ai-agent-review-checklist.md`
 4. The task-specific files below
 
+## Metadata-Driven Feature Rules
+- JQuiver feature work must be metadata/configuration driven. Do not create Spring Boot Controller, Service, Repository/DAO, DTO, request/response, or Entity classes unless explicitly asked or verified metadata patterns are insufficient.
+- Do only the requested phase and stop when the user asks for phase-wise implementation.
+- Avoid broad exploration; inspect only the files, metadata, or docs needed for the exact phase.
+- If DDL is already executed, treat business tables as existing baseline and do not recreate or alter DDL unless asked.
+- Before generating Form Builder HTML, read `knowledge-base/04-form-builder.md`, `knowledge-base/21-jquiver-ui-standards.md`, `reference/ui-standards.md`, `reference/environment-config-reference.md`, `skills/jquiver-form-builder/SKILL.md`, `playbooks/create-form-builder-form.md`, and one existing verified form example from the current instance.
+- Reuse the verified form's button layout, validation style, message handling, field highlighting, save behavior, and navigation pattern. Do not generate generic Bootstrap/jQuery form HTML or hardcode `/cf/*` unless explicitly configured or verified.
+
+Complete list/grid screen chain:
+1. Query / Dynamic REST / DAO query metadata
+2. GridUtil / grid configuration
+3. Template, if required
+4. Router / module listing entry
+5. Menu entry, if user-facing
+6. Role/entity access entry
+7. Resource bundle / i18n labels, if required
+
+Complete create/edit form screen chain:
+1. Dynamic form configuration
+2. Insert save-query metadata
+3. Update save-query metadata
+4. Template, if required
+5. Router / module listing entry
+6. Link/action from list screen
+7. Menu entry, if required by JQuiver pattern
+8. Role/entity access entry
+9. Resource bundle / i18n labels, if required
+
+Ticket Management example:
+- For `tm_project` Project List, output is incomplete if only GridUtil/template is created; router/module entry, menu entry, role/entity access, and required resource labels are also needed.
+- For `tm_project` Create/Edit, output is incomplete if only form JSON/template is created; save-query metadata, route/action linkage, role access, and required labels are also needed.
+
 ## Task Reading Map
 
 ### Create CRUD Module
@@ -44,15 +76,21 @@ Read first:
 - `knowledge-base/02-core-database-model.md`
 - `knowledge-base/03-module-router.md`
 - `knowledge-base/04-form-builder.md`
+- `knowledge-base/21-jquiver-ui-standards.md`
 - `knowledge-base/06-grid-utils.md`
 - `knowledge-base/07-dynamic-rest-api.md`
+- `knowledge-base/24-jquiver-page-lifecycle.md`
+- `knowledge-base/26-deployment-and-environment.md`
 - `knowledge-base/15-security-users-roles.md`
 - `reference/metadata-table-reference.md`
+- `reference/ui-standards.md`
+- `reference/environment-config-reference.md`
 - `reference/naming-conventions.md`
 - `playbooks/create-end-to-end-crud-module.md`
 - `playbooks/create-module-route.md`
 - `playbooks/create-form-builder-form.md`
 - `playbooks/create-grid.md`
+- `skills/jquiver-form-builder/SKILL.md`
 
 Then verify:
 - Target business table/schema.
@@ -60,6 +98,8 @@ Then verify:
 - Form metadata.
 - Grid metadata.
 - Role/menu access.
+- `view.path` and `api.path` from `application.yml` or `application.yaml` before creating menu links, grid action links, or API links.
+- Existing verified Form Builder form pattern before generating create/edit HTML.
 - Backup and rollback plan.
 
 ### Modify Existing Module
@@ -79,8 +119,11 @@ Then verify:
 ### Create Form Builder Form
 Read first:
 - `knowledge-base/04-form-builder.md`
+- `knowledge-base/21-jquiver-ui-standards.md`
 - `knowledge-base/03-module-router.md`
 - `knowledge-base/13-additional-datasource.md`
+- `reference/ui-standards.md`
+- `reference/environment-config-reference.md`
 - `reference/metadata-table-reference.md`
 - `developer-runbook/troubleshoot-forms.md`
 - `playbooks/create-form-builder-form.md`
@@ -91,6 +134,8 @@ Then verify:
 - `jq_dynamic_form_save_queries`.
 - Target datasource and query type.
 - Captcha and CSRF behavior.
+- Existing verified Form Builder example from the current instance.
+- Button layout, validation/message/highlight pattern, save query, and navigation URL pattern.
 
 ### Create Form.io Pluggable Form
 Read first:
@@ -113,9 +158,12 @@ Then verify:
 Read first:
 - `knowledge-base/06-grid-utils.md`
 - `knowledge-base/03-module-router.md`
+- `knowledge-base/24-jquiver-page-lifecycle.md`
+- `knowledge-base/26-deployment-and-environment.md`
 - `knowledge-base/13-additional-datasource.md`
 - `knowledge-base/29-performance-guidelines.md`
 - `reference/metadata-table-reference.md`
+- `reference/environment-config-reference.md`
 - `developer-runbook/troubleshoot-grids.md`
 - `playbooks/create-grid.md`
 - `skills/jquiver-grid-utils/SKILL.md`
@@ -128,13 +176,18 @@ Then verify:
 - Custom filter criteria.
 - Datasource ID.
 - Pagination and permissions.
+- `view.path` from `application.yml` or `application.yaml` for grid View/Edit/Open links.
 
 ### Create Dynamic REST API
 Read first:
 - `knowledge-base/07-dynamic-rest-api.md`
+- `knowledge-base/03-module-router.md`
+- `knowledge-base/24-jquiver-page-lifecycle.md`
+- `knowledge-base/26-deployment-and-environment.md`
 - `knowledge-base/13-additional-datasource.md`
 - `knowledge-base/25-authentication-authorization-flow.md`
 - `reference/metadata-table-reference.md`
+- `reference/environment-config-reference.md`
 - `developer-runbook/troubleshoot-dynamic-rest.md`
 - `playbooks/create-dynamic-rest-api.md`
 - `skills/jquiver-dynamic-rest/SKILL.md`
@@ -146,6 +199,7 @@ Then verify:
 - Request type.
 - Response producer.
 - Security flag.
+- `api.path` from `application.yml` or `application.yaml`; default REST links to `/api/{api-path}` when not configured.
 - Side effects before invocation.
 
 ### Configure Additional Datasource

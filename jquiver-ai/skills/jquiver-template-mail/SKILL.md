@@ -39,10 +39,11 @@ Guide an agent through safe review or modification of JQuiver templates, email/X
 2. Identify all consumers: route, form, API, mail flow, or script library.
 3. Verify response producer type if used by Dynamic REST.
 4. Validate merge variables and escaping.
-5. For email/XML, test only with approved test recipients.
-6. For webclient XML, use a test endpoint or dry-run process if available.
-7. Preserve previous body and checksum.
-8. Test all known consumers after change.
+5. Convert Boolean values explicitly; never print `${someBoolean}` or `${(resultSetObject?api.get("is_active"))}` directly.
+6. For email/XML, test only with approved test recipients.
+7. For webclient XML, use a test endpoint or dry-run process if available.
+8. Preserve previous body and checksum.
+9. Test all known consumers after change.
 
 ## 7. Output format
 Return:
@@ -56,12 +57,37 @@ Return:
 ## 8. Safety rules
 - Do not trigger production email or external calls during analysis.
 - Redact recipients, URLs, headers, tokens, and private content.
+- Do not print Boolean values directly in FreeMarker templates; use `?c`, `?string("1", "0")`, display-text `?string(...)`, or explicit `<#if ...>` for checkbox state.
 - Preserve checksum/custom-update behavior unless verified.
 - Recommend backup before template changes.
 
 ## 9. Examples
 - A Dynamic REST API may render `email/xml` and then send mail.
 - A public job page may be a route-backed template using grids and APIs.
+- FreeMarker Boolean output:
+
+```ftl
+<#-- Wrong -->
+${someBoolean}
+${(resultSetObject?api.get("is_active"))}
+
+<#-- Computer-language output -->
+${someBoolean?c}
+${(resultSetObject?api.get("is_active"))?c}
+
+<#-- Numeric database-style flag -->
+${someBoolean?string("1", "0")}
+${(resultSetObject?api.get("is_active"))?string("1", "0")}
+
+<#-- Display text -->
+${someBoolean?string("Active", "Inactive")}
+${(resultSetObject?api.get("is_active"))?string("Active", "Inactive")}
+
+<#-- Checkbox checked state -->
+<#if (resultSetObject?api.get("is_active"))?? && resultSetObject?api.get("is_active")>
+    checked
+</#if>
+```
 
 ## 10. Things not to do
 - Do not edit shared templates without listing consumers.

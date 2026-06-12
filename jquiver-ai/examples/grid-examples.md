@@ -64,3 +64,6 @@ Observed metadata:
 - Grid pages usually depend on route metadata and role/entity permissions.
 
 TODO: Verify exact grid type, query type, filter format, and action conventions from the target export/source.
+
+## Form Builder Action Note
+If a grid action opens a Form Builder create/edit page, treat the action URL as illustrative until verified. Use `{view.path}/{router-path}` from `application.yml`/`application.yaml`, and copy row parameter/navigation patterns from an existing working module. Do not use `/cf/*` unless configured or verified.

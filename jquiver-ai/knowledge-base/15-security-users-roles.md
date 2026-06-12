@@ -49,6 +49,8 @@ Role creation:
 Permission management:
 - Route/menu access and entity permissions may require multiple metadata rows.
 - Verify both page visibility and backing API/grid/file access.
+- Every new JQuiver screen/action must include role/entity/module access metadata according to the existing RBAC pattern.
+- Minimum expectation: Admin/Super Admin full access, normal/project users functional access, and viewer/read-only roles read access if such roles exist.
 - For secured Dynamic REST APIs, confirm `is_secured`, role association, API client behavior, and caller context.
 - For file downloads, verify the route/API and the file bin access path.
 

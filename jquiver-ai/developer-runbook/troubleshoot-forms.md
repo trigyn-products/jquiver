@@ -28,8 +28,10 @@ Troubleshoot JQuiver Form Builder form load, render, validation, and save issues
 8. Verify Dynamic REST APIs called by form scripts.
 9. Check captcha/CSRF flags if submission fails.
 10. Reproduce in non-production when possible.
-11. Use read-only SQL/logs before editing metadata.
-12. If a change is required, follow the form playbook and recommend backup.
+11. Compare the form body against a verified working Form Builder example from the same instance or closest matching module.
+12. Verify button alignment/container, save/cancel/back handlers, required-field highlighting, message behavior, and `view.path`/`api.path` URL prefixes.
+13. Use read-only SQL/logs before editing metadata.
+14. If a change is required, follow the form playbook and recommend backup.
 
 ## Validation checklist
 - Route resolves to correct form.
@@ -40,6 +42,9 @@ Troubleshoot JQuiver Form Builder form load, render, validation, and save issues
 - Permissions valid.
 - File bins valid if used.
 - Client-side API calls verified.
+- Buttons, validation, messages, field highlighting, and navigation match a verified JQuiver form pattern.
+- No hardcoded `/cf/*` URLs exist unless configured or verified.
+- Only the correct save query is attached.
 
 ## Common errors
 - Missing or broken save query.
@@ -48,6 +53,8 @@ Troubleshoot JQuiver Form Builder form load, render, validation, and save issues
 - Captcha/CSRF mismatch.
 - Role lacks access to route or target metadata.
 - JavaScript error prevents submit.
+- Generic custom Form Builder HTML that does not follow verified JQuiver button, validation, message, or navigation patterns.
+- Direct `/cf/*` links when `view.path`/`api.path` were not checked.
 
 ## Rollback/safety notes
 - Back up `jq_dynamic_form` and save query rows before edits.
@@ -61,4 +68,3 @@ Troubleshoot JQuiver Form Builder form load, render, validation, and save issues
 - `../playbooks/create-form-builder-form.md`
 - `../playbooks/modify-existing-module.md`
 - `jquiver-metadata-navigation.md`
-

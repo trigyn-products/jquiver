@@ -43,9 +43,11 @@ Guide an agent through read-only analysis of a JQuiver instance export, database
 4. Count tables, views, inserts, and major prefixes.
 5. Map metadata families: routes, forms, grids, APIs, datasources, dashboards, dashlets, schedulers, file bins, autocompletes.
 6. Identify custom module/business tables and custom schemas.
-7. Redact PII, credentials, tokens, and private files.
-8. Use streaming analysis for large SQL files.
-9. Report only what the user requested.
+7. If router/menu/grid/API links are in scope, inspect `application.yml` or `application.yaml` for `view.path` and `api.path`; default to `/view` and `/api` when not configured.
+8. If Form Builder HTML is in scope, identify at least one verified form example and record its button layout, validation/message pattern, save behavior, and navigation convention before proposing changes.
+8. Redact PII, credentials, tokens, and private files.
+9. Use streaming analysis for large SQL files.
+10. Report only what the user requested.
 
 ## 7. Output format
 Return:

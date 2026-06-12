@@ -42,6 +42,11 @@ Reusable fragments:
 - Shared blocks may be included by forms, templates, or service logic.
 - Confirm dependencies before editing because one template may be reused by many routes or APIs.
 
+FreeMarker boolean output:
+- Never print Boolean values directly, such as `${someBoolean}` or `${(resultSetObject?api.get("is_active"))}`.
+- Use `?c` for computer-language output, `?string("1", "0")` for numeric database-style flags, or `?string("Active", "Inactive")` for display text.
+- For checkbox checked state, use an explicit `<#if ...>` condition.
+
 ## Template lifecycle
 1. Route resolves to a template target.
 2. Template metadata is loaded.
@@ -63,6 +68,7 @@ Reusable fragments:
 - Do not assume a template is only presentational.
 - For email/XML templates, do not trigger send flows during analysis.
 - For webclient XML templates, redact URLs, headers, credentials, and tokens.
+- Convert Boolean values explicitly before output to avoid FreeMarker errors such as "Can't convert boolean to string automatically".
 - Preserve checksum/custom-update conventions until source behavior is verified.
 
 ## TODO items to verify

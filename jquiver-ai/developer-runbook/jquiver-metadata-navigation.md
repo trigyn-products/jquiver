@@ -26,7 +26,8 @@ Provide a repeatable path for tracing JQuiver runtime behavior through metadata.
 8. Inspect related Dynamic REST APIs referenced by templates/forms.
 9. Inspect file bins if upload/download is present.
 10. Inspect schedulers if behavior is time-based.
-11. Draw a dependency chain before proposing a change.
+11. For Form Builder pages, locate a verified form example before proposing HTML changes; record its button layout, validation/message pattern, save behavior, and navigation URLs.
+12. Draw a dependency chain before proposing a change.
 
 ## Validation checklist
 - Route found.
@@ -36,6 +37,7 @@ Provide a repeatable path for tracing JQuiver runtime behavior through metadata.
 - Backing table/view exists.
 - Security dependencies checked.
 - Related API/file/scheduler dependencies checked.
+- Form Builder HTML changes are based on a verified existing form, not generic Bootstrap/jQuery.
 
 ## Common errors
 - Editing a form without checking route permissions.
@@ -54,4 +56,3 @@ Provide a repeatable path for tracing JQuiver runtime behavior through metadata.
 - `../reference/metadata-table-reference.md`
 - `../playbooks/modify-existing-module.md`
 - `common-sql-diagnostics.md`
-

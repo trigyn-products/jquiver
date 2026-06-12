@@ -12,6 +12,7 @@ Use this playbook when learning an unknown JQuiver instance, preparing documenta
 - Custom schema files.
 - Upload folder path, if analysis is allowed.
 - Local URL, if available.
+- `application.yml` or `application.yaml`, if route/API link validation is in scope.
 - User constraints.
 
 ## Files/tables/configuration to inspect first
@@ -22,6 +23,7 @@ Use this playbook when learning an unknown JQuiver instance, preparing documenta
 - `jq_dynamic_rest_details`.
 - `jq_dynamic_rest_dao_details`.
 - `jq_additional_datasource`.
+- `application.yml` or `application.yaml` for `view.path` and `api.path`, if allowed by user constraints.
 - `jq_file_upload_config`, `jq_file_upload`.
 - `jq_dashboard`, `jq_dashlet`.
 - JQuiver core/platform tables: `jq_*`, `flyway_schema_history`, `mail_schedule`, `persistent_logins`, `qrtz_*`.
@@ -34,10 +36,11 @@ Use this playbook when learning an unknown JQuiver instance, preparing documenta
 4. Count tables, views, and populated tables.
 5. Separate JQuiver core/platform tables from custom module/business tables using the approved core-table rule.
 6. Map routes, forms, grids, APIs, datasources, dashboards, schedulers, file bins, and autocompletes.
-7. Map custom tables to forms, grids, Dynamic REST APIs, dashboards, and datasource consumers.
-8. Summarize upload folders without exposing private files.
-9. Check local URL using safe GET requests if provided.
-10. Produce structure summary and TODOs.
+7. If allowed, read `application.yml` or `application.yaml` and record configured `view.path` and `api.path`; defaults are `/view` and `/api`.
+8. Map custom tables to forms, grids, Dynamic REST APIs, dashboards, and datasource consumers.
+9. Summarize upload folders without exposing private files.
+10. Check local URL using safe GET requests if provided.
+11. Produce structure summary and TODOs.
 
 Output format:
 - Core JQuiver tables found.
@@ -45,6 +48,7 @@ Output format:
 - Custom module tables found.
 - Business modules inferred.
 - Tables linked to forms/grids/APIs.
+- Configured `view.path` and `api.path`, or defaults used.
 - Unmapped custom tables.
 - Assumptions/TODOs.
 

@@ -40,10 +40,12 @@ Guide an agent through safe review or configuration of JQuiver authentication, u
 2. Inspect `jq_user`, `jq_role`, and association metadata as needed.
 3. Inspect route/menu metadata.
 4. Inspect backing API/grid/form/file permissions.
-5. Verify public/anonymous access requirements.
-6. Test with representative roles.
-7. Confirm unauthorized access is denied.
-8. Preserve previous role/permission rows before changes.
+5. For every new screen/action, add role/entity/module access metadata according to the existing RBAC pattern.
+6. Minimum expectation: Admin/Super Admin full access, normal/project users functional access, viewer/read-only roles read access if such roles exist.
+7. Verify public/anonymous access requirements.
+8. Test with representative roles.
+9. Confirm unauthorized access is denied.
+10. Preserve previous role/permission rows before changes.
 
 ## 7. Output format
 Return:

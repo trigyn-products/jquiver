@@ -18,6 +18,9 @@ Use this file when working with menus, routes, home pages, page targets, embedde
 - Observed target lookup descriptions include Dashboard, Form Builder, REST API, Model and View, Template, Root, and Target URL.
 - Routes can represent internal pages or external target URLs.
 - Observed HRS route metadata includes `is_home_page`, `include_layout`, `is_inside_menu`, `open_in_new_tab`, `header_json`, and `request_param_json`.
+- Before creating router/menu/grid navigation links, read `application.yml` or `application.yaml` and determine configured `view.path`; if not configured, use `/view`.
+- Router-created JQuiver pages must link using `{view.path}/{router-path}`. Do not invent `/cf/*` or other prefixes unless configured in `application.yml` or verified from an existing working module.
+- Any user-facing screen created via JQuiver must have a valid router/module entry and menu linkage. Do not create only a template or GridUtil row and consider the screen complete.
 
 ## Route lifecycle
 1. User opens a URL or selects a menu item.
@@ -47,6 +50,8 @@ Use this file when working with menus, routes, home pages, page targets, embedde
 - Check if a route is marked as home page or included in menu.
 - Verify route target type before modifying target metadata.
 - Check role access before changing menu visibility.
+- For grid View/Edit/Open links, identify target router path from metadata and build `{view.path}/{router-path}`; copy row-parameter patterns only from an existing verified module.
+- Add role/entity access metadata for new user-facing routes according to the existing RBAC pattern.
 
 ## TODO items to verify
 - TODO: verify all route target lookup IDs from current source/database.

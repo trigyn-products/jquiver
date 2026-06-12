@@ -20,16 +20,18 @@ Use this playbook when a role needs access to a page, menu item, entity, grid, f
 - `jq_user_role_association`.
 - `jq_module_listing_i18n`.
 - Security matrix reference.
+- Existing access metadata for a similar working screen/action.
 
 ## Step-by-step implementation approach
 1. Verify the role exists and is active.
 2. Verify the route/module exists.
 3. Verify current access for the role.
 4. Inspect similar access rows for the same module type.
-5. Confirm whether API/file access also needs changes.
-6. Prepare reversible metadata change after backup.
-7. Test with a user who has the role.
-8. Test with a user who should not have the role.
+5. For new screens/actions, map Admin/Super Admin full access, normal/project-user functional access, and viewer/read-only access if such roles exist.
+6. Confirm whether API/file access also needs changes.
+7. Prepare reversible metadata change after backup.
+8. Test with a user who has the role.
+9. Test with a user who should not have the role.
 
 Example read-only access check:
 
@@ -43,6 +45,10 @@ WHERE role_name = '<ROLE_NAME>';
 ## Validation checklist
 - Role exists.
 - Route exists.
+- New screen/action has role/entity/module access metadata.
+- Admin/Super Admin has full access where appropriate.
+- Normal/project users have functional access where appropriate.
+- Viewer/read-only roles have read-only access if such roles exist.
 - Menu appears for intended role.
 - Menu hidden or blocked for unintended role.
 - Target page loads.
@@ -64,4 +70,3 @@ WHERE role_name = '<ROLE_NAME>';
 - `../knowledge-base/25-authentication-authorization-flow.md`
 - `../reference/security-permission-matrix.md`
 - `../developer-runbook/common-sql-diagnostics.md`
-

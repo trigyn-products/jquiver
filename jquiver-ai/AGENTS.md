@@ -35,13 +35,23 @@ Use this file before an AI agent analyzes, edits, generates, or reviews JQuiver-
 ## Core Rules
 - Do not invent JQuiver internals.
 - Prefer actual source code, database schema, exported metadata, and running instance behavior.
+- JQuiver feature development must be metadata/configuration driven. Do not implement normal Spring Boot CRUD using Controller, Service, Repository, DAO, DTO, request/response, or Entity classes unless the user explicitly asks for custom Java code or a verified JQuiver pattern proves metadata is insufficient.
 - Mark assumptions clearly.
 - Mark unknown exact details as `TODO: Verify from actual JQuiver source code / database / instance export.`
 - Never generate destructive SQL unless explicitly asked.
 - Always recommend backup before metadata or database changes.
 - Follow playbooks before making changes.
+- A user-facing JQuiver screen is not complete until the full metadata chain is handled: query/API metadata, grid or form metadata, template if needed, router/module entry, menu linkage if user-facing, role/entity access, and resource bundle/i18n labels when required.
+- Every new JQuiver screen/action must include role/entity/module access metadata according to the existing JQuiver RBAC pattern; do not leave screens inaccessible due to missing role mappings.
 - Use reference files for exact table names, naming conventions, security rules, and environment configuration.
 - For new AI tools, do not create duplicated full instructions. Generate a thin adapter file that points to `KB-MAP.md`, `AGENTS.md`, the relevant playbook, and the relevant skill.
+- Before creating JQuiver router/menu/grid/API links, read `application.yml` or `application.yaml`. Router prefix defaults to `/view`, API prefix defaults to `/api`, but both are configurable. Use `{view.path}/{router-path}` and `{api.path}/{api-path}`. Never invent `/cf/*` unless configured or verified.
+- Never generate generic Form Builder HTML. For JQuiver forms, inspect and reuse an existing verified form pattern for buttons, validation, messages, field highlighting, save behavior, and navigation. Read `application.yml`/`application.yaml` for `view.path` and `api.path`. Do not hardcode `/cf/*` unless configured or verified.
+- When the user asks for phase-wise implementation, do only the requested phase and stop. Do not continue to dashboards, reports, security, documentation, tests, or extra screens unless explicitly in the current phase.
+- Avoid broad exploration. Inspect only the files, metadata, or docs needed for the exact task; do not repeatedly scan all `jq_*` tables or unrelated modules.
+- Do not query the database unless the user explicitly asks for DB verification or the task cannot be completed without checking a specific metadata ID.
+- Do not run `mvn`, `mvnw`, package, compile, or test commands for documentation/metadata-only tasks.
+- If the user says DDL is already executed, treat business tables as an existing baseline. Do not recreate, regenerate, or alter DDL unless explicitly asked.
 - Do not expose credentials, datasource passwords, applicant PII, resume content, private user data, tokens, OTPs, or secrets from dumps.
 - Do not read or rely on unconfigured environment files unless the user explicitly authorizes it.
 - Do not call side-effecting dynamic REST APIs, scheduler endpoints, delete APIs, save APIs, or email APIs during analysis unless explicitly asked.

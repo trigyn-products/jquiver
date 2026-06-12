@@ -35,11 +35,13 @@ Use this file when creating, modifying, or troubleshooting list pages, pqGrid-ba
 - Grid -> custom filter criteria.
 
 ## Safe AI-agent usage
+- Use JQuiver grid metadata first; do not create Spring Boot Controller, Service, Repository/DAO, DTO, request/response, or Entity classes unless explicitly asked or verified metadata patterns are insufficient.
 - Verify the backing table/view exists.
 - Check whether the grid uses the default schema or an additional datasource.
 - Avoid selecting all columns from large tables unless needed.
 - Review filters and indexes for performance.
 - Do not assume a grid is read-only; row actions may trigger changes.
+- Do not treat a grid/list page as complete without router/module, menu if user-facing, role/entity access, and resource labels when required.
 
 ## TODO items to verify
 - TODO: verify grid pagination, filtering, sorting, and permission behavior from source code.
@@ -48,4 +50,3 @@ Use this file when creating, modifying, or troubleshooting list pages, pqGrid-ba
 
 ## Example
 If a grid shows no data, inspect `jq_grid_details`, the backing view, datasource ID, role access, and the service request used to fetch paginated rows.
-

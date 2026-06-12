@@ -24,19 +24,24 @@ Use this playbook when a new feature needs a list page, create/edit form, route/
 - `jq_entity_role_association`, `jq_role`.
 - `jq_additional_datasource` if custom schema is used.
 - `jq_file_upload_config` if uploads are needed.
+- `application.yml` or `application.yaml` for `view.path` and `api.path`.
+- One existing verified Form Builder form from the same instance or closest matching module before generating create/edit form HTML.
 
 ## Step-by-step implementation approach
 1. Read the KB files for router, form builder, grid utils, security, and page lifecycle.
 2. Identify a similar working module in the target instance.
-3. Design or verify the business table and listing view.
-4. Create the grid definition for list/search behavior.
-5. Create the form definition and save behavior.
-6. Create the route/menu metadata.
-7. Add localized route/resource labels if required.
-8. Add role/entity access.
-9. Add file bin configuration only if the form needs uploads.
-10. Add Dynamic REST APIs only when metadata form/grid behavior is not enough.
-11. Test list, create, edit, validation, permissions, and rollback.
+3. Use JQuiver metadata/configuration patterns; do not create Spring Boot Controller, Service, Repository/DAO, DTO, request/response, or Entity classes unless explicitly asked.
+4. Read `application.yml` or `application.yaml`; determine `view.path` and `api.path`, defaulting to `/view` and `/api`.
+5. Design or verify the business table and listing view.
+6. Create the grid definition for list/search behavior.
+7. Before generating create/edit form HTML, inspect and adapt a verified Form Builder example for buttons, validation, messages, field highlighting, save behavior, and navigation.
+8. Create the form definition and select only the correct save query for that form/module.
+9. Create the route/menu metadata and links as `{view.path}/{router-path}`.
+10. Add localized route/resource labels if required.
+11. Add role/entity access.
+12. Add file bin configuration only if the form needs uploads.
+13. Add Dynamic REST APIs only when metadata form/grid behavior is not enough; links use `{api.path}/{api-path}`.
+14. Test list, create, edit, validation, permissions, and rollback.
 
 Example read-only dependency check:
 
@@ -49,6 +54,20 @@ WHERE module_url = '<ROUTE_URL>';
 
 ## Validation checklist
 - Business table/view exists.
+- Did I read `application.yml` or `application.yaml`?
+- What is the configured `view.path`?
+- What is the configured `api.path`?
+- If not configured, did I default router links to `/view/{path}`?
+- If not configured, did I default API links to `/api/{path}`?
+- Does the menu/router link use `{view.path}/{router-path}`?
+- Is `{router-path}` exactly the router path from metadata?
+- Are grid View/Edit/Open links using the same configured router prefix?
+- Was an existing verified Form Builder form inspected before generating create/edit HTML?
+- Did the form reuse verified buttons, validation, messages, field highlighting, save behavior, and navigation?
+- Were generic Form Builder buttons, generic validation, duplicate save queries, and hardcoded `/cf/*` avoided?
+- Was only the correct save query selected for the form?
+- Were duplicate/unrelated save queries avoided?
+- Was an existing similar module checked before creating links?
 - Route resolves.
 - Grid loads and paginates.
 - Create form loads.
@@ -62,6 +81,9 @@ WHERE module_url = '<ROUTE_URL>';
 - Creating a route without permissions.
 - Creating a grid before the backing view exists.
 - Creating a form without a rollback copy of save queries.
+- Selecting multiple or unrelated save queries for a form.
+- Inventing `/cf/*` links when `view.path` is not configured as `/cf`.
+- Creating Spring Boot CRUD classes instead of JQuiver metadata.
 - Forgetting custom datasource migration.
 - Hard-coding labels instead of resource bundle entries.
 
@@ -77,4 +99,3 @@ WHERE module_url = '<ROUTE_URL>';
 - `../skills/jquiver-grid-utils/SKILL.md`
 - `../knowledge-base/24-jquiver-page-lifecycle.md`
 - `../reference/metadata-table-reference.md`
-

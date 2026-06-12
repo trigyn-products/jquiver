@@ -70,3 +70,5 @@ Observed HRS Dynamic REST editor metadata listed platform choices:
 - PHP
 
 TODO: Verify exact platform IDs and runtime support in the target JQuiver source/version.
+
+API links should use `{api.path}/{api-path}` from `application.yml`/`application.yaml`, defaulting to `/api`. Do not hardcode `/cf/*` for Dynamic REST or Form Builder save calls unless that prefix is configured or verified from an existing working module.

@@ -70,6 +70,7 @@ PHP:
 - UI page -> API calls.
 
 ## Safe AI-agent usage
+- Use JQuiver Dynamic REST metadata first; do not create Spring Boot REST endpoints, Controller, Service, Repository/DAO, DTO, request/response, or Entity classes unless explicitly asked or verified metadata patterns are insufficient.
 - Do not call APIs until side effects are known.
 - Identify whether the API sends email, saves data, deletes data, schedules work, or downloads files.
 - Verify `is_secured` and route access.

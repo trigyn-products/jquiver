@@ -33,6 +33,7 @@ Guide an agent through safe analysis, creation, or troubleshooting of metadata-d
 
 ## 5. Files to read first
 - `../../knowledge-base/07-dynamic-rest-api.md`
+- `../../knowledge-base/26-deployment-and-environment.md`
 - `../../knowledge-base/13-additional-datasource.md`
 - `../../knowledge-base/25-authentication-authorization-flow.md`
 - `../../playbooks/create-dynamic-rest-api.md`
@@ -43,12 +44,13 @@ Guide an agent through safe analysis, creation, or troubleshooting of metadata-d
 1. Inspect `jq_dynamic_rest_details` for URL, method, request type, producer type, platform, security, and file flags.
 2. Inspect `jq_dynamic_rest_dao_details` for DAO queries and datasource IDs.
 3. Inspect role/API client/scheduler consumers if applicable.
-4. Identify side effects before calling the API.
-5. Verify platform support from source or a matching working API.
-6. Validate request binding and output format.
-7. Test in non-production with safe payloads.
-8. Review logs and failure behavior.
-9. Document rollback rows for metadata changes.
+4. Read `application.yml` or `application.yaml`; build REST links as `{api.path}/{api-path}`, defaulting to `/api`.
+5. Identify side effects before calling the API.
+6. Verify platform support from source or a matching working API.
+7. Validate request binding and output format.
+8. Test in non-production with safe payloads.
+9. Review logs and failure behavior.
+10. Document rollback rows for metadata changes.
 
 ## 7. Output format
 Return:
@@ -60,6 +62,7 @@ Return:
 - TODOs and tests.
 
 ## 8. Safety rules
+- Use JQuiver Dynamic REST metadata first; do not create Spring Boot REST endpoints, Controller, Service, Repository/DAO, DTO, request/response, or Entity classes unless explicitly asked or verified metadata patterns are insufficient.
 - Do not invoke side-effecting APIs during analysis unless explicitly asked.
 - Treat server-side JavaScript/Python/Java/PHP/FTL as executable backend logic.
 - Redact PII, tokens, and secrets.
@@ -72,5 +75,6 @@ Return:
 ## 10. Things not to do
 - Do not assume unsecured APIs are safe.
 - Do not test save/delete/mail APIs in production.
+- Do not invent non-default API prefixes; verify `api.path` or use `/api`.
 - Do not copy platform IDs across versions without verification.
 - Do not hide DAO query changes from review.
