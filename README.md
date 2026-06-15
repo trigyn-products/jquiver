@@ -47,9 +47,11 @@ jndi-name: java:comp/env/jdbc/jndiDataSource
 #    password: root
 ```
 
-<b>3)</b> The default setting is to run the application from jar, like any standard springboot application. But in case you want to run your application from any container like Tomcat or so,  then locate _pom.xml_ and change the configuration.
+<b>3)</b> Update rest of the configuration in _application.yml as per the comments in the file, to support different settings. Also make sure all the placeholders marked with ${} is properly updated.
 
-<b>4)</b> Rest run mvn clean install and then run as per your configuration.
+<b>4)</b> The default setting is to run the application from jar, like any standard springboot application. But in case you want to run your application from any container like Tomcat or so,  then locate _pom.xml_ and change the configuration.
+
+<b>5)</b> Rest run mvn clean install and then run as per your configuration.
 ```
 mvn -DskipTests clean install
 ```
