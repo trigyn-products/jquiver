@@ -27,6 +27,7 @@ Use this file before an AI agent proposes SQL, metadata changes, code changes, t
 - A user-facing screen is incomplete without its full metadata chain: query/API, grid or form, template if needed, router/module, menu if user-facing, role/entity access, and resource bundle labels when required.
 - Redact credentials and PII.
 - Redact Postman collection sample credentials, tokens, `ck`/`at` headers, reset tokens, OTP values, captcha values, encrypted payloads, emails, personal names, and localhost URLs; convert them to placeholders before documenting examples.
+- For JavaMelody, inspect `application.yml`/`application.yaml`, `pom.xml`, and dependency tree before enabling or documenting it; a commented `javamelody` block means available but disabled.
 - Do not call side-effecting APIs unless explicitly asked.
 - Do not generate destructive SQL unless explicitly asked.
 - Follow playbooks before making changes.
@@ -42,6 +43,7 @@ Use this file before an AI agent proposes SQL, metadata changes, code changes, t
 - Never generate generic Form Builder HTML. Inspect and adapt an existing verified JQuiver form pattern for buttons, validation, messages, field highlighting, save behavior, and navigation.
 - Reject or revise Form Builder output that left-aligns buttons without verified precedent, uses custom generic Save/Cancel handlers, skips required-field highlighting, hardcodes `/cf/*`, attaches multiple save queries without verified reason, or omits `view.path`/`api.path` verification.
 - Do not confuse verified JQuiver auth/system endpoints with router or Dynamic REST prefixes: `/japi/login` and `/cf/captcha/*` are auth flows, router links use `view.path`, and Dynamic REST links use `api.path`.
+- Do not treat JavaMelody as Dynamic REST, router, metadata, or business module; protect `/monitoring` or the configured monitoring path with access control.
 
 ## Review checklist
 Before producing a JQuiver change plan, verify:
@@ -57,6 +59,7 @@ Before producing a JQuiver change plan, verify:
 - Role/entity/module access metadata for every new screen/action.
 - Existing verified Form Builder example used, when form HTML is generated.
 - Form Builder buttons, validation, messages, field highlighting, save query, and navigation match the verified example.
+- JavaMelody config, dependency status, monitoring path, and access control are verified when monitoring is in scope.
 - Backup and rollback plan.
 
 ## TODO items to verify

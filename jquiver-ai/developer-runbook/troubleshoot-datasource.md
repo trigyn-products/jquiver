@@ -26,8 +26,9 @@ Troubleshoot JQuiver additional datasource issues safely.
 7. Verify the target table/view/query exists.
 8. Run a safe read-only test query if permitted.
 9. Check application logs for connection or SQL errors.
-10. Check whether datasource IDs differ between environments.
-11. Document whether the issue is connection, credential, schema, query, permission, or runtime behavior.
+10. If JavaMelody is enabled and access-controlled, use only sanitized timing/error observations to correlate datasource latency or SQL errors.
+11. Check whether datasource IDs differ between environments.
+12. Document whether the issue is connection, credential, schema, query, permission, or runtime behavior.
 
 ## Validation checklist
 - Datasource row exists.
@@ -37,6 +38,7 @@ Troubleshoot JQuiver additional datasource issues safely.
 - Consumer references correct datasource ID.
 - Query works read-only.
 - Credentials not exposed.
+- JavaMelody observations, if used, are sanitized and contain no SQL traces, request/session data, production URLs, or credentials.
 
 ## Common errors
 - Wrong datasource ID after migration.
@@ -45,6 +47,7 @@ Troubleshoot JQuiver additional datasource issues safely.
 - Credentials expired.
 - Driver/product mismatch.
 - Query written for the wrong database dialect.
+- Copying JavaMelody SQL traces or request/session details into troubleshooting notes.
 
 ## Rollback/safety notes
 - Back up metadata before changing datasource rows.
@@ -55,7 +58,7 @@ Troubleshoot JQuiver additional datasource issues safely.
 ## Related KB/reference/playbook files
 - `../knowledge-base/13-additional-datasource.md`
 - `../reference/environment-config-reference.md`
+- `../skills/jquiver-observability-monitoring/SKILL.md`
 - `../playbooks/configure-additional-datasource.md`
 - `common-sql-diagnostics.md`
 - `safe-data-handling.md`
-

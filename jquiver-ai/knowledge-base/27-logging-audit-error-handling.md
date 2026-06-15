@@ -17,11 +17,13 @@ Use this file during production support, Dynamic REST debugging, scheduler troub
 - Scheduler logs and mail history tables were present in analyzed exports.
 - Metadata rows often carry created/updated by and timestamp columns.
 - Dynamic REST APIs and scheduler jobs can produce side effects that need auditability.
+- JavaMelody may provide runtime monitoring when explicitly enabled/configured, but the archetype configuration is optional and commented by default.
 
 ## Troubleshooting layers
 - Browser/UI console errors.
 - Service-layer HTTP status and response payload.
 - Application logs.
+- Optional JavaMelody runtime monitoring, if enabled and access-controlled.
 - Dynamic REST metadata and service logic.
 - DAO query errors.
 - Scheduler logs.
@@ -41,8 +43,10 @@ Audit data may come from:
 - Prefer read-only diagnostics first.
 - Do not expose private log contents.
 - Redact emails, tokens, OTPs, and payloads.
+- Do not copy JavaMelody screenshots/output, SQL traces, request parameters, session details, stack traces, user data, production URLs, or credentials into KB examples.
 - Do not clear logs unless explicitly asked.
 - Tie every error to route/API/form/grid metadata where possible.
+- Treat JavaMelody as runtime observability, not as Dynamic REST, router metadata, or a business module.
 
 ## TODO items to verify
 - TODO: verify application log locations and logger configuration.
@@ -52,4 +56,3 @@ Audit data may come from:
 
 ## Example
 For a failed scheduled email, inspect scheduler metadata, target Dynamic REST API, email template, mail configuration, mail history, and application logs.
-

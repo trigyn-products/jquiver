@@ -54,6 +54,7 @@ Use this file before an AI agent analyzes, edits, generates, or reviews JQuiver-
 - If the user says DDL is already executed, treat business tables as an existing baseline. Do not recreate, regenerate, or alter DDL unless explicitly asked.
 - Do not expose credentials, datasource passwords, applicant PII, resume content, private user data, tokens, OTPs, or secrets from dumps.
 - Do not expose or reuse sample credentials, tokens, ck/at headers, reset tokens, OTP values, captcha values, encrypted payloads, emails, or localhost URLs from Postman collections. Convert them to placeholders before documenting or generating examples.
+- JavaMelody is an optional runtime monitoring feature. Before enabling or documenting it, inspect application.yml/application.yaml and pom.xml. If the javamelody block is commented, treat it as available but disabled. Do not expose monitoring URLs, credentials, SQL traces, request data, session/user data, stack traces, or production diagnostics. Protect /monitoring or configured monitoring path with access control.
 - Do not read or rely on unconfigured environment files unless the user explicitly authorizes it.
 - Do not call side-effecting dynamic REST APIs, scheduler endpoints, delete APIs, save APIs, or email APIs during analysis unless explicitly asked.
 

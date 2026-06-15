@@ -18,6 +18,7 @@ Use this file when preparing local, development, staging, or production deployme
 - Environment files were intentionally not read during analysis because the user stated they were not configured.
 - Known backend technology context includes Java/Spring Boot and MariaDB.
 - `application.yml` or `application.yaml` may configure `view.path` and `api.path`; defaults are `/view` for router pages and `/api` for REST APIs.
+- The JQuiver archetype `application.yml` contains optional commented JavaMelody configuration. JavaMelody is disabled when that block remains commented.
 
 ## Environment concerns
 - Application runtime configuration.
@@ -29,6 +30,7 @@ Use this file when preparing local, development, staging, or production deployme
 - Scheduler behavior.
 - Context path/base URL.
 - Router/API prefixes: `view.path` and `api.path`.
+- Optional runtime monitoring, such as JavaMelody `monitoring-path`.
 - Environment-specific secrets.
 
 ## Deployment concerns
@@ -46,9 +48,14 @@ Use this file when preparing local, development, staging, or production deployme
 - Do not copy credentials from dumps into docs.
 - Verify environment-specific datasource IDs and URLs.
 - Recommend backup before deployment/migration.
+- Before enabling or documenting JavaMelody, inspect `application.yml`/`application.yaml`, `pom.xml`, and dependency tree.
+- Do not expose JavaMelody publicly without authentication, IP restriction, VPN, reverse proxy protection, or equivalent access control.
 
 ## Form Builder URL rule
 For Form Builder save/cancel/back URLs, grid action URLs, and router links, never hardcode `/cf/*` unless `view.path` or `api.path` is configured as `/cf` or an existing verified module proves it.
+
+## JavaMelody rule
+JavaMelody is an optional runtime monitoring/observability feature. It is not a JQuiver metadata table, Dynamic REST API, router page, or custom business module. Default path is `/monitoring`, but actual access may depend on `javamelody.monitoring-path`, context path, reverse proxy, and deployment settings.
 
 ## TODO items to verify
 - TODO: verify current build and run commands from source code.

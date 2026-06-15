@@ -17,6 +17,7 @@ Use this file when reviewing grids, dashboards, dashlets, Dynamic REST APIs, add
 - Grids and dashlets may execute SQL against the main schema or additional datasources.
 - Large listing pages should be designed with pagination and filters.
 - Known frontend context includes pqGrid.
+- JavaMelody is an optional runtime monitoring/observability feature for performance diagnostics when enabled and protected.
 
 ## Performance risks
 - Grid queries over large tables without indexes.
@@ -36,11 +37,13 @@ Use this file when reviewing grids, dashboards, dashlets, Dynamic REST APIs, add
 - Keep dashboard queries aggregate and bounded.
 - Avoid N+1 service/API calls from templates.
 - Cache only when source behavior confirms cache invalidation rules.
+- Use JavaMelody observations only as sanitized runtime evidence, and correlate them with query plans, logs, datasource checks, and metadata consumers.
 
 ## Safe AI-agent usage
 - Do not propose indexes without checking existing indexes and query plans.
 - Do not assume caching exists.
 - Do not run heavy diagnostics on production without approval.
+- Do not expose JavaMelody publicly or copy monitoring output, SQL traces, request/session data, stack traces, production URLs, or credentials into docs.
 - Include rollback considerations for index or view changes.
 
 ## TODO items to verify
@@ -51,4 +54,3 @@ Use this file when reviewing grids, dashboards, dashlets, Dynamic REST APIs, add
 
 ## Example
 For a slow applicant grid, inspect the backing view, filters, sort columns, datasource latency, row count, and indexes before changing UI metadata.
-

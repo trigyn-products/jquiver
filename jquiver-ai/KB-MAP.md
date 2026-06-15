@@ -438,6 +438,23 @@ Then verify:
 - Upload location.
 - Security settings.
 
+### JavaMelody, Monitoring, Or Performance Diagnostics
+Read first:
+- `knowledge-base/26-deployment-and-environment.md`
+- `knowledge-base/27-logging-audit-error-handling.md`
+- `knowledge-base/29-performance-guidelines.md`
+- `reference/environment-config-reference.md`
+- `skills/jquiver-observability-monitoring/SKILL.md`
+- `developer-runbook/environment-configuration.md`
+- `developer-runbook/build-and-run-jquiver.md`
+
+Then verify:
+- `application.yml` or `application.yaml` JavaMelody config status.
+- Whether the `javamelody` block is commented or enabled.
+- `pom.xml` and dependency tree status.
+- Expected monitoring path and context/reverse-proxy effects.
+- Access-control protection before exposing monitoring.
+
 ### Analyze Existing Instance
 Read first:
 - `knowledge-base/00-overview.md`

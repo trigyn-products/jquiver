@@ -19,6 +19,7 @@ Guide safe review and preparation of JQuiver environment configuration.
 - Mail configuration placeholders.
 - Authentication configuration placeholders.
 - Scheduler policy for the environment.
+- JavaMelody monitoring policy and access-control placeholders, if monitoring is in scope.
 
 ## Steps
 1. Identify configuration sources used by the target deployment.
@@ -31,7 +32,10 @@ Guide safe review and preparation of JQuiver environment configuration.
 8. Verify base URL, context path, and public route assumptions.
 9. Verify mail settings without sending test mail unless approved.
 10. Verify scheduler behavior for the environment.
-11. Record unresolved configuration keys as TODOs.
+11. If JavaMelody is in scope, inspect `application.yml`/`application.yaml`; if the `javamelody` block is commented, document it as available but disabled.
+12. Verify `pom.xml` and dependency tree before changing JavaMelody dependencies.
+13. Confirm `/monitoring` or configured `javamelody.monitoring-path` is protected by access control.
+14. Record unresolved configuration keys as TODOs.
 
 ## Validation checklist
 - Active configuration source confirmed.
@@ -41,12 +45,15 @@ Guide safe review and preparation of JQuiver environment configuration.
 - Public base URL confirmed.
 - Scheduler policy confirmed.
 - Authentication mode confirmed or marked TODO.
+- JavaMelody config, dependency status, monitoring path, and access control confirmed or marked TODO when in scope.
 
 ## Common errors
 - Reading stale or unconfigured `application.yml`.
 - Copying datasource passwords into notes.
 - Forgetting environment-specific additional datasource records.
 - Leaving production mail or scheduler behavior enabled in local tests.
+- Treating commented JavaMelody config as enabled.
+- Exposing monitoring URLs or diagnostics without access control/redaction.
 
 ## Rollback/safety notes
 - Keep previous known-good configuration available.
@@ -55,8 +62,8 @@ Guide safe review and preparation of JQuiver environment configuration.
 
 ## Related KB/reference/playbook files
 - `../knowledge-base/26-deployment-and-environment.md`
+- `../skills/jquiver-observability-monitoring/SKILL.md`
 - `../reference/environment-config-reference.md`
 - `troubleshoot-datasource.md`
 - `troubleshoot-scheduler.md`
 - `safe-data-handling.md`
-

@@ -17,6 +17,7 @@ Provide an operational flow for building and running JQuiver in a local or contr
 - Port: `<LOCAL_PORT>`.
 - Database connection placeholders.
 - File upload path: `<LOCAL_UPLOAD_PATH>`.
+- JavaMelody expected path placeholder: `<MONITORING_PATH>`, if monitoring is being verified.
 
 ## Steps
 1. Verify whether the run will use source build or packaged JAR.
@@ -29,6 +30,7 @@ Provide an operational flow for building and running JQuiver in a local or contr
 8. Watch startup logs for database, datasource, scheduler, and file-upload errors.
 9. Open the local base URL: `http://localhost:<LOCAL_PORT>/<CONTEXT_PATH>/`.
 10. Run smoke checks for route load, login/public page, grid load, file path access, and scheduler startup status.
+11. If JavaMelody is in scope, verify whether config is commented or enabled, confirm dependency status, and check only sanitized reachability of `<CONTEXT_PATH><MONITORING_PATH>`.
 
 ## Validation checklist
 - Build completes successfully.
@@ -38,6 +40,7 @@ Provide an operational flow for building and running JQuiver in a local or contr
 - Additional datasource connections either work or are intentionally disabled for local use.
 - File-upload location exists.
 - No production scheduler side effects are enabled unintentionally.
+- JavaMelody monitoring path is disabled, unreachable, or access-controlled as intended.
 
 ## Common errors
 - Wrong Java version.
@@ -46,6 +49,7 @@ Provide an operational flow for building and running JQuiver in a local or contr
 - Datasource points to an unavailable custom database.
 - File upload path missing.
 - Scheduler starts with production-like behavior in local environment.
+- Expecting JavaMelody to work while the `javamelody` block is still commented or dependency status is unverified.
 
 ## Rollback/safety notes
 - Stop the local process before changing configuration.
@@ -55,7 +59,7 @@ Provide an operational flow for building and running JQuiver in a local or contr
 ## Related KB/reference/playbook files
 - `setup-local-development.md`
 - `environment-configuration.md`
+- `../skills/jquiver-observability-monitoring/SKILL.md`
 - `../knowledge-base/26-deployment-and-environment.md`
 - `../knowledge-base/14-scheduler.md`
 - `../reference/environment-config-reference.md`
-

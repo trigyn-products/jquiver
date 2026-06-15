@@ -27,7 +27,8 @@ Guide safe read-only analysis of a local JQuiver instance folder or export.
 8. Map routes, forms, grids, APIs, datasources, dashboards, file bins, schedulers, and autocompletes.
 9. Inspect upload folder counts and file associations if allowed.
 10. If a local URL is provided, check read-only reachability first.
-11. Summarize structure and known facts without exposing secrets or PII.
+11. If monitoring is in scope, inspect JavaMelody config/dependency status without copying monitoring output or real URLs.
+12. Summarize structure and known facts without exposing secrets or PII.
 
 ## Validation checklist
 - Constraints followed.
@@ -45,6 +46,7 @@ Guide safe read-only analysis of a local JQuiver instance folder or export.
 - Printing datasource credentials.
 - Printing applicant/user PII.
 - Treating local URL behavior as complete UI validation when browser automation failed.
+- Treating JavaMelody as a metadata table, router page, Dynamic REST API, or business module.
 
 ## Rollback/safety notes
 - This runbook is read-only.
@@ -54,6 +56,7 @@ Guide safe read-only analysis of a local JQuiver instance folder or export.
 ## Related KB/reference/playbook files
 - `database-schema-analysis.md`
 - `safe-data-handling.md`
+- `../skills/jquiver-observability-monitoring/SKILL.md`
 - `../playbooks/analyze-existing-instance.md`
 - `../knowledge-base/18-ark-pharma-instance.md`
 - `../knowledge-base/19-sbi-fac-instance.md`
