@@ -1,5 +1,0 @@
-<svg id="grid" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-  <path id="Path_7" data-name="Path 7" d="M199.3,12.348V42.783H8V12.348A4.361,4.361,0,0,1,12.348,8H194.957A4.361,4.361,0,0,1,199.3,12.348Z" transform="translate(-3.652 -3.652)" fill="#cce4ff"/>
-  <rect id="Rectangle_1" data-name="Rectangle 1" width="61" height="52" transform="translate(4 39)" fill="#eff7ff"/>
-  <path id="Path_8" data-name="Path 8" d="M191.3,0H8.7A8.7,8.7,0,0,0,0,8.7V191.3A8.7,8.7,0,0,0,8.7,200H191.3a8.7,8.7,0,0,0,8.7-8.7V8.7A8.7,8.7,0,0,0,191.3,0ZM69.565,139.13V95.652h60.87V139.13Zm60.87,8.7V191.3H69.565V147.826Zm0-104.348V86.957H69.565V43.478Zm60.87,0V86.957H139.13V43.478ZM60.87,86.957H8.7V43.478H60.87ZM8.7,95.652H60.87V139.13H8.7Zm130.435,0H191.3V139.13H139.13ZM191.3,8.7V34.783H8.7V8.7ZM8.7,147.826H60.87V191.3H8.7ZM139.13,191.3V147.826H191.3V191.3Z" fill="#007aff"/>
-</svg>
