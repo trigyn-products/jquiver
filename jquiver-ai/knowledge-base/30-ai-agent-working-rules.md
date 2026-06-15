@@ -26,6 +26,7 @@ Use this file before an AI agent proposes SQL, metadata changes, code changes, t
 - Keep JQuiver feature work metadata/configuration driven; do not create Spring Boot Controller, Service, Repository/DAO, DTO, request/response, or Entity classes unless explicitly asked or verified metadata patterns are insufficient.
 - A user-facing screen is incomplete without its full metadata chain: query/API, grid or form, template if needed, router/module, menu if user-facing, role/entity access, and resource bundle labels when required.
 - Redact credentials and PII.
+- Redact Postman collection sample credentials, tokens, `ck`/`at` headers, reset tokens, OTP values, captcha values, encrypted payloads, emails, personal names, and localhost URLs; convert them to placeholders before documenting examples.
 - Do not call side-effecting APIs unless explicitly asked.
 - Do not generate destructive SQL unless explicitly asked.
 - Follow playbooks before making changes.
@@ -40,6 +41,7 @@ Use this file before an AI agent proposes SQL, metadata changes, code changes, t
 - If DDL is already executed, treat business tables as existing baseline and do not recreate or alter DDL unless asked.
 - Never generate generic Form Builder HTML. Inspect and adapt an existing verified JQuiver form pattern for buttons, validation, messages, field highlighting, save behavior, and navigation.
 - Reject or revise Form Builder output that left-aligns buttons without verified precedent, uses custom generic Save/Cancel handlers, skips required-field highlighting, hardcodes `/cf/*`, attaches multiple save queries without verified reason, or omits `view.path`/`api.path` verification.
+- Do not confuse verified JQuiver auth/system endpoints with router or Dynamic REST prefixes: `/japi/login` and `/cf/captcha/*` are auth flows, router links use `view.path`, and Dynamic REST links use `api.path`.
 
 ## Review checklist
 Before producing a JQuiver change plan, verify:

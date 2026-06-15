@@ -17,6 +17,7 @@ Use this file when preparing local, dev, staging, or production configuration.
 - If not configured, router/page links default to `/view/{router-path}` and REST links default to `/api/{api-path}`.
 - Do not invent `/cf/*` unless `view.path: /cf` is configured or the prefix is verified from an existing working module.
 - Form Builder save URLs, cancel/back URLs, grid action URLs, and router links must use configured `view.path`/`api.path` values. Defaults are `/view` and `/api`.
+- Verified auth/system endpoints from `Jquiver Database Authentication.postman_collection.json` may use `/japi` and `/cf`, such as `/japi/login` and `/cf/captcha/*`; do not treat these as evidence that router `view.path` or Dynamic REST `api.path` is `/cf`.
 
 ## TODO items to verify
 - TODO: Verify actual environment keys from source and configured deployments.

@@ -20,6 +20,7 @@ Use this file when analyzing login, users, roles, permissions, menu access, enti
 - Some Dynamic REST rows include an `is_secured` field.
 - Observed authentication metadata includes `jq_authentication_type`.
 - Observed security metadata includes `jq_security_type` and `jq_security_properties`; both are verified in the supplied `hrsdev.sql` export.
+- `Jquiver Database Authentication.postman_collection.json` verifies database authentication flows for password, captcha, email OTP, TOTP, forgot/reset password, and registration at a safe endpoint-summary level.
 
 ## Security model concepts
 JQuiver security can involve:
@@ -63,6 +64,8 @@ Permission management:
 
 ## Safe AI-agent usage
 - Do not expose password, OTP, secret key, or user email data.
+- Do not expose or reuse Postman sample credentials, bearer tokens, `ck`/`at` headers, reset tokens, OTP values, captcha values, encrypted payloads, emails, localhost URLs, or personal names; replace them with placeholders.
+- Treat `/japi/login` and `/cf/captcha/*` as verified JQuiver security/auth endpoints from the Postman collection, not as Dynamic REST APIs.
 - Verify public access before recommending anonymous routes.
 - Check both route permissions and API permissions.
 - Treat file download routes as sensitive.

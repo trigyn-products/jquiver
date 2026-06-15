@@ -31,21 +31,25 @@ Guide an agent through safe review or configuration of JQuiver authentication, u
 ## 5. Files to read first
 - `../../knowledge-base/15-security-users-roles.md`
 - `../../knowledge-base/25-authentication-authorization-flow.md`
+- `../../reference/jquiver-auth-api-reference.md`
+- `../../skills/jquiver-database-authentication/SKILL.md`
+- `../../examples/jquiver-auth-postman-summary.md`
 - `../../playbooks/add-role-based-menu-access.md`
 - `../../reference/security-permission-matrix.md`
 - `../../developer-runbook/safe-data-handling.md`
 
 ## 6. Step-by-step workflow
 1. Verify active authentication mode.
-2. Inspect `jq_user`, `jq_role`, and association metadata as needed.
-3. Inspect route/menu metadata.
-4. Inspect backing API/grid/form/file permissions.
-5. For every new screen/action, add role/entity/module access metadata according to the existing RBAC pattern.
-6. Minimum expectation: Admin/Super Admin full access, normal/project users functional access, viewer/read-only roles read access if such roles exist.
-7. Verify public/anonymous access requirements.
-8. Test with representative roles.
-9. Confirm unauthorized access is denied.
-10. Preserve previous role/permission rows before changes.
+2. For login, registration, forgot/reset password, OTP, TOTP, or captcha tasks, use `jquiver-database-authentication` and verified placeholder-only auth endpoints.
+3. Inspect `jq_user`, `jq_role`, and association metadata as needed.
+4. Inspect route/menu metadata.
+5. Inspect backing API/grid/form/file permissions.
+6. For every new screen/action, add role/entity/module access metadata according to the existing RBAC pattern.
+7. Minimum expectation: Admin/Super Admin full access, normal/project users functional access, viewer/read-only roles read access if such roles exist.
+8. Verify public/anonymous access requirements.
+9. Test with representative roles.
+10. Confirm unauthorized access is denied.
+11. Preserve previous role/permission rows before changes.
 
 ## 7. Output format
 Return:
@@ -58,6 +62,7 @@ Return:
 
 ## 8. Safety rules
 - Do not expose passwords, OTPs, secrets, or full user lists.
+- Do not expose or reuse Postman sample credentials, tokens, `ck`/`at` headers, reset tokens, captcha values, encrypted payloads, emails, or localhost URLs.
 - Do not broaden access without explicit approval.
 - Verify both visible menu and backend access.
 - Recommend backup before permission changes.

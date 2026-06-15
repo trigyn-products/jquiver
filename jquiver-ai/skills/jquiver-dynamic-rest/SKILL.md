@@ -63,6 +63,7 @@ Return:
 
 ## 8. Safety rules
 - Use JQuiver Dynamic REST metadata first; do not create Spring Boot REST endpoints, Controller, Service, Repository/DAO, DTO, request/response, or Entity classes unless explicitly asked or verified metadata patterns are insufficient.
+- Do not confuse Dynamic REST APIs with JQuiver authentication/system endpoints. Authentication endpoints such as `/japi/login` and `/cf/captcha/*` are security/auth flows and should be handled using `jquiver-database-authentication` skill.
 - Do not invoke side-effecting APIs during analysis unless explicitly asked.
 - Treat server-side JavaScript/Python/Java/PHP/FTL as executable backend logic.
 - Redact PII, tokens, and secrets.
@@ -76,5 +77,6 @@ Return:
 - Do not assume unsecured APIs are safe.
 - Do not test save/delete/mail APIs in production.
 - Do not invent non-default API prefixes; verify `api.path` or use `/api`.
+- Do not classify verified auth/system endpoints as Dynamic REST metadata unless source or metadata proves it.
 - Do not copy platform IDs across versions without verification.
 - Do not hide DAO query changes from review.

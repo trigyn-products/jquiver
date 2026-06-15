@@ -202,6 +202,22 @@ Then verify:
 - `api.path` from `application.yml` or `application.yaml`; default REST links to `/api/{api-path}` when not configured.
 - Side effects before invocation.
 
+### Authentication, Login, Registration, Forgot Password, Or Security API
+Read first:
+- `knowledge-base/25-authentication-authorization-flow.md`
+- `knowledge-base/15-security-users-roles.md`
+- `reference/jquiver-auth-api-reference.md`
+- `skills/jquiver-database-authentication/SKILL.md`
+- `examples/jquiver-auth-postman-summary.md`
+- `reference/environment-config-reference.md`
+
+Then verify:
+- Target authentication mode and instance configuration.
+- Required captcha, OTP, TOTP, and reset-token prerequisites.
+- Header/token handling with placeholders only.
+- Whether the endpoint is a verified auth/system endpoint, Dynamic REST API, or router/page link.
+- Side effects before invoking mail, registration, reset-password, or authenticated test endpoints.
+
 ### Configure Additional Datasource
 Read first:
 - `knowledge-base/13-additional-datasource.md`

@@ -72,3 +72,5 @@ Observed HRS Dynamic REST editor metadata listed platform choices:
 TODO: Verify exact platform IDs and runtime support in the target JQuiver source/version.
 
 API links should use `{api.path}/{api-path}` from `application.yml`/`application.yaml`, defaulting to `/api`. Do not hardcode `/cf/*` for Dynamic REST or Form Builder save calls unless that prefix is configured or verified from an existing working module.
+
+Auth/system endpoints from the verified Postman collection are separate from Dynamic REST examples. Do not confuse Dynamic REST APIs with JQuiver authentication/system endpoints; `/japi/login` and `/cf/captcha/*` are security/auth flows handled by `skills/jquiver-database-authentication/SKILL.md`.
