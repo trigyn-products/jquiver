@@ -4,17 +4,53 @@ Objective of this project to rapdily develop **Enterprise Web Application**. Ide
 
 Also the development is live development. Developers can work right on the SIT system. While the manager can monitor the development live.
 
-☆ Type Ahead / Auto Complete<br>
-☆ Grid / Tabular Data (using PQGrid)<br>
-☆ Template (using FreeMarker)<br>
-☆ Form Builder<br>
-☆ REST API Builder<br>
-☆ ⇨ Scheduler<br>
-☆ ⇨ Security (RSA / AES etc.)<br>
-☆ File Manager<br>
-☆ Site Layout<br>
-☆ Mail Configuration<br>
-☆ Export / Import<br>
+```text
+☆ Master Generator
+☆ Multilingual
+☆ Additional Datasource
+☆ File Bins
+  ⇨ Custom File Bins
+☆ Autocomplete
+  ⇨ Single Select Autocomplete
+  ⇨ Multiselect Autocomplete
+  ⇨ Dependent Autocomplete
+☆ Grid Utils
+☆ Form IO
+  ⇨ Default
+  ⇨ Custom
+  ⇨ Custom Pluggable
+☆ Templating
+  ⇨ Templates
+  ⇨ Email XML
+  ⇨ Web Client XML
+☆ Form Builder
+☆ REST API
+  ⇨ Java
+  ⇨ FTL
+  ⇨ Python
+  ⇨ Nashorn JavaScript
+☆ Secured REST API
+☆ Scheduler
+☆ Script Library
+☆ API Clients
+☆ Router
+  ⇨ Define Home Page
+☆ User Management
+  ⇨ Authentication
+  ⇨ User Creation
+  ⇨ Role Creation
+  ⇨ Permission Management
+☆ Application Configuration
+  ⇨ Mail Configuration
+☆ Help Manual
+☆ Dashboard
+  ⇨ Dashlet
+☆ Notification
+☆ Workflow
+☆ Import / Export
+☆ Business Module
+☆ Tag Creation
+```
 
 **Technology stack recommended**
 
@@ -55,3 +91,71 @@ jndi-name: java:comp/env/jdbc/jndiDataSource
 ```
 mvn -DskipTests clean install
 ```
+# Working with JQuiver VS Code Extension
+
+## Installation
+
+1. Install the **JQuiver VS Code Extension** from the Visual Studio Code Marketplace.
+
+## Configuration
+
+2. Open your JQuiver application in the browser and navigate to:
+
+   **Control Panel → Application Configuration**
+
+3. Click the **Download VS Config** button.
+
+4. This will download a configuration file named:
+
+   ```text
+   config.jquiver
+   ```
+
+5. Create a new empty folder on your local machine.
+
+6. Copy the downloaded `config.jquiver` file into the newly created folder.
+
+## Connecting to JQuiver
+
+7. Open Visual Studio Code.
+
+8. Open the folder where the `config.jquiver` file has been saved.
+
+9. Once the folder is opened, the JQuiver VS Code Extension will read the configuration file and connect to the configured JQuiver server.
+
+10. The extension will automatically reload all editable JQuiver resources, including:
+
+    - Templates
+    - Forms
+    - Dashboards
+    - Dashlets
+    - Dynamic REST APIs
+    - Other supported editable resources
+
+## Editing Resources
+
+11. Developers can edit these resources locally using Visual Studio Code.
+
+12. After making the required changes, developers can save the updated resources back to the remote JQuiver server.
+
+## Authentication Changes
+
+13. If user authentication is **not enabled** when the `config.jquiver` file is downloaded, and authentication is enabled later in the JQuiver application, then the configuration file must be downloaded again from:
+
+    **Control Panel → Application Configuration → Download VS Config**
+
+## Auto Reload Configuration
+
+14. The auto reload frequency of the extension can be changed by updating the following property in the `config.jquiver` file:
+
+    ```json
+    {
+      "autoRefreshInMinutes": 5
+    }
+    ```
+
+15. The allowed range for `autoRefreshInMinutes` is **1 to 30 minutes**.
+
+16. The default auto reload interval is **5 minutes**.
+
+17. If the value is not provided or is outside the allowed range, the extension will use the default refresh interval.
