@@ -705,8 +705,24 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
             }
 
+            await fetchLatestContent(
+                editor,
+                item,
+                config,
+                filePath
+            );
+  
+        })
+    );
 
-            const meta = saveTemplateMap.get(filePath);
+    //Extracted GED Method
+    async function fetchLatestContent(
+        editor: vscode.TextEditor,
+        item: any,
+        config: any,
+        filePath: string
+    ) {
+        const meta = saveTemplateMap.get(filePath);
 
             const params = new URLSearchParams();
 
@@ -799,9 +815,8 @@ export async function activate(context: vscode.ExtensionContext) {
             } finally {
                 isLoadingContentFromServer = false;
             }
-  
-        })
-    );
+    }
+    //Done Extracted GED method
 
     //Save handler
     context.subscriptions.push(
@@ -888,7 +903,28 @@ export async function activate(context: vscode.ExtensionContext) {
                 if (json.success) {
                     vscode.window.showInformationMessage(json.message);
                 } else {
-                    vscode.window.showWarningMessage(json.message);
+                     const choice = await vscode.window.showWarningMessage(
+                        json.message,
+                        'Fetch Latest',
+                        'Cancel'
+                    );
+
+                    if (choice === 'Fetch Latest') {
+
+                        const editor =
+                            vscode.window.visibleTextEditors.find(
+                                e => normalizePath(e.document.uri.fsPath) === filePath
+                            );
+
+                        if (editor) {
+                            await fetchLatestContent(
+                                editor,
+                                item,
+                                config,
+                                filePath
+                            );
+                        }
+                    }
                 }
 
             } catch (err: any) {
