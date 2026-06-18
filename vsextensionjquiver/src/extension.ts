@@ -99,6 +99,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const provider = new EntityProvider();
 
+    let isLoadingContentFromServer = false;
+
     // ----------------------------
     // Server Config
     // ----------------------------
@@ -120,7 +122,7 @@ export async function activate(context: vscode.ExtensionContext) {
             autoRefreshInMinutes: config.autoRefreshInMinutes ?? 5
         };
         } catch {
-            vscode.window.showErrorMessage("Invalid or missing config.jquiver");
+            vscode.window.showErrorMessage("This is not a JQuiver Project");
             return null;
         }
     }
@@ -446,10 +448,14 @@ export async function activate(context: vscode.ExtensionContext) {
                     `${item.label}.html`
                 );
 
-                await vscode.workspace.fs.writeFile(
-                    fileUri,
-                    Buffer.from("", "utf8")
-                );
+                try {
+                        await vscode.workspace.fs.stat(fileUri);
+                    } catch {
+                        await vscode.workspace.fs.writeFile(
+                            fileUri,
+                            Buffer.from("", "utf8")
+                        );
+                    }
 
                 const normalized = normalizePath(fileUri.fsPath);
                 
@@ -664,7 +670,6 @@ export async function activate(context: vscode.ExtensionContext) {
             if (!config?.server) return;
 
             // CHECK if server changed if lastUpdated exist for the file
-            console.log("....item.lastUpdated..", item.lastUpdated);
             if (item.lastUpdated) {
             const changed = await checkUpdatedDate(
                 item,
@@ -672,14 +677,13 @@ export async function activate(context: vscode.ExtensionContext) {
                 filePath
             );
 
-            console.log("Content changed on server:", changed);
             // no change on server return
             if (!changed) {
                 return;
             }
         }
-
-            await refreshMetadataOnly();
+//            Below method was used to avoid child data id changed from server
+//            await refreshMetadataOnly();
 
             item = fileRegistry.get(filePath);
 
@@ -787,7 +791,15 @@ export async function activate(context: vscode.ExtensionContext) {
                 content
             );
 
-            await vscode.workspace.applyEdit(edit);
+            isLoadingContentFromServer = true;
+
+            try {
+                await vscode.workspace.applyEdit(edit);
+                await editor.document.save();
+            } finally {
+                isLoadingContentFromServer = false;
+            }
+  
         })
     );
 
@@ -795,6 +807,9 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.workspace.onDidSaveTextDocument(async (doc) => {
 
+            if (isLoadingContentFromServer) {
+                return;
+            }
             const filePath = normalizePath(doc.uri.fsPath);
 
             const item = fileRegistry.get(filePath);
@@ -967,6 +982,21 @@ export async function activate(context: vscode.ExtensionContext) {
     );
     //Preventing rename done
 
-}
+
+    //Refresh Icon at Bottom................
+    const refreshBtn = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Left
+    );
+
+    refreshBtn.text = "$(refresh) Reload JQuiver Workspace";
+    refreshBtn.tooltip = "Reload JQuiver Workspace";
+    refreshBtn.command = "jquiver.fetchApi";
+
+    refreshBtn.show();
+
+    context.subscriptions.push(refreshBtn);
+    //Refresh Done.
+
+    }
 
 export function deactivate() { }
