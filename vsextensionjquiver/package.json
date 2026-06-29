@@ -3,7 +3,7 @@
   "displayName": "JQuiver Extension",
   "publisher": "JQuiver",
   "description": "JQuiver is a low-code development framework that helps developers build enterprise applications faster using reusable components, dynamic APIs, forms, grids, dashboards, and configuration-driven development.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "icon": "images/jquiver-icon.png",
   "engines": {
     "vscode": "^1.115.0"
