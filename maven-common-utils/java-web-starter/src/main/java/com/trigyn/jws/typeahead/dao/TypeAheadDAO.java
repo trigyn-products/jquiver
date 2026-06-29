@@ -85,7 +85,7 @@ public class TypeAheadDAO extends DBConnection {
 	}
 
 	private List<Map<String, Object>> getAutocompleteDetails(String a_autocompleteQuery, AutocompleteParams a_autocompleteParams, 
-			String dataSourceId) {
+			String dataSourceId) throws SQLException {
 		NamedParameterJdbcTemplate	namedParameterJdbcTemplate	= updateNamedParameterJdbcTemplateDataSource(dataSourceId);
 
 		String dataSourceUserName = "";
@@ -196,6 +196,18 @@ public class TypeAheadDAO extends DBConnection {
 		}else {
 			getCurrentSession().merge(autocomplete);
 		}
+	}
+	
+	public List<Map<String, Object>> getAutocompleteList() {
+
+	    String query = """
+	        SELECT ac_id,
+	               ac_description
+	        FROM jq_autocomplete_details
+	        ORDER BY ac_description
+	        """;
+
+	    return jdbcTemplate.queryForList(query);
 	}
 
 }

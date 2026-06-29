@@ -1,6 +1,8 @@
 package com.trigyn.jws.dynamicform.dao;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.util.ArrayList;
@@ -10,6 +12,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
@@ -39,6 +43,8 @@ import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryConnection;
 import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryDetails;
+import com.trigyn.jws.typeahead.dao.TypeAheadDAO;
+import com.trigyn.jws.typeahead.entities.Autocomplete;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,6 +70,9 @@ public class DynamicFormCrudDAO extends DBConnection {
 	
 	@Autowired
 	private PropertyMasterService			propertyMasterService	= null;
+	
+	@Autowired
+	TypeAheadDAO							typeAheadDAO					= null;
 
 	public DynamicForm findDynamicFormById(String formId) {
 		DynamicForm dynamicForm = getCurrentSession().get(DynamicForm.class, formId);
@@ -433,9 +442,70 @@ public class DynamicFormCrudDAO extends DBConnection {
 				}
 				getCurrentSession().persist(dfsq);
 			}
-
 		}
-
 	}
+	
+	public String getAutocompleteValue(String tableName, String idColumn, String displayColumn,
+			String idValue, String mode, String autocompleteId) throws Exception {
+		String	table		= null;
+		String	idCol		= null;
+		String	displayCol	= null;
+		if (mode != null && mode.equalsIgnoreCase("NEW")) {
+			table		= tableName;
+			idCol		= idColumn;
+			displayCol	= displayColumn;
+		} else {
+			Autocomplete	autocompleteDetails	= typeAheadDAO.findAutocomplete(autocompleteId);
+			String			autocompleteQuery	= autocompleteDetails.getAutocompleteSelectQuery();
+			Pattern			tablePattern		= Pattern.compile("FROM\\s+(\\w+)\\s+(\\w+)?",
+					Pattern.CASE_INSENSITIVE);
+			Matcher			tableMatcher		= tablePattern.matcher(autocompleteQuery);
+			if (tableMatcher.find()) {
+				table = tableMatcher.group(1);
+			}
+			Pattern	idPattern	= Pattern.compile("SELECT\\s+(.*?)\\s+as\\s+entityId", Pattern.CASE_INSENSITIVE);
+			Matcher	idMatcher	= idPattern.matcher(autocompleteQuery);
 
+			if (idMatcher.find()) {
+				idCol = idMatcher.group(1).trim();
+			}
+			idCol = idCol.substring(idCol.indexOf('.') + 1);
+			Pattern	namePattern	= Pattern.compile(",\\s*(.*?)\\s+as\\s+entityName", Pattern.CASE_INSENSITIVE);
+			Matcher	nameMatcher	= namePattern.matcher(autocompleteQuery);
+
+			if (nameMatcher.find()) {
+				displayCol = nameMatcher.group(1).trim();
+			}
+			displayCol = displayCol.substring(displayCol.indexOf('.') + 1);
+		}
+		String query = "SELECT " + idCol + " AS entityId, " + displayCol + " AS entityName " + "FROM " + table
+				+ " WHERE " + idCol + " = ?";
+
+		return query;
+	}
+	
+	public List<Map<String, Object>> getForeignKeyValues(String additionalDataSourceId, String tableName,
+			String idColumn, String displayColumn) throws SQLException {
+		DataSourceVO dataSourceVO = additionalDatasourceRepository.getDataSourceConfiguration(additionalDataSourceId);
+		Connection connection = DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
+		if (dataSourceVO != null) {
+			connection = DataSourceUtils.getConnection(DataSourceFactory.getDataSource(dataSourceVO));
+		}
+		List<Map<String, Object>> resultSet = new ArrayList<>();
+		String query = "SELECT " + idColumn + ", " + displayColumn + " FROM " + tableName + " ORDER BY "
+				+ displayColumn;
+		try (PreparedStatement ps = connection.prepareStatement(query); ResultSet rs = ps.executeQuery()) {
+			java.sql.ResultSetMetaData meta = rs.getMetaData();
+			while (rs.next()) {
+				Map<String, Object> row = new HashMap<>();
+				for (int i = 1; i <= meta.getColumnCount(); i++) {
+					row.put(meta.getColumnLabel(i), rs.getObject(i));
+				}
+				resultSet.add(row);
+			}
+		} catch (Exception exc) {
+			logger.error("Error while fetching FK data", exc);
+		}
+		return resultSet;
+	}
 }

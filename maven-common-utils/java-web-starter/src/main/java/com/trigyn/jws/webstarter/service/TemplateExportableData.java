@@ -42,12 +42,14 @@ public class TemplateExportableData implements GenerateModuleMasterQueries {
 				querySQL.append("tm.updated_date  >=:modifiedAfter ");
 			}
 			 if (name != null) {
+				 name = "%" + name + "%";
 					if (querySQL.toString().contains(" WHERE ")) {
 						querySQL.append("AND ");
 					} else {
 						querySQL.append(" WHERE ");
 					}
-					querySQL.append(" tm.template_name REGEXP :name ");
+					//querySQL.append(" tm.template_name REGEXP :name ");
+					querySQL.append(" LOWER(tm.template_name) LIKE LOWER(:name) ");
 				}
 			    
 			    if (entityType != null) {

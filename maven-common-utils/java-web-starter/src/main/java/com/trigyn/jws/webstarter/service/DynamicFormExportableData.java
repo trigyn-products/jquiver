@@ -39,17 +39,19 @@ public class DynamicFormExportableData implements GenerateModuleMasterQueries {
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append("COALESCE(df.last_updated_ts , df.created_date)  >=:modifiedAfter ");
+				querySQL.append("COALESCE(df.lastUpdatedTs , df.createdDate)  >=:modifiedAfter ");
 
 			}
 
 			if (name != null) {
+				name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" df.form_name REGEXP :name ");
+				//querySQL.append(" df.formName REGEXP :name ");
+				querySQL.append(" LOWER(df.formName) LIKE LOWER(:name) ");
 			}
 
 			if (entityType != null) {
@@ -58,12 +60,14 @@ public class DynamicFormExportableData implements GenerateModuleMasterQueries {
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" df.form_type_id = :entityType ");
+				querySQL.append(" df.formTypeId = :entityType ");
 			}
-			BeanPropertyRowMapper<DynamicForm> mapper = new BeanPropertyRowMapper<DynamicForm>(DynamicForm.class);
-			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), modifiedAfter,
-					entityType, name,mapper);
-
+//			BeanPropertyRowMapper<DynamicForm> mapper = new BeanPropertyRowMapper<DynamicForm>(DynamicForm.class);
+//			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), modifiedAfter,
+//					entityType, name,mapper);
+			
+			exportableList = importExportCrudDAO.getAllAutoExportableEntityData(querySQL.toString(), modifiedAfter,
+					entityType, name);
 		} else {
 			exportableList = importExportCrudDAO.getAllExportableData(
 					CrudQueryStore.HQL_QUERY_TO_FETCH_DYNAMIC_FORM_DATA_FOR_EXPORT, systemConfigIncludeList, 2,

@@ -43,12 +43,14 @@ public class GridUtilsExportableData implements GenerateModuleMasterQueries {
 			}
 
 			if (name != null) {
+				name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" gd.grid_name REGEXP :name ");
+				//querySQL.append(" gd.grid_name REGEXP :name ");
+				querySQL.append(" LOWER(gd.grid_name) LIKE LOWER(:name) ");
 			}
 
 			if (entityType != null) {

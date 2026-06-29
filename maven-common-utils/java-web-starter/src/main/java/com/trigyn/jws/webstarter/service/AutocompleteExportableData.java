@@ -44,12 +44,14 @@ public class AutocompleteExportableData implements GenerateModuleMasterQueries {
 			}
 
 		    if (name != null) {
+		    	 name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" au.ac_id REGEXP :name ");
+				//querySQL.append(" au.ac_id REGEXP :name ");
+				querySQL.append(" LOWER(au.ac_id) LIKE LOWER(:name) ");
 			}
 		    
 		    if (entityType != null) {

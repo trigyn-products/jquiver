@@ -43,12 +43,14 @@ public class PermissionExportableData implements GenerateModuleMasterQueries {
 			}
 
 			if (name != null) {
+				name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" jr.entity_name REGEXP :name ");
+				//querySQL.append(" jr.entity_name REGEXP :name ");
+				querySQL.append(" LOWER(jr.entity_name) LIKE LOWER(:name) ");
 			}
 			BeanPropertyRowMapper<JwsEntityRoleAssociation> mapper = new BeanPropertyRowMapper<JwsEntityRoleAssociation>(JwsEntityRoleAssociation.class);
 			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), modifiedAfter, null,

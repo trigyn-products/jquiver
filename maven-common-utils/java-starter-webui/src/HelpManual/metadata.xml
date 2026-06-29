@@ -1510,15 +1510,13 @@ Monaco Editor Suggestions are provided in the Monaco Editors.
 ```var jq_scriptUtilClass = Java.type('com.trigyn.jws.dynarest.cipher.utils.ScriptUtil');
 var jq_scriptUtilObject = new jq_scriptUtilClass();```
 
-🔧 <u>**System Property & Environment**</u>
+🔧 <u>**System Property &amp; Environment**</u>
 
 | Function                       | Description                               |
 | ------------------------------ | ----------------------------------------- |
 | `jq_getSystemProperty(key)`    | Returns a JVM system property.            |
 | `jq_getSystemEnvironment(key)` | Returns an OS-level environment variable. |
-
-
-
+<br>
 🍪<u>** Cookie Management**</u>
 
 | Function                                         | Description                                |
@@ -1531,8 +1529,7 @@ var jq_scriptUtilObject = new jq_scriptUtilClass();```
 | `jq_getCookiesFromRequest(key)`                  | Fetches a cookie by key.                   |
 | `jq_haveCookie(key)`                             | Checks if a cookie exists.                 |
 | `jq_deleteCookie(key)`                           | Deletes a specific cookie.                 |
-
-
+<br>
 🧵 <u>**Session Management**</u>
 
 | Function                       | Description                         |
@@ -1543,7 +1540,7 @@ var jq_scriptUtilObject = new jq_scriptUtilClass();```
 | `jq_deleteSessionKey(key)`     | Removes session attribute.          |
 | `jq_getCreationTime()`         | Returns session creation timestamp. |
 | `jq_getLastAccessedTime()`     | Returns last accessed timestamp.    |
-
+<br>
 📁 <u>**File Operations**</u>
 
 | Function                                                      | Description                             |
@@ -1558,8 +1555,7 @@ var jq_scriptUtilObject = new jq_scriptUtilClass();```
 | `jq_copyFile(src, dest)`                                      | Copies a file.                          |
 | `jq_copyFile(src, dest, targetFileName)`                      | Copies and renames a file.              |
 | `jq_copyFileBinId(fileUploadID, destPath)`                    | Copies file bin to a file path.         |
-
-
+<br>
 🛢️ <u>**Database Operations**</u>
 
 | Function                                                     | Description                    |
@@ -1567,7 +1563,7 @@ var jq_scriptUtilObject = new jq_scriptUtilClass();```
 | `jq_getDBResult(query, dataSourceID, requestParams)`         | Executes SELECT query.         |
 | `jq_callStoredProcedure(query, dataSourceID, requestParams)` | Executes a stored procedure.   |
 | `jq_updateDBQuery(query, dataSourceID, requestParams)`       | Executes INSERT/UPDATE/DELETE. |
-
+<br>
 🌐 <u>**REST, Mail, Template**</u>
 
 | Function                                                             | Description                            |
@@ -1578,31 +1574,27 @@ var jq_scriptUtilObject = new jq_scriptUtilClass();```
 | `jq_evalTemplateByContent(templateContent, requestParams)`           | Evaluates FreeMarker template content. |
 | `jq_convertToPDFFromTemplate(templateName, contextMap, imageFolder)` | Generates PDF from template.           |
 | `jq_convertToPDFFromString(sourceHTML, imageFolder)`                 | Generates PDF from raw HTML.           |
-
+<br>
 📝 <u>**Logging and Notifications**</u>
 
 | Function                             | Description               |
 | ------------------------------------ | ------------------------- |
 | `jq_logActivity(requestParams)`      | Logs an action or event.  |
 | `jq_addNotifications(requestParams)` | Sends notification entry. |
-
+<br>
 ⚠️ <u>**Error Handling**</u>
 
 | Function                            | Description                               |
 | ----------------------------------- | ----------------------------------------- |
 | `jq_sendError(statusCode, message)` | Sends a response with error code/message. |
-
+<br>
 📎<u>** URL Path Variables**</u>
 
 | Function                  | Description                                        |
 | ------------------------- | -------------------------------------------------- |
 | `jq_getPathVariableSet()` | Returns all path variables.                        |
 | `jq_getPathVariable()`    | Returns single path variable (if only one exists). |
-
-
-
-
-
+<br>
 **<u>Details about jq_sendError and jq_getPathVariable and jq_getPathVariableSet methods given.</u>**
 
 <u>** jq_sendError : **</u>
@@ -2964,8 +2956,98 @@ Once uploaded, the XML structure will be rendered in the BPMN XML Editor for fur
 **Step 3: **Click Save & Return to save the workflow definition.
  
 ![](/cf/files/c1d1b663-374b-4288-aef7-925e457dc64b) 
+
+During workflow creation, the system performs the following operations:
+
+* Creates workflow metadata in jq_workflow_definition
+* Deploys BPMN workflow to the configured workflow engine
  
- **Step 4: **Upon successful save, the workflow definition will be listed in the Workflow Definition listing page.]]></entryContent>
+![](/cf/files/09a9d17c-0f3c-4bad-8bf8-e8d4c5a32c07)
+ 
+ **Step 4: **Upon successful save, the workflow definition will be listed in the Workflow Definition listing page.
+  ![](/cf/files/0cc88d5d-2055-43b5-85f5-ebb7a310a31c)
+ 
+**Step 5:** Workflow Integration with Business Modules
+
+After successful workflow creation, the generated Definition ID is used by business modules to initiate workflow execution dynamically.
+
+**Example:**
+var wf = startWorkflowProcess(definitionId, requestDetails, requestDetails["loggedInUserName"]);
+
+The workflow engine uses the definition ID to:
+
+* Load BPMN workflow configuration
+* Start workflow runtime execution
+* Create workflow tasks
+* Assign approvers dynamically
+
+**Step 6:** Workflow Runtime Initialization
+
+Before persisting the business transaction, the workflow engine runtime is initialized to establish a valid process context and maintain transactional consistency between workflow and business data.
+
+**Execution Flow:**
+
+* Request Validation – Validates incoming request data, mandatory fields and workflow eligibility criteria.
+* Transaction Identifier Generation – Generates a unique UUID for workflow.
+* Approver Resolution – Identifies and maps workflow approvers based on configured business rules and hierarchy.
+* Workflow Instance Creation – Initializes and starts the workflow process using the configured workflow definition.
+* Process Context Retrieval – Captures the generated Process Instance ID and workflow execution metadata.
+* Business Record Persistence – Saves the business transaction with workflow runtime mapping for tracking and audit purposes.
+
+This ensures:
+
+* Proper workflow linkage
+* Valid runtime association
+* No orphan business records
+
+**Step 8:** Dynamic Task Assignment
+
+Workflow task assignment is resolved dynamically during runtime using business logic.
+
+This architecture supports:
+
+* Hierarchical approvals
+* Multi-level workflows
+* Dynamic assignee resolution
+* Conditional workflow routing
+
+without hardcoding users inside BPMN definitions.
+
+**Step 9:** Workflow Task Processing
+
+Workflow tasks are managed through centralized workflow APIs.
+
+**Example APIs:**
+
+GET /workflow/task/pending
+POST /workflow/task/action
+
+Supported actions include:
+
+* APPROVE
+* REJECT
+
+The workflow engine handles:
+
+* Task creation
+* Approval processing
+* Rejection processing
+* Workflow stage transitions
+* Runtime status updates
+
+**Step 10:** Business Module Status Management
+
+Business entity updates are managed separately from workflow execution.
+
+**Example:**
+
+POST /module/updateStatus
+
+This separation ensures:
+
+* Generic workflow engine design
+* Reusable workflow architecture
+* Independent business module handling.]]></entryContent>
                     <entryName>Workflow</entryName>
                     <lastModifiedOn>2026-05-08T19:42:58+05:30</lastModifiedOn>
                     <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
@@ -4258,10 +4340,13 @@ The following properties must be configured in the system configuration table:
 
 | Property                | Sample Path                                   |
 | ----------------------- | --------------------------------------------- |
-| `emlFileStoragePath`    | `/workspace/ARK_PHARMA/emlFileStoragePath`    |
-| `file-copy-path`        | `/workspace/ARK_PHARMA/file-copy-path`        |
-| `file-upload-location`  | `/workspace/ARK_PHARMA/file-upload-location`  |
-| `template-storage-path` | `/workspace/ARK_PHARMA/template-storage-path` |]]></entryContent>
+| `emlFileStoragePath`    | `EML Files Directory`    |
+| `file-copy-path`        | `Processed Files Directory`        |
+| `file-upload-location`  | `Upload Directory`  |
+| `template-storage-path` | `Template Storage Directory` |
+
+Note:
+The actual storage locations are environment-specific and should be configured by the system administrator according to the deployment requirements.]]></entryContent>
                     <entryName>Import Export of Files</entryName>
                     <lastModifiedOn>2026-05-14T02:12:11+05:30</lastModifiedOn>
                     <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>

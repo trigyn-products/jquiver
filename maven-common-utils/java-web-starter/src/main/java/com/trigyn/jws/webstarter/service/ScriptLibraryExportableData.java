@@ -45,12 +45,14 @@ public class ScriptLibraryExportableData implements GenerateModuleMasterQueries 
 			}
 
 		    if (name != null) {
+		    	 name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" sl.library_name REGEXP :name ");
+				//querySQL.append(" sl.library_name REGEXP :name ");
+				querySQL.append(" LOWER(sl.library_name) LIKE LOWER(:name) ");
 			}
 		    BeanPropertyRowMapper<ScriptLibraryDetails> mapper = new BeanPropertyRowMapper<ScriptLibraryDetails>(ScriptLibraryDetails.class);
 		exportableList = importExportCrudDAO.getAllAutoExportableData(

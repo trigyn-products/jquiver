@@ -42,12 +42,14 @@ public class FileManagerExportableData implements GenerateModuleMasterQueries {
 				querySQL.append("COALESCE(fu.last_updated_ts , fu.created_date)  >=:modifiedAfter ");
 			}
 			if (name != null) {
+				 name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" fu.file_bin_id REGEXP :name ");
+				//querySQL.append(" fu.file_bin_id REGEXP :name ");
+				querySQL.append(" LOWER(fu.file_bin_id) LIKE LOWER(:name) ");
 			}
 
 			BeanPropertyRowMapper<FileUploadConfig> mapper = new BeanPropertyRowMapper<FileUploadConfig>(FileUploadConfig.class);

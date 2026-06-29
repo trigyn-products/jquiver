@@ -14,7 +14,9 @@ import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.webstarter.xml.AdditionalDatasourceXMLVO;
 import com.trigyn.jws.webstarter.xml.ApiClientDetailsXMLVO;
 import com.trigyn.jws.webstarter.xml.AutocompleteXMLVO;
+import com.trigyn.jws.webstarter.xml.BusinessModuleXMLVO;
 import com.trigyn.jws.webstarter.xml.DashboardXMLVO;
+import com.trigyn.jws.webstarter.xml.FormIOXMLVO;
 import com.trigyn.jws.webstarter.xml.GenericUserNotificationXMLVO;
 import com.trigyn.jws.webstarter.xml.GridXMLVO;
 import com.trigyn.jws.webstarter.xml.PermissionXMLVO;
@@ -91,8 +93,10 @@ public class ImportExportUtility {
 						xmlVO = XMLUtil.unMarshaling(SchedulerXMLVO.class, file.getAbsolutePath());
 					} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.SCRIPTLIBRARY.getModuleType().toLowerCase())) {
 						xmlVO = XMLUtil.unMarshaling(ScriptLibraryXMLVO.class, file.getAbsolutePath());
-					} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.WORKFLOW.getModuleType().toLowerCase())) {
-						xmlVO = XMLUtil.unMarshaling(WorkflowXMLVO.class, file.getAbsolutePath());
+					} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.FORMIO.getModuleType().toLowerCase())) {
+						xmlVO = XMLUtil.unMarshaling(FormIOXMLVO.class, file.getAbsolutePath());
+					}else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.BUSINESSMODULE.getModuleType().toLowerCase())) {
+						xmlVO = XMLUtil.unMarshaling(BusinessModuleXMLVO.class, file.getAbsolutePath());
 					}
 					
 	
@@ -116,6 +120,8 @@ public class ImportExportUtility {
 						folderPath	= targetLocation + File.separator + com.trigyn.jws.dynarest.utils.Constants.DYNAMIC_REST_DIRECTORY_NAME;
 					}else if (Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().equalsIgnoreCase(moduleName)) {
 						folderPath	= targetLocation + File.separator + Constant.FILES_UPLOAD_DIRECTORY_NAME;
+					}else if (Constant.MasterModuleType.WORKFLOW.getModuleType().equalsIgnoreCase(moduleName)) {
+						folderPath	= targetLocation + File.separator + Constant.WORKFLOW_UPLOAD_DIRECTORY_NAME;
 					}
 					xmlVO 	= readMetaDataXML(folderPath);
 					if(xmlVO != null) {

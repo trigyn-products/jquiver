@@ -31,8 +31,12 @@ public class FormFieldFactory {
 			return new SelectFieldGenerator();
 		} else if ("filebincomponent".equalsIgnoreCase(columnType)) {
             return new FileBinFieldGenerator();
+		} else if ("foreignkeydropdown".equalsIgnoreCase(columnType)) {
+			return new ForeignKeyDropDownGenerator();
+		} else if ("foreignkeyautocomplete".equalsIgnoreCase(columnType)) {
+			return new ForeignKeyAutocompleteFieldGenerator();
 		}
-        throw new IllegalArgumentException("Invalid column type: " + columnType);
+		throw new IllegalArgumentException("Invalid column type: " + columnType);
     }
 }
 

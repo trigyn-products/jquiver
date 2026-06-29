@@ -305,21 +305,11 @@ public class JwsUserRegistrationController {
 			HttpServletResponse response) throws Exception {
 
 		try {
-			String captchaStr = "";
-			String captchaVal = "";
-			int captchaType = 0;
-
-			// String formId = request.getParameter("request_Id").toString();
-			if (CaptchaUtil.getRandomNumber(10, 100) % 2 == 0) {
-				captchaStr = CaptchaUtil.getCaptchaString();
-				captchaVal = captchaStr;
-				captchaType = 0;
-			} else {
-				Map<String, String> captchaMap = CaptchaUtil.getMathCaptcha();
-				captchaStr = captchaMap.get("cs");
-				captchaVal = captchaMap.get("cv");
-				captchaType = 1;
-			}
+			
+			Map<String, String> captchaMap = CaptchaUtil.getCaptchaMap();
+			String captchaStr = captchaMap.get("cs");
+			String captchaVal = captchaMap.get("cv");
+			int captchaType = Integer.parseInt(captchaMap.get("ct"));
 
 			int width = 130;
 			int height = 59;

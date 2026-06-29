@@ -120,7 +120,6 @@ class JQFormIoAutocomplete extends FieldComponent {
 
 	attach(element) {
 		const attached = super.attach(element);
-
 		this.input = element.querySelector('.jws-autocomplete-input');
 		this.dropdown = element.querySelector('.jws-autocomplete-dropdown');
 		this.hiddenInput = element.querySelector('input[type=hidden]');

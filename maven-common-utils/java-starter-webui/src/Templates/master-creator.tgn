@@ -2,10 +2,7 @@
 <script src="${(contextPath)!''}/webjars/1.0/mastergenerator/mastergenerator.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/fileupload/fileBinMaster.js"></script>
-
 <style>
-
-
   .hm-fieldset {
     margin-top: 12px;
     margin-bottom:20px;
@@ -29,36 +26,26 @@
     overflow:auto;
 }
 .displayflex{
-        display:flex;
-        flex-direction: column;
-    }
-
-    .displayflex label{
-            font-weight:bold;
-    }
-    </style>   
+    display:flex;
+    flex-direction: column;
+}
+.displayflex label{
+    font-weight:bold;
+}
+</style>   
 </head>
-
-
 <div>
 
-
 <div class="container">
-
-	 <div class="Mastercreator">
+  <div class="Mastercreator">
 	<div class="topband">
-	
-	
 		<h2 class="title-cls-name ">${messageSource.getMessage('jws.masterGenerator')}</h2> 
 		<div class="topactionbuttons">
 			<span onclick="backToPreviousPage();">
 				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
 			</span>	
-		</div>
-		
+		</div>		
  	</div>
-		
-		
 	<div >
 	<form method="post" name="createMasterForm" id="createMasterForm">
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
@@ -101,13 +88,10 @@
 				</div>				
 			</div>
 		</div>
-
         <input type="hidden" id="columns" name="columns" value="" maxlength="1000">
         <input type="hidden" id="primaryKey" name="primaryKey" value="" maxlength="100">
         <input type="hidden" id="baseUrl" name="baseUrl" value="">
         <input type="hidden" id="listingPageFieldCount" name="listingPageFieldCount" value="">
-
-
         <div class="row">
             <div class="col-12">            
                 <h4>${messageSource.getMessage('jws.Listing')}</h4><hr/>
@@ -194,10 +178,10 @@
                         <th> <span class="col-min-width">${messageSource.getMessage('jws.columnName')}</span></th>
                          <th> <span class="col-min-width">${messageSource.getMessage('jws.resourcekey')}</span></th>
                          <th> <span class="col-min-width">${messageSource.getMessage('jws.displayName')}</span></th>
+                         <th> <span class="col-min-width">Is Look Up</span></th>
                     </tr>
                 </table>
-                 </div>
-            
+                 </div>      
             </div>
         </div>
         <div class="row">
@@ -370,9 +354,11 @@
     </div>
 <div class="cm-card-footer">
     <div class="row margin-t-b">
+       
 			<div class="col-12">			
 				<div class="text-end">
-					<input class="btn btn-primary" name="" value="${messageSource.getMessage('jws.create')}" type="button" onclick="createMaster()">
+                  <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_template_master')">Create/Link Module</button>
+					<input class="btn btn-primary" name="" value="${messageSource.getMessage('jws.create')}" type="button" onclick="createBusinessModule()">
 					<span onclick="backToPreviousPage();">
 						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 					</span> 
@@ -387,6 +373,13 @@
 </div>
 </div>
 <div id="saveCreateMasterConfirm"></div>
+<div id="moduleAutocomplete">
+    <@templateWithoutParams "common-modal-template"/>
+</div>   
+<div id="moduleForeignKey">
+    <@templateWithoutParams "common-foreignkey-template"/>
+</div>
+
 <script>
 	document.title = "Master Module Generator";
 	//contextPath = "${contextPath}";
@@ -402,6 +395,15 @@
     var fileBinDisplayTexts = null;
     var profile = "prod";
     var listingPageFieldCount = "";
+    let allModuleList = [];
+    let moduleIdList = [];
+    let deleteModuleIdList = [];
+    let newAddedModuleIdList = [];
+    let existingModuleIdList = [];
+    let foreignKeyDetails = [];
+    let currentForeignKeyIndex = null;
+    let selectedTable;
+
 	<#list systemProperties as key, value>    
         <#if key.propertyName == "base-url">
             baseUrl = "${value}";
@@ -437,7 +439,7 @@
 	        render: function(item) {
 	            var renderStr ="";
 	            if(item.emptyMsg == undefined || item.emptyMsg === ""){
-	                renderStr = "<p>"+item.tableName+"</p>";
+	                    renderStr = "<p>"+item.tableName+"</p>";
 	            }else{
 	                renderStr = item.emptyMsg;    
 	            }                                
@@ -455,7 +457,7 @@
 				let dbProductID = $("#dataSource").find(":selected").val();
 	            $("#tableAutocomplete").blur();
 	            $("#selectTable").val(item.tableName);
-	            populateFields(item.tableName, dbProductID);
+	            populateFields(item.tableName, dbProductID);              
 	        }, 
 			resetAutocomplete: function(autocompleteObj){
                 $(".details").remove();
@@ -514,6 +516,26 @@
         });
     }
 
+    $(document).on("change", ".foreign-key-checkbox", function() {
+       let index = $(this).data("index");
+       let columnName = $("#tfcolumn_" + index).text().trim();
+       if ($(this).is(":checked")) {
+            currentForeignKeyIndex = index;
+            clearForeignKeyPopup();
+            openForeignKeyModal();
+        } else {
+            foreignKeyDetails = foreignKeyDetails.filter(x => x.columnName !== columnName);
+        }
+    });
+
+     $("#modalCloseBtn").on("click", function () {
+        if(currentForeignKeyIndex != null){
+            $("#foreignKey_" + currentForeignKeyIndex)
+                .prop("checked", false);
+        }
+        clearForeignKeyModal();
+    });
+
     function selectAllHiddenListing(){
         $("#listingDetailsTable tr td:nth-child(2) input").each(function(a_index, a_element){
         	if($(this).is(':disabled') == false){
@@ -551,7 +573,6 @@
             document.getElementById('size').value = '1';
             $("#maxFileSize").focus();
             $("#fileBinId").val($("#moduleName").val().replace(/[^a-zA-Z0-9]/g, "")+"_fb");
-
         } else {
             $(".RemoveData").attr("placeholder", ""); 
             $(".RemoveData").val("");    
@@ -580,15 +601,15 @@
 	}
 
     function updateIsFileStorageEnableText() {
-            if($("#isFileStorageEnable").prop("checked") == true) {
-                 $("#customFileStorageClass").prop("disabled", false);
-                $("#fileStorageTxt").val(1);
-            } else {
-                $("#fileStorageTxt").val(0);
-                 $("#customFileStorageClass").prop("disabled", true);
-                 $("#customFileStorageClass").val("")
-            }
+        if($("#isFileStorageEnable").prop("checked") == true) {
+                $("#customFileStorageClass").prop("disabled", false);
+            $("#fileStorageTxt").val(1);
+        } else {
+            $("#fileStorageTxt").val(0);
+                $("#customFileStorageClass").prop("disabled", true);
+                $("#customFileStorageClass").val("")
         }
+    }
         
      function updateFormIo() {
 		let formIoChkBox = $('#formIoChkBox').is(':checked')? 1 : 0;
@@ -599,4 +620,66 @@
         	$("#csrfdiv").show();
         }
      }
+
+   function createBusinessModule() {
+        // CHECK WHETHER BUSINESS MODULE IS ALREADY CREATED/LINKED
+        let hasBusinessModule = false;
+        if ($("#busmoduleName").val() != null && $("#busmoduleName").val() != "") {
+            hasBusinessModule = true;
+        }
+        // if multiselect contains selected items
+        if ($("#linkModuleNameAutocomplete_selectedOptions_ul li").length > 0) {
+            hasBusinessModule = true;
+        }
+        // If Business Module Exists -> Directly create master
+        if (hasBusinessModule) {
+            createMaster();
+            return;
+        }
+        //Otherwise show confirm dialog box
+        const dialog = $(`
+            <div id="proceedConfirmDialog">
+                Are you sure you want to proceed without creating Business Module?
+            </div>
+        `);
+        $('body').append(dialog);
+        $('#proceedConfirmDialog').dialog({
+            bgiframe: true,
+            autoOpen: true,
+            modal: true,
+            closeOnEscape: true,
+            draggable: true,
+            resizable: false,
+            title: 'Proceed',
+            position: { my: 'center', at: 'center' },
+            buttons: [
+            {
+                text: 'Proceed',
+                class: 'btn btn-primary',
+                click: function () {
+                    createMaster();
+                    $(this).dialog('destroy').remove();
+                }
+            },
+            {
+                text: 'Cancel',
+                class: 'btn btn-secondary',
+                click: function () {
+                    $(this).dialog('destroy').remove();
+                }
+            }
+            ],
+            open: function () {
+                $(".ui-dialog-titlebar button")
+                    .removeClass("ui-dialog-titlebar-close")
+                    .addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
+                    .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
+                    .append('<span class="ui-button-icon-space"></span>');
+            },
+            close: function () {
+                $(this).dialog('destroy').remove();
+            }
+        });
+}
+
 </script>

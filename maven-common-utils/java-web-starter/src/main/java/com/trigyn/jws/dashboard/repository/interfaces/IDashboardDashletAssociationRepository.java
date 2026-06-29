@@ -1,5 +1,7 @@
 package com.trigyn.jws.dashboard.repository.interfaces;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,4 +10,5 @@ import com.trigyn.jws.dashboard.entities.DashboardDashletAssociationPK;
 
 public interface IDashboardDashletAssociationRepository extends JpaRepository<DashboardDashletAssociation, DashboardDashletAssociationPK> {
 
+	List<DashboardDashletAssociation> findByIdDashboardId(String dashboardId);
 }

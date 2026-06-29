@@ -728,11 +728,12 @@ CREATE OR REPLACE VIEW jq_entities_details_view AS
 	                        'id', q.dynamic_form_query_id,
 	                        'innerQuery', '1',
 	                        'variableName', CONCAT(q.sequence,q.result_variable_name, CASE q.dao_query_type
-	                            WHEN 1 THEN '.sql'
-	                            WHEN 2 THEN '.js'
-	                            WHEN 3 THEN '.py'
-	                            WHEN 4 THEN '.php'
-	                            ELSE '.txt'
+	                            WHEN 2 THEN '.sql'
+				                WHEN 3 THEN '.sql'
+				                WHEN 4 THEN '.js'
+				                WHEN 5 THEN '.py'
+				                WHEN 6 THEN '.php'
+				                ELSE '.txt'
 	                        END)
 	                    )
 	                )

@@ -1,0 +1,18 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+
+function checkExistingAutocompleteId() {
+    var map = new HashMap();
+    var queryResult = {};
+    var count = 0;
+    map.put("autocompleteId", requestDetails.autocompleteId);
+    if (requestDetails.autocompleteId != "") {
+        queryResult = jq_getDBResult("SELECT count(*) AS totalCount FROM jq_autocomplete_details WHERE ac_id = :autocompleteId",null,map);
+        if (queryResult.data_list != null && queryResult.data_list.length > 0) {
+            count = queryResult.data_list[0].totalCount;
+        }
+    }
+    return count;
+}
+
+checkExistingAutocompleteId();

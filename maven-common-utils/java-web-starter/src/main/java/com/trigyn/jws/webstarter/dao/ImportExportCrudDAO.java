@@ -67,6 +67,31 @@ public class ImportExportCrudDAO extends DBConnection {
 
 		return namedParameterJdbcTemplate.query(querySQL.toString(), params, mapper);
 	}
+	
+	
+	public List<Object> getAllAutoExportableEntityData(
+	        String hql,
+	        Date modifiedAfter,
+	        String entityType,
+	        String name) {
+
+	    Query query = getCurrentSession().createQuery(hql);
+
+	    if (modifiedAfter != null) {
+	        query.setParameter("modifiedAfter", modifiedAfter);
+	    }
+
+	    if (entityType != null) {
+	        query.setParameter("entityType",
+	                Integer.parseInt(entityType));
+	    }
+
+	    if (name != null) {
+	        query.setParameter("name", name);
+	    }
+
+	    return query.list();
+	}
 
 	public List<Object> getExportableDataWithIntegerList(String querySQL, List<Integer> includeSystemConfigList, Integer systemConfigType,
 		List<Integer> excludeCustomConfigList, Integer customConfigType) throws Exception {

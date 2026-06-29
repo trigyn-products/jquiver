@@ -372,4 +372,19 @@ public class JwsDynarestDAO extends DBConnection {
 		return "^" + regex + "$";
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<ScriptLibraryConnection> getScriptLibraryConnectionsByScriptLibId(
+	        String scriptLibId) {
+
+	    Query querySQL = getCurrentSession().createNativeQuery(
+	            "SELECT * " +
+	            "FROM jq_script_lib_connect " +
+	            "WHERE script_lib_id = :scriptLibId",
+	            ScriptLibraryConnection.class);
+
+	    querySQL.setParameter("scriptLibId", scriptLibId);
+
+	    return querySQL.list();
+	}
+
 }

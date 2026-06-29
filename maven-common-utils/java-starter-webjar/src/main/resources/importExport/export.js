@@ -2266,7 +2266,7 @@ function getPreviewHTMLTable() {
 						let ver = exportData.getModuleVersion();
 						let newVer;
 						if (ver != "NA" && ver != "") {
-							newVer = String(parseFloat(ver).toFixed(1));
+							newVer = String(parseFloat(ver).toFixed(2));
 						} else {
 							newVer = ver;
 						}

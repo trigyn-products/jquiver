@@ -44,12 +44,14 @@ public class HelpManualExportableData implements GenerateModuleMasterQueries {
 			}
 
 			if (name != null) {
+				name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" mt.name REGEXP :name ");
+				//querySQL.append(" mt.name REGEXP :name ");
+				querySQL.append(" LOWER(mt.name) LIKE LOWER(:name) ");
 			}
 
 			if (entityType != null) {

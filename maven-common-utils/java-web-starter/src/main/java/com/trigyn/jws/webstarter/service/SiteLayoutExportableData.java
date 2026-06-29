@@ -31,36 +31,40 @@ public class SiteLayoutExportableData implements GenerateModuleMasterQueries {
 		List<Object> exportableList = new ArrayList<>();
 
 		if (autoExport) {
-			StringBuilder querySQL = new StringBuilder(
+			StringBuilder queryHQL = new StringBuilder(
 					CrudQueryStore.HQL_QUERY_TO_FETCH_SITE_LAYOUT_DATA_FOR_AUTO_EXPORT);
 			if (modifiedAfter != null) {
-				if (querySQL.toString().contains(" WHERE ")) {
-					querySQL.append("AND ");
+				if (queryHQL.toString().contains(" WHERE ")) {
+					queryHQL.append("AND ");
 				} else {
-					querySQL.append(" WHERE ");
+					queryHQL.append(" WHERE ");
 				}
-				querySQL.append("jml.last_modified_date >=:modifiedAfter ");
+				queryHQL.append("jml.last_modified_date >=:modifiedAfter ");
 			}
 			if (name != null) {
-				if (querySQL.toString().contains(" WHERE ")) {
-					querySQL.append("AND ");
+				 name = "%" + name + "%";
+				if (queryHQL.toString().contains(" WHERE ")) {
+					queryHQL.append("AND ");
 				} else {
-					querySQL.append(" WHERE ");
+					queryHQL.append(" WHERE ");
 				}
-				querySQL.append(" jml.module_url = :name ");
+				//queryHQL.append(" jml.module_url = :name ");
+				queryHQL.append(" LOWER(jml.module_url) LIKE LOWER(:name) ");
 			}
 
 			if (entityType != null) {
-				if (querySQL.toString().contains(" WHERE ")) {
-					querySQL.append("AND ");
+				if (queryHQL.toString().contains(" WHERE ")) {
+					queryHQL.append("AND ");
 				} else {
-					querySQL.append(" WHERE ");
+					queryHQL.append(" WHERE ");
 				}
-				querySQL.append(" jml.module_type_id = :entityType ");
+				queryHQL.append(" jml.module_type_id = :entityType ");
 			}
 			BeanPropertyRowMapper<ModuleListing> mapper = new BeanPropertyRowMapper<ModuleListing>(ModuleListing.class);
-			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), modifiedAfter,
-					entityType, name,mapper);
+//			exportableList = importExportCrudDAO.getAllAutoExportable(querySQL.toString(), modifiedAfter,
+//					entityType, name,mapper);
+			exportableList = importExportCrudDAO.getAllAutoExportableEntityData(queryHQL.toString(), modifiedAfter,
+					entityType, name);
 
 		} else {
 			exportableList = importExportCrudDAO.getAllExportableData(

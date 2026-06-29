@@ -40,22 +40,22 @@ public class AdditionalDatasourceExportableData implements GenerateModuleMasterQ
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append("COALESCE(ads.last_updated_ts , ads.created_date)  >=:modifiedAfter ");
+				querySQL.append("COALESCE(ads.lastUpdatedTs , ads.createdDate)  >=:modifiedAfter ");
 
 			}
 
 			if (name != null) {
+				name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" ads.datasource_name REGEXP :name ");
+				//querySQL.append(" ads.datasourceName REGEXP :name ");
+				querySQL.append(" LOWER(ads.datasourceName) LIKE LOWER(:name) ");
 			}
-			BeanPropertyRowMapper<AdditionalDatasource> mapper = new BeanPropertyRowMapper<AdditionalDatasource>(AdditionalDatasource.class);
-			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), modifiedAfter, null,
-					name,mapper);
-
+			exportableList = importExportCrudDAO.getAllAutoExportableEntityData(querySQL.toString(), modifiedAfter,
+					null, name);
 		} else {
 			exportableList = importExportCrudDAO.getAllExportableData(
 					CrudQueryStore.HQL_QUERY_TO_FETCH_ADDITIONAL_DATASOURCE_FOR_EXPORT, null, null,

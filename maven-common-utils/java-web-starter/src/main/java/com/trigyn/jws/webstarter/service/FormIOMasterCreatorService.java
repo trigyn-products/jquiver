@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
@@ -102,23 +103,54 @@ public class FormIOMasterCreatorService {
 
 	}
 
-	public FormIO generateFormIoStructure(List<Map<String, Object>> matchedColumnDetails, Map<String, Object> formData, boolean isCaptchaEnabled, String fileBinId) 
+	public FormIO generateFormIoStructure(List<Map<String, Object>> matchedColumnDetails, Map<String, Object> formData, boolean isCaptchaEnabled, String fileBinId, String foreignKeyDetails) 
 	        throws Exception {
 		
 	    List<Map<String, Object>> nestedComponents = new ArrayList<>();
-	    for (Map<String, Object> columns : matchedColumnDetails) {
-	        String columnType = (String) columns.get("columnType");
-	        String columnKey = (String) columns.get("columnKey");
-	        String isAutoIncrement	= columns.get("autoIncrement").toString();
-	        if (columnType != null) {
-	        	if (columnKey != null && isAutoIncrement !=null && isAutoIncrement.equalsIgnoreCase("true")) {
-	        		columnType = "hidden";
-	        	}
-	            FormFieldGenerator generator = FormFieldFactory.getFieldGenerator(columnType);
-	            Map<String, Object> fieldMap = generator.generateField(columns);
-	            nestedComponents.add(fieldMap);
-	        }
-	    }
+		ObjectMapper mapper = new ObjectMapper();
+		List<Map<String, Object>> fkConfigs = new ArrayList<>();
+		if (foreignKeyDetails != null) {
+			fkConfigs = mapper.readValue(foreignKeyDetails, new TypeReference<List<Map<String, Object>>>() {
+			});
+		}
+		for (Map<String, Object> columns : matchedColumnDetails) {
+			String columnName = String.valueOf(columns.get("tableColumnName"));
+			String columnType = (String) columns.get("columnType");
+			Map<String, Object> fkConfig = fkConfigs.stream()
+					.filter(fk -> columnName.equals(String.valueOf(fk.get("columnName")))).findFirst().orElse(null);
+			if (fkConfig != null) {
+				columns.put("isForeignKey", true);
+				columns.put("foreignKeyConfig", fkConfig);
+				String componentType = String.valueOf(fkConfig.get("componentType"));
+				if ("DROPDOWN".equalsIgnoreCase(componentType)) {
+					columnType = "foreignkeydropdown";
+					List<Map<String, Object>> dbRows = dynamicFormDAO.getForeignKeyValues(
+							String.valueOf(fkConfig.get("dataSourceId")), String.valueOf(fkConfig.get("table")),
+							String.valueOf(fkConfig.get("idColumn")), String.valueOf(fkConfig.get("displayColumn")));
+					List<Map<String, Object>> options = new ArrayList<>();
+					for (Map<String, Object> row : dbRows) {
+						Map<String, Object> option = new HashMap<>();
+						option.put("label", row.get(String.valueOf(fkConfig.get("displayColumn"))));
+						option.put("value", row.get(String.valueOf(fkConfig.get("idColumn"))));
+						options.add(option);
+					}
+			        columns.put("dropdownOptions", options);
+				} else if ("AUTOCOMPLETE".equalsIgnoreCase(componentType)) {
+					columns.put("autocompleteId", fkConfig.get("autocompleteId"));
+					columnType = "foreignkeyautocomplete";
+				}
+			}
+			String columnKey = (String) columns.get("columnKey");
+			String isAutoIncrement = columns.get("autoIncrement").toString();
+			if (columnType != null) {
+				if (columnKey != null && isAutoIncrement != null && isAutoIncrement.equalsIgnoreCase("true")) {
+					columnType = "hidden";
+				}
+				FormFieldGenerator generator = FormFieldFactory.getFieldGenerator(columnType);
+				Map<String, Object> fieldMap = generator.generateField(columns);
+				nestedComponents.add(fieldMap);
+			}
+		}
 	    if (isCaptchaEnabled) {
 			Map<String, Object>	columns		= new HashMap<>();
 			String				columnType	= "captchaelement";
@@ -150,11 +182,10 @@ public class FormIOMasterCreatorService {
 			Map<String, Object>	fieldMap	= generator.generateField(columns);
 			nestedComponents.add(fieldMap);
 		}
-
+	    
 	    String jsonStr = FormIOJsonGenerator.getFormIOJson(nestedComponents);
 	    JSONObject form = new JSONObject(jsonStr);
 	    String id = UUID.randomUUID().toString();
-
 	    FormIO fmio = new FormIO();
 	    fmio.setFormIoId(id);
 	    String moduleName = formData.get("moduleName") + "-form-io";
@@ -171,19 +202,19 @@ public class FormIOMasterCreatorService {
 	
 	public Map<String, String> generateHtmlTemplateForFormIo(String dataSourceId, String dbProductName,
 			String tableName, List<Map<String, Object>> formDetails, String moduleURL, Boolean toggleCaptcha,
-			Boolean toggleCsrf, Boolean toggleFileBin, String fileBinId, String fileAssociationId) throws Exception {
+			Boolean toggleCsrf, Boolean toggleFileBin, String fileBinId, String fileAssociationId, String foreignKeyDetails) throws Exception {
 
 		List<Map<String, Object>>	tableDetails			= dynamicFormDAO.getTableDetailsByTableName(dataSourceId,
 				tableName);
 		dynamicFormHelperService.getMatchedColumnTableDetails(formDetails, tableDetails, true);
 		Map<String, String> templateDetails = dynamicFormIoService.createFormIoHtmlByTableName(tableName, tableDetails,
 				moduleURL, dataSourceId, dbProductName, toggleCaptcha, toggleCsrf, toggleFileBin, fileBinId,
-				fileAssociationId);
+				fileAssociationId,foreignKeyDetails);
 		return templateDetails;
 	}
 	
 	public FormIO updateFormIoDetails(MultiValueMap<String, String> inputDetails, Map<String, Object> formData,
-			String dataSourceId, String fileBinId) throws JsonProcessingException, JsonMappingException, Exception {
+			String dataSourceId, String fileBinId, String foreignKeyDetails) throws JsonProcessingException, JsonMappingException, Exception {
 		FormIO fmio;
 		String						formIoId;
 		String						tableName;
@@ -201,7 +232,7 @@ public class FormIOMasterCreatorService {
 		if (formData.get("toggleCaptcha").toString() != null && formData.get("toggleCaptcha").toString().equalsIgnoreCase("1")) {
 			isCaptchaEnabled = true;
 		}
-		fmio = generateFormIoStructure(tableDetails, formData, isCaptchaEnabled, fileBinId);
+		fmio = generateFormIoStructure(tableDetails, formData, isCaptchaEnabled, fileBinId, foreignKeyDetails);
 		formData.put("formIoId", fmio.getFormIoId());
 		return fmio;
 	}

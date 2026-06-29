@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -89,9 +90,15 @@ import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
+import com.trigyn.jws.typeahead.model.AutocompleteVO;
+import com.trigyn.jws.typeahead.service.TypeAheadService;
+import com.trigyn.jws.usermanagement.repository.JwsMasterModulesRepository;
 import com.trigyn.jws.usermanagement.utils.Constants;
+import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
 import com.trigyn.jws.webstarter.dao.ICaptchRepository;
 import com.trigyn.jws.webstarter.service.CaptchaService;
+import com.trigyn.jws.webstarter.service.MasterCreatorService;
+import com.trigyn.jws.webstarter.service.UserManagementService;
 import com.trigyn.jws.webstarter.vo.CaptchaDetails;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -195,6 +202,12 @@ public class DynamicFormService {
 	@Autowired
 	private DynamicFormHelperService		dynamicFormHelperService	= null;
 	
+	@Autowired
+	protected JdbcTemplate					jdbcTemplate				= null;
+	
+	@Autowired
+	protected TypeAheadService				typeAheadService			= null;
+	
 	public String loadDynamicForm(String formId, Map<String, Object> requestParam, Map<String, Object> additionalParam)
 			throws IOException, CustomStopException {
 		logger.debug("Inside DynamicFormService.loadDynamicForm(formId: {}, requestParam: {}, additionalParam: {})",
@@ -265,13 +278,42 @@ public class DynamicFormService {
 					}
 				}
 			}
+//			Map<String, Object> modifiedParams = new HashMap<>();
+//
+//			for (Map.Entry<String, Object> entry : requestParam.entrySet()) {
+//
+//			    String key = entry.getKey();
+//			    Object value = entry.getValue();
+//
+//			    modifiedParams.put(key, value);
+//
+//			    // convert spaces to underscore
+//			    if (key.contains(" ")) {
+//
+//			        modifiedParams.put(
+//			                key.replace(" ", "_"),
+//			                value);
+//			    }
+//			}
+//
+//			requestParam.putAll(modifiedParams);
+			
+			
 			selectTemplateQuery = templateEngine.processTemplateContents(selectQuery, formName, requestParam);
 			ScriptEngineManager	scriptEngineManager	= new ScriptEngineManager();
 			ScriptEngine		scriptEngine		= null;
+			
+			Integer selectQueryType = form.getSelectQueryType();
+
+			if (selectQueryType == null) {
+			    // Default old forms to SQL query type
+			    selectQueryType = Constant.SELECT;
+			}
 			scriptEngine = scriptEngineManager.getEngineByName(
 					Constant.SelectQueryType.getqueryTypeID(form.getSelectQueryType()).getQueryTypeName());
 			if (StringUtils.isNotEmpty(selectTemplateQuery)) {
-				switch (form.getSelectQueryType()) {
+				//switch (form.getSelectQueryType()) {
+				switch (selectQueryType) {
 					case Constant.SELECT:
 						selectResultSet = dynamicFormDAO.executeQueries(form.getDatasourceId(),
 								selectTemplateQuery.toString(), requestParam);
@@ -1145,8 +1187,8 @@ public class DynamicFormService {
 
 	public Map<String, String> createDefaultFormByTableName(String tableName, List<Map<String, Object>> tableDetails,
 			String moduleURL, String additionalDataSourceId, String dbProductName, Boolean toggleCaptcha,
-			Boolean toggleCsrf, Boolean toggleFileBin, String fileBinId, String fileAssociationId)
-			throws CustomStopException, JsonProcessingException {
+			Boolean toggleCsrf, Boolean toggleFileBin, String fileBinId, String fileAssociationId, String foreignKeyDetails, List<String> roleIds, String autocompleteId)
+			throws Exception {
 		logger.debug(
 				"Inside DynamicFormService.createDefaultFormByTableName(tableName: {}, tableDetails: {}, moduleURL: {}, additionalDataSourceId: {}, dbProductName: {})",
 				tableName, tableDetails, moduleURL, additionalDataSourceId, dbProductName, toggleCaptcha, toggleCsrf,
@@ -1157,10 +1199,17 @@ public class DynamicFormService {
 		Map<String, String>	regexMap		= new HashMap<>();
 		parameters.put("columnDetails", tableDetails);
 		parameters.put("formName", tableName);
+		//parameters.put("nashornResultAlias", StringUtils.uncapitalize(tableName) + "Data");
 		parameters.put("toggleCaptcha", toggleCaptcha);
 		parameters.put("toggleCsrf", toggleCsrf);
 		parameters.put("toggleFileBin", toggleFileBin);
 		parameters.put("fileBinId", fileBinId);
+		boolean isNashorn = StringUtils.isNotBlank(foreignKeyDetails) && !"[]".equals(foreignKeyDetails.trim());
+		parameters.put("isNashorn", isNashorn);
+		if (isNashorn) {
+			parameters.put("nashornResultAlias", StringUtils.uncapitalize(tableName) + "Data");
+		}
+
 		parameters.put("fileAssociationId", "${(resultSetObject." + fileAssociationId + ")!''}");
 		parameters.put("editCondition", fileAssociationId);
 		if (StringUtils.isBlank(moduleURL) == false) {
@@ -1205,6 +1254,69 @@ public class DynamicFormService {
 		jsonBuilder.append("\t];\n");
  		parameters.put("fieldList", jsonBuilder);
  		parameters.put("dbProductName", dbProductName);
+ 		parameters.put("foreignKeyDetails", foreignKeyDetails);
+ 		ObjectMapper mapper = new ObjectMapper();
+ 		String colName = null;
+ 		List<Map<String, Object>> foreignKeys = new ArrayList<>();
+
+ 		if(StringUtils.isNotBlank(foreignKeyDetails)) {
+ 		    foreignKeys = mapper.readValue(
+ 		        foreignKeyDetails,
+ 		        new TypeReference<List<Map<String, Object>>>() {}
+ 		    );
+ 		}
+ 		parameters.put("foreignKeys", foreignKeys);
+ 		Map<String, List<Map<String, Object>>> foreignKeyDropDownOptions = new HashMap<>();
+ 		Map<String, Map<String, String>> foreignKeyExistingAutocompleteData = new HashMap<>();
+ 		Map<String, String> foreignKeyAutocompleteOptions = new HashMap<>();
+ 		Map<String, String> autocompleteResultSet = new HashMap<>();
+ 		boolean hasAutocomplete = false;
+ 		boolean hasDropdown = false;
+ //		String autocompleteId = null;
+			for (Map<String, Object> fkInfo : foreignKeys) {
+				String	columnName		= fkInfo.get("columnName").toString();
+				String	componentType	= String.valueOf(fkInfo.get("componentType"));
+				if (componentType != null && "DROPDOWN".equalsIgnoreCase(componentType)) {
+					hasDropdown	= true;
+//					foreignKeyDropDownOptions.put(columnName, options);
+				} else {
+					hasAutocomplete	= true;
+					if(fkInfo.get("mode") != null && "NEW".equalsIgnoreCase(fkInfo.get("mode").toString())) {
+					//	autocompleteId = typeAheadService.saveAutocompleteFromMasterGenerator(fkInfo, roleIds);
+						foreignKeyAutocompleteOptions.put(columnName, autocompleteId);
+					}else if(fkInfo.get("mode") != null && "EXISTING".equalsIgnoreCase(fkInfo.get("mode").toString())) {
+						autocompleteId = fkInfo.get("autocompleteId").toString();
+						AutocompleteVO autocompleteDetails = typeAheadService.getAutocompleteDetailsId(autocompleteId);
+						String autocompleteQuery = autocompleteDetails.getAutocompleteSelectQuery();
+						Pattern		idPattern			= Pattern.compile("SELECT\\s+.*?\\s+AS\\s+(\\w+)",
+								Pattern.CASE_INSENSITIVE);
+						Matcher		idMatcher			= idPattern.matcher(autocompleteQuery);
+						String		idAlias				= null;
+						if (idMatcher.find()) {
+							idAlias = idMatcher.group(1);
+						}
+						Pattern displayPattern = Pattern.compile(",\\s*.*?\\s+AS\\s+(\\w+)", Pattern.CASE_INSENSITIVE);
+						Matcher displayMatcher = displayPattern.matcher(autocompleteQuery);
+						String displayAlias	= null;
+						if (displayMatcher.find()) {
+							displayAlias = displayMatcher.group(1);
+						}
+						Map<String, String> autoInfo = new HashMap<>();
+						autoInfo.put("autocompleteId", autocompleteId);
+						autoInfo.put("idAlias", idAlias);
+						autoInfo.put("displayAlias", displayAlias);
+						foreignKeyExistingAutocompleteData.put(columnName, autoInfo);
+					}
+			}
+				
+		}
+ 		
+ 		parameters.put("foreignKeyOptions", foreignKeyDropDownOptions);
+ 		parameters.put("hasDropdown", hasDropdown);
+ 		parameters.put("hasAutocomplete", hasAutocomplete);
+ 		parameters.put("foreignKeyAutocompleteOptions", foreignKeyAutocompleteOptions);
+ 		parameters.put("foreignKeyExistingAutocompleteData", foreignKeyExistingAutocompleteData);
+ 		
  		
 		try {
 			TemplateVO	templateVO	= templateService.getTemplateByName("system-form-html-template");
@@ -1214,6 +1326,7 @@ public class DynamicFormService {
 
 			Map<String, Object> selectParameters = new HashMap<>();
 			selectParameters.put("tableName", tableName);
+			
 			templateVO	= templateService.getTemplateByName("system-form-select-template");
 			template	= templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 					selectParameters);
@@ -1229,7 +1342,7 @@ public class DynamicFormService {
 		createSaveUpdateQueryTemplate(tableDetails, tableName, templatesMap, additionalDataSourceId, dbProductName);
 		return templatesMap;
 	}
-
+	
 	public List<Map<String, Object>> getTableInformationByName(String tableName) {
 		logger.debug("Inside DynamicFormService.getTableInformationByName(tableName: {})", tableName);
 		return dynamicFormDAO.getTableInformationByName(tableName);

@@ -77,7 +77,12 @@ function loadTable(zipFileJsonDataMap, versionMap, crcMap) {
 					|| moduleType == "ManageUsers" || moduleType == "ManageRoles" || moduleType == "HelpManual" || moduleType == "BusinessModule" || moduleType == "BusinessEntityModules") {
 					isNonVersioningModule = "true";
 				}
-				let isCheckSumUpdated = crcMap.get(moduleType.toLowerCase() + moduleID);
+				let isCheckSumUpdated ;
+				if (moduleType == "ResourceBundle") {
+						isCheckSumUpdated = crcMap.get(moduleID);
+					} else {
+						isCheckSumUpdated = crcMap.get(moduleType.toLowerCase() + moduleID);
+					}
 				if (isCheckSumUpdated) {
 					let existingVersionDisplay = versionMap.get(moduleType.toLowerCase() + moduleID);
 					if (existingVersion == "NE" && isNonVersioningModule == "true") {
@@ -90,7 +95,7 @@ function loadTable(zipFileJsonDataMap, versionMap, crcMap) {
 					tableRow += '<td><label>' + moduleID + '</label> </td>';
 					tableRow += '<td><label s>' + htmlTableJsonArray[i].moduleName + '</label> </td>';
 					tableRow += '<td><label id = "lblExistingVersion' + moduleID + '">' + existingVersionDisplay + '</label> </td>';
-					tableRow += '<td><label>' + importVersion + '</label> </td>';
+					tableRow += '<td><label>' + String(parseFloat(importVersion).toFixed(2)) + '</label> </td>';
 					tableRow += '<td>';
 
 					if ((existingVersion == "NA" && isNonVersioningModule == "false")

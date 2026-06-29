@@ -714,21 +714,21 @@ document.addEventListener("click", function(event) {
     });
 
     function navigateToManual(nodeName, contentSearch) {
-    const tree = $('#tree_container').jstree(true);
-    const roots = tree.get_json('#', { flat: true });
-    let found = false;
+        $.blockUI({message: "<img src='" + contextPathHome + "/webjars/1.0/images/loading.gif' />"});
+        const tree = $('#tree_container').jstree(true);
+        const roots = tree.get_json('#', { flat: true });
+        let found = false;
 
-    function searchInNode(index) {
-        if (index >= roots.length || found) return;
-
-        const parent = roots[index];
-        tree.open_node(parent.id, function () {
-            setTimeout(function () {
-                const allNodes = tree.get_json('#', { flat: true });
-                // Look for the documentation node (e.g., 'Templating')
-                const targetNode = allNodes.find(n => 
-                    n.text && n.text.trim().toLowerCase() === nodeName.trim().toLowerCase()
-                );
+        function searchInNode(index) {
+            if (index >= roots.length || found) return;
+            const parent = roots[index];
+            tree.open_node(parent.id, function () {
+                setTimeout(function () {
+                    const allNodes = tree.get_json('#', { flat: true });
+                    // Look for the documentation node (e.g., 'Templating')
+                    const targetNode = allNodes.find(n => 
+                        n.text && n.text.trim().toLowerCase() === nodeName.trim().toLowerCase()
+                    );
 
                 if (targetNode) {
                     found = true;
@@ -753,8 +753,10 @@ function scrollToPhraseInPreview(phrase) {
     setTimeout(() => {
         // Based on your screenshot, the preview ID is 'previews'
         const previewArea = document.getElementById('previews');
-        if (!previewArea) return;
-
+        if (!previewArea) {
+            $.unblockUI();
+            return;
+        }
         // Search for the specific text in headings or paragraphs
         const elements = previewArea.querySelectorAll('h1, h2, h3, h4, p, li');
         let targetEl = null;
@@ -765,15 +767,14 @@ function scrollToPhraseInPreview(phrase) {
                 break;
             }
         }
-
         if (targetEl) {
-            targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
-            
+            targetEl.scrollIntoView({ behavior: "smooth", block: "start" });     
             // Apply highlight
             targetEl.style.backgroundColor = "#fff3cd";
             targetEl.style.transition = "background 1s";
             setTimeout(() => { targetEl.style.backgroundColor = "transparent"; }, 3000);
         }
+        $.unblockUI(); 
     }, 800); // Wait for AJAX content to load and render
 }
 

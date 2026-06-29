@@ -2,6 +2,7 @@ package com.trigyn.jws.dbutils.vo.xml;
 
 import java.util.List;
 
+import com.trigyn.jws.formio.vo.FormIOImportExportVO;
 import com.trigyn.jws.workflow.vo.WorkflowDefinitionExportVO;
 
 public class Modules {
@@ -29,6 +30,8 @@ public class Modules {
 	private ScriptLibraryDetailsExportVO			scriptLibraryExportVo;
 	
 	private WorkflowDefinitionExportVO			    workflowDefinition;
+	
+	private FormIOImportExportVO			        formIOImportExportVO;
 	
 
 	public String getModuleID() {
@@ -125,6 +128,14 @@ public class Modules {
 
 	public void setWorkflowDefinition(WorkflowDefinitionExportVO workflowDefinition) {
 		this.workflowDefinition = workflowDefinition;
+	}
+
+	public FormIOImportExportVO getFormIOImportExportVO() {
+		return formIOImportExportVO;
+	}
+
+	public void setFormIOImportExportVO(FormIOImportExportVO formIOImportExportVO) {
+		this.formIOImportExportVO = formIOImportExportVO;
 	}
 
 

@@ -38,17 +38,19 @@ public class DynaRestExportableData implements GenerateModuleMasterQueries {
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append("COALESCE(dr.last_updated_ts , dr.created_date)  >=:modifiedAfter ");
+				querySQL.append("COALESCE(dr.lastUpdatedTs , dr.createdDate)  >=:modifiedAfter ");
 				// params.addValue("modifiedAfter", modifiedAfter);
 			}
 
 			if (name != null) {
+				 name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" dr.jws_method_name REGEXP :name ");
+				//querySQL.append(" dr.jwsMethodName REGEXP :name ");
+				querySQL.append(" LOWER(dr.jwsMethodName) LIKE LOWER(:name) ");
 			}
 
 			if (entityType != null) {
@@ -57,11 +59,10 @@ public class DynaRestExportableData implements GenerateModuleMasterQueries {
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" dr.jws_dynamic_rest_type_id = :entityType ");
+				querySQL.append(" dr.jwsDynamicRestTypeId = :entityType ");
 			}
-			BeanPropertyRowMapper<JwsDynamicRestDetail> mapper = new BeanPropertyRowMapper<JwsDynamicRestDetail>(JwsDynamicRestDetail.class);
-			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), modifiedAfter,
-					entityType, name,mapper);
+			exportableList = importExportCrudDAO.getAllAutoExportableEntityData(querySQL.toString(), modifiedAfter,
+					entityType, name);
 
 		} else {
 			exportableList = importExportCrudDAO.getAllExportableData(

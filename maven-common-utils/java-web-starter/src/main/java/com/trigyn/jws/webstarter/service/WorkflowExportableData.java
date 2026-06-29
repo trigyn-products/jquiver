@@ -15,6 +15,7 @@ import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.webstarter.dao.CrudQueryStore;
 import com.trigyn.jws.webstarter.dao.GenerateModuleMasterQueries;
 import com.trigyn.jws.webstarter.dao.ImportExportCrudDAO;
+import com.trigyn.jws.workflow.entities.WorkflowDefinition;
 
 @Component
 public class WorkflowExportableData implements GenerateModuleMasterQueries {
@@ -41,12 +42,14 @@ public class WorkflowExportableData implements GenerateModuleMasterQueries {
 				querySQL.append("jml.uploaded_at >=:modifiedAfter ");
 			}
 			if (name != null) {
+				 name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
 				querySQL.append(" jml.definition_name = :name ");
+				querySQL.append(" LOWER(jml.definition_name) LIKE LOWER(:name) ");
 			}
 
 			if (entityType != null) {
@@ -57,7 +60,7 @@ public class WorkflowExportableData implements GenerateModuleMasterQueries {
 				}
 				querySQL.append(" jml.definition_id = :entityType ");
 			}
-			BeanPropertyRowMapper<ModuleListing> mapper = new BeanPropertyRowMapper<ModuleListing>(ModuleListing.class);
+			BeanPropertyRowMapper<WorkflowDefinition> mapper = new BeanPropertyRowMapper<WorkflowDefinition>(WorkflowDefinition.class);
 			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), modifiedAfter,
 					entityType, name, mapper);
 

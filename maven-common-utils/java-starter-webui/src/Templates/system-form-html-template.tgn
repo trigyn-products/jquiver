@@ -3,6 +3,29 @@
 <#noparse>
 <#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
 </#noparse>
+<#noparse>
+<#assign resultSetData = {}>
+<#assign editResultSet = []>
+<#if resultSetObject??>
+    <#if resultSetObject["resultSetObject"]??>
+        <#assign resultSetData = resultSetObject["resultSetObject"]>
+</#noparse>
+<#if nashornResultAlias??>
+<#noparse>
+    <#if resultSetObject["</#noparse>${nashornResultAlias}<#noparse>"]??>
+        <#assign editResultSet = resultSetObject["</#noparse>${nashornResultAlias}<#noparse>"]>
+    </#if>
+</#noparse>
+</#if>
+<#noparse>
+    <#else>
+        <#assign resultSetData = resultSetObject>
+        <#if resultSet??>
+            <#assign editResultSet = resultSet>
+        </#if>
+    </#if>
+</#if>
+</#noparse>
 <head>
 <script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
 <script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/crypto-js/aes.js"></script>
@@ -26,6 +49,12 @@
 <script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dropzone/dist/dropzone.js"></script>
 <script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/fileupload/fileupload.js"></script>
 </#if>
+<#if hasAutocomplete?? && hasAutocomplete>
+<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+</#if>
+
 <style>
     .displayflex{
         display:flex;
@@ -74,17 +103,15 @@
     <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
     
     <#if (columnDetails)??>
-    	<div class="row">
-    	
+    	<div class="row">   	
     	<#list columnDetails as columnDetailsList>
          <#assign optionalClass=" optional ">
-
 			<#if (columnDetailsList.columnType) != "hidden" && (columnDetailsList.autoIncrement) == false>
 	    		<div class="col-lg-3 col-12">
 					<div class="col-inner-form full-form-fields">
 						<#if (columnDetailsList.i18NPresent)?? && (columnDetailsList.i18NPresent) == true>
 							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "date"  && (columnDetailsList.columnType) != "datetime" && (columnDetailsList.columnType) != "boolean" && (columnDetailsList.columnType) != "JSON" >
-                                    
+                           
 						            <label for="${(columnDetailsList.columnName)}" >
 						            <#if (columnDetailsList.isMandatory)>
 						            <span class="asteriskmark">*</span>
@@ -92,7 +119,7 @@
 						            </#if>
 						              <#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''}" <#noparse>/></#noparse>
 						            </label>
-								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder=<#noparse>"<@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/>"</#noparse> class="form-control  ${optionalClass!''}">
+								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder=<#noparse>"<@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/>"</#noparse> class="form-control  ${optionalClass!''}">
                                     
 				            <#elseif (columnDetailsList.columnType) == "date" || (columnDetailsList.columnType) == "datetime">
 				                   <#if (columnDetailsList.isMandatory)>
@@ -103,18 +130,15 @@
 				                    <span>
 										<input id="${(columnDetailsList.columnName)}" readonly name="${(columnDetailsList.columnName)}" class="form-control" placeholder=<#noparse><@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/></#noparse> />
 				                        <button id="${(columnDetailsList.columnName)}-trigger" class="calender_icon" type="button" aria-label="calendar button"><i class="fa fa-calendar" aria-hidden="true"></i></button>
-									</span>
-                           
-                        
+									</span>                   
 							<#else>
 								<#if (columnDetailsList.isMandatory)>
 						            <span class="asteriskmark">*</span>
 						            <#assign optionalClass="">
 						            </#if>
 								<label for="${(columnDetailsList.columnName)!""}"><#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''}" <#noparse>/></#noparse></label>
-								<textarea class="form-control ${optionalClass!''}" rows="4" cols="90" data-type="text" <#noparse></#noparse> id="${(columnDetailsList.columnName)!""}" placeholder=<#noparse>"<@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/>"</#noparse> name="${(columnDetailsList.columnName)!""}" ><#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse></textarea>
-							</#if>
-							
+								<textarea class="form-control ${optionalClass!''}" rows="4" cols="90" data-type="text" <#noparse></#noparse> id="${(columnDetailsList.columnName)!""}" placeholder=<#noparse>"<@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/>"</#noparse> name="${(columnDetailsList.columnName)!""}" ><#noparse>${(resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse></textarea>
+							</#if>						
 						<#else>	
 							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "date" && (columnDetailsList.columnType) != "datetime" && (columnDetailsList.columnType) != "boolean" && (columnDetailsList.columnType) != "enum"  && (columnDetailsList.columnType) != "set" && (columnDetailsList.columnType) != "JSON" >
 						            <label for="${(columnDetailsList.columnName)}" >
@@ -124,17 +148,72 @@
 						            </#if>
 						            	${columnDetailsList?api.get('fieldName')!''}
 						            </label>
-								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder="${(columnDetailsList.fieldName)!''}" class="form-control ${optionalClass!''}">
-                            <#elseif (columnDetailsList.columnType) == "boolean">
-                            
+                           
+                           <#assign autocompleteId = foreignKeyAutocompleteOptions[columnDetailsList.tableColumnName]!''>
+                         <#assign fkDetails = {}>
+                            <#if foreignKeys??>
+                                <#list foreignKeys as fk>
+                                    <#if fk.columnName == columnDetailsList.tableColumnName>
+                                        <#assign fkDetails = fk>
+                                        <#break>
+                                    </#if>
+                                </#list>
+                            </#if>
+                            <#if fkDetails?has_content && fkDetails.componentType == "DROPDOWN">
+                            <select class="form-control drpodowncls" id="${columnDetailsList.columnName}"
+                                name="${columnDetailsList.columnName}">
+                                <option value="">Select</option>
+                                <#noparse>
+                                <#if resultSetObject.</#noparse>${fkDetails.columnName}List<#noparse>??
+                                    && resultSetObject.</#noparse>${fkDetails.columnName}List<#noparse>.data_list??>
+                                    <#list resultSetObject.</#noparse>${fkDetails.columnName}List<#noparse>.data_list as option>
+                                        <option value="${option.</#noparse>${fkDetails.idColumn}<#noparse>}"
+                                        <#if resultSetData?has_content && (resultSetData.</#noparse>${fkDetails.columnName}<#noparse>)?has_content>
+                                        <#if option.</#noparse>${fkDetails.idColumn}<#noparse>?string == resultSetData.</#noparse>${fkDetails.columnName}<#noparse>?string>
+                                            selected
+                                        </#if>
+                                        </#if>>
+                                        ${option.</#noparse>${fkDetails.displayColumn}<#noparse>}
+                                        </option>
+                                    </#list>
+                                </#if>
+                                </#noparse>
+                            </select>               
+                            <#-- AUTOCOMPLETE -->
+                            <#elseif fkDetails?has_content && fkDetails.componentType == "AUTOCOMPLETE">
+                                <div class="search-cover">
+                                    <input class="form-control jq-autocomplete"
+                                        id="${columnDetailsList.tableColumnName}_Autocomplete"
+                                        type="text" autocomplete="off"
+                                        value="<#noparse>${(resultSetData.</#noparse>${columnDetailsList.tableColumnName}<#noparse>)!''}</#noparse>"
+                                        data-autocomplete-id="${autocompleteId!''}">
+
+                                    <input type="hidden" id="${columnDetailsList.tableColumnName}"
+                                        name="${columnDetailsList.columnName}"
+                                        value="<#noparse>${(resultSetData.</#noparse>${columnDetailsList.tableColumnName}<#noparse>)!''}</#noparse>">
+                                        <i class="fa fa-search" aria-hidden="true"></i>
+                                </div>
+                            <#-- NORMAL FIELD -->
+                            <#else>
+                                <input type="${columnDetailsList.columnType}"
+                                    data-type="${columnDetailsList.dataType}"
+                                    id="${columnDetailsList.columnName}"
+                                    name="${columnDetailsList.columnName}"
+                                    value="<#noparse>${(resultSetData.</#noparse>${columnDetailsList.tableColumnName}<#noparse>)!''}</#noparse>"
+                                    maxlength="${columnDetailsList.columnSize!''}"
+                                    placeholder="${columnDetailsList.fieldName!''}"
+                                    data-column-name="${columnDetailsList.tableColumnName}"
+                                    class="form-control ${optionalClass!''}">
+                            </#if>
+                            <#elseif (columnDetailsList.columnType) == "boolean">     
                                     <div class="displayflex">
 										<label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
 										<label class="newswitch">
-                                        <#noparse><#if resultSetObject?? && resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>??></#noparse>
+                                        <#noparse><#if resultSetData?? && resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>??></#noparse>
 											    <input type="hidden"
 											       id="toggleBoolean_${index}"
 											       name="${(columnDetailsList.columnName)}"
-											       value=<#noparse>${resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse></#noparse>}>
+											       value=<#noparse>${resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse></#noparse>}>
                                         <#noparse> <#else> </#noparse>
                                                 <input type="hidden"
 											       id="toggleBoolean_${index}"
@@ -146,7 +225,7 @@
 												   name="toggleBooleanChkBox_${index}"
 												   class="onoffswitch-checkbox"
 												   id="toggleBooleanChkBox_${index}"												   
-												   <#noparse><#if resultSetObject?? && resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>?? && resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>?number != 0>checked</#if></#noparse>>
+												   <#noparse><#if resultSetData?? && resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>?? && resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>?number != 0>checked</#if></#noparse>>
 													
 													<span class="slider round"/>
 												</label>
@@ -168,8 +247,7 @@
 							            <span class="asteriskmark">*</span>
 							            <#assign optionalClass="">
 						            </#if>
-                                   <label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
-                                      
+                                   <label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>                               
                                         <select id="${(columnDetailsList.columnName)}"
                                                 name="${(columnDetailsList.columnName)}"
                                                 class="form-control ${optionalClass!''}">
@@ -181,29 +259,27 @@
 								<#if (columnDetailsList.isMandatory)>
 						            <span class="asteriskmark">*</span>
 						            <#assign optionalClass="">
-						            </#if>
+						        </#if>
 								<label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
-								<textarea class="form-control ${optionalClass!''}" rows="4" cols="90" data-type="text" <#noparse></#noparse> id="${(columnDetailsList.columnName)}" placeholder="${(columnDetailsList.fieldName)!''}" name="${(columnDetailsList.columnName)}" ><#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse></textarea>
+								<textarea class="form-control ${optionalClass!''}" rows="4" cols="90" data-type="text" <#noparse></#noparse> id="${(columnDetailsList.columnName)}" placeholder="${(columnDetailsList.fieldName)!''}" name="${(columnDetailsList.columnName)}" ><#noparse>${(resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse></textarea>
 							</#if>
-						</#if>
-                        
-					</div>
-                       
+						</#if>                  
+					</div>                     
 				</div>
             <#elseif (columnDetailsList.autoIncrement) == true>
              <#if (columnDetailsList.columnType) != "hidden">
                 <div class="col-lg-3 col-12" title="Auto Increment">
 					<div class="col-inner-form full-form-fields">
                         <label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
-						<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control input_disable_cls ${optionalClass!''}"placeholder="Auto Increment">
+						<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control input_disable_cls ${optionalClass!''}"placeholder="Auto Increment">
 					</div>
 				</div>
-			  <#else>
-                  <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control input_disable_cls ${optionalClass!''}"placeholder="Auto Increment">
-              </#if>
-            <#elseif (columnDetailsList.autoIncrement) == false>
-				<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" > 
-			</#if>
+			 <#else>
+                  <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control input_disable_cls ${optionalClass!''}"placeholder="Auto Increment">
+             </#if>
+                <#elseif (columnDetailsList.autoIncrement) == false>
+                    <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" > 
+                </#if>
     	</#list>
     	</div>
     </#if>
@@ -226,7 +302,7 @@
        <input type="hidden" id="isCsrfEnabled" name="isCsrfEnabled" value="1"/>
       </#if>
      <#if (toggleFileBin)?? && (toggleFileBin) == true >     
-        <#noparse> <#if (resultSetObject.</#noparse>${editCondition}<#noparse>)?? ></#noparse>
+        <#noparse> <#if (resultSetData.</#noparse>${editCondition}<#noparse>)?? ></#noparse>
       <div class="row">
          <div class="col-6">
             <div id="fileUploadMaster" class="col-12 fileupload dropzone"></div>
@@ -267,11 +343,9 @@
     formId = "${formId}";
     localStorage.setItem('r', null);
   	let isEdit = 0;
-  </#noparse>
-  
+  </#noparse> 
     const actionDropdownBtn = document.getElementById("actionDropdownBtn");	
 	const backBtn = document.getElementById("backBtn");
-	//const toggleBooleanChkBox = document.getElementById("toggleBooleanChkBox");
     const toggleBooleanChkBox = document.querySelectorAll('.onoffswitch-checkbox');
     if(toggleBooleanChkBox){
         toggleBooleanChkBox.forEach(function(checkbox) {
@@ -282,26 +356,14 @@
             });
         });
     }
-
-	
 	actionDropdownBtn.addEventListener("click", function (event) {
 	    actionOptions();
-	});
-	
+	});	
 	backBtn.addEventListener("click", function (event) {
 	    backToPreviousPage();
 	});
 	
-	/*if (toggleBooleanChkBox) {
-		toggleBooleanChkBox.addEventListener("change", function (event) {
-		    toggleBooleanVal();
-		});
-	}
-  function toggleBooleanVal() {
-		let isChecked = $('#toggleBooleanChkBox').is(':checked')? 1 : 0;		
-        $("#toggleBoolean").val(isChecked);  
-    }  */
-  function toggleBooleanVal(index) {
+    function toggleBooleanVal(index) {
         const checkbox = document.getElementById('toggleBooleanChkBox_'<#noparse>+index</#noparse>);
         const hiddenField = document.getElementById('toggleBoolean_'<#noparse>+index</#noparse>);
         if (checkbox && hiddenField) {
@@ -310,11 +372,12 @@
         }
     }
   
-  $("#reloadCaptcha").click(function(event){
-     var imagesrc=contextPath+"/cf/captcha/"+formId+"_captcha"+"#";
-     generateCaptch(imagesrc);
-    $("#formCaptcha").val("");
-});
+    $("#reloadCaptcha").click(function(event){
+        var imagesrc=contextPath+"/cf/captcha/"+formId+"_captcha"+"#";
+        generateCaptch(imagesrc);
+        $("#formCaptcha").val("");
+    });
+
   $(function(){
     Object.keys(saveFunctionMap).forEach(actionId => {
 		const $el = $('#' + actionId);
@@ -323,52 +386,127 @@
 				onSaveButtonClick(saveFunctionMap[actionId], isEdit);
 			});
 		}
-	});
-    // setting value on edit.
-    <#if (columnDetails)??>
-        <#list columnDetails as columnDetailsList>
-        <#if (columnDetailsList.columnType) == "date" || (columnDetailsList.columnType) == "datetime">
-        Calendar.setup({
-			trigger    : "${(columnDetailsList.columnName)!""}-trigger",
-			inputField : "${(columnDetailsList.columnName)!""}",
-			dateFormat : "%d-%B-%Y",
-			weekNumbers: true,          
-            showTime: 12,
-			onSelect   : function() { 
-				let selectedDate = this.selection.get();
-				let date = Calendar.intToDate(selectedDate);
-				date = Calendar.printDate(date, "%d-%B-%Y");
-				$("#"+this.inputField.id).val(date);
-				this.hide(); 
-			}
-		});
-        </#if>
-        </#list>
+  });
+
+<#if foreignKeys??>
+<#list foreignKeys as fk>
+    <#if fk.componentType == "AUTOCOMPLETE">
+        <#assign existingAutocompleteData = foreignKeyExistingAutocompleteData[fk.columnName]!{}>
+        var ${fk.columnName}_autocomplete =
+            $("#${fk.columnName}_Autocomplete").autocomplete({
+                autocompleteId: "${fk.autocompleteId}",
+                prefetch: true,
+                enableClearText: true,
+                render: function(item) {
+                    var renderStr = '';
+                    if(item.emptyMsg == undefined || item.emptyMsg === '') {
+                        <#if existingAutocompleteData.displayAlias??>
+                            renderStr = '<p>' + item["${existingAutocompleteData.displayAlias}"] + '</p>';
+                        <#else>
+                            renderStr = '<p>' + item.entityName + '</p>';
+                        </#if>
+                    } else {
+                        renderStr = item.emptyMsg;
+                    }
+                    return renderStr;
+                },
+                extractText: function(item) {
+                    <#if existingAutocompleteData.displayAlias??>
+                        return item["${existingAutocompleteData.displayAlias}"];
+                    <#else>
+                        return item.entityName;
+                    </#if>
+                },
+                select: function(item) {
+                    $("#${fk.columnName}_Autocomplete").blur();
+                    <#if existingAutocompleteData.idAlias?? && existingAutocompleteData.displayAlias??>
+                        $("#${fk.columnName}")
+                            .val(item["${existingAutocompleteData.idAlias}"]);
+                        $("#${fk.columnName}_Autocomplete")
+                            .val(item["${existingAutocompleteData.displayAlias}"]);
+                    <#else>
+                        $("#${fk.columnName}")
+                            .val(item.entityId);
+                        $("#${fk.columnName}_Autocomplete")
+                            .val(item.entityName);
+                    </#if>
+                }
+            });
+   
+
+<#noparse>
+    <#if resultSetObject?? && resultSetObject.</#noparse>${fk.columnName}Autocomplete<#noparse>?? && resultSetObject.</#noparse>${fk.columnName}Autocomplete<#noparse>?has_content>
+        try {
+            var data = JSON.parse('</#noparse>${r"${resultSetObject."}${fk.columnName}Autocomplete}${r""}<#noparse>');
+            </#noparse>${fk.columnName}_autocomplete<#noparse>.setSelectedObject(data);
+        } catch(e) {
+            console.log("Autocomplete edit value parse error", e);
+        }
+    </#if>
+</#noparse>
+
+ </#if>
+</#list>
+</#if>
+  
+// setting value on edit.
+<#if (columnDetails)??>
+    <#list columnDetails as columnDetailsList>
+    <#if (columnDetailsList.columnType) == "date" || (columnDetailsList.columnType) == "datetime">
+    Calendar.setup({
+        trigger    : "${(columnDetailsList.columnName)!""}-trigger",
+        inputField : "${(columnDetailsList.columnName)!""}",
+        dateFormat : "%d-%B-%Y",
+        weekNumbers: true,          
+        showTime: 12,
+        onSelect   : function() { 
+            let selectedDate = this.selection.get();
+            let date = Calendar.intToDate(selectedDate);
+            date = Calendar.printDate(date, "%d-%B-%Y");
+            $("#"+this.inputField.id).val(date);
+            this.hide(); 
+        }
+    });
+    </#if>
+    </#list>
     </#if>
     <#noparse>
-      <#if (resultSet)??>
-      	<#list resultSet as resultSetList>
+    <#if editResultSet?has_content>
+    <#list editResultSet as resultSetList>
     </#noparse>  		
-      		<#if (columnDetails)??>
-    	        <#list columnDetails as columnDetailsList>
-                    <#if (columnDetailsList.columnType) == "date" || (columnDetailsList.columnType) == "datetime">
-                    try{
-                       $("#"+"${(columnDetailsList.columnName)}") .val(Calendar.printDate(Calendar.parseDate('<#noparse>${(resultSetList</#noparse>.${(columnDetailsList.tableColumnName!'')}<#noparse>)!""}</#noparse>',false),"%d-%B-%Y"));
-                    }catch(excp){}
-                    <#elseif (columnDetailsList.columnType) == "enum" || (columnDetailsList.columnType) == "set">
-                        try{
-                            $("#${(columnDetailsList.columnName)} option[value='<#noparse>${(resultSetList</#noparse>.${(columnDetailsList.tableColumnName!'')}<#noparse>)!""}</#noparse>']").attr("selected", "selected");
-                        }catch(excp){}
-                    </#if>
-                </#list>    
+    <#if (columnDetails)??>
+        <#list columnDetails as columnDetailsList>
+            <#if (columnDetailsList.columnType) == "date" || (columnDetailsList.columnType) == "datetime">
+            try{
+                $("#"+"${(columnDetailsList.columnName)}") .val(Calendar.printDate(Calendar.parseDate('<#noparse>${(resultSetList</#noparse>.${(columnDetailsList.tableColumnName!'')}<#noparse>)!""}</#noparse>',false),"%d-%B-%Y"));
+            }catch(excp){}
+            <#elseif (columnDetailsList.columnType) == "enum" || (columnDetailsList.columnType) == "set">
+                try{
+                    $("#${(columnDetailsList.columnName)} option[value='<#noparse>${(resultSetList</#noparse>.${(columnDetailsList.tableColumnName!'')}<#noparse>)!""}</#noparse>']").attr("selected", "selected");
+                }catch(excp){}
             </#if>
+    <#assign fkDetails = {}>
+    <#if foreignKeys??>
+        <#list foreignKeys as fk>
+            <#if fk.columnName == columnDetailsList.tableColumnName>
+                <#assign fkDetails = fk>
+                <#break>
+            </#if>
+        </#list>
+    </#if>
+    <#if fkDetails?has_content && fkDetails.componentType == "DROPDOWN">
+        try{
+            $("#${columnDetailsList.columnName}").val('<#noparse>${(resultSetList.</#noparse>${columnDetailsList.tableColumnName}<#noparse>)!""}</#noparse>');
+        }catch(excp){}   
+    </#if>                              
+    </#list>    
+    </#if>
     <#noparse>	
-      	</#list>
-      </#if>
+    </#list>
+    </#if>
     </#noparse>
-    
      <#noparse>
-      <#if (resultSet)?? && resultSet?has_content>
+    <#if editResultSet?has_content>
       	isEdit = 1;
 	
 	$(".pageHeader").html("Edit Details ${(formName)!''}");
@@ -386,7 +524,7 @@
 	changeDefaultAction()
 	hideShowActionButtons();
   });
-  
+
   /**
 	* This method should return non null or defined object in order to 
  	* submit the form. return null or undefined in case your custom / additional 

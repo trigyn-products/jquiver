@@ -47,6 +47,26 @@
 	    right: 15px;
 	    width: 110px;
 	  }
+
+    .jws-autocomplete-dropdown {
+        width: 100% !important;
+        min-width: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        box-sizing: border-box;
+    }
+
+    .search-cover {
+        position: relative;
+        width: 100%;
+    }
+
+    .jws-autocomplete-dropdown.show {
+        display: block;
+        position: absolute;
+        top: 100%;
+        z-index: 9999;
+    }
 	</style>
 
 </head>
@@ -62,6 +82,7 @@
 
         <input type="hidden"
                id="primaryKeyId"
+               name="primaryKeyValue"
                value="<#noparse>${(primaryKeyValue)!''}</#noparse>"/>
 
         <input type="hidden"

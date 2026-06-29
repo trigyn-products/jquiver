@@ -35,12 +35,14 @@ public class ManageRolesExportableData implements GenerateModuleMasterQueries {
 					CrudQueryStore.HQL_QUERY_TO_FETCH_MANAGE_ROLES_DATA_FOR_AUTO_EXPORT);
 
 			if (name != null) {
+				name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" jr.role_name REGEXP :name ");
+				//querySQL.append(" jr.role_name REGEXP :name ");
+				querySQL.append(" LOWER(jr.role_name) LIKE LOWER(:name) ");
 			}
 			BeanPropertyRowMapper<JwsRole> mapper = new BeanPropertyRowMapper<JwsRole>(JwsRole.class);
 			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), null, null, name,mapper);

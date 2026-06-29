@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
@@ -27,7 +28,10 @@ import com.trigyn.jws.typeahead.entities.Autocomplete;
 import com.trigyn.jws.typeahead.model.AutocompleteParams;
 import com.trigyn.jws.typeahead.model.AutocompleteVO;
 import com.trigyn.jws.typeahead.utility.Constant;
+import com.trigyn.jws.usermanagement.repository.JwsMasterModulesRepository;
 import com.trigyn.jws.usermanagement.utils.Constants;
+import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
+import com.trigyn.jws.webstarter.service.UserManagementService;
 
 @Service
 @Transactional(readOnly = false)
@@ -49,6 +53,13 @@ public class TypeAheadService {
 
 	@Autowired
 	private ActivityLog				activitylog				= null;
+	
+	@Autowired
+	@Lazy
+	private UserManagementService	userManagementService	= null;
+	
+	@Autowired
+	private JwsMasterModulesRepository	jwsMasterModulesRepository	= null;
 
 	public List<Map<String, Object>> getAutocompleteData(AutocompleteParams autocompleteParams,
 			Map<String, Object> requestParamMap) throws Exception, CustomStopException {
@@ -133,7 +144,82 @@ public class TypeAheadService {
 		return autoCompleteId;
 
 	}
+	
+	public String saveAutocompleteFromMasterGenerator(Map<String, Object> fkInfo, List<String> roleIds)
+			throws Exception {
+		logger.debug("Inside TypeAheadService.saveAutocompleteFromMasterGenerator" + "(fkInfo: {})", fkInfo);
+		
+		Autocomplete			autocomplete			= new Autocomplete();
+		UserDetailsVO			userDetailsVO			= userDetailsService.getUserDetails();
+		Date					date					= new Date();
+		String					autoCompleteId			= fkInfo.get("autocompleteId").toString();
+		String					autoCompleteDesc		= fkInfo.get("autocompleteName").toString();
+		String					tableName				= fkInfo.get("tableDisplayName").toString();
+		String					alias					= getAlias(tableName);
+		String					idColumn				= fkInfo.get("idColumn").toString();
+		String					displayColumn			= fkInfo.get("displayColumn").toString();
+		String					autoCompleteSelectQuery	= "SELECT " + alias + "." + idColumn + " AS entityId, " + alias
+				+ "." + displayColumn + " AS entityName " + "FROM " + tableName + " " + alias + " " + "WHERE " + alias
+				+ "." + displayColumn + " LIKE CONCAT('%', :searchText, '%') " + "ORDER BY " + alias + "."
+				+ displayColumn + " ASC " + "LIMIT :startIndex, :pageSize";
 
+		String					dataSourceId			= fkInfo.get("dataSourceId").toString();
+		Optional<Autocomplete>	autocompleteOptional	= typeAheadRepository.findById(autoCompleteId);
+		if (autocompleteOptional != null && autocompleteOptional.isEmpty() == false) {
+			autocomplete = autocompleteOptional.get();
+			autocomplete.setLastUpdatedBy(userDetailsVO.getUserName());
+		} else {
+			autocomplete.setAutocompleteId(autoCompleteId);
+			autocomplete.setCreatedBy(userDetailsVO.getUserName());
+			autocomplete.setCreatedDate(date);
+		}
+		if (StringUtils.isBlank(dataSourceId) == false) {
+			autocomplete.setDatasourceId(dataSourceId);
+		} else {
+			autocomplete.setDatasourceId(null);
+		}
+		autocomplete.setAutocompleteDesc(autoCompleteDesc);
+		autocomplete.setAutocompleteSelectQuery(autoCompleteSelectQuery);
+		autocomplete.setLastUpdatedTs(date);
+		autocomplete.setAcTypeId(1);
+		AutocompleteVO	autocompleteVO	= convertEntityToVO(autocomplete);
+		typeAheadRepository.save(autocomplete);
+		saveRolesForAutocomplete(fkInfo,roleIds);
+		moduleVersionService.saveModuleVersion(autocompleteVO, null, autoCompleteId, "jq_autocomplete_details",
+				Constant.MASTER_SOURCE_VERSION_TYPE);
+		return autoCompleteId;
+	}
+	
+	private String getAlias(String tableName) {
+	    String[] parts = tableName.toLowerCase().split("_");
+
+	    if (parts.length == 1) {
+	        return tableName.substring(0, Math.min(3, tableName.length())).toLowerCase();
+	    }
+
+	    StringBuilder alias = new StringBuilder();
+
+	    for (String part : parts) {
+	        if (!part.isEmpty()) {
+	            alias.append(part.charAt(0));
+	        }
+	    }
+
+	    return alias.toString();
+	}
+	
+	public void saveRolesForAutocomplete(Map<String, Object> fkInfo, List<String> roleIds) {
+		JwsEntityRoleVO jwsAutocompleteEntity = new JwsEntityRoleVO();
+		jwsAutocompleteEntity.setEntityId(fkInfo.get("autocompleteId").toString());
+		jwsAutocompleteEntity.setEntityName(fkInfo.get("autocompleteId").toString());
+		jwsAutocompleteEntity.setRoleIds(roleIds);
+		String dynamicModuleId = jwsMasterModulesRepository
+				.findBymoduleName(com.trigyn.jws.usermanagement.utils.Constants.Modules.AUTOCOMPLETE.getModuleName())
+				.getModuleId();
+		jwsAutocompleteEntity.setModuleId(dynamicModuleId);
+		userManagementService.deleteAndSaveEntityRole(jwsAutocompleteEntity);
+	}
+	
 	/**
 	 * Purpose of this method is to log activities</br>
 	 * in TypeAhead/Autocomplete Module.
@@ -216,5 +302,8 @@ public class TypeAheadService {
 				additionalDataSourceId, tableName);
 		return typeAheadDAO.getColumnNamesByTableName(additionalDataSourceId, tableName);
 	}
-
+	
+	public List<Map<String, Object>> getAutocompleteList() {
+		return typeAheadDAO.getAutocompleteList();
+	}
 }

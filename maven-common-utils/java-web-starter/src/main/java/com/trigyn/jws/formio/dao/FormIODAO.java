@@ -28,6 +28,26 @@ public class FormIODAO extends DBConnection {
 		return formIoQuery.list();
 	}
 	
+	@Transactional
+	public List<Object[]> getAllFormsByDynamicFormId(String formIoId) {
+		Query<Object[]> formIoQuery = getCurrentSession().createNativeQuery("SELECT DISTINCT\r\n"
+				+ "    fio.form_io_id,\r\n"
+				+ "    fio.form_name,\r\n"
+				+ "    fio.form_io_json,\r\n"
+				+ "    fio.form_description,\r\n"
+				+ "    fio.form_io_type,\r\n"
+				+ "    fio.persistence_type,\r\n"
+				+ "    fio.is_custom_updated,\r\n"
+				+ "    fio.last_updated_by,\r\n"
+				+ "    fio.last_updated_ts\r\n"
+				+ "FROM jq_dynamic_form df\r\n"
+				+ "JOIN jq_form_io fio\r\n"
+				+ "ON df.form_io_id = fio.form_io_id\r\n"
+				+ "WHERE df.form_io_id = :formIoId");
+		formIoQuery.setParameter("formIoId", formIoId);
+		return formIoQuery.list();
+	}
+	
 	public void deleteAllFormIoRolesByEntity(String formIoId) throws Exception {
 		MutationQuery query = getCurrentSession().createMutationQuery(QueryStore.HQL_QUERY_TO_DELETE_FORMIO_PAGE_ROLES.toString());
 		query.setParameter("formIoId", formIoId);

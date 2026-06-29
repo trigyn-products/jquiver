@@ -113,7 +113,7 @@ public final class Constants {
 
 		GRIDUTILS("Grid Utils"), TEMPLATING("Templating"), DYNAMICFORM("Form Builder"), DYNAMICREST("REST API Builder"),
 		AUTOCOMPLETE("TypeAhead Autocomplete"), DASHBOARD("Dashboard"), ROUTER("Router"), FILEBIN("File Bin"),
-		HELPMANUAL("Help Manual"),DASHLETS("DashLets");
+		HELPMANUAL("Help Manual"),DASHLETS("Dashlets"),FORMIO("Form IO");
 
 		final String moduleName;
 

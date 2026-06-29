@@ -16,11 +16,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
 import com.trigyn.jws.formio.dao.IFormIORepository;
@@ -77,6 +79,9 @@ public class DynamicFormIoService {
 
 	@Autowired
 	private DynamicFormHelperService	dynamicFormHelperService	= null;
+	
+	@Autowired
+	private DynamicFormCrudDAO dynamicFormDAO = null;
 
 	private static final String			DATETIME					= "datetime";
 
@@ -815,7 +820,7 @@ public class DynamicFormIoService {
 
 	public Map<String, String> createFormIoHtmlByTableName(String tableName, List<Map<String, Object>> tableDetails,
 			String moduleURL, String dataSourceId, String dbProductName, Boolean toggleCaptcha, Boolean toggleCsrf,
-			Boolean toggleFileBin, String fileBinId, String fileAssociationId) {
+			Boolean toggleFileBin, String fileBinId, String fileAssociationId, String foreignKeyDetails) {
 
 		logger.debug(
 				"Inside DynamicFormService.createDefaultFormByTableName(tableName: {}, tableDetails: {}, moduleURL: {}, additionalDataSourceId: {}, dbProductName: {})",
@@ -875,6 +880,7 @@ public class DynamicFormIoService {
 					regexMap.put(columnName, regexInfo);
 				}
 			}
+			
 			jsonBuilder.append("\t];\n");
 			ObjectMapper	objectMapper	= new ObjectMapper();
 			String			queryParamTypes	= objectMapper.writeValueAsString(queryParametersTypes);
@@ -888,6 +894,14 @@ public class DynamicFormIoService {
 			parameters.put("fieldList", jsonBuilder);
 			//Setting toggleFileBin for fileconfigrenderer condition in formio-default-html-template
 			parameters.put("toggleFileBin", toggleFileBin);
+			
+			ObjectMapper mapper = new ObjectMapper();
+			List<Map<String, Object>> fkList = new ArrayList<>();
+			if (StringUtils.isNotBlank(foreignKeyDetails) && !"[]".equals(foreignKeyDetails.trim())) {
+				fkList = mapper.readValue(foreignKeyDetails, new TypeReference<List<Map<String, Object>>>() {
+				});
+			}
+			parameters.put("foreignKeyDetails", fkList);
 			TemplateVO	templateVO	= templateService.getTemplateByName("formio-default-html-template");
 			String		template	= templateEngine.processTemplateContents(templateVO.getTemplate(),
 					templateVO.getTemplateName(), parameters);
@@ -929,9 +943,6 @@ public class DynamicFormIoService {
 	            }
 	        }
 	    }
-
 	    return false;
 	}
-
-
 }

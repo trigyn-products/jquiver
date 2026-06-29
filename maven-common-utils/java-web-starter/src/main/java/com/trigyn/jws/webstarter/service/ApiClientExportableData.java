@@ -40,7 +40,7 @@ public class ApiClientExportableData implements GenerateModuleMasterQueries {
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append("acd.updated_date  >=:modifiedAfter ");
+				querySQL.append("acd.updatedDate  >=:modifiedAfter ");
 
 			}
 
@@ -50,11 +50,17 @@ public class ApiClientExportableData implements GenerateModuleMasterQueries {
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" acd.client_name REGEXP :name ");
+				querySQL.append(" acd.clientName REGEXP :name ");
 			}
-			BeanPropertyRowMapper<JqApiClientDetails> mapper = new BeanPropertyRowMapper<JqApiClientDetails>(JqApiClientDetails.class);
-			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), modifiedAfter, null,
-					name,mapper);
+//			BeanPropertyRowMapper<JqApiClientDetails> mapper = new BeanPropertyRowMapper<JqApiClientDetails>(JqApiClientDetails.class);
+//			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), modifiedAfter, null,
+//					name,mapper);
+			exportableList =
+			        importExportCrudDAO.getAllAutoExportableEntityData(
+			                querySQL.toString(),
+			                modifiedAfter,
+			                null,
+			                name);
 
 		} else {
 			exportableList = importExportCrudDAO.getAllExportableData(

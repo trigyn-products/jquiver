@@ -44,13 +44,15 @@ public class AppConfigExportableData implements GenerateModuleMasterQueries {
 			}
 
 		    if (name != null) {
+		    	name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" pm.property_name REGEXP :name ");
-			}
+				//querySQL.append(" pm.property_name REGEXP :name ");
+				querySQL.append(" LOWER(pm.property_name) LIKE LOWER(:name) ");
+		    }
 		    
 		   
 		    BeanPropertyRowMapper<PropertyMaster> mapper = new BeanPropertyRowMapper<PropertyMaster>(PropertyMaster.class);

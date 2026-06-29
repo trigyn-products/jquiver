@@ -95,67 +95,41 @@ public final class CrudQueryStore {
 	public static final String		HQL_QUERY_TO_FETCH_WORKFLOW_DATA_FOR_EXPORT		= "FROM WorkflowDefinition AS wd WHERE "
 			+ "wd.definitionId NOT IN :excludeCustomConfigList";
 	
-	
-	/*public static final String		HQL_QUERY_TO_FETCH_GRID_DATA_FOR_AUTO_EXPORT				= "FROM GridDetails AS gd ";
 
-	public static final String		HQL_QUERY_TO_FETCH_GRID_DATA_FOR_AUTO_EXPORT_MF				= "FROM GridDetails AS gd "
-			+ "WHERE  gd.gridTypeId = :contentType "
-			+ " AND COALESCE(gd.lastUpdatedTs , gd.createdDate)  >= :modifiedAfter" ;
-	
-	public static final String		HQL_QUERY_TO_FETCH_GRID_DATA_FOR_AUTO_EXPORT_NAME			= "FROM GridDetails AS gd "
-			+ "WHERE  gd.gridTypeId = :contentType "
-			+ "AND  gd.gridName FUNCTION('REGEXP', gd.gridName, :name = true)" ;
-	
-	public static final String		HQL_QUERY_TO_FETCH_GRID_DATA_FOR_AUTO_EXPORT_ALL				= "FROM GridDetails AS gd "
-			+ "WHERE  gd.gridTypeId = :contentType "
-			+ " AND COALESCE(gd.lastUpdatedTs , gd.createdDate)  >= :modifiedAfter AND gd.gridName=:name" ;
-	
-	public static final String		HQL_QUERY_TO_FETCH_SCRIPT_LIBRARY_DATA_FOR_AUTO_EXPORT		= "FROM ScriptLibraryDetails AS sl";
-
-	
-	public static final String		HQL_QUERY_TO_FETCH_AUTOCOMPLETE_DATA_FOR_AUTO_EXPORT		= "FROM Autocomplete AS au ";
-
-	public static final String		HQL_QUERY_TO_FETCH_RESOURCE_BUNDLE_DATA_FOR_AUTO_EXPORT	= "FROM ResourceBundle AS rb  ";
-			
-	public static final String		HQL_QUERY_TO_FETCH_NOTIFICATAION_DATA_FOR_AUTO_EXPORT	= "FROM GenericUserNotification AS gun  ";
-
-	public static final String		HQL_QUERY_TO_FETCH_FILE_MANAGER_DATA_FOR_AUTO_EXPORT		= "FROM FileUploadConfig AS fu  ";
-
-	public static final String		HQL_QUERY_TO_FETCH_DYNA_REST_DATA_FOR_AUTO_EXPORT		= "FROM JwsDynamicRestDetail AS dr ";
-
-	public static final String		HQL_QUERY_TO_FETCH_PERMISSION_FOR_AUTO_EXPORT			= "FROM JwsEntityRoleAssociation AS jr";
-
-	public static final String		HQL_QUERY_TO_FETCH_SITE_LAYOUT_DATA_FOR_AUTO_EXPORT		= "FROM ModuleListing AS ml ";
-
-	public static final String		HQL_QUERY_TO_FETCH_TEMPLATE_DATA_FOR_AUTO_EXPORT			= "FROM TemplateMaster AS tm ";
-
-	public static final String		HQL_QUERY_TO_FETCH_DYNAMIC_FORM_DATA_FOR_AUTO_EXPORT		= "FROM DynamicForm AS df ";
-	
-	public static final String		HQL_QUERY_TO_FETCH_DASHLET_DATA_FOR_AUTO_EXPORT			= "FROM Dashlet AS dl ";
-
-	public static final String		HQL_QUERY_TO_FETCH_DASHBOARD_DATA_FOR_AUTO_EXPORT		= "FROM Dashboard AS db ";
-
-	public static final String		HQL_QUERY_TO_FETCH_APP_CONFIG_DATA_FOR_AUTO_EXPORT		= "FROM PropertyMaster AS pm ";
-
-	public static final String		HQL_QUERY_TO_FETCH_MANAGE_USERS_DATA_FOR_AUTO_EXPORT		= "FROM JwsUser AS ju ";
-
-	public static final String		HQL_QUERY_TO_FETCH_MANAGE_ROLES_DATA_FOR_AUTO_EXPORT		= "FROM JwsRole AS jr ";
-
-	public static final String		HQL_QUERY_TO_FETCH_HELP_MANUAL_DATA_FOR_AUTO_EXPORT		= " FROM ManualType AS mt ";
-
-	public static final String		HQL_QUERY_TO_FETCH_API_CLIENT_DETAILS_FOR_AUTO_EXPORT	= "FROM JqApiClientDetails AS acd ";
-
-	public static final String		HQL_QUERY_TO_FETCH_ADDITIONAL_DATASOURCE_FOR_AUTO_EXPORT	= "FROM AdditionalDatasource AS ads ";
-
-	public static final String		HQL_QUERY_TO_FETCH_SCHEDULER_DATA_FOR_AUTO_EXPORT		= "FROM JqScheduler AS js ";
-
-	public static final String		HQL_QUERY_TO_FETCH_FILES_DATA_FOR_AUTO_EXPORT			= "FROM FileUpload AS fu  ";*/
-	
-	public static final String		HQL_QUERY_TO_FETCH_GRID_DATA_FOR_AUTO_EXPORT				= "Select * FROM jq_grid_details AS gd ";
+	public static final String HQL_QUERY_TO_FETCH_GRID_DATA_FOR_AUTO_EXPORT =
+		    "SELECT " +
+		    "gd.grid_id, " +
+		    "gd.grid_name, " +
+		    "gd.grid_description, " +
+		    "gd.grid_table_name, " +
+		    "gd.grid_column_names AS gridColumnName, " +
+		    "gd.query_type, " +
+		    "gd.grid_type_id, " +
+		    "gd.created_by, " +
+		    "gd.created_date, " +
+		    "gd.datasource_id, " +
+		    "gd.custom_filter_criteria, " +
+		    "gd.last_updated_by, " +
+		    "gd.last_updated_ts, " +
+		    "gd.is_custom_updated " +
+		    "FROM jq_grid_details gd";
 	
 	public static final String		HQL_QUERY_TO_FETCH_SCRIPT_LIBRARY_DATA_FOR_AUTO_EXPORT		= "Select * FROM jq_script_lib_details AS sl";
 
-	public static final String		HQL_QUERY_TO_FETCH_AUTOCOMPLETE_DATA_FOR_AUTO_EXPORT		= "Select * FROM jq_autocomplete_details AS au ";
+	
+	public static final String HQL_QUERY_TO_FETCH_AUTOCOMPLETE_DATA_FOR_AUTO_EXPORT =
+		    "SELECT " +
+		    "au.ac_id AS autocompleteId, " +
+		    "au.ac_description AS autocompleteDesc, " +
+		    "au.ac_select_query AS autocompleteSelectQuery, " +
+		    "au.ac_type_id AS acTypeId, " +
+		    "au.created_by AS createdBy, " +
+		    "au.created_date AS createdDate, " +
+		    "au.datasource_id AS datasourceId, " +
+		    "au.last_updated_by AS lastUpdatedBy, " +
+		    "au.last_updated_ts AS lastUpdatedTs, " +
+		    "au.is_custom_updated AS isCustomUpdated " +
+		    "FROM jq_autocomplete_details au ";
 
 	public static final String		HQL_QUERY_TO_FETCH_RESOURCE_BUNDLE_DATA_FOR_AUTO_EXPORT	= "Select * FROM jq_resource_bundle AS rb ";
 			
@@ -163,19 +137,39 @@ public final class CrudQueryStore {
 
 	public static final String		HQL_QUERY_TO_FETCH_FILE_MANAGER_DATA_FOR_AUTO_EXPORT		= "Select * FROM jq_file_upload_config AS fu ";
 
-	public static final String		HQL_QUERY_TO_FETCH_DYNA_REST_DATA_FOR_AUTO_EXPORT		= "Select * FROM jq_dynamic_rest_details AS dr ";
+	public static final String		HQL_QUERY_TO_FETCH_DYNA_REST_DATA_FOR_AUTO_EXPORT		= " FROM JwsDynamicRestDetail AS dr";
 
 	public static final String		HQL_QUERY_TO_FETCH_PERMISSION_FOR_AUTO_EXPORT			= "Select * FROM jq_entity_role_association AS jr";
 
-	public static final String		HQL_QUERY_TO_FETCH_SITE_LAYOUT_DATA_FOR_AUTO_EXPORT		= "Select * FROM jq_module_listing AS jml ";
+	public static final String HQL_QUERY_TO_FETCH_SITE_LAYOUT_DATA_FOR_AUTO_EXPORT ="FROM ModuleListing ml";
+//	public static final String HQL_QUERY_TO_FETCH_SITE_LAYOUT_DATA_FOR_AUTO_EXPORT =
+//	        "SELECT "
+//	        + "jml.module_id AS moduleId, "
+//	        + "jml.module_url AS moduleUrl, "
+//	        + "jml.parent_id AS parentId, "
+//	        + "jml.sequence AS sequence, "
+//	        + "jml.is_inside_menu AS isInsideMenu, "
+//	        + "jml.include_layout AS includeLayout, "
+//	        + "jml.is_home_page AS isHomePage, "
+//	        + "jml.target_lookup_id AS targetLookupId, "
+//	        + "jml.target_type_id AS targetTypeId, "
+//	        + "jml.header_json AS headerJson, "
+//	        + "jml.last_modified_date AS updatedDate, "
+//	        + "jml.module_type_id AS moduleTypeId, "
+//	        + "jml.request_param_json AS requestParamJson, "
+//	        + "jml.open_in_new_tab AS openInNewTab, "
+//	        + "jml.menu_style AS menuStyle, "
+//	        + "jml.is_custom_updated AS isCustomUpdated, "
+//	        + "jml.last_updated_by AS lastUpdatedBy "
+//	        + "FROM jq_module_listing jml ";
 
 	public static final String		HQL_QUERY_TO_FETCH_TEMPLATE_DATA_FOR_AUTO_EXPORT			= "Select * FROM jq_template_master AS tm ";
 
-	public static final String		HQL_QUERY_TO_FETCH_DYNAMIC_FORM_DATA_FOR_AUTO_EXPORT		= "Select * FROM jq_dynamic_form AS df ";
+	public static final String		HQL_QUERY_TO_FETCH_DYNAMIC_FORM_DATA_FOR_AUTO_EXPORT		=  " FROM DynamicForm AS df ";
 
-	public static final String		HQL_QUERY_TO_FETCH_DASHLET_DATA_FOR_AUTO_EXPORT			= "Select * FROM jq_dashlet AS dl ";
+	public static final String		HQL_QUERY_TO_FETCH_DASHLET_DATA_FOR_AUTO_EXPORT			= " FROM Dashlet AS dl ";
 
-	public static final String		HQL_QUERY_TO_FETCH_DASHBOARD_DATA_FOR_AUTO_EXPORT		= "Select * FROM jq_dashboard AS db ";
+	public static final String		HQL_QUERY_TO_FETCH_DASHBOARD_DATA_FOR_AUTO_EXPORT		= "FROM Dashboard AS db ";
 
 	public static final String		HQL_QUERY_TO_FETCH_APP_CONFIG_DATA_FOR_AUTO_EXPORT		= "Select * FROM jq_property_master AS pm ";
 
@@ -185,13 +179,14 @@ public final class CrudQueryStore {
 
 	public static final String		HQL_QUERY_TO_FETCH_HELP_MANUAL_DATA_FOR_AUTO_EXPORT		= "Select * FROM jq_manual_type AS mt ";
 
-	public static final String		HQL_QUERY_TO_FETCH_API_CLIENT_DETAILS_FOR_AUTO_EXPORT	= "Select * FROM jq_api_client_details AS acd ";
+	public static final String		HQL_QUERY_TO_FETCH_API_CLIENT_DETAILS_FOR_AUTO_EXPORT	= "SELECT acd FROM JqApiClientDetails acd "
+	+ "LEFT JOIN FETCH acd.jqEncAlgModPadKeyLookup ";
 
-	public static final String		HQL_QUERY_TO_FETCH_ADDITIONAL_DATASOURCE_FOR_AUTO_EXPORT	= "Select * FROM jq_additional_datasource AS ads ";
+	public static final String		HQL_QUERY_TO_FETCH_ADDITIONAL_DATASOURCE_FOR_AUTO_EXPORT	= "FROM AdditionalDatasource ads";
 
 	public static final String		HQL_QUERY_TO_FETCH_SCHEDULER_DATA_FOR_AUTO_EXPORT		= "Select * FROM jq_job_scheduler AS js ";
 
-	public static final String		HQL_QUERY_TO_FETCH_FILES_DATA_FOR_AUTO_EXPORT			= "Select * FROM jq_file_upload AS fu WHERE fu.file_path <> '/images'";
+	public static final String		HQL_QUERY_TO_FETCH_FILES_DATA_FOR_AUTO_EXPORT			= "Select * FROM jq_file_upload AS fu WHERE fu.file_path <> '/images' ";
 	
 	public static final String		HQL_QUERY_TO_FETCH_FORM_IO_DATA_FOR_EXPORT					= "FROM FormIO AS fio WHERE "
 			+ "(fio.formIoId NOT IN :excludeCustomConfigList AND fio.formIoType = :customConfigType) OR "
@@ -201,4 +196,6 @@ public final class CrudQueryStore {
 	
 	
 	public static final String		HQL_QUERY_TO_FETCH_WORKFLOW_DATA_FOR_AUTO_EXPORT		= "Select * FROM jq_workflow_definition AS wd";
+	
+	public static final String		HQL_QUERY_TO_FETCH_FORM_IO_DATA_FOR_AUTO_EXPORT					= "Select * FROM jq_form_io fio " ;
 }

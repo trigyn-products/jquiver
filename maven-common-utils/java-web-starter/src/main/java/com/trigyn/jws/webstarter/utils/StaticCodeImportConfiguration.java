@@ -21,6 +21,7 @@ import com.trigyn.jws.webstarter.service.ImportService;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.ServletContext;
+import jakarta.transaction.Transactional;
 
 @Configuration
 public class StaticCodeImportConfiguration {
@@ -74,6 +75,9 @@ public class StaticCodeImportConfiguration {
 			String currentVersion = prop.getProperty("jws.version");
 			String lastDeployedVersion = propertyMasterService.findPropertyMasterValue("last-deployed-version");
 
+			updateFileUploadLocation();
+			propertyMasterDetails.resetPropertyMasterDetails();
+			
 			if (isCodeImported == false) {
 				if (lastDeployedVersion == null || currentVersion.equals(lastDeployedVersion) == false) {
 					logger.info("############# Importing through static code importer");
@@ -122,6 +126,21 @@ public class StaticCodeImportConfiguration {
 					baseUrlPropertyMaster.setLastModifiedDate(new Date());
 					propertyMasterService.save(baseUrlPropertyMaster);
 
+					PropertyMaster templateStoragePath = propertyMasterService.findPropertyMasterByName("template-storage-path");
+					baseUrlPropertyMaster.setPropertyValue(jQuiverProperties.getTemplateStoragePath());
+					baseUrlPropertyMaster.setLastModifiedDate(new Date());
+					propertyMasterService.save(templateStoragePath);
+
+					PropertyMaster fileCopyPath = propertyMasterService.findPropertyMasterByName("file-copy-path");
+					baseUrlPropertyMaster.setPropertyValue(jQuiverProperties.getFileCopyPath());
+					baseUrlPropertyMaster.setLastModifiedDate(new Date());
+					propertyMasterService.save(fileCopyPath);
+
+					PropertyMaster emlFileStoragePath = propertyMasterService.findPropertyMasterByName("emlFileStoragePath");
+					baseUrlPropertyMaster.setPropertyValue(jQuiverProperties.getEmlFileStoragePath());
+					baseUrlPropertyMaster.setLastModifiedDate(new Date());
+					propertyMasterService.save(emlFileStoragePath);
+
 					propertyMasterDetails.fetchXSSPatterns();
 					propertyMasterDetails.fetchCSPHeader();
 
@@ -133,9 +152,30 @@ public class StaticCodeImportConfiguration {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
+	@Transactional
+	private void updateFileUploadLocation() throws Exception {
+
+		PropertyMaster fileUploadLocationPropertyMaster = propertyMasterService
+				.findPropertyMasterByName("file-upload-location");
+		if (fileUploadLocationPropertyMaster == null) {
+			fileUploadLocationPropertyMaster = new PropertyMaster();
+			fileUploadLocationPropertyMaster.setAppVersion(2.10);
+			fileUploadLocationPropertyMaster.setPropertyName("file-upload-location");
+			fileUploadLocationPropertyMaster.setComments("File upload path");
+			fileUploadLocationPropertyMaster.setIsDeleted(0);
+			fileUploadLocationPropertyMaster.setLastModifiedDate(new Date());
+			fileUploadLocationPropertyMaster.setModifiedBy("admin@jquiver.io");
+			fileUploadLocationPropertyMaster.setOwnerId("system");
+			fileUploadLocationPropertyMaster.setOwnerType("system");
+		}
+		fileUploadLocationPropertyMaster.setPropertyValue(jQuiverProperties.getFileUploadLocation());
+		propertyMasterService.save(fileUploadLocationPropertyMaster);
+		
+	}
 	private String explodeJar() throws IOException {
 
 		String classpath = System.getProperty("java.class.path");

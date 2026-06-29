@@ -12,4 +12,7 @@ public interface JwsBusinessModuleEntityRepository extends JpaRepository<JwsBusi
 	
 	@Query(" FROM JwsBusinessModuleEntity WHERE entityId=:entityId AND moduleId=:moduleId GROUP BY businessModuleId")
 	List<JwsBusinessModuleEntity> getBusinessModules(@Param("entityId") String entityId, @Param("moduleId") String moduleId);
+
+	@Query("FROM JwsBusinessModuleEntity bme WHERE bme.businessModuleId = :businessModuleId")
+	List<JwsBusinessModuleEntity> findByBusinessModuleId(@Param("businessModuleId") String businessModuleId);
 }

@@ -1,0 +1,437 @@
+<head>
+    <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+  <style>
+    .fixed-save-btn {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+    }
+   
+    /* Align buttons properly */
+    .text-right {
+        text-align: right;
+        }
+
+    .suggestion-item {
+        cursor: pointer;
+        padding: 3px;
+    }
+
+    .suggestion-item:hover {
+        background-color: #eee;
+    }
+
+ /* Fix modal width */
+    .modal-dialog {
+        max-width: 600px;   /* fixed width for all modals */
+        width: 600px;       /* ensures it does not shrink */
+    }
+
+    /* Optional: improve look */
+    #modAutocomplete .multiselect-container {
+        max-height: inherit;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+    }
+
+    /* Align buttons nicely */
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;  /* all buttons right aligned */
+        gap: 10px;  /* spacing between buttons */
+    }
+
+    .usermanagment-model .modal-content {
+        max-height: 85vh;
+    }
+
+    .usermanagment-model .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+</style>  
+ </head>
+ <div class="modal usermanagment-model fade" id="foreignkeyModalDialog" aria-labelledby="foreignkeyModalDialog" tabindex="-1">
+          <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="ui-dialog-titlebar">Lookup Configuration</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group mb-4">
+                    <label>Lookup Type</label>
+                    <select id="foreignKeyMode" class="form-control" onchange="onForeignKeyModeChange()">
+                        <option value="DROPDOWN">
+                            Dropdown
+                        </option>
+                        <option value="AUTOCOMPLETE_EXISTING">
+                            Autocomplete - Existing
+                        </option>
+                        <option value="AUTOCOMPLETE_NEW">
+                            Autocomplete - New
+                        </option>
+                    </select>
+                </div>
+
+               <div class="row">
+                    <!-- Datasource -->
+                    <div id="datasourceSection" class="col-sm-6 col-12">
+                        <div class="col-inner-form full-form-fields">
+                            <label>${messageSource.getMessage('jws.datasource')}</label>
+                            <select id="dataSourceTbl" name="dataSourceId" class="form-control" onchange="updateTblDataSource()">
+                                <option id="defaultConnection" value="" data-product-name="default">
+                                    ${messageSource.getMessage('jws.defaultconnection')}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Select Table -->
+                    <div id="tableSection" class="col-sm-6 col-12">
+                        <div class="col-inner-form full-form-fields">
+                            <label>${messageSource.getMessage('jws.selecttable')}</label>
+                            <div class="search-cover">
+                                <input class="form-control" id="tabledropdownAutocomplete" type="text">
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                            </div>
+                            <input type="hidden" id="selectTabledropDown" name="selectTable">
+                        </div>
+                    </div>
+                </div>
+                <!-- DROPDOWN SECTION -->
+               <div id="dropdownSection">
+                    <div class="row">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>ID Column</label>
+                        <select id="fkIdColumn" class="form-control"></select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label>Display Column</label>
+                        <select id="fkDisplayColumn" class="form-control"></select>
+                    </div>
+                </div>
+                <!-- AUTOCOMPLETE SECTION -->
+                <div id="autocompleteSection">
+                    <!-- Existing -->
+                    <div id="existingAutocompleteSection" style="display:none;">
+                    <div class="row">
+                        <div class="col-sm-12 col-12">
+                        <div class="col-inner-form full-form-fields">
+                            <label for="flammableState" >Autocomplete</label>
+                            <div class="search-cover">
+                                <input class="form-control" id="existingAutocomplete" type="text">
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                            </div>  
+                            <input type="hidden" id="selectAutocomplete" name="selectAutocomplete">
+                        </div>
+                    </div>
+                    </div>
+                    </div>
+                    <!-- New -->
+                    <div id="newAutocompleteSection" style="display:none;">
+                         <div class="form-group mb-3">
+                            <label>Id Column</label>
+                            <select id="autocompleteIdColumn" class="form-control"></select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Display Column</label>
+                            <select id="autocompleteDisplayColumn" class="form-control"></select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Autocomplete Id</label>
+                            <input type="text" id="autocompleteId" class="form-control">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Autocomplete Name</label>
+                            <input type="text" id="autocompleteName" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveForeignKeyDetails();">Ok</button>
+                <button type="button" id="modalCloseBtn"  class="btn btn-secondary" data-bs-dismiss="modal" onclick="uncheckSelectBoxonCancel();">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+<script>
+    let tabledropdownAutocomplete;
+    let existingAutocomplete;
+    var isForeignKeySaved = false;
+
+    $(function(){
+        tabledropdownAutocomplete = $("#tabledropdownAutocomplete").autocomplete({
+	        autocompleteId: "table-autocomplete",
+	        prefetch : true,
+            enableClearText: true,         
+	        render: function(item) {
+	            var renderStr ="";
+	            if(item.emptyMsg == undefined || item.emptyMsg === ""){
+	                    renderStr = "<p style='font:16px Roboto, sans-serif;margin:0;'>" + item.tableName + "</p>";
+	            }else{
+	                renderStr = item.emptyMsg;    
+	            }                                
+	            return renderStr;
+	        },
+	        additionalParamaters: {},
+		        requestParameters: {
+		        	dbProductName: $("#dataSourceTbl").find(":selected").data("product-name"),
+                	datasourceId: $("#dataSourceTbl").find(":selected").val()
+		        },
+	        extractText: function(item) {
+	            return item.tableName;
+	        },
+	        select: function(item) {
+                let selectedMainTable = $("#selectTable").val();
+                if(item.tableName === selectedMainTable){
+                    showMessage("Main table cannot be selected as Lookup table", "warn");
+                    $("#tabledropdownAutocomplete").val("");
+                    return false;
+                }
+				let dbProductID = $("#dataSourceTbl").find(":selected").val();
+	            $("#tabledropdownAutocomplete").blur();
+	            $("#selectTabledropDown").val(item.tableName);
+                onTableSelected(item.tableName, dbProductID);
+	        }, 
+			resetAutocomplete: function(autocompleteObj){     
+            },       
+	    });	
+
+         // Existing Autocomplete
+          existingAutocomplete = $("#existingAutocomplete").autocomplete({
+	        autocompleteId: "existingAutocomplete",
+	        prefetch : true,
+	        render: function(item) {
+	            var renderStr ="";
+	            if(item.emptyMsg == undefined || item.emptyMsg === ""){
+	                renderStr = "<p style='font:16px Roboto, sans-serif;margin:0;'>"+item.entityName+"</p>";
+	            }else{
+	                renderStr = item.emptyMsg;    
+	            }                                
+	            return renderStr;
+	        },      
+	        extractText: function(item) {
+	            return item.entityName;
+	        },
+	        select: function(item) {
+				let dbProductID = $("#dataSourceTbl").find(":selected").val();
+	            $("#existingAutocomplete").blur();
+	            $("#selectAutocomplete").val(item.entityName);          
+	        }, 
+			resetAutocomplete: function(autocompleteObj){      
+            },       
+	    });	              
+    });
+
+    function onForeignKeyModeChange() {
+        let mode = $("#foreignKeyMode").val();
+        $("#autocompleteSection").hide();
+        $("#dropdownSection").hide();
+        $("#existingAutocompleteSection").hide();
+        $("#newAutocompleteSection").hide();
+         /*Shared Select Table*/
+        $("#tableSection").hide();
+        if(mode === "DROPDOWN") {
+            $("#dropdownSection").show();
+            $("#tableSection").show();
+            $("#datasourceSection").show();
+        }
+        else if(mode === "AUTOCOMPLETE_EXISTING") {
+            $("#datasourceSection").hide();
+            $("#autocompleteSection").show();
+            $("#existingAutocompleteSection").show();
+            $("#existingAutocompleteSection").css("display","block");
+        }
+        else if(mode === "AUTOCOMPLETE_NEW") {
+            $("#autocompleteSection").show();
+            $("#newAutocompleteSection").show();
+            $("#datasourceSection").show();
+            $("#tableSection").show();
+            $("#tabledropdownAutocomplete").val("");
+            $("#autocompleteIdColumn").val("");
+            $("#autocompleteIdColumn").empty().append('<option value="">Select ID Column</option>'); 
+            $("#autocompleteId").val("");
+        }
+    }
+    
+   function uncheckSelectBoxonCancel() {
+       document.activeElement.blur();   // remove focus from Cancel button
+    if (isForeignKeySaved == false && currentForeignKeyIndex != null) {
+        $("#foreignKey_" + currentForeignKeyIndex).prop("checked", false);
+        // Hide edit button
+        $("#editForeignKey_" + currentForeignKeyIndex).hide();
+        // Remove saved config
+        let columnName = $("#tfcolumn_" + currentForeignKeyIndex).text().trim();
+        foreignKeyDetails = foreignKeyDetails.filter(
+            x => x.columnName !== columnName
+        );
+    }
+    clearForeignKeyPopup();
+}
+
+    function getAlltableDatasource(isEdit) {
+        $.ajax({
+            type: "POST",
+            async: false,
+            url: contextPath + apiPath + "/jq-all-datasource",
+            success: function(data) {
+                data.forEach(function(dataSourceObj) {
+                    if (dataSourceObj.selectedDataSource !== null && isEdit === 0) {
+                        $("#dataSourceTbl").append("<option selected value=" + dataSourceObj.additionalDatasourceId + " data-product-name=" + dataSourceObj.databaseProductName + ">" + dataSourceObj.datasourceName + "</option>")
+                    } else {
+                        $("#dataSourceTbl").append("<option value=" + dataSourceObj.additionalDatasourceId + " data-product-name=" + dataSourceObj.databaseProductName + ">" + dataSourceObj.datasourceName + "</option>")
+                    }
+                });
+                if ($("#dataSourceId") != undefined && $("#dataSourceId").val() != undefined && $("#dataSourceId").val().trim() !== "") {
+                    $("#dataSourceTbl").val($("#dataSourceId").val());
+                }
+            },
+            error: function(xhr, error) {
+                showMessage("Error occurred while fetching list of active database drivers", "error");
+            },
+        });
+    }
+
+    function openForeignKeyModal() {
+        getAlltableDatasource(0);
+        clearForeignKeyPopup();
+        // Reset toggle states
+        $("#fkTypeToggle").prop("checked", false);
+        $("#autocompleteToggle").prop("checked", false);
+        var myModal = new bootstrap.Modal(document.getElementById('foreignkeyModalDialog'));
+        myModal.show();
+    }
+
+     function updateTblDataSource() {
+        if (tabledropdownAutocomplete != null) {
+            tabledropdownAutocomplete.options.requestParameters.dbProductName = $("#dataSourceTbl").find(":selected").data("product-name");
+            tabledropdownAutocomplete.options.requestParameters.datasourceId = $("#dataSourceTbl").find(":selected").val();
+        }
+    }
+
+     function checkExistingAutocompleteId(autocompleteId){
+        let exists = false;
+		$.ajax({
+            async: false,
+            type: "POST",
+            dataType: "text",
+            url: contextPath + apiPath + "/ceai",
+            data: {
+                autocompleteId: autocompleteId,
+            },
+            success: function(data) {
+                if (data != 0) {
+                   exists = true;
+                }    
+            },
+            error: function(xhr, error) {
+                showMessage("Error occurred while saving", "error");
+            },
+        });
+        return exists;
+    } 
+
+   function clearForeignKeyPopup() {    
+       $("#foreignKeyMode").val("DROPDOWN");
+        onForeignKeyModeChange();
+        $("#dataSourceTbl").val("").trigger("change");
+        $("#tabledropdownAutocomplete").val("");
+        $("#idColumn").empty().append('<option value="">Select ID Column</option>');
+        $("#displayColumn").empty().append('<option value="">Select Display Column</option>');    
+        $("#fkTable").val("");
+        $("#fkIdColumn").val("");
+        $("#fkDisplayColumn").val("");
+        $("#autocompleteId").val("");
+        $("#autocompleteName").val("");
+        $("#autocompleteTable").val("");
+        $("#autocompleteIdColumn").val("");
+        $("#autocompleteDisplayColumn").val("");
+        $("#autocompleteQuery").val("");
+        $("#fkTypeToggle").prop("checked", false);
+        $("#autocompleteToggle").prop("checked", false);
+        // Reset sections
+        $("#dropdownSection").show();
+        $("#autocompleteSection").hide();
+        $("#existingAutocompleteSection").show();
+        $("#newAutocompleteSection").hide();
+}
+
+function onTableSelected(tableName,dbProductID) {
+    $.ajax({
+        url: contextPath + "/cf/mtd",
+		type: 'GET',
+		data: {
+			tableName: tableName,
+			dbProductID: dbProductID
+		},
+        success: function(response) {
+            populateColumns(response);
+        }
+    });
+}
+
+function populateColumns(data) {
+    $("#fkIdColumn").empty();
+    $("#fkDisplayColumn").empty();
+    $("#autocompleteIdColumn").empty();
+    $("#autocompleteDisplayColumn").empty();   
+    $("#fkIdColumn").append($("<option>", { value: "", text: "Select ID Column"}));
+    $("#fkDisplayColumn").append($("<option>", { value: "", text: "Select Display Column"}));
+    $("#autocompleteIdColumn").append($("<option>", { value: "", text: "Select ID Column"}));
+    $("#autocompleteDisplayColumn").append($("<option>", { value: "", text: "Select Display Column"}));
+
+    $.each(data, function(index, col) {
+        // Primary key columns
+        if (col.columnKey === "PK") {
+            $("#fkIdColumn").append(
+                $("<option>", {
+                    value: col.tableColumnName,
+                    text: col.tableColumnName
+                })
+            );
+            $("#autocompleteIdColumn").append(
+                $("<option>", {
+                    value: col.tableColumnName,
+                    text: col.tableColumnName
+                })
+            );
+        }
+        // All columns
+        $("#fkDisplayColumn").append(
+            $("<option>", {
+                value: col.tableColumnName,
+                text: col.tableColumnName
+            })
+        );
+        $("#autocompleteDisplayColumn").append(
+            $("<option>", {
+                value: col.tableColumnName,
+                text: col.tableColumnName
+            })
+        );
+    });
+    // Auto-select first PK
+    let firstPk = $("#fkIdColumn option:eq(1)").val();
+    if (firstPk) {
+        $("#fkIdColumn").val(firstPk);
+    }
+    let firstPkNewAuto = $("#autocompleteIdColumn option:eq(1)").val();
+    if (firstPkNewAuto) {
+        $("#autocompleteIdColumn").val(firstPk);
+    }
+}
+</script>

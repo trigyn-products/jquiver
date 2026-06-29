@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.StringJoiner;
 import java.util.TreeMap;
+import java.util.zip.ZipInputStream;
 
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.codehaus.jettison.json.JSONArray;
@@ -345,6 +346,13 @@ public class ImportService {
 
 		if (isImportfromLocal == false) {
 			unZipFilePath = FileUtil.generateTemporaryFilePath(Constant.IMPORTTEMPPATH, null);
+			ZipInputStream zis = new ZipInputStream(file.getInputStream());
+
+			if (zis.getNextEntry() == null) {
+			    throw new Exception("Invalid ZIP file");
+			}
+
+			zis.close();
 			unZipFilePath = ZipUtil.unzip(file.getInputStream(), unZipFilePath);
 		} else {
 			unZipFilePath =filePath;
@@ -2489,4 +2497,34 @@ public class ImportService {
 	    return vo;
 	}
 
+	public String importLocalFolderOnAutoImport(String filePath) throws Exception {
+
+		Map<String, Object> map = importConfig(null, true, filePath);
+
+		MetadataXMLVO metadataXmlvo = (MetadataXMLVO) map.get("metadataVO");
+
+		String unZipFilePath = (String) map.get("unZipFilePath");
+
+		String jsonArray = getJsonArrayFromMetadataXMLVO(metadataXmlvo);
+
+		Map<String, Object> zipFileDataMap = getXMLJsonDataMap(metadataXmlvo, unZipFilePath);
+
+		Gson gson = new GsonBuilder().create();
+
+		zipFileDataMap.put("completeZipJsonData", jsonArray);
+
+		Map<String, String> versionMap = getLatestVersion(zipFileDataMap);
+
+		zipFileDataMap.put("versionMap", gson.toJson(versionMap));
+
+		Map<String, Boolean> crcMap = getLatestCRC(zipFileDataMap);
+
+		zipFileDataMap.put("crcMap", gson.toJson(crcMap));
+
+		String imporatableData = gson.toJson(zipFileDataMap);
+
+		return importAllForAuto(imporatableData, null, false);
+	}
+	
+	
 }

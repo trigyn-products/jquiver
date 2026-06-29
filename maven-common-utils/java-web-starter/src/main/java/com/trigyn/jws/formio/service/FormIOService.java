@@ -72,6 +72,47 @@ public class FormIOService {
 		}
 		return formIOVOs;
 	}
+	
+	
+
+	/**
+	 * @param  formIoId
+	 * @return
+	 */
+	public List<FormIOVO> findAutoFormIOByFormId(String formIoId) {
+
+	    List<FormIOVO> formIOVOs = new ArrayList<>();
+	    List<Object[]> objects = formIODAO.getAllFormsByDynamicFormId(formIoId);
+
+	    for (Object[] row : objects) {
+
+	        FormIOVO vo = new FormIOVO();
+
+	        vo.setFormIoId((String) row[0]);
+	        vo.setFormName((String) row[1]);
+	        vo.setFormIoJson((String) row[2]);
+	        vo.setFormDescription((String) row[3]);
+
+	        if (row[4] != null)
+	            vo.setFormIoType(((Number) row[4]).intValue());
+
+	        if (row[5] != null)
+	            vo.setPersistenceType((row[5]).toString());
+
+	        if (row[6] != null)
+	            vo.setIsCustomUpdated(((Number) row[6]).intValue());
+
+	        if (row[7] != null)
+	            vo.setLastUpdatedBy(row[7].toString());
+
+	        if (row[8] != null)
+	            vo.setLastUpdatedTs((Date) row[8]);
+
+	        formIOVOs.add(vo);
+	    }
+
+	    return formIOVOs;
+	}
 
 	/**
 	 * @param formIo

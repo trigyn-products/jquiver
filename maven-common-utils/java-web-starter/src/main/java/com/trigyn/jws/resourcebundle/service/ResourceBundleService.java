@@ -254,7 +254,7 @@ public class ResourceBundleService {
 		activitylog.activitylog(requestParams);
 	}
 
-	private ResourceBundle convertResourceBundleVOToEntity(String resourceBundleKey, ResourceBundleVO resourceBundleVO)
+	public ResourceBundle convertResourceBundleVOToEntity(String resourceBundleKey, ResourceBundleVO resourceBundleVO)
 			throws Exception {
 		ResourceBundle resourceBundle = new ResourceBundle();
 		ResourceBundlePK resourceBundlePK = new ResourceBundlePK();
@@ -271,6 +271,11 @@ public class ResourceBundleService {
 		}else {
 			resourceBundle.setText(ResourceBundleUtils.getUnicode(""));
 		}
+		resourceBundle.setIsCustomUpdated(resourceBundleVO.getIsCustomUpdated());
+		resourceBundle.setCreatedBy(resourceBundleVO.getCreatedBy());
+		resourceBundle.setCreatedDate(resourceBundleVO.getCreatedDate());
+		resourceBundle.setUpdatedBy(resourceBundleVO.getUpdatedBy());
+		resourceBundle.setUpdatedDate(resourceBundleVO.getUpdatedDate());
 		return resourceBundle;
 	}
 

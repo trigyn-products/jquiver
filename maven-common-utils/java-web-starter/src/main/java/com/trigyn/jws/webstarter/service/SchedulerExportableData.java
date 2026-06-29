@@ -43,12 +43,14 @@ public class SchedulerExportableData implements GenerateModuleMasterQueries {
 			}
 
 			if (name != null) {
+				 name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" js.scheduler_name REGEXP :name ");
+				//querySQL.append(" js.scheduler_name REGEXP :name ");
+				querySQL.append(" LOWER(js.scheduler_name) LIKE LOWER(:name) ");
 			}
 
 			if (entityType != null) {

@@ -18,6 +18,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 	@Entity
 	@EntityListeners(value = { UUIDEntityListener.class })
@@ -33,8 +34,10 @@ import jakarta.persistence.TemporalType;
 		@Column(name = "business_module_id")
 		private String	businessModuleId		= null;
 		
+		
 		@ManyToOne
 		@JoinColumn(name = "business_module_id", referencedColumnName = "business_module_id", insertable = false, updatable = false)
+		@XmlTransient
 		private JwsBusinessModule	businessmodule			= null;
 
 		@Column(name = "module_id")
@@ -43,13 +46,15 @@ import jakarta.persistence.TemporalType;
 		@Column(name = "entity_id")
 		private String	entityId		= null;
 
-
 		@Column(name = "created_date")
 		@Temporal(TemporalType.TIMESTAMP)
 		private Date	createdDate	= null;
 
 		@Column(name = "created_by")
 		private String	createdBy	= null;
+		
+		@Column(name = "cmv_entity_name")
+		private String	cmvEntityName		= null;
 		
 		public String getBusinessModuleEntityDetailsId() {
 			return businessModuleEntityDetailsId;
@@ -66,7 +71,7 @@ import jakarta.persistence.TemporalType;
 		public void setBusinessModuleId(String businessModuleId) {
 			this.businessModuleId = businessModuleId;
 		}
-
+		@XmlTransient
 		public JwsBusinessModule getBusinessmodule() {
 			return businessmodule;
 		}
@@ -107,6 +112,14 @@ import jakarta.persistence.TemporalType;
 			this.createdBy = createdBy;
 		}
 
+		public String getCmvEntityName() {
+			return cmvEntityName;
+		}
+
+		public void setCmvEntityName(String cmvEntityName) {
+			this.cmvEntityName = cmvEntityName;
+		}
+
 		public JwsBusinessModuleEntity getObject() {
 			JwsBusinessModuleEntity module = new JwsBusinessModuleEntity();
 			module.setBusinessModuleEntityDetailsId (businessModuleEntityDetailsId != null ? businessModuleEntityDetailsId.trim() : businessModuleEntityDetailsId);
@@ -115,6 +128,8 @@ import jakarta.persistence.TemporalType;
 			module.setEntityId(entityId != null ? entityId.trim() : entityId);
 			module.setCreatedDate(createdDate);
 			module.setCreatedBy(createdBy != null ? createdBy.trim() : createdBy);
+			module.setCmvEntityName(cmvEntityName != null ? cmvEntityName.trim() : cmvEntityName);
+			module.setBusinessmodule(null);
 			// role.setJwsRole(jwsRole.getObject());
 			return module;
 		}

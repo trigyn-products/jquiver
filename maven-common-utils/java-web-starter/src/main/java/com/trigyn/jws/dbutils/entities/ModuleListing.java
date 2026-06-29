@@ -353,7 +353,10 @@ public class ModuleListing implements Serializable {
 		} else
 			moduleListing.setModuleRoleAssociations(null);
 
-		moduleListing.setModuleTargetLookup(moduleTargetLookup.getObject());
+		//moduleListing.setModuleTargetLookup(moduleTargetLookup.getObject());
+		if (moduleTargetLookup != null) {
+			moduleListing.setModuleTargetLookup(moduleTargetLookup.getObject());
+		}
 		moduleListing.setUpdatedDate(updatedDate);
 		moduleListing.setModuleTypeId(moduleTypeId);
 		moduleListing.setHeaderJson(headerJson);

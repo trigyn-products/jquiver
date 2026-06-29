@@ -1,7 +1,9 @@
 package com.trigyn.jws.webstarter.controller;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +80,10 @@ public class ImportExportController {
 	
 	@Autowired
 	private JwsMasterModulesRepository					jwsmasterModuleRepository		= null;
+	
+	
+	
+	
 
 	@GetMapping(value = "/vexp", produces = MediaType.TEXT_HTML_VALUE)
 	public String viewExport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
@@ -384,51 +390,169 @@ public class ImportExportController {
 	
 	@GetMapping(value = "/export")
 	public ResponseEntity<?> autoExport(@RequestParam Map<String, String> params,
-			@RequestParam(required = false, name = "modifiedAfter") String modifiedAfter,
-			@RequestParam(required = false, name = "entityType", defaultValue = "custom") String entityType,
-			@RequestParam(required = false, name = "name") String encodedName, HttpServletRequest request,
-			HttpServletResponse response){
+	        @RequestParam(required = false, name = "modifiedAfter") String modifiedAfter,
+	        @RequestParam(required = false, name = "entityType", defaultValue = "all") String entityType,
+	        @RequestParam(required = false, name = "name") String encodedName,
+	        HttpServletRequest request,
+	        HttpServletResponse response) {
 
-		try {
+	    try {
 
-			String[] moduleTypes = request.getParameterValues("moduleType");
-			List<JwsMasterModules> moduleVOList = masterModuleService.getModules();
-			String filePath = exportService.exportAutoConfigData(request, response, moduleVOList, modifiedAfter,
-					entityType, encodedName, moduleTypes);
-			return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
-					.header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=", filePath))
-					.body(filePath);
+	        String[] moduleTypes = request.getParameterValues("moduleType");
+	        String[] exportAttachments = request.getParameterValues("attachment");
 
-		} catch (IllegalArgumentException exception) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
-		} catch (Exception exception) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
-		}
+	    
+	        // Common validation
+	        validateExportRequest(moduleTypes, exportAttachments);
 
+	        List<JwsMasterModules> moduleVOList = masterModuleService.getModules();
+
+	        String filePath = exportService.exportAutoConfigData(
+	                request,
+	                response,
+	                moduleVOList,
+	                modifiedAfter,
+	                entityType,
+	                encodedName,
+	                moduleTypes,
+	                exportAttachments);
+
+	        return ResponseEntity.ok()
+	                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+	                .header(HttpHeaders.CONTENT_DISPOSITION,
+	                        String.format("attachment; filename=", filePath))
+	                .body(filePath);
+
+	    } catch (IllegalArgumentException exception) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                .body(exception.getMessage());
+	    } catch (Exception exception) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                .body(exception.getMessage());
+	    }
 	}
 
-	@PostMapping(value = "/import", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<?> autoImport(HttpServletRequest request, HttpServletResponse response) {
-		try {
-			Part file = request.getPart("filePath");
-			if(file.getSize()==0)
-			{
-				throw new FileNotFoundException();
-			}
-			String responseStatus =importService.importFileOnAutoImport(file);
-			return ResponseEntity.ok(responseStatus);
-		} catch (FileNotFoundException f_nexcec) {
-			logger.error("File Not Found.", f_nexcec);
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File Not Found");
-		} /*
-			 * catch (FileUploadException fuec) { logger.error("File Bin Not Found.", fuec);
-			 * return "fail:" + fuec.getMessage(); }
-			 */catch (Exception exception) {
-			logger.error("Error occured while importing all data.", exception);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
-		}
+	@GetMapping("/export/local")
+	public ResponseEntity<?> autoExportToLocal(
+	        @RequestParam(required = false) String modifiedAfter,
+	        @RequestParam(required = false, defaultValue = "all") String entityType,
+	        @RequestParam(required = false) String name,
+	        HttpServletRequest request,
+	        HttpServletResponse response) {
 
+	    try {
+
+	        String[] moduleTypes = request.getParameterValues("moduleType");
+	        String[] attachments = request.getParameterValues("attachment");
+
+	        // Common validation
+	        validateExportRequest(moduleTypes, attachments);
+
+	        List<JwsMasterModules> moduleVOList = masterModuleService.getModules();
+
+	        String result = exportService.exportAutoConfigDataToLocal(
+	                request,
+	                response,
+	                moduleVOList,
+	                modifiedAfter,
+	                entityType,
+	                name,
+	                moduleTypes,
+	                attachments);
+
+	        return ResponseEntity.ok(result);
+
+	    } catch (IllegalArgumentException ex) {
+	        return ResponseEntity.badRequest().body(ex.getMessage());
+	    } catch (Exception ex) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+	    }
 	}
+	
+	@PostMapping(
+		    value = "/import",
+		    produces = MediaType.APPLICATION_JSON_VALUE,
+		    consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+		)
+		public ResponseEntity<?> autoImport(HttpServletRequest request,
+		        HttpServletResponse response) {
+
+		    try {
+
+		        String importFilePath = request.getParameter("importFilePath");
+
+		        Part file = null;
+		        try {
+		            file = request.getPart("filePath");
+		        } catch (Exception ignored) {
+		        }
+
+		        // ==================================================
+		        // Case 1 : ZIP upload
+		        // ==================================================
+		        if (file != null && file.getSize() > 0) {
+
+		            String fileName = file.getSubmittedFileName();
+
+		            if (fileName == null ||
+		                    !fileName.toLowerCase().trim().endsWith(".zip")) {
+
+		                return ResponseEntity
+		                        .status(HttpStatus.PRECONDITION_FAILED)
+		                        .body("Only ZIP files are allowed");
+		            }
+
+		            String responseStatus =
+		                    importService.importFileOnAutoImport(file);
+
+		            return ResponseEntity.ok(responseStatus);
+		        }
+
+		        // ==================================================
+		        // Case 2 : Local folder path
+		        // ==================================================
+		        if (importFilePath != null &&
+		                !importFilePath.trim().isEmpty()) {
+
+		            File localPath = new File(importFilePath);
+
+		            if (!localPath.exists()) {
+		                return ResponseEntity
+		                        .status(HttpStatus.NOT_FOUND)
+		                        .body("Specified path does not exist");
+		            }
+
+		            if (!localPath.isDirectory()) {
+		                return ResponseEntity
+		                        .status(HttpStatus.PRECONDITION_FAILED)
+		                        .body("Path must be a directory");
+		            }
+
+		            File metadataFile =
+		                    new File(importFilePath + File.separator + "metadata.xml");
+
+		            if (!metadataFile.exists()) {
+		                return ResponseEntity
+		                        .status(HttpStatus.PRECONDITION_FAILED)
+		                        .body("metadata.xml not found");
+		            }
+		            
+		            String responseStatus =
+		                    importService.importLocalFolderOnAutoImport(importFilePath);
+
+		            return ResponseEntity.ok(responseStatus);
+		        }
+
+		        return ResponseEntity
+		                .status(HttpStatus.BAD_REQUEST)
+		                .body("Either ZIP file or importFilePath is required");
+
+		    } catch (Exception exception) {
+		        logger.error("Error occured while importing all data.", exception);
+		        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+		                .body(exception.getMessage());
+		    }
+		}
 	
 	private String extractVersionNumber(String versionText) {
 	    if (versionText == null) return null;
@@ -460,5 +584,89 @@ public class ImportExportController {
 	    }
 	    return 0;
 	}
+	
+	
+	private void validateExportRequest(String[] moduleTypes, String[] attachments) {
 
+	    if (attachments == null || attachments.length == 0) {
+	        return;
+	    }
+
+	    // DASHLET
+	    boolean dashboardSelected =
+	            moduleTypes == null ||
+	            Arrays.stream(moduleTypes)
+	                    .anyMatch(mt -> "DASHBOARD".equalsIgnoreCase(mt));
+
+	    if (Arrays.stream(attachments)
+	            .anyMatch(att -> "DASHLET".equalsIgnoreCase(att))
+	            && !dashboardSelected) {
+
+	        throw new IllegalArgumentException(
+	                "DASHLET attachment can only be used with DASHBOARD export.");
+	    }
+
+	    // FORMIO
+	    boolean dynamicFormSelected =
+	            moduleTypes == null ||
+	            Arrays.stream(moduleTypes)
+	                    .anyMatch(mt -> "DYNAMICFORM".equalsIgnoreCase(mt));
+
+	    if (Arrays.stream(attachments)
+	            .anyMatch(att -> "FORMIO".equalsIgnoreCase(att))
+	            && !dynamicFormSelected) {
+
+	        throw new IllegalArgumentException(
+	                "FORMIO attachment can only be exported when DYNAMICFORM module is selected.");
+	    }
+
+	    // MODULE
+	    if (Arrays.stream(attachments)
+	            .anyMatch(att -> "MODULE".equalsIgnoreCase(att))
+	            && (moduleTypes == null || moduleTypes.length == 0)) {
+
+	        throw new IllegalArgumentException(
+	                "MODULE attachment requires at least one module type.");
+	    }
+
+	    // SCRIPTLIBRARY
+	    if (Arrays.stream(attachments)
+	            .anyMatch(att -> "SCRIPTLIBRARY".equalsIgnoreCase(att))) {
+
+	        boolean valid =
+	                moduleTypes != null &&
+	                Arrays.stream(moduleTypes)
+	                        .anyMatch(mt ->
+	                                "FILEBIN".equalsIgnoreCase(mt)
+	                                || "DYNAMICFORM".equalsIgnoreCase(mt)
+	                                || "RESTAPI".equalsIgnoreCase(mt));
+
+	        if (!valid) {
+	            throw new IllegalArgumentException(
+	                    "SCRIPTLIBRARY attachment is supported only for FILEBIN, DYNAMICFORM and RESTAPI modules.");
+	        }
+	    }
+
+	    // ADDITIONALDATASOURCE
+	    if (Arrays.stream(attachments)
+	            .anyMatch(att -> "ADDITIONALDATASOURCE".equalsIgnoreCase(att))) {
+
+	        boolean valid =
+	                moduleTypes != null &&
+	                Arrays.stream(moduleTypes)
+	                        .anyMatch(mt ->
+	                                "GRIDUTILS".equalsIgnoreCase(mt)
+	                                || "FILEBIN".equalsIgnoreCase(mt)
+	                                || "DYNAMICFORM".equalsIgnoreCase(mt)
+	                                || "AUTOCOMPLETE".equalsIgnoreCase(mt)
+	                                || "RESTAPI".equalsIgnoreCase(mt)
+	                                || "DASHLET".equalsIgnoreCase(mt)
+	                                || "NOTIFICATION".equalsIgnoreCase(mt));
+
+	        if (!valid) {
+	            throw new IllegalArgumentException(
+	                    "ADDITIONALDATASOURCE attachment is supported only for GRIDUTILS, FILEBIN, DYNAMICFORM, AUTOCOMPLETE, RESTAPI, DASHLET and NOTIFICATION modules.");
+	        }
+	    }
+	}
 }

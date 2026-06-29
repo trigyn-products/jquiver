@@ -149,7 +149,7 @@ public final class Constants {
 		AUTOCOMPLETE("TypeAhead Autocomplete"), DASHBOARD("Dashboard"), ROUTER("Router"), FILEBIN("File Bin"),
 		HELPMANUAL("Help Manual"), MULTILINGUAL("MultiLingual"), NOTIFICATION("Notification"),
 		APPLICATIONCONFIGURATION("Application Configuration"), USERMANAGEMENT("User Management"),
-		APICLIENTS("API Clients"), SCHEDULER("Scheduler"), FORMIO("Form IO");
+		APICLIENTS("API Clients"), SCHEDULER("Scheduler"), FORMIO("Form IO"),RESOURCEBUNDLE("Internalization");
 
 		final String moduleName;
 

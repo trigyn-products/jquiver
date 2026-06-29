@@ -23,6 +23,7 @@ import com.trigyn.jws.dbutils.vo.xml.ScriptLibraryDetailsExportVO;
 import com.trigyn.jws.dbutils.vo.xml.Settings;
 import com.trigyn.jws.dbutils.vo.xml.TemplateExportVO;
 import com.trigyn.jws.dbutils.vo.xml.XMLVO;
+import com.trigyn.jws.formio.vo.FormIOImportExportVO;
 import com.trigyn.jws.workflow.vo.WorkflowDefinitionExportVO;
 
 import jakarta.xml.bind.JAXBContext;
@@ -78,6 +79,8 @@ public class XMLUtil {
 					module.setFileUploadList((List<FileUploadExportVO>) map.get("moduleObject"));
 				}else if (map.get("moduleObject") instanceof WorkflowDefinitionExportVO) {
 					module.setWorkflowDefinition((WorkflowDefinitionExportVO) map.get("moduleObject"));
+				}else if (map.get("moduleObject") instanceof FormIOImportExportVO) {
+					module.setFormIOImportExportVO((FormIOImportExportVO) map.get("moduleObject"));
 				}
  
 				exportModuleList.add(module);

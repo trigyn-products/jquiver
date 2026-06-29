@@ -35,12 +35,14 @@ public class FilesExportableData implements GenerateModuleMasterQueries {
 			StringBuilder querySQL = new StringBuilder(CrudQueryStore.HQL_QUERY_TO_FETCH_FILES_DATA_FOR_AUTO_EXPORT);
 
 			if (name != null) {
+				 name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
-					querySQL.append("AND ");
+					querySQL.append(" AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" fu.physical_file_name REGEXP :name ");
+				//querySQL.append(" fu.physical_file_name REGEXP :name ");
+				querySQL.append(" LOWER(fu.original_file_name) LIKE LOWER(:name) ");
 			}
 			BeanPropertyRowMapper<FileUpload> mapper = new BeanPropertyRowMapper<FileUpload>(FileUpload.class);
 			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), null, null, name,mapper);

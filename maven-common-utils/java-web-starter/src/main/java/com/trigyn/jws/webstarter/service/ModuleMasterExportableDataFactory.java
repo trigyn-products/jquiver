@@ -82,6 +82,9 @@ public class ModuleMasterExportableDataFactory {
 	@Autowired
 	private WorkflowExportableData workflowExportableData = null;
 	
+	@Autowired
+	private FormIOExportableData formIOExportableData = null;
+	
 
 	public GenerateModuleMasterQueries getModuleMaster(String entityType) {
 
@@ -154,6 +157,9 @@ public class ModuleMasterExportableDataFactory {
 			
 		case Constant.WORKFLOW:
 			return workflowExportableData;
+			
+		case Constant.FORMIO:
+			return formIOExportableData;
 			
 		default:
 			// throw new UnsupportedOperationException("Unsupported type!");

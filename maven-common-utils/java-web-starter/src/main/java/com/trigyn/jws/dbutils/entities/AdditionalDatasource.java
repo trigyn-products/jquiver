@@ -217,13 +217,14 @@ public class AdditionalDatasource implements Serializable {
 		additionalDatasource.setCreatedBy(createdBy);
 		additionalDatasource.setCreatedDate(createdDate);
 		additionalDatasource.setDatasourceConfiguration(datasourceConfiguration);
-		additionalDatasource.setDatasourceLookUp(datasourceLookup.getObject());
 		additionalDatasource.setDatasourceLookupId(datasourceLookupId);
 		additionalDatasource.setDatasourceName(datasourceName);
 		additionalDatasource.setIsDeleted(isDeleted);
 		additionalDatasource.setLastUpdatedBy(lastUpdatedBy);
 		additionalDatasource.setLastUpdatedTs(lastUpdatedTs);
-		additionalDatasource.setDatasourceLookUp(datasourceLookup.getObject());
+		if (datasourceLookup != null) {
+			additionalDatasource.setDatasourceLookUp(datasourceLookup.getObject());
+		}
 
 		return additionalDatasource;
 	}

@@ -39,16 +39,18 @@ public class DashboardExportableData implements GenerateModuleMasterQueries {
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append("COALESCE(db.last_updated_ts , db.created_date)  >=:modifiedAfter ");
+				querySQL.append("COALESCE(db.lastUpdatedTs , db.createdDate)  >=:modifiedAfter ");
 			}
 
 			if (name != null) {
+				 name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" db.dashboard_name REGEXP :name ");
+				//querySQL.append(" db.dashboardName REGEXP :name ");
+				querySQL.append(" LOWER(db.dashboardName) LIKE LOWER(:name) ");
 			}
 
 			if (entityType != null) {
@@ -57,11 +59,11 @@ public class DashboardExportableData implements GenerateModuleMasterQueries {
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" db.dashboard_type = :entityType ");
+				querySQL.append(" db.dashboardType = :entityType ");
 			}
-			BeanPropertyRowMapper<Dashboard> mapper = new BeanPropertyRowMapper<Dashboard>(Dashboard.class);
-			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), modifiedAfter,
-					entityType, name,mapper);
+			//BeanPropertyRowMapper<Dashboard> mapper = new BeanPropertyRowMapper<Dashboard>(Dashboard.class);
+			exportableList = importExportCrudDAO.getAllAutoExportableEntityData(querySQL.toString(), modifiedAfter,
+					entityType, name);
 
 		} else {
 			exportableList = importExportCrudDAO.getAllExportableData(

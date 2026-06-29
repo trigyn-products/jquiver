@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>basic</name>
+	<comment>Trigyn Employee Management Portal. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
+	<projects>
+		<project>java-web-starter</project>
+		<project>dbutils</project>
+		<project>gridutils</project>
+		<project>notification</project>
+		<project>templating</project>
+		<project>resourcebundle</project>
+		<project>dashboard</project>
+		<project>typeahead</project>
+		<project>dynamic-rest</project>
+		<project>usermanagement</project>
+		<project>dynamic-form</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.springframework.ide.eclipse.boot.validation.springbootbuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+</projectDescription>

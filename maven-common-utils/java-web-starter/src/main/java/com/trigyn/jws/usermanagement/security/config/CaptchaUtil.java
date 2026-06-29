@@ -8,13 +8,13 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +28,7 @@ public final class CaptchaUtil {
 	public static final String			FILE_TYPE	= "png";
 	private static final Random			random		= new Random();
 	private static final List<Color[]>	ColourSet	= new ArrayList<Color[]>();
-	static String						path		= "D:/Captcha";
+	public static int					COMPLEXITY	= 1;
 
 	enum MathOperator {
 		Addition("+"), Subtraction("-");
@@ -97,26 +97,24 @@ public final class CaptchaUtil {
 	private CaptchaUtil() {
 		throw new RuntimeException("This is singleton class. Please don't try to initiate this class");
 	}
-
-	// public static void main(String[] args) {
-	// try {
-	// String captchaStr = getCaptchaString();
-	//
-	// System.out.println(captchaStr);
-	// for(int i = 0; i < 50; i++) {
-	// //System.out.println(getCaptchaString());
-	// }
-	//
-	// int width = 130;
-	// int height = 59;
-	//
-	// File file = new File(path + File.separator + UUID.randomUUID().toString() +
-	// ".png");
-	// generateCaptcha(new Dimension(width, height), captchaStr, file);
-	// } catch (Throwable a_th) {
-	// a_th.printStackTrace();
-	// }
-	// }
+	/*
+	 * public static void main(String[] args) { String path = "D:/Captcha";
+	 * 
+	 * try { String captchaStr = getCaptchaString(); Map<String, String> captchaMap
+	 * = getMathCaptchaForMissingOperand(); captchaStr = captchaMap.get("cs");
+	 * 
+	 * System.out.println(captchaStr); // for (int i = 0; i < 50; i++) { //
+	 * System.out.println(getCaptchaString()); // }
+	 * 
+	 * int width = 130; int height = 59;
+	 * 
+	 * File file = new File(path + File.separator + UUID.randomUUID().toString() +
+	 * ".png"); System.out.println("File: " + file.getName()); //
+	 * generateCaptcha(new Dimension(width, height), captchaStr, file, 1); try
+	 * (OutputStream outputStream = new FileOutputStream(file)) {
+	 * generateCaptcha(new Dimension(width, height), captchaStr, outputStream, 2); }
+	 * } catch (Throwable a_th) { a_th.printStackTrace(); } }
+	 */
 
 	public static void generateCaptcha(Dimension size, String captchaStr, OutputStream outputStream, int captchaType) throws Exception {
 		int				width			= size.width;
@@ -181,22 +179,82 @@ public final class CaptchaUtil {
 		int				lineGap			= 5;
 		int				horizontalCount	= (int) Math.ceil(size.height / lineGap);
 		int				verticalCount	= (int) Math.ceil(size.width / lineGap);
+		int				horizontalGap	= 10;
+		int				verticalGap		= 15;
 
 		AlphaComposite	alphaChannel	= AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f);
 		((Graphics2D) graphics).setComposite(alphaChannel);
 		((Graphics2D) graphics).setStroke(new BasicStroke(0));
 		graphics.setColor(lineColor);
+		
+		Graphics2D graphics2d = (Graphics2D) graphics;
+
+
+	    graphics2d.setComposite(alphaChannel);
+	    graphics2d.setStroke(new BasicStroke(1.2f));
+	    graphics2d.setColor(lineColor);
+
+	    graphics2d.setRenderingHint(
+	            RenderingHints.KEY_ANTIALIASING,
+	            RenderingHints.VALUE_ANTIALIAS_ON
+	    );
 
 		for (int iHorizontalCounter = 0; iHorizontalCounter < horizontalCount; iHorizontalCounter++) {
-			graphics.drawLine(5, 10 * iHorizontalCounter, size.width, 10 * iHorizontalCounter);
+			if(COMPLEXITY >= 2) {
+				int baseY = horizontalGap * iHorizontalCounter;
+		        drawHorizontalWave(graphics2d, 5, size.width, baseY);
+			}else {
+				graphics.drawLine(5, 10 * iHorizontalCounter, size.width, 10 * iHorizontalCounter);
+			}
 		}
 
 		for (int iVerticalCounter = 0; iVerticalCounter < verticalCount; iVerticalCounter++) {
-			graphics.drawLine(15 * iVerticalCounter, 2, 15 * iVerticalCounter, size.height);
+			if(COMPLEXITY >= 3) {
+				int baseX = verticalGap * iVerticalCounter;
+		        drawVerticalWave(graphics2d, baseX, 2, size.height);
+			}else {
+				graphics.drawLine(15 * iVerticalCounter, 2, 15 * iVerticalCounter, size.height);	
+			}
 		}
 	}
+	
+	private static void drawVerticalWave(Graphics2D graphics2d, int baseX, int startY, int endY) {
 
-	public static int gRPNV(int max, int min) {
+	    Path2D path = new Path2D.Double();
+
+	    int amplitude = 3;     // wave width
+	    int wavelength = 25;   // distance between curves
+	    int step = 4;
+
+	    path.moveTo(baseX, startY);
+
+	    for (int y = startY; y <= endY; y = y + step) {
+	        double x = baseX + Math.sin((double) y / wavelength) * amplitude;
+	        path.lineTo(x, y);
+	    }
+
+	    graphics2d.draw(path);
+	}
+	
+	private static void drawHorizontalWave(Graphics2D graphics2d, int startX, int endX, int baseY) {
+
+	    Path2D path = new Path2D.Double();
+
+	    int amplitude = 3;     // wave height
+	    int wavelength = 25;   // distance between curves
+	    int step = 4;
+
+	    path.moveTo(startX, baseY);
+
+	    for (int x = startX; x <= endX; x = x + step) {
+	        double y = baseY + Math.sin((double) x / wavelength) * amplitude;
+	        path.lineTo(x, y);
+	    }
+
+	    graphics2d.draw(path);
+	}
+
+	private static int gRPNV(int max, int min) {
 		// Random rand = new Random();
 		int ii = min + (int) (Math.random() * ((max - (min)) + 1));
 		return ii;
@@ -209,8 +267,30 @@ public final class CaptchaUtil {
 		int randomNum = random.nextInt((ColourSet.size() - 1) + 1) + 0;
 		return ColourSet.get(randomNum);
 	}
+	
+	public static Map<String, String> getCaptchaMap() {
+		Map<String, String>	captchaMap	= new HashMap<>();
+		int captchaSelection = CaptchaUtil.getRandomNumber(0, 100);
+		 
+		if (captchaSelection < 20) {
+			String captchaStr = CaptchaUtil.getCaptchaString();
+			captchaMap.put("cs", captchaStr);
+			captchaMap.put("cv", captchaStr);
+			captchaMap.put("ct", "0");
+		} else {
+			if (captchaSelection % 2 == 0) {
+				captchaMap = CaptchaUtil.getMathCaptcha();
+				captchaMap.put("ct", "1");
+			} else {
+				captchaMap = CaptchaUtil.getMathCaptchaForMissingOperand();
+				captchaMap.put("ct", "2");
+			}
+		}
 
-	public static String getCaptchaString() {
+		return captchaMap;
+	}
+
+	private static String getCaptchaString() {
 		final String	CHARACTERS			= "abcdefghjklmnpqrstuvwxyz23456789";
 		final String	CHARACTER_NUMBERS	= "23456789";
 
@@ -243,54 +323,11 @@ public final class CaptchaUtil {
 		return captchaStr;
 	}
 
-	public static int getRandomNumber(int min, int max) {
+	private static int getRandomNumber(int min, int max) {
 		return (int) ((Math.random() * (max - min)) + min);
 	}
 
-	private static String[] getCharacters() {
-		String[] chars = new String[36];
-
-		for (int i = 0; i < 10; i++) {
-			chars[i] = i + "";
-		}
-		for (int i = 10; i < 36; i++) {
-			chars[i] = ((char) (i + 55)) + "";
-		}
-		for (int i = 36; i < 62; i++) {
-			// chars[i] = ((char)(i + 61)) + "";
-		}
-		List<String> stringList = Arrays.asList(chars);
-		Collections.shuffle(stringList);
-		stringList.toArray(chars);
-		return chars;
-	}
-
-	private static String generateCaptchaString(Random random) {
-		int				length				= 6;
-		StringBuffer	captchaStringBuffer	= new StringBuffer();
-		int				ignoreCharNumbers[]	= { 48, 49, 73, 79, 105, 108, 111 };
-		for (int i = 0; i < length; i++) {
-			int	baseCharNumber	= Math.abs(random.nextInt()) % 62;
-			int	charNumber		= 0;
-			if (baseCharNumber < 26) {
-				charNumber = 65 + baseCharNumber;
-			} else if (baseCharNumber < 52) {
-				charNumber = 97 + (baseCharNumber - 26);
-			} else {
-				charNumber = 48 + (baseCharNumber - 52);
-			}
-			int charPresent = Arrays.binarySearch(ignoreCharNumbers, charNumber);
-			if (charPresent <= -1) {
-				captchaStringBuffer.append((char) charNumber);
-			} else {
-				charNumber = charNumber + 4;
-				captchaStringBuffer.append((char) charNumber);
-			}
-		}
-		return captchaStringBuffer.toString().toUpperCase();
-	}
-
-	public static Map<String, String> getMathCaptcha() {
+	private static Map<String, String> getMathCaptcha() {
 		Map<String, String>	captchaMap		= new HashMap<>();
 		int					firstPart		= getRandomNumber(1, 10);
 		int					secondPart		= getRandomNumber(1, 10);
@@ -318,6 +355,51 @@ public final class CaptchaUtil {
 		}
 
 		captchaMap.put("cv", captchaValue);
+		return captchaMap;
+	}
+	
+	private static Map<String, String> getMathCaptchaForMissingOperand() {
+		Map<String, String>	captchaMap	= new HashMap<>();
+		int					firstPart	= getRandomNumber(1, 10);
+		int					secondPart	= getRandomNumber(1, 10);
+		int					operation	= getRandomNumber(0, 2);
+	 
+		/* Handling negative values in captcha | Mini Pillai | 04-April-2024 [Start] */
+		if (operation == MathOperator.Subtraction.ordinal() && secondPart > firstPart) {
+			firstPart = firstPart + secondPart;
+			secondPart = firstPart - secondPart;
+			firstPart = firstPart - secondPart;
+		}
+		/* Handling negative values in captcha | Mini Pillai | 04-April-2024 [End] */
+	 
+		MathOperator	mathOperator	= MathOperator.values()[operation];
+		int				result			= 0;
+	 
+		switch (mathOperator) {
+			case Addition:
+				result = firstPart + secondPart;
+				break;
+	 
+			case Subtraction:
+				result = firstPart - secondPart;
+				break;
+		}
+	 
+		boolean	hideFirstOperand	= getRandomNumber(0, 2) == 0;
+		String	captchaString		= "";
+		String	captchaValue		= "";
+	 
+		if (hideFirstOperand) {
+			captchaString = "?" + mathOperator.getDisplaySign() + secondPart + "=" + result;
+			captchaValue = String.valueOf(firstPart);
+		} else {
+			captchaString = firstPart + mathOperator.getDisplaySign() + "?=" + result;
+			captchaValue = String.valueOf(secondPart);
+		}
+	 
+		captchaMap.put("cs", captchaString);
+		captchaMap.put("cv", captchaValue);
+	 
 		return captchaMap;
 	}
 

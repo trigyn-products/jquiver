@@ -8,6 +8,7 @@ let primaryKeyCounter = 0;
 var fileBinDisplayTexts = null;
 var requiredNotSupportedErr = false;
 var requiredNotSupportedWarn = false;
+
 function populateFields(tableName, dbProductID) {
 	requiredNotSupportedErr = false;
 	requiredNotSupportedWarn = false;
@@ -155,9 +156,17 @@ function createTable(columns) {
 		$(trElement).append(nameCol);
 		$(trElement).append("<td><input id='tfdisplay_" + iCounter + "_i18n' disabled type='text' data-previous-key='' value='' onchange='updateFormDetailsI18nResourceKey(this.id)' placeholder='Resource Key'></td>");
 		$(trElement).append("<td><input id='tfdisplay_" + iCounter + "' disabled type='text' onchange='updateFormDetailsDisplayName(this.id)' value='" + displayName + "'></td>");
-		$(trElement).append("<input id='tfdisplay_" + iCounter + "_hd' type='hidden' value='" + displayName + "'>");
-		$(trElement).append("<input id='tdatatype_" + iCounter + "_datatype' type='hidden' name= 'datatype' value='" + dataType + "'>");
-
+			
+		let foreignKeyHtml = "";
+		if (columns[iCounter]['columnKey'] !== 'PK') {
+			foreignKeyHtml = "<td>" + "<div style='display:flex; align-items:center; gap:8px;'>" + "<input type='checkbox' " + "id='foreignKey_" + iCounter + "' " + "class='foreign-key-checkbox' " + "data-index='" + iCounter + "' " + "disabled>" +
+				"<button type='button' " + "id='editForeignKey_" + iCounter + "' " + "class='btn btn-link p-0' " + "style='display:none; line-height:1;' " + "onclick='editForeignKey(" + iCounter + ")'>" + "<i class='fa fa-edit'></i>" + "</button>" +
+				"</div>" +
+				"</td>";
+		} else {
+			foreignKeyHtml = "<td></td>";
+		}
+		$(trElement).append(foreignKeyHtml);
 		$("#formDetailsTable").append(trElement);
 	}
 	if (requiredNotSupportedWarn === true) {
@@ -172,11 +181,9 @@ function addRemoveToGridDetails(element) {
 	if (element.checked && counter >= listingPageFieldCount) {
 		openProceedConfirmation();
 	}
-	
 	$("#thidden_" + counter).prop("disabled", !element.checked);
 	$("#tdisplay_" + counter).prop("disabled", !element.checked);
 	$("#tdisplay_" + counter + "_i18n").prop("disabled", !element.checked);
-
 	if (element.checked) {
 		let details = new Object();
 		details["index"] = counter;
@@ -189,7 +196,6 @@ function addRemoveToGridDetails(element) {
 	} else {
 		removeByAttribute(gridDetails, "index", counter);
 	}
-
 }
 
 function openProceedConfirmation() {
@@ -205,21 +211,6 @@ function openProceedConfirmation() {
 		position: {
 			my: "center", at: "center"
 		},
-		buttons: [{
-			text: "Ok",
-			class: 'btn btn-primary',
-			click: function() {
-				$(this).dialog('close');
-			},
-		},
-		{
-			text: "Cancel",
-			class: 'btn btn-secondary',
-			click: function() {
-				$(this).dialog('close');
-			}
-		},
-		],
 		open: function(event, ui) {
 			$('.ui-dialog-titlebar')
 				.find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
@@ -252,7 +243,13 @@ function addRemoveToFormDetails(element) {
 	$("#tfhidden_" + counter).prop("disabled", !element.checked);
 	$("#tfdisplay_" + counter).prop("disabled", !element.checked);
 	$("#tfdisplay_" + counter + "_i18n").prop("disabled", !element.checked);
-
+	if (element.checked) {
+		$("#foreignKey_" + counter).prop("disabled", false);
+	} else {
+		$("#foreignKey_" + counter).prop("checked", false).prop("disabled", true);
+		let columnName = $("#tfcolumn_" + counter).text().trim();
+		foreignKeyDetails = foreignKeyDetails.filter(x => x.columnName !== columnName);
+	}
 	if (element.checked) {
 		let details = new Object();
 		details["index"] = counter;
@@ -435,6 +432,10 @@ function updateResourceKeyMap(data, elementId, displayId, resourceKey) {
 	}
 }
 function createMaster() {
+	if("dev" == profile) {
+		showMessage("Module creation is not supported in dev mode.", "warn");
+		return;
+	}
 	if (requiredNotSupportedWarn == true) {
 		let context = this;
 		$("#saveCreateMasterConfirm").html("Fields for unsupported data types will not be included in the modules created. Do You want to continue.");
@@ -474,6 +475,106 @@ function createMaster() {
 	}
 }
 
+
+function saveForeignKeyDetails() {
+	let columnName = $("#tfcolumn_" + currentForeignKeyIndex).text().trim();
+	let isForeignKey = $("#foreignKey_" + currentForeignKeyIndex).prop("checked");
+	if (!isForeignKey) {
+		foreignKeyDetails = foreignKeyDetails.filter(x => x.columnName !== columnName);
+		return foreignKeyDetails;
+	}
+	let fkConfig = {
+		columnName: columnName,
+		isForeignKey: true
+	};
+	let mode = $("#foreignKeyMode").val();
+	if (mode === "DROPDOWN") {
+		fkConfig.componentType = "DROPDOWN";
+		fkConfig.dataSourceId = $("#dataSourceTbl").val();
+		fkConfig.table = $("#selectTabledropDown").val();
+		fkConfig.tableDisplayName = $("#tabledropdownAutocomplete").val();
+		fkConfig.idColumn = $("#fkIdColumn").val();
+		fkConfig.displayColumn = $("#fkDisplayColumn").val();
+	} else if (mode === "AUTOCOMPLETE_EXISTING") {
+		fkConfig.componentType = "AUTOCOMPLETE";
+		fkConfig.mode = "EXISTING";
+		fkConfig.autocompleteId = $("#existingAutocomplete").val();
+		fkConfig.dataSourceId = $("#dataSourceTbl").val();
+	} else if (mode === "AUTOCOMPLETE_NEW") {
+		if (checkExistingAutocompleteId($("#autocompleteId").val()) == true) {
+			showMessage("Autocomplete Id already exists", "warn");
+			$("#autocompleteId").val("");
+			$("#foreignKey_" + currentForeignKeyIndex)
+			       .prop("checked", false)
+			       .trigger("change");
+			   $("#foreignKeyMode").val("DROPDOWN");
+			   onForeignKeyModeChange();
+			let columnName = $("#tfcolumn_" + currentForeignKeyIndex).text().trim();
+			foreignKeyDetails = foreignKeyDetails.filter(
+				x => x.columnName !== columnName
+			);
+			return false;
+		}
+		fkConfig.componentType = "AUTOCOMPLETE";
+		fkConfig.mode = "NEW";
+		fkConfig.autocompleteId = $("#autocompleteId").val();
+		fkConfig.autocompleteName = $("#autocompleteName").val();
+		fkConfig.table = $("#selectedTable").val();
+		fkConfig.tableDisplayName = $("#tabledropdownAutocomplete").val();
+		fkConfig.idColumn = $("#fkIdColumn").val();
+		fkConfig.displayColumn = $("#autocompleteDisplayColumn").val();
+		fkConfig.dataSourceId = $("#dataSourceTbl").val();
+	}
+	foreignKeyDetails = foreignKeyDetails.filter(x => x.columnName !== columnName);
+	foreignKeyDetails.push(fkConfig);
+	$("#editForeignKey_" + currentForeignKeyIndex).show();
+	document.activeElement.blur();   // remove focus from OK button
+	return foreignKeyDetails;
+}
+
+function editForeignKey(index) {
+    currentForeignKeyIndex = index;
+	let columnName = $("#tfcolumn_" + index).text().trim();
+	let config = foreignKeyDetails.find(
+		fk => fk.columnName === columnName
+	);
+    if (!config) {
+        showMessage("No Foreign Key configuration found", "warn");
+        return;
+    }
+	if(config.componentType === "DROPDOWN"){
+	    $("#foreignKeyMode").val("DROPDOWN");
+	}
+	else if(config.componentType === "AUTOCOMPLETE" &&
+	        config.mode === "EXISTING"){
+	    $("#foreignKeyMode").val("AUTOCOMPLETE_EXISTING");
+	}
+	else if(config.componentType === "AUTOCOMPLETE" &&
+	        config.mode === "NEW"){
+	    $("#foreignKeyMode").val("AUTOCOMPLETE_NEW");
+	}
+    onForeignKeyModeChange();
+    $("#dataSourceTbl").val(config.dataSourceId);
+	$("#tabledropdownAutocomplete").val(config.tableDisplayName);
+	$("#selectTabledropDown").val(config.table);
+	let dbProductID = $("#dataSourceTbl").val();
+	onTableSelected(config.tableDisplayName, dbProductID);
+	setTimeout(function() {
+		$("#fkIdColumn").val(config.idColumn);
+		$("#fkDisplayColumn").val(config.displayColumn);
+		$("#autocompleteIdColumn").val(config.idColumn);
+		$("#autocompleteDisplayColumn").val(config.displayColumn);
+	}, 300);
+    $("#autocompleteId").val(config.autocompleteId);
+    $("#autocompleteName").val(config.autocompleteName);
+    $("#selectAutocomplete").val(config.selectedAutocomplete);
+	
+    var modal = new bootstrap.Modal(
+        document.getElementById("foreignkeyModalDialog")
+    );
+    modal.show();
+}
+
 function saveCreateMaster() {
 	if (fileBinDisplayTexts == null) {
 		fileBinDisplayTexts = resourceBundleData("jws.fileBinAlreadyExist,jws.fileBinCannotBeBlank,jws.allowedCharactersForFileBin,jws.supportedFileType,jws.invalidFileSize, jws.enableCaptcha");
@@ -494,6 +595,14 @@ function saveCreateMaster() {
 		roleIds.push(val.id);
 	});
 
+	let busModIds = [];
+	$.each($("#linkModuleNameAutocomplete_selectedOptions_ul span.ml-selected-item"), function(key, val) {
+		busModIds.push(val.id);
+	});
+	
+	var isShowCreateLinkChkBox = document.getElementById("showCreateLinkChkBox").checked;
+	let columnName = $("#tfcolumn_" + currentForeignKeyIndex).text().trim();
+	let foreignKeyDetails = saveForeignKeyDetails();
 	let formData = $("#createMasterForm").serialize();
 	$.ajax({
 		url: contextPath + "/cf/cm",
@@ -504,7 +613,11 @@ function saveCreateMaster() {
 			menuDetails: JSON.stringify(menuDetails),
 			dynamicFormModuleDetails: JSON.stringify(dynamicFormModuleDetails),
 			roleIds: JSON.stringify(roleIds),
-			dbProductName: $("#dataSource").find(":selected").data("product-name")
+			dbProductName: $("#dataSource").find(":selected").data("product-name"),
+			businessModule : $("#busmoduleName").val(),
+			busModIds: JSON.stringify(busModIds),
+			isShowCreateLinkChkBox : isShowCreateLinkChkBox,
+			foreignKeyDetails: JSON.stringify(foreignKeyDetails)
 		},
 		type: 'POST',
 		success: function(data) {

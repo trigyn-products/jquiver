@@ -69,6 +69,8 @@ public final class DBExtractor {
 				dbCol.put("columnName", colName.replace("_", ""));
 				dbCol.put("fieldName", toCamelCase(colName.replace("_", " ")));
 				dbCol.put("columnKey", "");
+				dbCol.put("jsVariableName", colName.replaceAll("_", ""));
+				dbCol.put("freemarkerParam", "${" + colName.replaceAll("_", "") + "!\"null\"}");
 				String	a_dataType	= null;
 				String	dataType	= null;
 				String	tableSchema	= con.getCatalog();
@@ -167,9 +169,22 @@ public final class DBExtractor {
 				schemaName	= null;
 			}
 			ResultSet rsPK = dbmd.getPrimaryKeys(catalogName, schemaName, a_tableName);
+			// while (rsPK.next()) {
+			// colName = rsPK.getString("COLUMN_NAME");
+			// dbStructure.get(cols.indexOf(colName)).put("columnKey", "PK");// instead of
+			// PRI please use PK
+			// }
 			while (rsPK.next()) {
 				colName = rsPK.getString("COLUMN_NAME");
-				dbStructure.get(cols.indexOf(colName)).put("columnKey", "PK");// instead of PRI please use PK
+				Map<String, Object> pkCol = dbStructure.get(cols.indexOf(colName));
+				pkCol.put("columnKey", "PK");
+				pkCol.put("selectWhereClause", colName + " = <#if " + colName.replace("_", "") + "??> :"
+						+ colName.replace("_", "") + " <#else> 'null' </#if>");
+				//pkCol.put("jsWhereClause", colName + " = '${" + colName.replace("_", "") + "!\"null\"}'");
+//				pkCol.put("jsWhereClause",
+//						colName + " = '<#noparse>${" + colName.replace("_", "") + "!\"null\"}</#noparse>'");
+				pkCol.put("jsWhereClause",
+					    colName + " = '${" + colName.replace("_", "") + "!''}'");
 			}
 		} catch (Throwable a_th) {
 			a_th.printStackTrace();

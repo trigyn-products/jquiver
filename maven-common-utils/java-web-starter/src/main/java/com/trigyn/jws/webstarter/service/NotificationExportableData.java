@@ -39,7 +39,17 @@ public class NotificationExportableData implements GenerateModuleMasterQueries {
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append("COALESCE(gun.updatedDate , gun.creationDate)  >=:modifiedAfter ");
+				querySQL.append("COALESCE(gun.updated_date , gun.creation_date)  >=:modifiedAfter ");
+			}
+			if (name != null) {
+				 name = "%" + name + "%";
+				if (querySQL.toString().contains(" WHERE ")) {
+					querySQL.append("AND ");
+				} else {
+					querySQL.append(" WHERE ");
+				}
+				//querySQL.append(" dl.dashletName REGEXP :name ");
+				querySQL.append(" LOWER(gun.message_text) LIKE LOWER(:name) ");
 			}
 			BeanPropertyRowMapper<GenericUserNotification> mapper = new BeanPropertyRowMapper<GenericUserNotification>(GenericUserNotification.class);
 			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), modifiedAfter, null,

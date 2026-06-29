@@ -38,17 +38,19 @@ public class DashletExportableData implements GenerateModuleMasterQueries {
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append("COALESCE(dl.last_updated_ts , dl.created_date)  >=:modifiedAfter ");
+				querySQL.append("COALESCE(dl.lastUpdatedTs , dl.createdDate)  >=:modifiedAfter ");
 
 			}
 
 			if (name != null) {
+				 name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" dl.dashlet_name REGEXP :name ");
+				//querySQL.append(" dl.dashletName REGEXP :name ");
+				querySQL.append(" LOWER(dl.dashletName) LIKE LOWER(:name) ");
 			}
 
 			if (entityType != null) {
@@ -57,11 +59,11 @@ public class DashletExportableData implements GenerateModuleMasterQueries {
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" dl.dashlet_type_id = :entityType ");
+				querySQL.append(" dl.dashletTypeId = :entityType ");
 			}
-			BeanPropertyRowMapper<Dashlet> mapper = new BeanPropertyRowMapper<Dashlet>(Dashlet.class);
-			exportableList = importExportCrudDAO.getAllAutoExportableData(querySQL.toString(), modifiedAfter,
-					entityType, name,mapper);
+			//BeanPropertyRowMapper<Dashlet> mapper = new BeanPropertyRowMapper<Dashlet>(Dashlet.class);
+			exportableList = importExportCrudDAO.getAllAutoExportableEntityData(querySQL.toString(), modifiedAfter,
+					entityType, name);
 
 		} else {
 			exportableList = importExportCrudDAO.getAllExportableData(

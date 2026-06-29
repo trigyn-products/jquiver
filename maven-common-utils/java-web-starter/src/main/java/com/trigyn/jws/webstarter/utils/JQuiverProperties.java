@@ -27,6 +27,18 @@ public class JQuiverProperties {
 	@Value("${server.port:8080}")
     private int serverPort;
 
+	@Value("${jquiver.template-storage-path}")
+    private String templateStoragePath;
+
+	@Value("${jquiver.file-upload-location}")
+    private String fileUploadLocation;
+
+	@Value("${jquiver.emlFileStoragePath}")
+    private String emlFileStoragePath;
+
+	@Value("${jquiver.file-copy-path}")
+    private String fileCopyPath;
+
 	public int getServerPort() {
 		return serverPort;
 	}
@@ -65,6 +77,38 @@ public class JQuiverProperties {
 
 	public String getMonitoringPath() {
 		return monitoringPath;
+	}
+
+	public String getTemplateStoragePath() {
+		return templateStoragePath;
+	}
+
+	public void setTemplateStoragePath(String templateStoragePath) {
+		this.templateStoragePath = templateStoragePath;
+	}
+
+	public String getFileUploadLocation() {
+		return fileUploadLocation;
+	}
+
+	public void setFileUploadLocation(String fileUploadLocation) {
+		this.fileUploadLocation = fileUploadLocation;
+	}
+
+	public String getEmlFileStoragePath() {
+		return emlFileStoragePath;
+	}
+
+	public void setEmlFileStoragePath(String emlFileStoragePath) {
+		this.emlFileStoragePath = emlFileStoragePath;
+	}
+
+	public String getFileCopyPath() {
+		return fileCopyPath;
+	}
+
+	public void setFileCopyPath(String fileCopyPath) {
+		this.fileCopyPath = fileCopyPath;
 	}
 	
 }

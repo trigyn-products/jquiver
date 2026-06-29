@@ -40,17 +40,19 @@ public class BusinessModuleExportableData implements GenerateModuleMasterQueries
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append("jbm.updated_date >=:modifiedAfter ");
+				querySQL.append("COALESCE(jbm.updated_date , jbm.created_date)  >=:modifiedAfter ");
 				// params.addValue("modifiedAfter", modifiedAfter);
 			}
 
 		    if (name != null) {
+		    	 name = "%" + name + "%";
 				if (querySQL.toString().contains(" WHERE ")) {
 					querySQL.append("AND ");
 				} else {
 					querySQL.append(" WHERE ");
 				}
-				querySQL.append(" jbm.module_name REGEXP :name ");
+				//querySQL.append(" jbm.module_name REGEXP :name ");
+				querySQL.append(" LOWER(jbm.module_name) LIKE LOWER(:name) ");
 			}
 		    BeanPropertyRowMapper<JwsBusinessModule> mapper = new BeanPropertyRowMapper<JwsBusinessModule>(JwsBusinessModule.class);
 		exportableList = importExportCrudDAO.getAllAutoExportableData(
