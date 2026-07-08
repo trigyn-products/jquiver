@@ -1,0 +1,15 @@
+CREATE TABLE `msl_listener_info` (
+  `mail_server_id` varchar(100) NOT NULL,
+  `mail_info` longtext NOT NULL,
+  `last_modified` timestamp NOT NULL,
+  `listener_name` varchar(50) NOT NULL,
+  `restApi_id` varchar(100) NOT NULL,
+  `isActive` int(1) NOT NULL,
+  `files_info` longtext NOT NULL,
+  `protocol_type` varchar(20) NOT NULL,
+  `last_executed` timestamp NULL DEFAULT NULL,
+  `rest_api_url` varchar(100) NOT NULL,
+  `rest_api_method_name` varchar(100) NOT NULL,
+  PRIMARY KEY (`mail_server_id`),
+  KEY `mail_listener_id` (`listener_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
