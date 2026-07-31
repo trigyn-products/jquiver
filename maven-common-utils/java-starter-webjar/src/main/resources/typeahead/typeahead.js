@@ -314,15 +314,7 @@
 			resizable	 : false,
 			title		 : "Delete",
 			buttons		 : [{
-					text :"Cancel",
-					"class":'btn btn-secondary',
-					click: function() { 
-						$(this).dialog("destroy");
-						$(this).remove();
-					},
-				},
-				{
-					text	: "Delete",
+			text		 : "Delete",
 					"class":'btn btn-primary',
 					click	: function(){
 				        let noOfElements = parseInt($("#"+multiselectId+"_count > span").text()) - 1;
@@ -342,7 +334,15 @@
 						showMessage("Deleted successfully.", "success");
 				        return item;
 					}
-	           	},
+		           	},
+					{
+					text :"Cancel",
+					"class":'btn btn-secondary',
+					click: function() { 
+						$(this).dialog("destroy");
+						$(this).remove();
+					},
+				},
 	       ],
 	       open		: function( event, ui ) {	    	
 		   	   $('.ui-dialog-titlebar')

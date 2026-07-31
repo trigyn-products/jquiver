@@ -138,7 +138,7 @@ function generateCaptch(imagesrc) {
 									<#if authenticationType ==4>
 										<#assign oAuthExist = true> 
 									</#if>
-									<#if (authenticationType ==2 || authenticationType ==3)>	
+									<#if (authenticationType ==2 || authenticationType ==3 || authenticationType ==6)>	
 										<#if authenticationType ==2 > 
 											<#assign numConvert ="databaseauth"> 
 											<#assign labelConvert = authType?api.getDatabaseDisplayName()>
@@ -147,6 +147,9 @@ function generateCaptch(imagesrc) {
 											<#assign ldapAuth = true>
 											<#assign numConvert = "ldaputh">
 											<#assign labelConvert><@resourceBundle "jws.ldap"/></#assign>
+										<#elseif authenticationType ==6>
+										    <#assign numConvert ="customauth">
+										    <#assign labelConvert = authType?api.getDatabaseDisplayName()>	
 										</#if>
 										<li role="presentation" ><a href="#${numConvert}" aria-controls="${numConvert}" role="tab" data-bs-toggle="tab">	${labelConvert}</a>
 										</li>									
@@ -166,14 +169,22 @@ function generateCaptch(imagesrc) {
 								<#assign authenticationType=authType?api.getAuthenticationType()>
 								<#assign verificationType=authType?api.getVerificationType()>
 								<#if (authenticationType)?? && authenticationType?has_content>							
-									<#if (authenticationType)?? && authenticationType?has_content && (authenticationType ==2 || authenticationType ==3)>	
+									<#if (authenticationType)?? && authenticationType?has_content && (authenticationType ==2 || authenticationType ==3 || authenticationType ==6)>	
 										<#if (authenticationType)?? && authenticationType?has_content && authenticationType ==2 > 
 											<#assign numConvert ="databaseauth"> 
-										<#else>
+										<#elseif authenticationType == 3>
 											<#assign numConvert ="ldaputh"> 
+										<#elseif authenticationType == 6>
+    										<#assign numConvert = "customauth">	
 										</#if>
-										<#if (authenticationType)?? && authenticationType?has_content && (authenticationType ==2 || authenticationType ==3)>
-										<div role="tabpanel" class="tab-pane logintabpan" id="${numConvert}"><@templateWithParams "jws-login-${authenticationType}-${verificationType}" loginAttributes/></div> 					
+										<#if (authenticationType)?? && authenticationType?has_content && (authenticationType ==2 || authenticationType ==3 || authenticationType ==6)>
+										<div role="tabpanel" class="tab-pane logintabpan" id="${numConvert}">
+									    <#if authenticationType == 6>
+									        <@templateWithParams "jws-login-6-0" loginAttributes/>
+									    <#else>
+									        <@templateWithParams "jws-login-${authenticationType}-${verificationType}" loginAttributes/>
+									    </#if>
+										</div> 					
 										</#if>
 									<!-- Tab panes -->																	
 									</#if>

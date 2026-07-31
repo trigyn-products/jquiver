@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "label-required": "warn",
+    "no-disconnected": "error",
+    "start-event-required": "error",
+    "end-event-required": "warn"
+  }
+}

@@ -171,7 +171,7 @@ public class ResourceBundle implements Serializable {
 		Language lang = new Language(language.getLanguageId(), langNameStr, language.getLanguageCode(),
 				language.getLastUpdateTs(), language.getIsDeleted());
 		resourceBundle.setLanguage(lang);
-		resourceBundle.setCreatedBy(createdBy != null ? createdBy.trim() : "admin@jquiver.io");
+		resourceBundle.setCreatedBy(createdBy != null ? createdBy.trim() : "admin@localhost.io");
 		resourceBundle.setCreatedDate(createdDate);
 		resourceBundle.setUpdatedBy(updatedBy != null ? updatedBy.trim() : updatedBy);
 		resourceBundle.setUpdatedDate(updatedDate);

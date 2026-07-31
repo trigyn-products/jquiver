@@ -1,0 +1,21 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+
+function getBusinessModule(){ 
+    var map = new HashMap();
+    var queryResult ={};
+     var moduleList = [];
+    queryResult = jq_getDBResult("SELECT module_name as moduleName FROM `jq_business_module`",null,map);
+
+    for (var i = 0; i < queryResult.data_list.length; i++) {
+        if (queryResult.data_list.length > 0) {
+            moduleList.push({
+                moduleName: queryResult.data_list[i].moduleName
+            });
+        }
+    }    
+
+    queryResult.allBusModuleList = JSON.stringify(moduleList);
+    return queryResult.allBusModuleList;
+}
+getBusinessModule();

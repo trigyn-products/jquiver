@@ -76,3 +76,12 @@
 	a . In application.yml at the place of host we should define host.docker.internal:3306 like this
 	b . Comment the (maria db, environment and Port) configuration inside  docker-compose.yml . Not needed when connecting to Local DB.
 	c . For SMTP OTP configuration add host.docker.internal in place of localhost.	
+	
+11. What is the default username and password for JQuiver application, when database authentication is enabled?
+	The default username and password for JQuiver application, when database authentication is enabled, is as follows:
+	username: admin@localhost.io
+	password: Account@123
+	
+12. How to update the logger level for JQuiver application?
+	Logging is an important aspect of any application, as it helps in monitoring and debugging. In JQuiver application, the logging is configured using logback framework.    To update the logger level for JQuiver application, you can follow these steps:    a. Locate the logback.xml file at src/main/resources.    b. Update the logger level as per your requirement. You can set the level to TRACE, DEBUG, INFO, WARN, or ERROR.    c. Save the changes and restart the application for the changes to take effect.
+    d. To update the logger level of flyway, update the property "logging.level.org.flywaydb" in application.yml file. The default level is INFO, but you can change it to DEBUG or TRACE for more detailed logging.

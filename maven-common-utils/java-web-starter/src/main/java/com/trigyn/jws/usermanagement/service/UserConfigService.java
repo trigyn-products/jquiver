@@ -103,7 +103,9 @@ public class UserConfigService {
 												.findAny().orElse(null);
 										if(displayName != null ) {
 											if (securityAuthDetail.getAuthenticationTypeVO().getId()
-													.equals(Constants.AuthType.DAO.getAuthType())) {
+													.equals(Constants.AuthType.DAO.getAuthType()) 
+													|| securityAuthDetail.getAuthenticationTypeVO().getId()
+										            .equals(Constants.AuthType.CUSTOM.getAuthType())) {
 												mapDetails.put(databaseDisplayName, displayName.getValue());
 												authDetail.put(databaseDisplayName, displayName.getValue());
 												jwsUserLoginVO.setDatabaseDisplayName(displayName.getValue());
@@ -332,6 +334,9 @@ public class UserConfigService {
 				authType = Constants.LDAP_ID;
 			} else if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey())) {
 				authType = Constants.OAUTH_ID;
+			}
+			else if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.CUSTOM.getAuthTypeHeaderKey())) {
+			    authType = Constants.CUSTOM_ID;
 			}
 		}
 		return authType;

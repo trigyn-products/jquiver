@@ -1214,21 +1214,26 @@ function validateData() {
 	let isEditFound = false;
 	for (let iCounter = 0, length = serializedForm.length; iCounter < length; iCounter++) {
 		let fieldValue = $.trim(serializedForm[iCounter].value);
-		let fieldName = $.trim(serializedForm[iCounter].name);
-		let isFieldVisible = $("#" + fieldName).is(":visible");
-		let isOptional = $("#" + fieldName).hasClass("optional");
+		let fieldName = serializedForm[iCounter].name; // Use raw name
+		let $field = getField(fieldName);
+		// If the field isn't found or is marked to be skipped, ignore it
+		if ($field.length === 0 || $field.attr('data-skip-validation') === 'true') {
+			continue;
+		}
+		let isFieldVisible = $field.is(":visible");
+		let isOptional = $field.hasClass("optional");
 
 		if (fieldValue !== "") {
 			serializedForm[iCounter].value = fieldValue;
 		} else if (isFieldVisible === true && isOptional === false) {
-			$("#" + fieldName).focus();
+			$field.focus();
 			// Below code is commented as closest div doesnt work propery in case of captcha and all. 
 			// Hence highlighting the field
 			// $("#" + fieldName).closest("div").parent().effect("highlight", {}, 3000);
 			if (isFormIoEditor != undefined && fieldName === 'formCaptcha') {
 				continue;
 			} else {
-				$("#" + fieldName).effect("highlight", {}, 3000);
+				$field.effect("highlight", {}, 3000);
 				return undefined;
 			}
 		}
@@ -1246,6 +1251,7 @@ function validateData() {
     if(isEditFound == false){
             serializedForm.push({ "name": "isEdit", "value": (isEdit + ""), "valueType": "int" });
     }
+	
 	serializedForm = serializedForm.formatSerializedArray();
 
 	let files = $("#" + formName).find("input:file:not(.optional)");
@@ -1323,6 +1329,26 @@ function validateData() {
 	}
 }
 
+function getField(fieldName) {
+    // 1. Attribute Selector: The safest approach for fields with spaces and brackets
+    // Escape single quotes to prevent syntax breakdown
+    let safeName = fieldName.replace(/'/g, "\\'");
+    let $field = $("[name='" + safeName + "']");
+    if ($field.length > 0) return $field;
+
+    // 2. ID Selector Fallback: Safe manual escaping for older/newer jQuery versions
+    try {
+        // Replace special CSS characters manually to be 100% safe across all jQuery versions
+        let safeId = fieldName.replace(/[!"#$%&'()*+,.\/:;<=>?@\[\\\]^`{|}~ ]/g, "\\$&");
+        $field = $("#" + safeId);
+        if ($field.length > 0) return $field;
+    } catch (e) {
+        // Fail silently and return empty collection
+		console.error("Selection failed for: " + fieldName);
+    }
+    return $();
+}
+
 function padOrTruncateKey(key, length) {
 	if (key.length < length) {
 		return key.padEnd(length, '0');
@@ -1373,4 +1399,3 @@ var querytype = null;
 var querytypename = null;
 var formMap = new Map();
 //end of FileBin
-

@@ -105,6 +105,10 @@
     <#if (columnDetails)??>
     	<div class="row">   	
     	<#list columnDetails as columnDetailsList>
+            <#assign ftlColumnRef = "resultSetData." + columnDetailsList.tableColumnName>
+                <#if columnDetailsList.tableColumnName?contains(" ")>
+                    <#assign ftlColumnRef = "resultSetData[\"" + columnDetailsList.tableColumnName + "\"]">
+                </#if>
          <#assign optionalClass=" optional ">
 			<#if (columnDetailsList.columnType) != "hidden" && (columnDetailsList.autoIncrement) == false>
 	    		<div class="col-lg-3 col-12">
@@ -119,7 +123,7 @@
 						            </#if>
 						              <#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''}" <#noparse>/></#noparse>
 						            </label>
-								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder=<#noparse>"<@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/>"</#noparse> class="form-control  ${optionalClass!''}">
+								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(</#noparse>${ftlColumnRef}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder=<#noparse>"<@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/>"</#noparse> class="form-control  ${optionalClass!''}">
                                     
 				            <#elseif (columnDetailsList.columnType) == "date" || (columnDetailsList.columnType) == "datetime">
 				                   <#if (columnDetailsList.isMandatory)>
@@ -160,37 +164,34 @@
                                 </#list>
                             </#if>
                             <#if fkDetails?has_content && fkDetails.componentType == "DROPDOWN">
-                            <select class="form-control drpodowncls" id="${columnDetailsList.columnName}"
-                                name="${columnDetailsList.columnName}">
-                                <option value="">Select</option>
-                                <#noparse>
-                                <#if resultSetObject.</#noparse>${fkDetails.columnName}List<#noparse>??
-                                    && resultSetObject.</#noparse>${fkDetails.columnName}List<#noparse>.data_list??>
-                                    <#list resultSetObject.</#noparse>${fkDetails.columnName}List<#noparse>.data_list as option>
-                                        <option value="${option.</#noparse>${fkDetails.idColumn}<#noparse>}"
-                                        <#if resultSetData?has_content && (resultSetData.</#noparse>${fkDetails.columnName}<#noparse>)?has_content>
-                                        <#if option.</#noparse>${fkDetails.idColumn}<#noparse>?string == resultSetData.</#noparse>${fkDetails.columnName}<#noparse>?string>
-                                            selected
-                                        </#if>
-                                        </#if>>
-                                        ${option.</#noparse>${fkDetails.displayColumn}<#noparse>}
+                            <select class="form-control drpodowncls" id="${columnDetailsList.columnName}" name="${columnDetailsList.columnName}">
+                                <option value="">Select</option>        
+                                <#noparse><#if resultSetObject.</#noparse>${fkDetails.jsColumnName}List<#noparse>?? && resultSetObject.</#noparse>${fkDetails.jsColumnName}List<#noparse>.data_list??></#noparse>
+                                    <#noparse><#list resultSetObject.</#noparse>${fkDetails.jsColumnName}List<#noparse>.data_list as option></#noparse>             
+                                        <option value="<#noparse>${option['</#noparse>${fkDetails.idColumn}<#noparse>']}</#noparse>"
+                                            <#noparse><#if resultSetData?has_content && resultSetData['</#noparse>${fkDetails.columnName}<#noparse>']?has_content></#noparse>
+                                            <#noparse><#if option['</#noparse>${fkDetails.idColumn}<#noparse>']?string == resultSetData['</#noparse>${fkDetails.columnName}<#noparse>']?string></#noparse>
+                                                selected
+                                            <#noparse></#if></#noparse>
+                                            <#noparse></#if>></#noparse>
+                                           <#noparse>${option['</#noparse>${fkDetails.displayColumn}<#noparse>']}</#noparse>
                                         </option>
-                                    </#list>
-                                </#if>
-                                </#noparse>
-                            </select>               
+                                        
+                                    <#noparse></#list></#noparse>
+                                <#noparse></#if></#noparse>
+                            </select>       
                             <#-- AUTOCOMPLETE -->
                             <#elseif fkDetails?has_content && fkDetails.componentType == "AUTOCOMPLETE">
                                 <div class="search-cover">
                                     <input class="form-control jq-autocomplete"
-                                        id="${columnDetailsList.tableColumnName}_Autocomplete"
+                                        id="${fkDetails.jsColumnName}_Autocomplete"
                                         type="text" autocomplete="off"
-                                        value="<#noparse>${(resultSetData.</#noparse>${columnDetailsList.tableColumnName}<#noparse>)!''}</#noparse>"
+                                        value="<#noparse>${(</#noparse>${ftlColumnRef}<#noparse>)!""}</#noparse>"
                                         data-autocomplete-id="${autocompleteId!''}">
 
-                                    <input type="hidden" id="${columnDetailsList.tableColumnName}"
+                                    <input type="hidden" id="${fkDetails.jsColumnName}"
                                         name="${columnDetailsList.columnName}"
-                                        value="<#noparse>${(resultSetData.</#noparse>${columnDetailsList.tableColumnName}<#noparse>)!''}</#noparse>">
+                                        value="<#noparse>${(</#noparse>${ftlColumnRef}<#noparse>)!""}</#noparse>">
                                         <i class="fa fa-search" aria-hidden="true"></i>
                                 </div>
                             <#-- NORMAL FIELD -->
@@ -199,7 +200,7 @@
                                     data-type="${columnDetailsList.dataType}"
                                     id="${columnDetailsList.columnName}"
                                     name="${columnDetailsList.columnName}"
-                                    value="<#noparse>${(resultSetData.</#noparse>${columnDetailsList.tableColumnName}<#noparse>)!''}</#noparse>"
+                                     value="<#noparse>${(</#noparse>${ftlColumnRef}<#noparse>)!""}</#noparse>"
                                     maxlength="${columnDetailsList.columnSize!''}"
                                     placeholder="${columnDetailsList.fieldName!''}"
                                     data-column-name="${columnDetailsList.tableColumnName}"
@@ -271,14 +272,14 @@
                 <div class="col-lg-3 col-12" title="Auto Increment">
 					<div class="col-inner-form full-form-fields">
                         <label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
-						<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control input_disable_cls ${optionalClass!''}"placeholder="Auto Increment">
+						<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"   value="<#noparse>${(</#noparse>${ftlColumnRef}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control input_disable_cls ${optionalClass!''}"placeholder="Auto Increment">
 					</div>
 				</div>
 			 <#else>
-                  <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control input_disable_cls ${optionalClass!''}"placeholder="Auto Increment">
+                  <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(</#noparse>${ftlColumnRef}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control input_disable_cls ${optionalClass!''}"placeholder="Auto Increment">
              </#if>
                 <#elseif (columnDetailsList.autoIncrement) == false>
-                    <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetData.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" > 
+                    <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(</#noparse>${ftlColumnRef}<#noparse>)!""}</#noparse>" > 
                 </#if>
     	</#list>
     	</div>
@@ -392,8 +393,8 @@
 <#list foreignKeys as fk>
     <#if fk.componentType == "AUTOCOMPLETE">
         <#assign existingAutocompleteData = foreignKeyExistingAutocompleteData[fk.columnName]!{}>
-        var ${fk.columnName}_autocomplete =
-            $("#${fk.columnName}_Autocomplete").autocomplete({
+        var ${fk.jsColumnName}_autocomplete =
+            $("#${fk.jsColumnName}_Autocomplete").autocomplete({
                 autocompleteId: "${fk.autocompleteId}",
                 prefetch: true,
                 enableClearText: true,
@@ -418,32 +419,32 @@
                     </#if>
                 },
                 select: function(item) {
-                    $("#${fk.columnName}_Autocomplete").blur();
+                    $("#${fk.jsColumnName}_Autocomplete").blur();
                     <#if existingAutocompleteData.idAlias?? && existingAutocompleteData.displayAlias??>
-                        $("#${fk.columnName}")
+                        $("#${fk.jsColumnName}")
                             .val(item["${existingAutocompleteData.idAlias}"]);
-                        $("#${fk.columnName}_Autocomplete")
+                        $("#${fk.jsColumnName}_Autocomplete")
                             .val(item["${existingAutocompleteData.displayAlias}"]);
                     <#else>
-                        $("#${fk.columnName}")
+                        $("#${fk.jsColumnName}")
                             .val(item.entityId);
-                        $("#${fk.columnName}_Autocomplete")
+                        $("#${fk.jsColumnName}_Autocomplete")
                             .val(item.entityName);
                     </#if>
                 }
             });
    
+ 
+<#noparse><#if resultSetObject?? && resultSetObject["</#noparse>${fk.jsColumnName}Autocomplete<#noparse>"]?? && resultSetObject["</#noparse>${fk.jsColumnName}Autocomplete<#noparse>"]?has_content></#noparse>
+    try {
+        var data = JSON.parse('<#noparse>${resultSetObject["</#noparse>${fk.jsColumnName}<#noparse>Autocomplete"]}</#noparse>');
+        
+        ${fk.jsColumnName}_autocomplete.setSelectedObject(data);
+    } catch(e) {
+        console.log("Autocomplete edit value parse error", e);
+    }
+<#noparse></#if></#noparse>
 
-<#noparse>
-    <#if resultSetObject?? && resultSetObject.</#noparse>${fk.columnName}Autocomplete<#noparse>?? && resultSetObject.</#noparse>${fk.columnName}Autocomplete<#noparse>?has_content>
-        try {
-            var data = JSON.parse('</#noparse>${r"${resultSetObject."}${fk.columnName}Autocomplete}${r""}<#noparse>');
-            </#noparse>${fk.columnName}_autocomplete<#noparse>.setSelectedObject(data);
-        } catch(e) {
-            console.log("Autocomplete edit value parse error", e);
-        }
-    </#if>
-</#noparse>
 
  </#if>
 </#list>
@@ -494,9 +495,13 @@
             </#if>
         </#list>
     </#if>
+    <#assign resultSetListRef = "resultSetList." + columnDetailsList.tableColumnName>
+    <#if columnDetailsList.tableColumnName?contains(" ")>
+        <#assign resultSetListRef = "resultSetList[\"" + columnDetailsList.tableColumnName + "\"]">
+    </#if>
     <#if fkDetails?has_content && fkDetails.componentType == "DROPDOWN">
         try{
-            $("#${columnDetailsList.columnName}").val('<#noparse>${(resultSetList.</#noparse>${columnDetailsList.tableColumnName}<#noparse>)!""}</#noparse>');
+           $("#${columnDetailsList.columnName}").val('<#noparse>${(</#noparse>${resultSetListRef}<#noparse>)!""}</#noparse>');
         }catch(excp){}   
     </#if>                              
     </#list>    

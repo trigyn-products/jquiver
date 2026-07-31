@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
-import com.trigyn.jws.dbutils.utils.HelpManualCHMExport;
 import com.trigyn.jws.dbutils.utils.HelpManualWordImport;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dbutils.vo.xml.FileUploadConfigExportVO;
@@ -78,8 +77,8 @@ public class HelpManualService {
 	@Autowired
 	private HelpManualWordImport			helpManualWordImport			= null;
 	
-	@Autowired
-	private HelpManualCHMExport			helpManualWordIExport			= null;
+//	@Autowired
+//	private HelpManualCHMExport			helpManualWordIExport			= null;
 	
 	public boolean manualTypeExist(String name) {
 		return iManualTypeRepository.existsByName(name);
@@ -297,10 +296,10 @@ public class HelpManualService {
 		return helpManualWordImport.importHelpManualData(request, response, filePart, sourceTypeId);
 	}
 	
-	public void exportHelpManualData(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		helpManualWordIExport.exportHelpManualToCHM(request);
-	}
+//	public void exportHelpManualData(HttpServletRequest request, HttpServletResponse response) throws Exception {
+//
+//		helpManualWordIExport.exportHelpManualToCHM(request);
+//	}
 
 
 }

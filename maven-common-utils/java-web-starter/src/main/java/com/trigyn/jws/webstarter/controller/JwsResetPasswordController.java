@@ -229,7 +229,7 @@ public class JwsResetPasswordController {
 					/* For inserting notification in case of mail failure only on access of Admin */
 					email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
 					email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
-					// email.setMailFrom("admin@jquiver.com");
+					// email.setMailFrom("admin@localhost.io");
 					Map<String, Object>	mailDetails			= new HashMap<>();
 					TemplateVO			subjectTemplateVO	= templatingService
 							.getTemplateByName("reset-password-mail-subject");
@@ -238,8 +238,8 @@ public class JwsResetPasswordController {
 					email.setSubject(subject);
 					String	propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
 							"adminEmailId");
-					String	adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
-							: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+					String	adminEmail				= propertyAdminEmailId == null ? "admin@localhost.io"
+							: propertyAdminEmailId.equals("") ? "admin@localhost.io" : propertyAdminEmailId;
 
 					mailDetails.put("firstName", existingUser.getFirstName() + " " + existingUser.getLastName());
 					mailDetails.put("baseURL", baseURL);

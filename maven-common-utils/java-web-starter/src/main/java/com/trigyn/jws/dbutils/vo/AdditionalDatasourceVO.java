@@ -27,6 +27,8 @@ public class AdditionalDatasourceVO {
 
 	private Double				datasourceSupportedVersion	= null;
 	
+	private String datasourceProperties = null;
+	
 	public String getAdditionalDatasourceId() {
 		return additionalDatasourceId;
 	}
@@ -123,4 +125,11 @@ public class AdditionalDatasourceVO {
 		this.datasourceSupportedVersion = datasourceSupportedVersion;
 	}
 
+	public String getDatasourceProperties() {
+		return datasourceProperties;
+	}
+	
+	public void setDatasourceProperties(String datasourceProperties) {
+		this.datasourceProperties = datasourceProperties;
+	}
 }

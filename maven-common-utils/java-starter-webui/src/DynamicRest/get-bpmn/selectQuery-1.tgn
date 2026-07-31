@@ -1,0 +1,1 @@
+SELECT bpmn_xml AS bpmn_xml,version AS version FROM jq_workflow_definition WHERE definition_id =  <#if definitionid??> :definitionid <#else> 'null' </#if>

@@ -1,1 +1,1 @@
-SELECT additional_datasource_id,datasource_name,datasource_lookup_id,datasource_configuration FROM jq_additional_datasource WHERE additional_datasource_id = <#if additionalDatasourceId??> :additionalDatasourceId </#if>
+SELECT additional_datasource_id,datasource_name,datasource_lookup_id,datasource_configuration,datasource_properties FROM jq_additional_datasource WHERE additional_datasource_id = <#if additionalDatasourceId??> :additionalDatasourceId </#if>

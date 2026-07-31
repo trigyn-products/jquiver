@@ -23,6 +23,7 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.dbutils.utils.ApplicationContextUtils;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dynamicform.utils.SqlIdentifierUtil;
 import com.trigyn.jws.gridutils.entities.GridDetails;
 import com.trigyn.jws.gridutils.utility.Constants.Comparator;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
@@ -33,6 +34,8 @@ public class GridUtility extends DBConnection {
 	public GridUtility(DataSource dataSource) {
 		super(dataSource);
 	}
+	
+	SqlIdentifierUtil sqlIdentifierUtil = new SqlIdentifierUtil();
 
 	private final static Logger logger = LoggerFactory.getLogger(GridUtility.class);
 
@@ -43,7 +46,10 @@ public class GridUtility extends DBConnection {
 				: false;
 		boolean			filterParamsPresent		= gridParams.getFilterParams() != null
 				&& (gridParams.getFilterParams().getRules() != null && gridParams.getFilterParams().getRules().size() > 0) ? true : false;
-		StringBuilder	query					= new StringBuilder("SELECT COUNT(*) FROM " + gridDetails.getGridTableName() + " ");
+		String			tableName				= sqlIdentifierUtil.quote(gridDetails.getGridTableName(),
+				dbProductName);
+		StringBuilder	query					= new StringBuilder("SELECT COUNT(*) FROM " + tableName + " ");
+		//StringBuilder	query					= new StringBuilder("SELECT COUNT(*) FROM " + gridDetails.getGridTableName() + " ");
 		
 		
 		if (criteriaParamsPressent) {
@@ -98,31 +104,36 @@ public class GridUtility extends DBConnection {
 				StringBuilder	conditionType	= new StringBuilder(groupOn).append(" ");
 				int counter = 0;
 				for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
+					String fieldName = sf.getField();
 					if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
-						query.append("(CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+						query.append("(CAST(" + sf.getField(fieldName, dbProductName) + " AS VARCHAR) LIKE ? ");
 					} else if (sf.getOp() != null && EnumUtils.isValidEnum(Comparator.class, sf.getOp())) {
 						if (Comparator.btw.toString().equals(sf.getOp())) {
-							query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? AND ? ");
+							query.append("(" + sf.getField(fieldName, dbProductName) + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? AND ? ");
 						} else {
-							query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
+							query.append("(" + sf.getField(fieldName, dbProductName) + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
 						}
 					} else {
-						query.append("(" + sf.getField() +" = ?");
+						query.append("(" + sf.getField(fieldName, dbProductName) +" = ?");
 					}
 	
 					if(sf.getData() != null) {
 						String values[] = sf.getData().split(",");
 						for(int valueCounter = 1; valueCounter < values.length; valueCounter++) {
 							if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
-								query.append("OR CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+								query.append("OR CAST(" + sf.getField(fieldName, dbProductName) + " AS VARCHAR) LIKE ? ");
 							} else if (Comparator.btw.toString().equals(sf.getOp()) == false) {
-								query.append( "OR " + sf.getField() + " LIKE ? ");
+								query.append( "OR " + sf.getField(fieldName, dbProductName) + " LIKE ? ");
 							}
 						}
 					}
 					query.append(") ");
 					if(counter < (gridParams.getFilterParams().getRules().size()-1)) {
-						query.append(conditionType);
+						if(sf.getLogicalOp() != null) {
+							query.append(sf.getLogicalOp() + " ");
+						} else {
+							query.append(conditionType);
+						}
 						counter++;
 					}
 				}
@@ -189,11 +200,18 @@ public class GridUtility extends DBConnection {
 		boolean			filterParamsPresent		= gridParams.getFilterParams() != null
 				&& (gridParams.getFilterParams().getRules() != null && gridParams.getFilterParams().getRules().size() > 0) ? true : false;
 		StringBuilder	query					= new StringBuilder("SELECT ");
-		query.append(gridDetails.getGridColumnName() + " FROM " + gridDetails.getGridTableName() + " ");
+	//	query.append(gridDetails.getGridColumnName() + " FROM " + gridDetails.getGridTableName() + " ");
+		query.append(getQuotedColumnList(gridDetails.getGridColumnName(), dbProductName))
+	     .append(" FROM ")
+	     .append(getQuotedTable(gridDetails.getGridTableName(), dbProductName))
+	     .append(" ");
+		
 		if (criteriaParamsPressent) {
 			StringJoiner joiner = new StringJoiner(" = ? AND ", " WHERE ", " ");
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
-				String criteriaParam = criteriaParams.getKey() == null ? null : escapeSql(criteriaParams.getKey().toString());
+			//	String criteriaParam = criteriaParams.getKey() == null ? null : escapeSql(criteriaParams.getKey().toString());
+				String criteriaParam = criteriaParams.getKey() == null ? null
+						: sqlIdentifierUtil.quote(escapeSql(criteriaParams.getKey().toString()), dbProductName);
 				joiner.add(criteriaParam);
 			}
 
@@ -240,25 +258,26 @@ public class GridUtility extends DBConnection {
 				StringBuilder	conditionType	= new StringBuilder(groupOn).append(" ");
 				int counter = 0;
 				for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
+					String fieldName = sf.getField();
 					if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
-						query.append("(CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+						query.append("(CAST(" + sf.getField(fieldName, dbProductName) + " AS VARCHAR) LIKE ? ");
 					} else if (sf.getOp() != null && EnumUtils.isValidEnum(Comparator.class, sf.getOp())) {
 						if (Comparator.btw.toString().equals(sf.getOp())) {
-							query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? AND ? ");
+							query.append("(" + sf.getField(fieldName, dbProductName) + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? AND ? ");
 						} else {
-							query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
+							query.append("(" + sf.getField(fieldName, dbProductName) + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
 						}
 					} else {
-						query.append("(" + sf.getField() +" = ?");
+						query.append("(" + sf.getField(fieldName, dbProductName) +" = ?");
 					}
 	
 					if(sf.getData() != null) {
 						String values[] = sf.getData().split(",");
 						for(int valueCounter = 1; valueCounter < values.length; valueCounter++) {
 							if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
-								query.append("OR CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+								query.append("OR CAST(" + sf.getField(fieldName, dbProductName) + " AS VARCHAR) LIKE ? ");
 							} else if (Comparator.btw.toString().equals(sf.getOp()) == false) {
-								query.append( "OR " + sf.getField() + " LIKE ? ");
+								query.append( "OR " + sf.getField(fieldName, dbProductName) + " LIKE ? ");
 							}
 						}
 					}
@@ -293,6 +312,23 @@ public class GridUtility extends DBConnection {
 		}
 	//	System.out.println(query.toString());
 		return query.toString();
+	}
+	
+	private String getQuotedColumnList(String columnList, String dbProductName) {
+
+	    return Arrays.stream(columnList.split(","))
+	            .map(String::trim)
+	            .map(col -> sqlIdentifierUtil.quote(col, dbProductName))
+	            .collect(Collectors.joining(","));
+	}
+	
+	private String getQuotedTable(String tableName, String dbProductName){
+
+	    if(tableName.contains(" ")) {
+	        return sqlIdentifierUtil.quote(tableName, dbProductName);
+	    }
+
+	    return tableName;
 	}
 
 	private void generateCustomCriteria(GridDetails gridDetails, boolean criteriaParamsPressent,

@@ -419,7 +419,6 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		Integer hasPermission = Constants.IS_ALLOWED;
 		requestParamMap.put("queryType", queryType);
 		requestParamMap.put("moduleName", Constants.MODULE_NAME);
-
 		List<Map<String, Object>> resultSetList = validateFilePermission(fileBinId, fileAssociationId, fileUploadId,
 				requestParamMap);
 
@@ -599,22 +598,15 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		logger.debug(
 				"Inside FilesStorageServiceImpl.validateFilePermission(fileBinId: {}, fileAssociationId: {}, fileUploadId: {}, parameterMap: {})",
 				fileBinId, fileAssociationId, fileUploadId, parameterMap);
-
 		String queryContent = "";
-
 		try {
-
 			FileUpload fileUpload = fileUploadRepository.findFileBinIdByUploadId(fileUploadId);
-
-			List<FileUpload> a_fileUpload = fileUploadRepository.findAllByFileBinId(fileBinId);
-
-			if (a_fileUpload != null && a_fileUpload.isEmpty() == false) {
-				for (int iCounter = 0; iCounter < a_fileUpload.size(); iCounter++) {
-					fileBinId = a_fileUpload.get(iCounter).getFileBinId();
-					fileAssociationId = a_fileUpload.get(iCounter).getFileAssociationId();
-					fileUploadId = a_fileUpload.get(iCounter).getFileUploadId();
+			if (StringUtils.isNotBlank(fileUploadId)) {
+				FileUpload a_fileUpload = fileUploadRepository.findFileBinIdByUploadId(fileUploadId);
+				if (a_fileUpload != null) {
+					fileBinId = a_fileUpload.getFileBinId();
+					fileAssociationId = a_fileUpload.getFileAssociationId();
 				}
-
 			}
 			if (fileUpload != null && StringUtils.isBlank(fileBinId) == true) {
 				fileBinId = fileUpload.getFileBinId();
@@ -623,7 +615,6 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 					&& StringUtils.isBlank(fileUpload.getFileAssociationId()) == false) {
 				fileAssociationId = fileUpload.getFileAssociationId();
 			}
-
 			if (fileUpload == null && fileBinId == null && fileAssociationId == null) {
 				List<FileUploadTemp> fileUploadTempDetails = fileUploadTempRepository
 						.findAllTempFileUpload(fileUploadId);
@@ -632,7 +623,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 					fileAssociationId = fileUploadTempDetails.get(0).getFileAssociationId();
 				}
 			}
-
+			List<Map<String, Object>> resultSet = new ArrayList<>();
 			if (null != parameterMap || parameterMap.isEmpty() == false) {
 				parameterMap.put("fileBinId", fileBinId);
 				parameterMap.put("fileUploadId", fileUploadId);
@@ -671,30 +662,45 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			if (null != queryContent || queryContent.isBlank() == false || queryContent.isEmpty() == false) {
 				queryContent = templatingUtils.processTemplateContents(queryContent, templateName, parameterMap);
 			}
-			
-			List<Map<String, Object>> resultSet = new ArrayList<>();
-			
-			ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
-			ScriptEngine scriptEngine = null;
-			scriptEngine = scriptEngineManager.getEngineByName(Constants.FileQueryType.getqueryTypeID(a_queryTypeValidator).getQueryTypeName());
-			if ((StringUtils.isBlank(queryContent) == false)) {
-				switch(a_queryTypeValidator) {
-				case Constants.SELECT:
-					String query = templatingUtils.processTemplateContents(queryContent, templateName, parameterMap);
-					resultSet = fileUploadConfigDAO.executeQueries(null, query, parameterMap);
-					break;
-				case Constants.JS:
-					resultSet = scriptEngineExecution(parameterMap,fileBinId,queryType,queryContent,resultSet,scriptEngine);
-					break;
-				case Constants.PY:
-					resultSet = scriptEngineExecution(parameterMap,fileBinId,queryType,queryContent,resultSet,scriptEngine);
-					break;
-				case Constants.FilePHP:
-					resultSet = scriptEngineExecution(parameterMap,fileBinId,queryType,queryContent,resultSet,scriptEngine);
-					break;
+			String loggedInUserName = (String) parameterMap.get("loggedInUserName");
+
+			if ("anonymous".equalsIgnoreCase(loggedInUserName) && (queryType.equals(Constants.UPLOAD_FILE_VALIDATOR)
+					|| queryType.equals(Constants.VIEW_FILE_VALIDATOR)
+					|| queryType.equals(Constants.DELETE_FILE_VALIDATOR))) {
+			//	logger.info("Anonymous user detected. Allowing upload permission.");
+				Map<String, Object> result = new HashMap<>();
+				result.put("isAllowed", 1);
+				resultSet.add(result);
+				return resultSet;
+			} else {
+				ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+				ScriptEngine scriptEngine = null;
+				scriptEngine = scriptEngineManager.getEngineByName(
+						Constants.FileQueryType.getqueryTypeID(a_queryTypeValidator).getQueryTypeName());
+				if ((StringUtils.isBlank(queryContent) == false)) {
+					switch (a_queryTypeValidator) {
+					case Constants.SELECT:
+						String query = templatingUtils.processTemplateContents(queryContent, templateName,
+								parameterMap);
+						resultSet = fileUploadConfigDAO.executeQueries(null, query, parameterMap);
+						break;
+					case Constants.JS:
+						resultSet = scriptEngineExecution(parameterMap, fileBinId, queryType, queryContent, resultSet,
+								scriptEngine);
+						break;
+					case Constants.PY:
+						resultSet = scriptEngineExecution(parameterMap, fileBinId, queryType, queryContent, resultSet,
+								scriptEngine);
+						break;
+					case Constants.FilePHP:
+						resultSet = scriptEngineExecution(parameterMap, fileBinId, queryType, queryContent, resultSet,
+								scriptEngine);
+						break;
+					}
 				}
+
+				return resultSet;
 			}
-			return resultSet;
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured in validateFilePermission.", custStopException);
 			throw custStopException;

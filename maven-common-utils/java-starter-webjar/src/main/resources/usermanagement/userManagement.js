@@ -8,6 +8,7 @@ const AuthType = Object.freeze({
 	LDAP: '3',
 	OAUTH: '4',
 	SAML: '5',
+	CUSTOM: '6'
 });
 
 class UserManagement {
@@ -1164,6 +1165,12 @@ function htmlToJson(authDivId, authElementVal){
 		authenticationType.textValue = "Saml Authentication";
 		authenticationType.value = "true";
 		authenticationType.configurationType = "multi";
+	} else if (authElementVal == AuthType.CUSTOM) {
+	    authenticationType.name = "enableCustomAuthentication";
+	    authenticationType.type = "hidden";
+	    authenticationType.textValue = "Custom Authentication";
+	    authenticationType.value = "true";
+	    authenticationType.configurationType = "single";
 	}	
 	authJson['authenticationType'] = authenticationType;
 	var authenticationDetail = {};

@@ -276,12 +276,12 @@
                                             <span class="grid_action_icons_ex">
                                                 <a href="#" class="view-icon" data-module-name="${child.childModuleName}" data-entity-id="${child.entityId}" data-entity-name="${child.childEntityName}" title="View">
                                                     <i class="fa fa-eye"></i>
+                                                </a>     
+                                                <a href="#" class="unlink-icon" data-child-id="${child.businessModuleEntityDetailsId}" title="Unlink">
+                                                    <i class="fa fa-unlink"></i>
                                                 </a>
                                                 <a href="#" id="history-icon" class="history-icon" data-module-name="${child.childModuleName}" data-entity-id="${child.entityId}" data-module-id='${child.moduleId}' data-cmv-name="${child.cmvEntityName}" title="History">
                                                     <i class="fa fa-history"></i>
-                                                </a>
-                                                <a href="#" class="unlink-icon" data-child-id="${child.businessModuleEntityDetailsId}" title="Unlink">
-                                                    <i class="fa fa-unlink"></i>
                                                 </a>
                                             </span>
                                         </td>
@@ -555,10 +555,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // If this module doesn't support history
     if (noHistoryModules.includes(cmvEntName)) {
       // Option 1: Disable click
-      el.classList.add("disabled-history");
-      el.style.pointerEvents = "none"; // prevent clicks
-      el.style.opacity = "0.5";        // make it look disabled
-      el.title = "History not available for this module";
+    //   el.classList.add("disabled-history");
+    //   el.style.pointerEvents = "none"; // prevent clicks
+    //   el.style.opacity = "0.5";        // make it look disabled
+    //   el.title = "History not available for this module";
+        if (noHistoryModules.includes(cmvEntName)) {
+            el.style.visibility = "hidden";
+        }
     }
      
     el.addEventListener('click', function (e) {
@@ -999,6 +1002,11 @@ function appendChildRows(businessModuleId, data) {
                                 "title='View'>" +
                                 "<i class='fa fa-eye'></i>" +
                             "</a>" +
+                             "<a href='#' class='unlink-icon' " +
+                                "data-child-id='" + child.business_module_entity_details_id + "' " +
+                                "title='Unlink'>" +
+                                "  <i class='fa fa-unlink'></i>" +
+                            "</a>" +
                             "<a href='#' class='history-icon' " +
                                 "data-module-name='" + child.child_module_name + "' " +
                                 "data-entity-id='" + child.child_entity_id + "' " +
@@ -1007,11 +1015,7 @@ function appendChildRows(businessModuleId, data) {
                                 "title='History'>" +
                                 "<i class='fa fa-history'></i>" +
                             "</a>" + 
-                            "<a href='#' class='unlink-icon' " +
-                                "data-child-id='" + child.business_module_entity_details_id + "' " +
-                                "title='Unlink'>" +
-                                "  <i class='fa fa-unlink'></i>" +
-                            "</a>" +
+                           
                         "</span>" +
                     "</td>" +
                 "</tr>";
@@ -1043,10 +1047,11 @@ function disableHistoryForModules() {
         const cmvEntName = el.getAttribute('data-cmv-name');
 
         if (noHistoryModules.includes(cmvEntName)) {
-            el.classList.add("disabled-history");
-            el.style.pointerEvents = "none"; // disable click
-            el.style.opacity = "0.5";        // visually disabled
-            el.title = "History not available for this module";
+            // el.classList.add("disabled-history");
+            // el.style.pointerEvents = "none"; // disable click
+            // el.style.opacity = "0.5";        // visually disabled
+            // el.title = "History not available for this module";      
+            el.style.visibility = "hidden"; 
         }
     });
 }

@@ -156,6 +156,12 @@ public class WorkFlowController {
 	    }
 	    return String.valueOf(status);
 	}
+	
+	 @GetMapping("/master-data")
+	    public Map<String, Object> getMasterData() {
+
+	        return workflowService.getMasterData();
+	    }
 
 
 }

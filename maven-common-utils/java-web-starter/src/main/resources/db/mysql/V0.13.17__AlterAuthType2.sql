@@ -1,0 +1,3 @@
+replace into `jq_authentication_type` (`authentication_id`, `authentication_name`, `authentication_properties`, `default_auth_properties`) 
+values ('6','Custom Authentication','{"authenticationType":{"name":"enableCustomAuthentication","type":"hidden","textValue":"Custom Authentication","value":"false","configurationType":"single"},"authenticationDetail":{"configurations":[[{"name":"displayName","type":"text","textValue":"Display Name","required":true,"value":""}]]}}','{"authenticationType":{"name":"enableCustomAuthentication","type":"hidden","textValue":"Custom Authentication","value":"false","configurationType":"single"},"authenticationDetail":{"configurations":[[{"name":"displayName","type":"text","textValue":"Display Name","required":true,"value":""}]]}}');
+

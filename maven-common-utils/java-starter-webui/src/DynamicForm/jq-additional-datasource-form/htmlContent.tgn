@@ -87,8 +87,46 @@
 					</div>
 				</div>
     	</div>
-    
+        <div id="availableConnectionPropertiesDiv" class="col-12 method-sign-info-div" style="margin-bottom:15px;">
+            <a class="tipsicon collapsed " data-bs-toggle="collapse" href="#tipscolpasemethod" role="button" aria-expanded="false">
+                <i class="fa fa-solid fa-lightbulb" aria-hidden="true"></i>${messageSource.getMessage('jws.availableConnectionProperties')} 
+        
+            </a>
+            <div id="availableConnectionPropertiesContainer">
+                <div class="collapse" id="tipscolpasemethod">
+                    <div class="tipscontent">
+                        <div id="availableConnectionProperties">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>          
+		</div>	
+        <div class="row margin-t-b">          
+            <div class="col-6">
+                <div class="col-inner-form full-form-fields">
+                    <datalist id="connectionPropertyList"></datalist>
+                    <table id="headerTable"  class="customtblecls">
+                        <tr>
+                            <th colspan="3">   
+                                <div class="displyflx">                             
+                                    <span class="titleclsnm">${messageSource.getMessage('jws.connectionProperties')} </span>                                    
+                                </div>
+                            </th>
+                        </tr>    
+                        <tr>
+                            <td class="bgtd">${messageSource.getMessage('jws.propertyname')}</td>
+                            <td class="bgtd">${messageSource.getMessage('jws.value')} </td>
+                            <td class="bgtd"><span class="plusticon" onclick="addRow()"><i class="fa fa-plus-circle" aria-hidden="true"></i></span></td>
+                        </tr>                                  
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="deleteHeader"></div>
+         <div id="warningHeader"></div>	
   </form>
+  
 	<div class="row">
 		<div class="col-12">
 			<div class="text-end">
@@ -119,7 +157,11 @@
 	//contextPath = "${contextPath}";
 	 let isEdit = 0;
      let driverList;
-  
+     let availableConnectionProperties = [];
+     let rowCounter = 0;
+     let savedDatasourceProperties = {};
+     const RESERVED_PROPERTIES = ["url","username","password"];
+     const PROPERTY_KEY_REGEX = /^[A-Za-z][A-Za-z0-9._$-]*$/;
   $(function(){
 
       <#if (resultSet)??>
@@ -139,7 +181,13 @@
     
 	savedAction(formId, isEdit);
 	hideShowActionButtons();
+    let jsonStr = '${(resultSetObject.datasource_properties)!""}';
+
+    if (jsonStr) {
+        savedDatasourceProperties = JSON.parse(jsonStr);
+    }
     getDBDrivers();
+    
   });
 
     $('#password').passtrength({
@@ -149,6 +197,7 @@
           eyeImg: "${contextPath}/webjars/1.0/images/eyeImage.svg"
         });
     let driverUrl = new Object();
+
 	function getDBDrivers(){
         let dbTypeId = $("#datasourceLookupId").val().trim();
         $.ajax({
@@ -169,6 +218,8 @@
 					$("#datasourceLookupId").val($("#allDBDrivers option:first").val());
                     $("#connectionUrlPattern").text(driverUrl[$("#datasourceLookupId").val()]);
 				}
+                  // Load URL pattern and connection properties
+                    onDBTypeChange();
 		    },
 	        error : function(xhr, error){
 		        showMessage("Error occurred while fetching list of available database drivers", "error");
@@ -203,11 +254,40 @@
     
 	function onDBTypeChange(){ 
 		let datasourceLookupId = $("#allDBDrivers").find(":selected").val();
+        let properties = [];
+
 		$("#datasourceLookupId").val(datasourceLookupId);
+
+         // Set connection URL placeholder
+        let connectionUrlPattern = driverUrl[datasourceLookupId] || "";
+
+        $("#connectionurl")
+            .attr("placeholder", connectionUrlPattern);
+
+        // If you still display the pattern elsewhere, keep this
         $("#connectionUrlPattern").text(driverUrl[datasourceLookupId]);
+        
+
+        if(driverList[datasourceLookupId].connectionProperties){
+                properties = JSON.parse(driverList[datasourceLookupId].connectionProperties);
+            }
+
+        loadConnectionProperties(properties);
+
+        // Populate saved properties only once
+        if (Object.keys(savedDatasourceProperties).length > 0
+                && $("#headerTable tr").length == 2) {
+
+            $.each(savedDatasourceProperties, function(key, value) {
+                addRow(key, value);
+            });
+        }
+
+        refreshPropertyList();     
+             
 	}
 	
-	function saveData(){
+	function saveData(forceSave = false){
         let isDataSaved = false;
 		let formData = validateData();
         let connectionUrl = $("#connectionurl").val().trim();
@@ -233,6 +313,14 @@
         let userName = $("#username").val().trim();
         let password = $("#password").val().trim();
         let dataSourceName = $("#datasourcename").val().trim();
+
+        let datasourceProperties;
+        try{
+            datasourceProperties = getDatasourceProperties();
+        }catch(ex){
+            showMessage(ex, "warn");
+            return false;
+        }
        
          $.ajax({
 		    type : "POST",
@@ -245,17 +333,50 @@
                 curl: connectionUrl,
                 un: userName,
                 pwd: password,
+                dsp: datasourceProperties,
+                f: forceSave
             },    
-          error : function(xhr, error) {	
-	           if(xhr.responseText == "Success"){   
-	              isDataSaved = true;
-				  showMessage("Datasource saved successfully", "success");
-	            } else if (xhr.responseText != null || xhr.responseText != ""){ 
-	              showMessage(xhr.responseText, "error");
-	            } else {
-                    showMessage("Error occured while saving", "error");
-                }  
-		},
+        success: function(response) {
+              /* if (response.message== "Success") {
+                    isDataSaved = true;
+                    showMessage("Datasource saved successfully", "success");
+                } else {
+                    showMessage(response.message, "error");
+                }*/
+                switch(response.status){
+
+                    case "SUCCESS":
+                        isDataSaved = true;
+                        showMessage(response.message,"success");
+                        return;
+
+                    case "WARNING":
+                        setTimeout(function () {
+                            showWarningDialog(response.message+ "<br/><br/> Do you want to continue ?");
+                        }, 0);
+                        return;
+
+                    case "ERROR":
+                        showMessage(response.message,"error");
+                        return;
+
+                    default:
+                        showMessage("Unexpected response.","error");
+                }
+
+
+                },
+
+        error: function(xhr) {
+
+            let response = xhr.responseJSON;
+
+            if (response && response.message) {
+                showMessage(response.message, "error");
+            } else {
+                showMessage("Could not connect to the database.", "error");
+            }
+        }
 	        
 		});
 		return  isDataSaved; 
@@ -278,7 +399,8 @@
 		return serializedForm;
     }
     
-	function testDatabaseConnection(){
+	function testDatabaseConnection(force){
+        force = force || false;
         let datasourceLookupId = $("#datasourceLookupId").val().trim();
         let connectionUrl = $("#connectionurl").val().trim();
         let userName = $("#username").val().trim();
@@ -305,28 +427,371 @@
         	showMessage("Password is mandatory", "warn");
         	return false;
         }
+
+        let datasourceProperties;
+        try{
+            datasourceProperties = getDatasourceProperties();
+        }catch(ex){
+            showMessage(ex, "warn");
+            return false;
+        }
         $.ajax({
-		    type : "POST",
+            type: "POST",
             async: true,
-		    url : contextPath+apiPath+"/jq-test-database-connection",
-		    data:{ 
-		    	dli: datasourceLookupId,
-		    	curl: connectionUrl,
-		    	un: userName,
-		    	pwd: password,
-		    },
-            error : function(xhr, error){
-                if(xhr.responseText == "Success"){   
-                    showMessage("Connection successful", "success");
-                } else{
-                    showMessage("Error occured while tesing connection", "error"); 
+            url: contextPath + apiPath + "/jq-test-database-connection",
+            data: {
+                dli: datasourceLookupId,
+                curl: connectionUrl,
+                un: userName,
+                pwd: password,
+                dsp: datasourceProperties,
+                f: force
+            },
+        complete: function(xhr) {
+
+                var response = xhr.responseJSON;
+
+                if (!response) {
+                    response = JSON.parse(xhr.responseText);
                 }
-	        },
-		});
+
+                if (response.status === "SUCCESS") {
+
+                    showMessage(response.message, "success");
+
+                } else if (response.status === "WARNING") {
+
+                        showWarningDialog(response.message + "<br/><br/>Do you want to continue testing the connection?", function () {
+                                testDatabaseConnection(true);
+                            });
+
+                } else {
+
+                    showMessage(response.message, "error");
+                }
+            }
+        });
     }
     
 	function backToPreviousPage() {
 		location.href = contextPath+"/cf/ad";
 	}
+    
+    function addRow(key, value){
+		let context = this;	
+        let rowId = "row_" + (++rowCounter);
+		let row = '<tr id='+rowId +'><td><input class="key form-control" list="connectionPropertyList" autocomplete="off" onchange="validatePropertyKey(this)"></td><td><input class="value" type="text" onchange="validatePropertyValue(this)"></td><td>';		 
+		row +=
+            '<span id="btn_' + rowId + '" onclick="deleteRow(this)" class="cusrorhandcls">' +
+            '<i class="fa fa-minus-circle"></i>' +
+            '</span>';
+        row+='</td></tr>';
+		
+		$('#headerTable tr:last').after(row);
+		if(key !== undefined && value !== undefined){
+				$('#headerTable tr:last').find('td input.key').val(key);
+				$('#headerTable tr:last').find('td input.value').val(value);
+			
+		}
+	}
+    
+    function deleteRow(rowElement){
+		$("#deleteHeader").html("Are you sure you want to delete?");
+		$("#deleteHeader").dialog({
+		bgiframe	: true,
+		autoOpen	: true, 
+		modal		: true,
+		closeOnEscape : true,
+		draggable	: true,
+		resizable	: false,
+		title		: "Delete",
+		position: {
+			my: "center", at: "center"
+		},
+		buttons : [
+		{
+				text   : "${messageSource.getMessage('jws.deleteBtnText')}",
+				"class": 'btn btn-primary',
+				click	: function(){
+					$(this).dialog('close');
+					let rowId = $(rowElement).attr('id').replace("btn_", "");
+					$('#'+rowId).remove();
+                    refreshPropertyList();
+				}
+         },
+		
+		{
+				text	:"${messageSource.getMessage('jws.cancel')}",
+				"class" : 'btn btn-secondary',
+				click	: function() { 
+					$(this).dialog('close');
+				},
+		}
+			
+       ],	
+	   open: function( event, ui ) {
+			 $('.ui-dialog-titlebar')
+		   	    .find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+		       .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+       		}	
+	   });	
+	}
 	
+    function loadConnectionProperties(properties){
+         if (!Array.isArray(properties)) {
+            properties = [];
+        }
+        availableConnectionProperties = properties;
+        $("#connectionPropertyList").empty();
+        properties.forEach(function(item){
+            $("#connectionPropertyList").append(
+                "<option value='"+item.key+"'>"
+            );
+        });
+        renderConnectionPropertyHelp();
+    }
+
+    function refreshPropertyList() {
+        $("#connectionPropertyList").empty();
+        let selectedKeys = [];
+        $(".key").each(function () {
+            let key = $(this).val().trim();
+            if (key) {
+                selectedKeys.push(key);
+            }
+        });
+        availableConnectionProperties.forEach(function (property) {
+            if (!selectedKeys.includes(property.key)) {
+
+                $("#connectionPropertyList").append(
+                    "<option value='" + property.key + "'></option>"
+                );
+
+            }
+        });
+    }
+
+    function getDatasourceProperties() {
+        let datasourceProperties = {};
+        let duplicateKeys = [];
+        $("#headerTable tr").each(function () {
+            let keyInput = $(this).find(".key");
+            let valueInput = $(this).find(".value");
+            // Ignore header rows
+            if (keyInput.length === 0) {
+                return;
+            }
+            let key = $.trim(keyInput.val());
+            let value = $.trim(valueInput.val());
+            
+
+            // An added row cannot be left empty
+            if (key === "" && value === "") {
+                keyInput.focus();
+                throw "Property Name and Value are required, or remove the empty row.";
+            }
+
+            // Key is mandatory if value is entered
+            if (key === "") {
+                keyInput.focus();
+                throw "Connection Property is mandatory.";
+            }
+            // Value is mandatory if key is entered
+            if (value === "") {
+                valueInput.focus();
+                throw "Value is mandatory for property '" + key + "'.";
+            }
+
+            if (!PROPERTY_KEY_REGEX.test(key)) {
+                keyInput.focus();
+                throw "Invalid property name '" + key + "'.";
+            }
+
+            if (RESERVED_PROPERTIES.includes(key.toLowerCase())) {
+                keyInput.focus();
+                throw "'" + key + "' is a reserved datasource property.";
+            }
+            // Duplicate validation
+            let normalizedKey = key.toLowerCase();
+
+            if (duplicateKeys.includes(normalizedKey)) {
+                keyInput.focus();
+                throw "Duplicate property '" + key + "' found.";
+            }
+
+            duplicateKeys.push(normalizedKey);
+            datasourceProperties[key] = value;
+        });
+        return JSON.stringify(datasourceProperties);
+    }
+ function renderConnectionPropertyHelp() {
+
+    if (!Array.isArray(availableConnectionProperties)
+            || availableConnectionProperties.length === 0) {
+          $("#availableConnectionProperties").html(
+            "<div class='text-muted p-2'>No database properties available.</div>"
+        );
+        return;
+    }
+
+     let html = "";
+    html += "<table class='table table-bordered table-sm'>";
+    html += "<thead>";
+    html += "<tr>";
+    html += "<th>Property</th>";
+    html += "<th>Default</th>";
+    html += "<th>Description</th>";
+    html += "</tr>";
+    html += "</thead>";
+    html += "<tbody>";
+
+    availableConnectionProperties.forEach(function(property) {
+
+        html += "<tr>";
+        html += "<td>" + property.key + "</td>";
+        html += "<td>" + (property.defaultValue || "-") + "</td>";
+        html += "<td>" + (property.description || "-") + "</td>";
+        html += "</tr>";
+
+    });
+
+    html += "</tbody>";
+    html += "</table>";
+
+    $("#availableConnectionProperties").html(html);
+}
+
+    function validatePropertyKey(input) {
+
+        let key = $.trim($(input).val());
+
+        $(input).val(key);
+        if (key === "") {
+            $(input).closest("tr").find(".value").val("");
+            refreshPropertyList();
+            return;
+        }
+        if (key.length > 100) {
+            showMessage("Property name cannot exceed 100 characters.", "warn");
+            $(input).val("");
+            $(input).focus();
+            return;
+        }
+
+        // Reserved property
+        if (RESERVED_PROPERTIES.includes(key.toLowerCase())) {
+            showMessage("'" + key + "' is a reserved datasource property.", "warn");
+            $(input).val("");
+            $(input).focus();
+            refreshPropertyList();
+            return;
+        }
+        if (!PROPERTY_KEY_REGEX.test(key)) {
+
+            showMessage(
+                "Property name can contain only letters, numbers, '.', '_' and '-'. It must start with a letter.",
+                "warn"
+            );
+            $(input).val("");
+            $(input).focus();
+            return;
+        }
+        // Duplicate
+        let duplicate = false;
+
+        $(".key").not(input).each(function () {
+
+            if ($.trim($(this).val()).toLowerCase() === key.toLowerCase()) {
+                duplicate = true;
+                return false;
+            }
+
+        });
+
+        if (duplicate) {
+            showMessage("Property '" + key + "' already exists.", "warn");
+            $(input).val("");
+            $(input).focus();
+            refreshPropertyList();
+            return;
+        }
+
+        // Populate default value
+        let property = availableConnectionProperties.find(function(p) {
+             return p.key.toLowerCase() === key.toLowerCase();
+        });
+
+        if (property) {
+                $(input)
+                    .closest("tr")
+                    .find(".value")
+                    .val(property.defaultValue || "");
+            }
+
+        refreshPropertyList();
+    }
+
+        function validatePropertyValue(input) {
+
+            let value = $.trim($(input).val());
+            $(input).val(value);
+
+            if (value.length > 1000) {
+                showMessage("Property value cannot exceed 1000 characters.", "warn");
+                $(input).focus();
+                return;
+            }
+
+            if (value === "") {
+                showMessage("Property value cannot be blank.", "warn");
+                $(input).focus();
+                return;
+            }
+        }
+
+       function showWarningDialog(message, yesCallback) {
+
+                $("#warningHeader").html(message);
+
+                $("#warningHeader").dialog({
+                    bgiframe: true,
+                    autoOpen: true,
+                    modal: true,
+                    closeOnEscape: true,
+                    draggable: true,
+                    resizable: false,
+                    title: "Warning",
+                    position: {
+                        my: "center",
+                        at: "center"
+                    },
+                    buttons: [
+                    {
+                        text: "Yes",
+                        class: "btn btn-primary",
+                        click: function () {
+                            $(this).dialog("close");
+
+                            if (typeof yesCallback === "function") {
+                                yesCallback();
+                            }
+                        }
+                    },
+                    {
+                        text: "No",
+                        class: "btn btn-secondary",
+                        click: function () {
+                            $(this).dialog("close");
+                        }
+                    }],
+                    open: function () {
+                        $('.ui-dialog-titlebar')
+                            .find('button')
+                            .removeClass('ui-dialog-titlebar-close')
+                            .addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+                            .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
+                            .append('<span class="ui-button-icon-space"></span>');
+                    }
+                });
+            }
 </script>

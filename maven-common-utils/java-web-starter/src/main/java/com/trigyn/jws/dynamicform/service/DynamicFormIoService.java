@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.utils.Constant;
+import com.trigyn.jws.dynamicform.utils.SqlIdentifierUtil;
 import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
 import com.trigyn.jws.formio.dao.IFormIORepository;
 import com.trigyn.jws.formio.entities.FormIO;
@@ -79,11 +80,14 @@ public class DynamicFormIoService {
 
 	@Autowired
 	private DynamicFormHelperService	dynamicFormHelperService	= null;
-	
+
 	@Autowired
-	private DynamicFormCrudDAO dynamicFormDAO = null;
+	private DynamicFormCrudDAO			dynamicFormDAO				= null;
 
 	private static final String			DATETIME					= "datetime";
+
+	@Autowired
+	protected SqlIdentifierUtil			sqlIdentifierUtil			= null;
 
 	public Map<String, String> createDefaultFormByTableName(String tableName, List<Map<String, Object>> tableDetails,
 			String moduleURL, String additionalDataSourceId, String dbProductName, String formIoId)
@@ -185,6 +189,9 @@ public class DynamicFormIoService {
 				"Inside DynamicFormService.getTableInformationByName(tableInformation: {}, tableName: {}, additionalDataSourceId: {}, dbProductName: {})",
 				tableInformation, tableName, templatesMap, additionalDataSourceId, dbProductName);
 
+		String				quotedTableName			= sqlIdentifierUtil.quoteIfRequired(tableName, dbProductName);
+		// For embedding inside JavaScript string literals
+		String jsQuotedTableName = quotedTableName.replace("\"", "\\\"");
 		Map<String, Object>	saveQueryParameterTypes	= new HashMap<>();
 		Map<String, Object>	selectParameters		= new HashMap<>();
 		Map<String, Object>	saveQueryparameters		= new HashMap<>();
@@ -192,7 +199,8 @@ public class DynamicFormIoService {
 		List<String>		colmnsAs				= new ArrayList<>();
 		ObjectMapper		objectMapper			= new ObjectMapper();
 		List<String>		keys					= new ArrayList<>();
-		StringJoiner		insertJoiner			= new StringJoiner(",", "INSERT INTO " + tableName + " (", ")");
+		StringJoiner		insertJoiner			= new StringJoiner(",", "INSERT INTO " + jsQuotedTableName + " (",
+				")");
 		StringJoiner		insertValuesJoiner		= null;
 		StringJoiner		queryParams				= new StringJoiner("\n");
 		int					totalValidFields		= 0;
@@ -216,22 +224,24 @@ public class DynamicFormIoService {
 			if (columnType == null) {
 				continue;
 			}
-			String	columnName		= String.valueOf(info.get("tableColumnName"));
-			String	dataType		= String.valueOf(info.get("dataType"));
-			String	columnKey		= String.valueOf(info.get("columnKey"));
-			String	isAutoIncrement	= String.valueOf(info.get("autoIncrement"));
-			String	regex			= String.valueOf(info.getOrDefault("regexValidation", ""));
-			boolean	isKeyPresent	= keys.isEmpty() || keys.contains(columnName);
+			String	originalColumnName	= String.valueOf(info.get("tableColumnName"));
+			String	columnName			= sqlIdentifierUtil.quoteIfRequired(originalColumnName, dbProductName);
+			String	paramName			= originalColumnName.replaceAll("[^a-zA-Z0-9]", "_");
+			String	dataType			= String.valueOf(info.get("dataType"));
+			String	columnKey			= String.valueOf(info.get("columnKey"));
+			String	isAutoIncrement		= String.valueOf(info.get("autoIncrement"));
+			String	regex				= String.valueOf(info.getOrDefault("regexValidation", ""));
+			boolean	isKeyPresent		= keys.isEmpty() || keys.contains(originalColumnName);
 
 			if (isKeyPresent) {
-				queryParams.add(columnName + " ,");
-				insertValuesJoiner = dynamicFormHelperService.createInsertQuery(insertValuesJoiner, tableName,
-						columnName, dataType, columnKey, dbProductName, isAutoIncrement, columnType, saveQueryparameters);
+				queryParams.add(originalColumnName + " ,");
+				insertValuesJoiner = dynamicFormHelperService.createInsertQuery(insertValuesJoiner, quotedTableName,
+									columnName, dataType, columnKey, dbProductName, isAutoIncrement, columnType, saveQueryparameters);
 				if ("false".equalsIgnoreCase(isAutoIncrement)) {
 					insertJoiner.add(columnName);
-					saveQueryParameterTypes.put(columnName, columnType);
+					saveQueryParameterTypes.put(paramName, columnType);
 					keyParams.add("'" + columnName + "'");
-					joinFormIoQueryBuilder(insertValuesJoiner, columnName, dataType, false, columnType, dbProductName,
+					joinFormIoQueryBuilder(insertValuesJoiner, columnName, paramName, dataType, false, columnType, dbProductName,
 							coloumnCounter, isAutoIncrement, saveQueryparameters);
 				}
 			}
@@ -255,7 +265,8 @@ public class DynamicFormIoService {
 		if (!isAutoID && !isIntPK) {
 			queryBuilder.append(")");
 		} else if (!isAutoID && isIntPK) {
-			queryBuilder.append(" FROM ").append(tableName);
+			//queryBuilder.append(" FROM ").append(tableName);
+			queryBuilder.append(" FROM ").append(jsQuotedTableName);
 		} else {
 			queryBuilder.append(")");
 		}
@@ -264,7 +275,7 @@ public class DynamicFormIoService {
 		saveQueryparameters.put("insertQuery", insertQuery);
 		saveQueryparameters.put("queryParams", insertJoiner.toString());
 
-		StringJoiner	updateQuery			= new StringJoiner(",", "UPDATE " + tableName + " SET ", "");
+		StringJoiner	updateQuery			= new StringJoiner(",", "UPDATE " + jsQuotedTableName + " SET ", "");
 		StringJoiner	updateWhereQuery	= new StringJoiner(" AND ", " WHERE ", "");
 		StringJoiner	selectQueryJoiner	= new StringJoiner("");
 
@@ -279,28 +290,33 @@ public class DynamicFormIoService {
 				continue;
 			}
 
-			String	columnName		= String.valueOf(info.get("tableColumnName"));
-			String	dataType		= String.valueOf(info.get("dataType"));
-			String	columnKey		= String.valueOf(info.get("columnKey"));
-			String	isAutoIncrement	= String.valueOf(info.get("autoIncrement"));
-			String	regex			= String.valueOf(info.getOrDefault("regexValidation", ""));
+			String	originalColumnName	= String.valueOf(info.get("tableColumnName"));
+			String	columnName			= sqlIdentifierUtil.quoteIfRequired(originalColumnName, dbProductName);
+			String	paramName			= originalColumnName.replaceAll("[^a-zA-Z0-9]", "_");
+			String	dataType			= String.valueOf(info.get("dataType"));
+			String	columnKey			= String.valueOf(info.get("columnKey"));
+			String	isAutoIncrement		= String.valueOf(info.get("autoIncrement"));
+			String	regex				= String.valueOf(info.getOrDefault("regexValidation", ""));
 
 			if ("PK".equalsIgnoreCase(columnKey)) {
-				saveQueryparameters.put("primaryKeyColumnName", columnName);
-				selectParameters.put("primaryKeyColumnName", columnName);
-				pkColumnValueType = extractPrimaryKeyDetails(columnName, dataType, columnKey, dbProductName,
-						isAutoIncrement, saveQueryparameters, tableName, columnType);
+				String jsPkColumnName = columnName.replace("\"", "\\\"");
+				saveQueryparameters.put("primaryKeyColumnName", jsPkColumnName);
+				selectParameters.put("primaryKeyColumnName", originalColumnName);
+				saveQueryparameters.put("primaryKeyJsRef", sqlIdentifierUtil.toJsProperty(originalColumnName));
+				selectParameters.put("primaryKeyJsRef", sqlIdentifierUtil.toJsProperty(originalColumnName));
+				pkColumnValueType = extractPrimaryKeyDetails(jsPkColumnName, dataType, columnKey, dbProductName,
+						isAutoIncrement, saveQueryparameters, jsQuotedTableName, columnType);
 			}
 
-			joinFormIoQueryBuilder(updateWhereQuery, columnName, dataType, true, columnType, dbProductName,
-					coloumnCounter, isAutoIncrement, saveQueryparameters);
+			joinFormIoQueryBuilder(updateWhereQuery, columnName, paramName, dataType, true, columnType, dbProductName,
+					coloumnCounter--, isAutoIncrement, saveQueryparameters);
 			selectFormIoQueryBuilder(selectQueryJoiner, columnName, dataType, true, columnType, dbProductName,
 					selectColoumnCounter--, isAutoIncrement, saveQueryparameters, colmnsAs);
 
 			if (!regex.isEmpty() && !"hidden".equals(columnType) && "false".equalsIgnoreCase(isAutoIncrement)) {
 				jsonBuilder.append("\t\t{\n").append("\t\t    \"regexPattern\" : \"")
 						.append(StringEscapeUtils.escapeJson(regex)).append("\",\n")
-						.append("\t\t    \"fieldName\" : \"").append(columnName).append("\",\n")
+						.append("\t\t    \"fieldName\" : \"").append(originalColumnName).append("\",\n")
 						.append("\t\t    \"dataType\" : \"").append(dataType).append("\"\n").append("\t\t}");
 				if (++validFieldCounter < totalValidFields) {
 					jsonBuilder.append(",");
@@ -311,7 +327,7 @@ public class DynamicFormIoService {
 
 		jsonBuilder.append("\t];\n");
 
-		selectParameters.put("tableName", tableName);
+		selectParameters.put("tableName", jsQuotedTableName);
 		selectParameters.put("columnNames", String.join(",", colmnsAs));
 		selectParameters.put("dataSourceId",
 				StringUtils.isNotBlank(additionalDataSourceId) ? additionalDataSourceId : null);
@@ -329,7 +345,7 @@ public class DynamicFormIoService {
 		String updateQry = "jq_updateDBQuery('" + updateQuery + updateWhereQuery + "', null, queryParam);";
 		saveQueryparameters.put("updateQuery", updateQry);
 		saveQueryparameters.put("requestDetails", "");
-		saveQueryparameters.put("tableName", tableName);
+		saveQueryparameters.put("tableName", jsQuotedTableName);
 		saveQueryparameters.put("queryParams", String.join(",", keyParams));
 		saveQueryparameters.put("pkColumnValueType", pkColumnValueType);
 		saveQueryparameters.put("saveQueryParametersType", saveQueryParameterTypes.toString());
@@ -433,7 +449,7 @@ public class DynamicFormIoService {
 				keyParams.add(strColumnName);
 				saveQueryParameterTypes.put(columnName, columnType);
 				insertJoiner.add(columnName);
-				joinFormIoQueryBuilder(insertValuesJoiner, columnName, dataType, false, columnType, dbProductName,
+				joinFormIoQueryBuilder(insertValuesJoiner, columnName, null, dataType, false, columnType, dbProductName,
 						coloumnCounter, isAutoIncrement, saveQueryparameters);
 			}
 			coloumnCounter--;
@@ -481,7 +497,7 @@ public class DynamicFormIoService {
 				pkColumnValueType = extractPrimaryKeyDetails(columnName, dataType, columnKey, dbProductName,
 						isAutoIncrement, saveQueryparameters, tableName, columnType);
 			}
-			joinFormIoQueryBuilder(updateWhereQuery, columnName, dataType, true, columnType, dbProductName,
+			joinFormIoQueryBuilder(updateWhereQuery, columnName, null, dataType, true, columnType, dbProductName,
 					coloumnCounter, isAutoIncrement, saveQueryparameters);
 			selectFormIoQueryBuilder(selectQueryJoiner, columnName, dataType, true, columnType, dbProductName,
 					selectColoumnCounter, isAutoIncrement, saveQueryparameters, colmnsAs);
@@ -555,9 +571,9 @@ public class DynamicFormIoService {
 		}
 	}
 
-	private void joinFormIoQueryBuilder(StringJoiner insertValuesJoiner, String columnName, String dataType,
-			boolean showColumnName, String columnType, String dbProductName, int coloumnCounter, String isAutoIncrement,
-			Map<String, Object> saveQueryparameters) {
+	private void joinFormIoQueryBuilder(StringJoiner insertValuesJoiner, String columnName, String paramName,
+			String dataType, boolean showColumnName, String columnType, String dbProductName, int coloumnCounter,
+			String isAutoIncrement, Map<String, Object> saveQueryparameters) {
 		logger.debug(
 				"Inside DynamicFormService.joinFormIoQueryBuilder(insertValuesJoiner: {}, columnName: {}, dataType: {}, showColumnName: {}, columnType: {}, dbProductName: {})",
 				insertValuesJoiner, columnName, dataType, showColumnName, columnType, dbProductName);
@@ -566,10 +582,14 @@ public class DynamicFormIoService {
 			insertValuesJoiner = new StringJoiner("");
 		}
 
-		String			formFieldName	= columnName;
+		// String formFieldName = columnName;
+		if(paramName == null || paramName.isEmpty()) {
+			paramName = columnName;
+		}
+		String			formFieldName	= paramName;
 		StringBuilder	formFieldVal	= new StringBuilder();
 		String			value			= null;
-
+		
 		if ("false".equalsIgnoreCase(isAutoIncrement)) {
 			if (TEXT.equalsIgnoreCase(dataType)) {
 				value = showColumnName ? columnName + " = :" + formFieldName : ":" + formFieldName;
@@ -834,6 +854,7 @@ public class DynamicFormIoService {
 		List<String>		colmnsAs				= new ArrayList<String>();
 		Map<String, String>	regexMap				= new HashMap<>();
 		StringBuilder		jsonBuilder				= new StringBuilder();
+		String quotedTableName = sqlIdentifierUtil.quoteIfRequired(tableName, dbProductName);
 		jsonBuilder.append("[\n");
 		int	inc					= 0;
 		int	totalValidFields	= 0;
@@ -850,7 +871,8 @@ public class DynamicFormIoService {
 				if (info.get("columnType") == null) {
 					continue;
 				}
-				String	columnName		= info.get("tableColumnName").toString();
+				String	columnName			= info.get("tableColumnName").toString();
+				String	quotedColumnName	= sqlIdentifierUtil.quoteIfRequired(columnName, dbProductName);
 				String	dataType		= info.get("dataType").toString();
 				String	columnKey		= info.get("columnKey").toString();
 				String	columnType		= info.get("columnType").toString();
@@ -860,8 +882,10 @@ public class DynamicFormIoService {
 				if ("PK".equals(columnKey)) {
 					templatesMap.put("primaryKeyColumnName", columnName);
 					parameters.put("primaryKeyColumnName", columnName);
-					pkColumnValueType = extractPrimaryKeyDetails(columnName, dataType, columnKey, dbProductName,
-							isAutoIncrement, saveQueryparameters, tableName, columnType);
+					parameters.put("primaryKeyJsRef", sqlIdentifierUtil.toJsProperty(columnName));
+
+					pkColumnValueType = extractPrimaryKeyDetails(quotedColumnName, dataType, columnKey, dbProductName,
+							isAutoIncrement, saveQueryparameters, quotedTableName, columnType);
 
 				}
 				if (regexInfo != null && "hidden".equals(columnType) == false
@@ -886,7 +910,7 @@ public class DynamicFormIoService {
 			String			queryParamTypes	= objectMapper.writeValueAsString(queryParametersTypes);
 			parameters.put("queryParametersType", queryParamTypes);
 			String columsAsCsv = StringUtils.join(colmnsAs, ",");
-			parameters.put("tableName", tableName);
+			parameters.put("tableName", quotedTableName);
 			parameters.put("columnNames", columsAsCsv);
 			if (StringUtils.isBlank(moduleURL) == false) {
 				parameters.put("moduleURL", moduleURL);
@@ -908,7 +932,7 @@ public class DynamicFormIoService {
 			templatesMap.put("form-template", template);
 
 			Map<String, Object> selectParameters = new HashMap<>();
-			selectParameters.put("tableName", tableName);
+			selectParameters.put("tableName", quotedTableName);
 			templateVO	= templateService.getTemplateByName("system-form-select-template");
 			template	= templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 					selectParameters);

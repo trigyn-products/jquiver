@@ -120,6 +120,13 @@
     </div>
 	<div id="deleteHeader"></div>	
 </form>
+
+<form id="gjcaForm" method="POST" action="${contextPath}/cf/df" target="_blank">
+    <input type="hidden" name="formId" value="8a80cb81749ab40401749ac2e7360000">
+    <input type="hidden" name="primaryId" value="gjca">
+    <input type="hidden" name="urlPrefix" value="${contextPath}/api/">
+</form>
+
 <script>
 document.title = "User Management Configuration";
 contextPath 	= "${contextPath}";
@@ -192,7 +199,12 @@ if(num<1)						$("#isAuthenticationEnabled").prop("checked",false).trigger("chan
 		
 		});
         	
-    });    
+    });   
+    
+    $(document).on("click", ".generate-jwt", function(e) {
+    e.preventDefault();
+    $("#gjcaForm").submit();
+    }); 
 		
 	$('#userManagement').submit(function(e) {       
 		
@@ -384,7 +396,7 @@ function changeAuthType(thisObj){
 		}
 	}
 		
-    if(authTypeVal == AuthType.DAO){
+    if(authTypeVal == AuthType.DAO || authTypeVal == AuthType.CUSTOM){
         propertyElem += '<div  class="divDatabaseAuth configuration">';
     }   
 
@@ -433,7 +445,7 @@ function changeAuthType(thisObj){
 									}
 									$.each(configurationVal, function(idxConf, configuration) {
 										var classType = 'configurationType';
-										if(authTypeVal == AuthType.DAO){								
+										if(authTypeVal == AuthType.DAO || authTypeVal == AuthType.CUSTOM){								
 										 	propertyElem += '<div  class="'+configuration.name+' blockdivcls row col-inner-form full-form-fields">';
 										}										
 										
@@ -451,7 +463,7 @@ function changeAuthType(thisObj){
 												
 										});														
 									}	
-									if(authTypeVal == AuthType.DAO){
+									if(authTypeVal == AuthType.DAO || authTypeVal == AuthType.CUSTOM){
 										propertyElem += '</div>';	
 									}
 								});	
@@ -469,6 +481,13 @@ function changeAuthType(thisObj){
 			}		
 		});
 	}	
+	
+	if(authTypeVal == AuthType.CUSTOM){	
+      propertyElem += '<span class="pull-left">' +
+    '<strong>Note:</strong> Configure the gjca REST API to generate a JWT for Custom Authentication. ' +
+    '<a href="#" class="generate-jwt">Open gjca</a>' +
+    '</span>';
+    }
         
 	$("#props-"+lastIndex).append(propertyElem);
 	
@@ -580,7 +599,7 @@ function addInputFields(propVal, authTypeId, elementId, classType){
 			}
 			label += propVal.textValue;
 			var br = '<br>';
-			if(authTypeVal != AuthType.DAO){
+			if(authTypeVal != AuthType.DAO || authTypeVal == AuthType.CUSTOM){
 				propertyElem += '<tr><td class="bgtd" style="width:250px;">'+label+'</td><td class="bgtd">'+dropdown+'</td><td class="bgtd"></td></tr>'
 			} else {	
 				
@@ -596,12 +615,12 @@ function addInputFields(propVal, authTypeId, elementId, classType){
 			var type = propVal.type;
 			var strName = propVal.name;	
 			elementClass += " form-control";		
-			if(authTypeVal == AuthType.DAO){				
+			if(authTypeVal == AuthType.DAO || authTypeVal == AuthType.CUSTOM){				
 				if((typeof propertyValue == 'undefined' || propertyValue == "") && propVal.name == 'regexPattern'){
 					propertyValue = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=])[A-Za-z\\d@#$%^&+=]{6,20}$";					
 				}
 				propertyElem += ' <div  class="blockdivcls row col-inner-form full-form-fields"><label for="' +elementId+'" ><span class="asteriskmark">*</span>' +propVal.textValue+'<input class="' +elementClass +'" type="' +type+'" id="' +elementId +'" name="' +strName+'" value= "' +propertyValue+'" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'"></label></div>';
-			} else if(authTypeVal != AuthType.DAO){			
+			} else if(authTypeVal != AuthType.DAO || authTypeVal == AuthType.CUSTOM){			
 				if(propVal.condition == "row-added"){
 					elementId = elementId.replace(/[_\W]+/g, "-");
 					if(propVal.required == true){

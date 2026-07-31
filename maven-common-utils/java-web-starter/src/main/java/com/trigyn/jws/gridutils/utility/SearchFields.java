@@ -1,5 +1,7 @@
 package com.trigyn.jws.gridutils.utility;
 
+import com.nimbusds.oauth2.sdk.util.StringUtils;
+
 public class SearchFields implements Cloneable{
 
 	private String	field;
@@ -18,11 +20,30 @@ public class SearchFields implements Cloneable{
 		this.op		= op;
 		this.data	= data;
 	}
-
+	
 	public String getField() {
 		return field;
 	}
 
+	public String getField(String field, String dbProductName) {
+		return getSearchFieldName(field, dbProductName);
+	}
+
+	private String getSearchFieldName(String fieldName, String dbProductName) {
+		if(fieldName != null && fieldName.contains(" ")) {
+			if (StringUtils.isBlank(dbProductName) == false && (dbProductName.equals("postgresql") == true || dbProductName.equals("oracle") == true)) {
+				fieldName = "\"" + fieldName + "\"";
+			} else if (StringUtils.isBlank(dbProductName) == false && (dbProductName.equals("mysql") == true || dbProductName.equals("mariadb") == true)) {
+				fieldName = "`" + fieldName + "`";
+			} else if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("sqlserver") == true) {
+				fieldName = "[" + fieldName + "]";
+			} else {
+				fieldName = "`" + fieldName + "`";
+			}
+		}
+		return fieldName;
+	}
+	
 	public SearchFields setField(String field) {
 		this.field = field;
 		return this;

@@ -55,8 +55,8 @@ public class SchedulerRequestFilter extends OncePerRequestFilter {
 			String	schedulerUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url");
 			String	propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
 					"adminEmailId");
-			String	adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
-					: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+			String	adminEmail				= propertyAdminEmailId == null ? "admin@localhost.io"
+					: propertyAdminEmailId.equals("") ? "admin@localhost.io" : propertyAdminEmailId;
 			String	apiUrlProperty			= propertyMasterService.findPropertyMasterValue("scheduler-url") + "-api";
 			String apiPath = jQuiverPropeties.getApiPath().replaceFirst("/", "");
 			if (uri != null && schedulerUrlProperty != null && uri.contains("/" + schedulerUrlProperty + "/")

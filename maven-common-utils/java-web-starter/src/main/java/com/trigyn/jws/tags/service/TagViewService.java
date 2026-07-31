@@ -384,7 +384,7 @@ public class TagViewService {
 //		if ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes() != null) {
 //			detailsVO = detailsService.getUserDetails();
 //		} else {
-//			detailsVO = new UserDetailsVO("admin@jquiver.io", "admin", Arrays.asList("ADMIN"), "admin");
+//			detailsVO = new UserDetailsVO("admin@localhost.io", "admin", Arrays.asList("ADMIN"), "admin");
 //		}
 
 		String			dbDateFormat	= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,

@@ -1,0 +1,7534 @@
+<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport"
+         content="width=device-width, initial-scale=1.0">
+      <title>BPMN Designer</title>
+      <link rel="stylesheet"
+         href="https://unpkg.com/bpmn-js@17.9.2/dist/assets/diagram-js.css">
+      <link rel="stylesheet"
+         href="https://unpkg.com/bpmn-js@17.9.2/dist/assets/bpmn-js.css">
+      <link rel="stylesheet"
+         href="https://unpkg.com/bpmn-js@17.9.2/dist/assets/bpmn-font/css/bpmn.css">
+      <link rel="stylesheet"
+         href="https://unpkg.com/@bpmn-io/properties-panel/dist/assets/properties-panel.css">
+      <!-- BPMN MODELER -->
+      <script src="${(contextPath)!''}/webjars/1.0/bpmn/js/bpmn-modeler.development.js"></script>
+      <!-- PROPERTIES PANEL -->
+      <script src="${(contextPath)!''}/webjars/1.0/bpmn/js/bpmn-js-properties-panel.umd.js"></script>
+      <!-- BPMN PROVIDER -->
+     <!-- <script src="https://unpkg.com/bpmn-js-properties-panel@5/dist/provider/bpmn.umd.js"></script>-->
+      <script src="${(contextPath)!''}/webjars/1.0/bpmn/js/jq-properties-provider.js" ></script>
+      <script src="${(contextPath)!''}/webjars/1.0/bpmn/js/jq-extension-utils.js" ></script>
+      <script src="${(contextPath)!''}/webjars/1.0/bpmn/js/jq-palette-provider.js"></script>
+      <script ${scriptNonce}>
+         window.BpmnPropertiesPanelModule =
+             BpmnJSPropertiesPanel.BpmnPropertiesPanelModule;
+         
+         window.BpmnPropertiesProviderModule =
+             BpmnJSPropertiesPanel.BpmnPropertiesProviderModule;
+         
+      </script>
+      <style>
+         html,
+         body {
+         margin: 0;
+         padding: 0;
+         height: 100%;
+         overflow: hidden;
+         font-family: Arial, sans-serif;
+         }
+         .main-designer-container {
+         display: flex;
+         width: 100vw;
+         height: 100vh;
+         }
+         /*
+         * -----------------------------------
+         * LEFT TOOLBAR
+         * -----------------------------------
+         */
+         .toolbar {
+         width: 70px;
+         background: #1f2937;
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         padding-top: 10px;
+         gap: 10px;
+         flex-shrink: 0;
+         }
+         .toolbar button {
+         width: 50px;
+         height: 50px;
+         border: none;
+         border-radius: 8px;
+         cursor: pointer;
+         background: #374151;
+         color: white;
+         font-size: 12px;
+         }
+         .toolbar button:hover {
+         background: #4b5563;
+         }
+         /*
+         * -----------------------------------
+         * MAIN AREA
+         * -----------------------------------
+         */
+         .designer-container {
+         flex: 1;
+         display: flex;
+         flex-direction: column;
+         overflow: hidden;
+         }
+         /*
+         * -----------------------------------
+         * TOPBAR
+         * -----------------------------------
+         */
+         .topbar {
+         height: 60px;
+         background: white;
+         border-bottom: 1px solid #ddd;
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         padding: 0 20px;
+         flex-shrink: 0;
+         }
+         /*
+         * -----------------------------------
+         * CANVAS WRAPPER
+         * -----------------------------------
+         */
+         .canvas-wrapper {
+         flex: 1;
+         display: flex;
+         overflow: hidden;
+         }
+         #designerContainer {
+         display: flex;
+         width: 100%;
+         height: 100%;
+         }
+         /*
+         * -----------------------------------
+         * BPMN CANVAS
+         * -----------------------------------
+         */
+         #canvas {
+         flex-grow: 1;
+         height: 100%;
+         position: relative;
+         }
+         /*
+         * -----------------------------------
+         * PROPERTIES PANEL
+         * -----------------------------------
+         */
+         #properties {
+         width: 350px;
+         height: 100%;
+         overflow: hidden;
+         border-left: 1px solid #ccc;
+         background: #fff;
+         }
+         /*
+         * -----------------------------------
+         * STATUS BAR
+         * -----------------------------------
+         */
+         .status-bar {
+         height: 35px;
+         background: white;
+         border-top: 1px solid #ddd;
+         display: flex;
+         align-items: center;
+         padding: 0 15px;
+         font-size: 13px;
+         }
+         /*
+         * -----------------------------------
+         * FILE INPUT
+         * -----------------------------------
+         */
+         .file-input {
+         display: none;
+         }
+         /*
+         * HIDE WATERMARK
+         */
+         .bjs-powered-by {
+         display: none !important;
+         }
+         .properties-panel-parent,
+         .bio-properties-panel,
+         .djs-container,
+         .djs-parent {
+         height: 100%;
+         }
+         #rightPanel {
+         width: 400px;
+         display: flex;
+         flex-direction: column;
+         border-left: 1px solid #ccc;
+         background: white;
+         }
+         #properties {
+         flex: 1;
+         overflow: auto;
+         }
+         #jqProperties {
+         height: 350px;
+         border-top: 1px solid #ddd;
+         padding: 10px;
+         overflow: auto;
+         }
+         #jqProperties h3 {
+         margin-top: 0;
+         }
+         /* ===========================
+         JQuiver Property Panel
+         =========================== */
+         #jqFormContainer{
+         padding:16px;
+         box-sizing:border-box;
+         overflow-y:auto;
+         }
+         #jqFormContainer h3{
+         margin:22px 0 12px;
+         padding-bottom:6px;
+         font-size:18px;
+         font-weight:600;
+         border-bottom:1px solid #ddd;
+         }
+         .jq-field{
+         margin-bottom:14px;
+         display:flex;
+         flex-direction:column;
+         }
+         .jq-field label{
+         margin-bottom:5px;
+         font-size:13px;
+         font-weight:600;
+         color:#444;
+         }
+         .jq-field input,
+         .jq-field select,
+         .jq-field textarea{
+         width:100%;
+         padding:8px 10px;
+         border:1px solid #cfcfcf;
+         border-radius:4px;
+         font-size:13px;
+         box-sizing:border-box;
+         background:#fff;
+         }
+         .jq-field textarea{
+         min-height:70px;
+         resize:vertical;
+         }
+         .jq-field input:focus,
+         .jq-field select:focus,
+         .jq-field textarea:focus{
+         outline:none;
+         border-color:#1976d2;
+         box-shadow:0 0 3px rgba(25,118,210,.25);
+         }
+         /* checkbox */
+         .jq-checkbox{
+         display:flex;
+         align-items:center;
+         gap:8px;
+         margin-bottom:12px;
+         }
+         .jq-checkbox label{
+         margin:0;
+         }
+         /* section */
+         .jq-section{
+         margin-top:20px;
+         padding:15px;
+         border:1px solid #ddd;
+         border-radius:5px;
+         background:#fafafa;
+         }
+         /* buttons */
+         .jq-btn{
+         padding:7px 14px;
+         border:none;
+         background:#1976d2;
+         color:white;
+         border-radius:4px;
+         cursor:pointer;
+         font-size:13px;
+         }
+         .jq-btn:hover{
+         background:#135ba1;
+         }
+         /* remove buttons */
+         .jq-delete{
+         background:#d32f2f;
+         }
+         .jq-delete:hover{
+         background:#b71c1c;
+         }
+         /* table-like rows */
+         .jq-row{
+         display:grid;
+         grid-template-columns:
+         1fr
+         1fr
+         auto;
+         gap:10px;
+         margin-bottom:10px;
+         align-items:center;
+         }
+         /* small title */
+         .jq-title{
+         font-size:15px;
+         font-weight:600;
+         margin-bottom:12px;
+         }
+         .jq-properties-panel {
+         background: #ffffff;
+         border-left: 1px solid #ddd;
+         padding: 0;
+         margin: 0;
+         overflow-y: auto;
+         height: calc(100vh - 190px);
+         }
+         .jq-panel-section {
+         border-top: 1px solid #ececec;
+         padding: 18px;
+         }
+         .jq-panel-title {
+         font-size: 14px;
+         font-weight: 600;
+         color: #333;
+         margin-bottom: 16px;
+         }
+         .jq-panel-section {
+         padding: 18px;
+         border-top: 1px solid #e5e5e5;
+         }
+         .jq-panel-title {
+         font-size: 15px;
+         font-weight: 600;
+         color: #333;
+         margin-bottom: 14px;
+         }
+         .jq-primary-btn {
+         padding: 7px 14px;
+         border: none;
+         border-radius: 4px;
+         background: #1976d2;
+         color: white;
+         cursor: pointer;
+         font-size: 13px;
+         margin-bottom: 12px;
+         }
+         .jq-primary-btn:hover {
+         background: #1565c0;
+         }
+         .jq-card {
+         border: 1px solid #dcdcdc;
+         border-radius: 6px;
+         background: #fafafa;
+         padding: 16px;
+         margin-bottom: 12px;
+         }
+         .jq-card-actions {
+         margin-top: 14px;
+         text-align: right;
+         }
+         .jq-danger-btn {
+         background: #dc3545;
+         color: white;
+         border: none;
+         padding: 6px 12px;
+         border-radius: 4px;
+         cursor: pointer;
+         }
+         .jq-danger-btn:hover {
+         background: #b52b38;
+         }
+
+         .action-card{
+
+    margin-top:12px;
+
+}
+
+.action-card .jq-field{
+
+    margin-bottom:14px;
+
+}
+
+.action-card label{
+
+    display:block;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    margin-bottom:6px;
+
+    color:#555;
+
+}
+
+.action-card input,
+.action-card select{
+
+    width:100%;
+
+    box-sizing:border-box;
+
+}
+
+.action-card .jq-card-actions{
+
+    text-align:right;
+
+    margin-top:10px;
+
+}
+.permission-card{
+
+    margin-top:12px;
+
+}
+
+.permission-card .jq-field{
+
+    margin-bottom:14px;
+
+}
+
+.permission-card label{
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:#555;
+
+}
+
+.permission-checkboxes{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:10px 18px;
+
+    margin-top:10px;
+
+    margin-bottom:15px;
+
+}
+
+.permission-checkboxes label{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    font-weight:500;
+
+    cursor:pointer;
+
+}
+
+.permission-checkboxes input{
+
+    width:auto;
+
+}
+
+.permission-card .jq-card-actions{
+
+    text-align:right;
+
+}
+.notification-card{
+
+    margin-top:12px;
+
+}
+
+.notification-card .jq-field{
+
+    margin-bottom:14px;
+
+}
+
+.notification-card label{
+
+    display:block;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    color:#555;
+
+    margin-bottom:6px;
+
+}
+
+.notification-card input,
+.notification-card select{
+
+    width:100%;
+
+    box-sizing:border-box;
+
+}
+
+.notification-card .jq-card-actions{
+
+    margin-top:12px;
+
+    text-align:right;
+
+}
+
+      </style>
+   </head>
+   <body>
+      <div class="main-designer-container">
+         <!-- LEFT TOOLBAR -->
+         <div class="toolbar">
+            <button id="newDiagramBtn">New</button>
+            <button id="saveBtn">Save</button>
+            <button id="downloadBtn">XML</button>
+            <button id="uploadBtn">Open</button>
+            <button id="zoomInBtn">+</button>
+            <button id="zoomOutBtn">-</button>
+            <button id="fitBtn">Fit</button>
+         </div>
+         <!-- MAIN -->
+         <div class="designer-container">
+            <!-- TOPBAR -->
+            <div class="topbar">
+               <h2>BPMN Workflow Designer</h2>
+               <div>
+                  <label>
+                  Process Key:
+                  <input type="text"
+                     id="processKey"
+                     value="leave_process"
+                     style="padding: 6px;">
+                  </label>
+               </div>
+            </div>
+            <!-- DESIGNER -->
+            <div id="designerContainer"
+               class="canvas-wrapper">
+               <div id="canvas"></div>
+               <div id="rightPanel">
+                  <div id="properties"
+                     class="properties-panel-parent">
+                  </div>
+                  <div id="jqProperties" class="jq-properties-panel">
+                     <!-- User Task Configuration -->
+                     <div class="jq-panel-section">
+                        <div id="jqFormContainer">
+                           Select a User Task
+                        </div>
+                     </div>
+                     <!-- Workflow Variables -->
+                     <div class="jq-panel-section">
+                        <div class="jq-panel-title">
+                           Workflow Variables
+                        </div>
+                        <button id="addVariableBtn"  class="jq-primary-btn">
+                        + Add Variable
+                        </button>
+                        <div id="variableContainer">
+                        </div>
+                     </div>
+                     <!-- Process Variables -->
+                     <div class="jq-panel-section">
+                        <div class="jq-panel-title">
+                           Process Variables
+                        </div>
+                        <button
+                           id="addProcessVariableBtn"   class="jq-primary-btn">
+                        + Add Process Variable
+                        </button>
+                        <div id="processVariableContainer">
+                        </div>
+                     </div>
+                     <!-- Workflow Configuration -->
+                     <div class="jq-panel-section">
+                        <div class="jq-panel-title">
+                           Workflow Configuration
+                        </div>
+                        <div id="processConfigContainer">
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <!-- STATUS -->
+            <div class="status-bar">
+               <span id="statusText">Ready</span>
+            </div>
+         </div>
+      </div>
+      <input type="file"
+         id="fileInput"
+         class="file-input"
+         accept=".bpmn,.xml">
+      <script ${scriptNonce}>
+         /*
+          * ---------------------------------------------------------
+          * BPMN PROPERTY PANEL MODULES
+          * ---------------------------------------------------------
+          */
+         contextPath = "${contextPath}";
+         const BpmnPropertiesPanelModule =
+             window.BpmnJSPropertiesPanel.BpmnPropertiesPanelModule;
+         
+         const BpmnPropertiesProviderModule =
+             window.BpmnPropertiesProviderModule;
+         
+         const JqPropertiesProviderModule =
+         window.JqPropertiesProvider;
+         
+         const JqPaletteProviderModule =   window.JqPaletteProvider;
+         
+         
+         
+         let modeler;
+         
+         const jquiverModdle = {
+         
+         name: "JQ",
+         
+         uri: "http://jquiver.com/workflow",
+         
+         prefix: "jq",
+         
+         xml: {
+             tagAlias: "lowerCase"
+         },
+         
+         types: [
+         {
+         name: "TaskConfig",
+         
+         superClass: [
+             "Element"
+         ],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         
+         properties: [
+         
+         {
+             name: "taskCode",
+             isAttr: true,
+             type: "String"
+         },
+         
+         {
+             name: "taskName",
+             isAttr: true,
+             type: "String"
+         },
+         
+         {
+             name: "taskType",
+             isAttr: true,
+             type: "String"
+         },
+         
+         {
+             name: "formId",
+             isAttr: true,
+             type: "String"
+         },
+         
+         {
+             name: "assigneeType",
+             isAttr: true,
+             type: "String"
+         },
+         
+         {
+             name: "assigneeValue",
+             isAttr: true,
+             type: "String"
+         },
+         
+         {
+             name: "slaHours",
+             isAttr: true,
+             type: "String"
+         },
+         
+         {
+             name: "canReassign",
+             isAttr: true,
+             type: "Boolean"
+         },
+         
+         {
+             name: "canDelegate",
+             isAttr: true,
+             type: "Boolean"
+         }
+         ]
+         },
+         {
+         name: "Variable",
+         
+         superClass: [
+             "Element"
+         ],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "name",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "type",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         },
+         {
+         name: "Condition",
+         
+         superClass: [
+             "Element"
+         ],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "type",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "expression",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         },{
+         name: "ServiceTaskConfig",
+         
+         superClass: [
+             "Element"
+         ],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "taskCode",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "serviceType",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "endpoint",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "method",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         },{
+         name: "TimerConfig",
+         
+         superClass: [
+             "Element"
+         ],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "timerType",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "timerValue",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         },{
+         name: "EventConfig",
+         
+         superClass: [
+             "Element"
+         ],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "eventType",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         },{
+         name: "ProcessConfig",
+         
+         superClass: [
+             "Element"
+         ],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "workflowCode",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "workflowName",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "version",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "category",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "description",
+                 isAttr: true,
+                 type: "String"
+             },
+             {
+                 name: "isActive",
+                 isAttr: true,
+                 type: "Boolean"
+             }
+         ]
+         },
+         {
+         name: "StartEventConfig",
+         
+         superClass: ["Element"],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "eventType",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         },
+         {
+         name: "EndEventConfig",
+         
+         superClass: [
+             "Element"
+         ],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "result",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         },{
+         name: "ProcessConfig",
+         
+         superClass: ["Element"],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "processKey",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "processName",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "version",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         },
+         {
+         name: "Action",
+         
+         superClass: ["Element"],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "name",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "outcome",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "sequenceFlowId",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         },
+         {
+         name: "Permission",
+         
+         superClass: [
+             "Element"
+         ],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "role",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "canView",
+                 isAttr: true,
+                 type: "Boolean"
+             },
+         
+             {
+                 name: "canEdit",
+                 isAttr: true,
+                 type: "Boolean"
+             },
+         
+             {
+                 name: "canComment",
+                 isAttr: true,
+                 type: "Boolean"
+             },
+         
+             {
+                 name: "canUpload",
+                 isAttr: true,
+                 type: "Boolean"
+             }
+         ]
+         },
+         {
+         name: "Notification",
+         
+         superClass: [
+             "Element"
+         ],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "event",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "type",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "template",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "recipientType",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "recipientValue",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         },{
+         name: "Sla",
+         
+         superClass: [
+             "Element"
+         ],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "durationHours",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "reminderHours",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "escalationRole",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "autoAction",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         },
+         {
+         name: "Escalation",
+         
+         superClass: ["Element"],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "level",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "afterHours",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "role",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "action",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         },
+         {
+         "name": "DataMapping",
+         
+         "superClass": [
+         "Element"
+         ],
+         
+         "meta": {
+         "allowedIn": [
+           "bpmn:ExtensionElements"
+         ]
+         },
+         
+         "properties": [
+         
+         {
+           "name": "sourceField",
+           "isAttr": true,
+           "type": "String"
+         },
+         
+         {
+           "name": "targetVariable",
+           "isAttr": true,
+           "type": "String"
+         }
+         ]
+         },
+         {
+         name: "BusinessRule",
+         
+         superClass: ["Element"],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "ruleCode",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "ruleType",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "description",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         },
+         {
+         name: "FormConfig",
+         
+         superClass: ["Element"],
+         
+         meta: {
+             allowedIn: [
+                 "bpmn:ExtensionElements"
+             ]
+         },
+         
+         properties: [
+         
+             {
+                 name: "formId",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "mode",
+                 isAttr: true,
+                 type: "String"
+             },
+         
+             {
+                 name: "saveDraft",
+                 isAttr: true,
+                 type: "String"
+             }
+         ]
+         }
+         ]
+         };
+         
+         const STORAGE_KEY =
+             "CURRENT_BPMN_XML";
+         
+         /*
+          * ---------------------------------------------------------
+          * DEFAULT BPMN XML
+          * ---------------------------------------------------------
+          */
+         
+         const defaultDiagram =
+         `<?xml version="1.0" encoding="UTF-8"?>
+         <bpmn:definitions
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+         xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+         xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+         xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+         id="Definitions_1"
+         targetNamespace="http://bpmn.io/schema/bpmn">
+         
+         <bpmn:process
+         id="Process_1"
+         isExecutable="false">
+         
+         <bpmn:startEvent id="StartEvent_1"/>
+         
+         </bpmn:process>
+         
+         <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+         
+         <bpmndi:BPMNPlane
+             id="BPMNPlane_1"
+             bpmnElement="Process_1">
+         
+             <bpmndi:BPMNShape
+                 id="_BPMNShape_StartEvent_2"
+                 bpmnElement="StartEvent_1">
+         
+                 <dc:Bounds
+                     x="173"
+                     y="102"
+                     width="36"
+                     height="36"/>
+         
+             </bpmndi:BPMNShape>
+         
+         </bpmndi:BPMNPlane>
+         
+         </bpmndi:BPMNDiagram>
+         
+         </bpmn:definitions>`;
+         
+         /*
+          * ---------------------------------------------------------
+          * STATUS
+          * ---------------------------------------------------------
+          */
+         
+         function updateStatus(message) {
+         
+             const element =
+                 document.getElementById(
+                     "statusText"
+                 );
+         
+             if (element) {
+         
+                 element.innerText =
+                     message;
+             }
+         }
+         
+         /*
+          * ---------------------------------------------------------
+          * INITIALIZE MODELER
+          * ---------------------------------------------------------
+          */
+         
+         async function initializeModeler() {
+         
+             try {
+         
+                 modeler =  new BpmnJS({
+         
+                         container:
+                             "#canvas",
+         
+                         keyboard: {
+                             bindTo: window
+                         },
+         
+                         propertiesPanel: {
+                             parent: "#properties"
+                         },
+         
+                         moddleExtensions: {
+                             jq: jquiverModdle
+                         },
+         
+                         additionalModules: [
+         
+                             BpmnPropertiesPanelModule,
+         
+                             BpmnPropertiesProviderModule,
+         
+                             JqPropertiesProviderModule,
+         
+                             JqPaletteProviderModule
+                         ]
+                     });
+         
+                     window.modeler = modeler;
+         
+                    loadMasterData();
+         
+                 updateStatus(
+                     "BPMN Designer Ready"
+                 );
+         
+             } catch (err) {
+         
+                 console.error(err);
+         
+                 updateStatus(
+                     "Initialization Failed"
+                 );
+             }
+         }
+         
+         /*
+          * ---------------------------------------------------------
+          * LOAD DIAGRAM
+          * ---------------------------------------------------------
+          */
+         
+         async function loadDiagram(
+             xml,
+             message
+         ) {
+         
+             try {
+         
+                 await modeler.importXML(xml);
+         
+                 const canvas =
+                     modeler.get("canvas");
+         
+                 canvas.zoom(
+                     "fit-viewport"
+                 );
+         
+                 updateStatus(message);
+         
+             } catch (err) {
+         
+                 console.error(err);
+         
+                 updateStatus(
+                     "Failed To Load BPMN"
+                 );
+             }
+         }
+         
+         /*
+          * ---------------------------------------------------------
+          * NEW DIAGRAM
+          * ---------------------------------------------------------
+          */
+         
+         async function createNewDiagram() {
+         
+             await loadDiagram(
+                 defaultDiagram,
+                 "New Diagram Created"
+             );
+         }
+         
+         /*
+          * ---------------------------------------------------------
+          * SAVE
+          * ---------------------------------------------------------
+          */
+         
+         async function saveDiagram() {
+         
+             try {
+         
+                 const { xml } =
+                     await modeler.saveXML({
+                         format: true
+                     });
+         
+         
+             // Store locally
+             localStorage.setItem(
+                 STORAGE_KEY,
+                 xml
+             );
+         
+             // Send to parent window
+             if (
+                 window.opener &&
+                 !window.opener.closed
+             ) {
+         
+                 window.opener.postMessage({
+                     type: "BPMN_XML",
+                     xml: xml
+                 }, "*");
+             }
+         
+             updateStatus(
+                 "Workflow Sent Successfully"
+             );
+         
+             // Auto close popup
+             window.close();
+             } catch (err) {
+         
+                 console.error(err);
+         
+                 updateStatus(
+                     "Save Failed"
+                 );
+             }
+         }
+         
+         /*
+          * ---------------------------------------------------------
+          * DOWNLOAD XML
+          * ---------------------------------------------------------
+          */
+         
+         async function downloadDiagram() {
+         
+             try {
+         
+                 const { xml } =
+                     await modeler.saveXML({
+                         format: true
+                     });
+         
+                 const blob =
+                     new Blob(
+                         [xml],
+                         {
+                             type:
+                             "application/xml"
+                         }
+                     );
+         
+                 const url =
+                     URL.createObjectURL(
+                         blob
+                     );
+         
+                 const link =
+                     document.createElement(
+                         "a"
+                     );
+         
+                 link.href = url;
+         
+                 link.download =
+                     "workflow.bpmn";
+         
+                 document.body
+                     .appendChild(link);
+         
+                 link.click();
+         
+                 document.body
+                     .removeChild(link);
+         
+                 URL.revokeObjectURL(
+                     url
+                 );
+         
+                 updateStatus(
+                     "Diagram Downloaded"
+                 );
+         
+             } catch (err) {
+         
+                 console.error(err);
+         
+                 updateStatus(
+                     "Download Failed"
+                 );
+             }
+         }
+         
+         /*
+          * ---------------------------------------------------------
+          * IMPORT FILE
+          * ---------------------------------------------------------
+          */
+         
+         function openDiagram() {
+         
+             document
+                 .getElementById(
+                     "fileInput"
+                 )
+                 .click();
+         }
+         
+         async function handleFileSelect(
+             event
+         ) {
+         
+             const file =
+                 event.target.files[0];
+         
+             if (!file) {
+                 return;
+             }
+         
+             const reader =
+                 new FileReader();
+         
+             reader.onload =
+                 async function(e) {
+         
+                     try {
+         
+                         const xml =
+                             e.target.result;
+         
+                         await loadDiagram(
+                             xml,
+                             "Diagram Imported"
+                         );
+         
+                         localStorage.setItem(
+                             STORAGE_KEY,
+                             xml
+                         );
+         
+                     } catch (err) {
+         
+                         console.error(err);
+         
+                         updateStatus(
+                             "Invalid BPMN File"
+                         );
+                     }
+                 };
+         
+             reader.readAsText(file);
+         }
+         
+         /*
+          * ---------------------------------------------------------
+          * ZOOM
+          * ---------------------------------------------------------
+          */
+         
+         function zoomIn() {
+         
+             const canvas =
+                 modeler.get("canvas");
+         
+             canvas.zoom(
+                 canvas.zoom() + 0.1
+             );
+         }
+         
+         function zoomOut() {
+         
+             const canvas =
+                 modeler.get("canvas");
+         
+             canvas.zoom(
+                 canvas.zoom() - 0.1
+             );
+         }
+         
+         function fitDiagram() {
+         
+             modeler
+                 .get("canvas")
+                 .zoom("fit-viewport");
+         }
+         
+         /*
+          * ---------------------------------------------------------
+          * AUTO SAVE EVENTS
+          * ---------------------------------------------------------
+          */
+         
+         function registerEvents() {
+         
+             const eventBus =
+                 modeler.get("eventBus");
+         
+                eventBus.on(
+                             "selection.changed",
+                             function(event) {
+         
+                                 const selected =
+                                     event.newSelection[0];
+         
+                                console.log(
+                                     "Selected Type:",
+                                     selected?.type
+                                 );
+         
+                                 if (
+                                         selected &&
+                                         selected.type ===
+                                         "bpmn:StartEvent"
+                                     ) {
+         
+                                         renderStartEventProperties(
+                                             selected
+                                         );
+                                     } else if (
+                                         selected &&
+                                         selected.type ===
+                                         "bpmn:UserTask"
+                                     ) {
+         
+                                         renderJqProperties(
+                                             selected
+                                         );
+                                     }
+                                     else if (
+                                         selected &&
+                                         selected.type ===
+                                         "bpmn:SequenceFlow"
+                                     )  {
+         
+                                         renderSequenceFlowProperties(
+                                             selected
+                                         );
+                                     }
+                                     
+                                     else if (
+                                         selected &&
+                                         selected.type === "bpmn:ServiceTask"
+                                     ){
+         
+                                         renderServiceTaskProperties(
+                                             selected
+                                         );
+                                     }
+                                     else if (
+                                         selected &&
+                                         (
+                                             selected.type === "bpmn:IntermediateCatchEvent"
+                                             ||
+                                             selected.type === "bpmn:IntermediateThrowEvent"
+                                             ||
+                                             selected.type === "bpmn:BoundaryEvent"
+                                         )
+                                     ) {
+         
+                                         renderTimerProperties(
+                                             selected
+                                         );
+                                     }
+                                     else if (
+                                             selected &&
+                                             (
+                                                 selected.type ===
+                                                 "bpmn:ExclusiveGateway"
+         
+                                                 ||
+         
+                                                 selected.type ===
+                                                 "bpmn:ParallelGateway"
+                                             )
+                                         ) {
+         
+                                             renderGatewayProperties(
+                                                 selected
+                                             );
+                                         }
+                                        else if (
+                                                 selected &&
+                                                 selected.type ===
+                                                 "bpmn:EndEvent"
+                                             ) {
+         
+                                                 renderEndEventProperties(
+                                                     selected
+                                                 );
+                                             }
+                                     else {
+         
+                                         document
+                                             .getElementById(
+                                                 "jqFormContainer"
+                                             )
+                                             .innerHTML =
+                                             "Select a BPMN Element";
+                                     }
+                             }
+                         );
+             eventBus.on(
+                 "commandStack.changed",
+                 async function() {
+         
+                     try {
+         
+                         const { xml } =
+                             await modeler.saveXML({
+                                 format: true
+                             });
+         
+                         localStorage.setItem(
+                             STORAGE_KEY,
+                             xml
+                         );
+         
+                         updateStatus(
+                             "Auto Saved"
+                         );
+         
+                     } catch (err) {
+         
+                         console.error(err);
+                     }
+                 }
+             );
+         }
+         
+         /*
+          * ---------------------------------------------------------
+          * UI EVENTS
+          * ---------------------------------------------------------
+          */
+         
+         function bindUIEvents() {
+         
+             document
+                 .getElementById(
+                     "newDiagramBtn"
+                 )
+                 .addEventListener(
+                     "click",
+                     createNewDiagram
+                 );
+         
+             document
+                 .getElementById(
+                     "saveBtn"
+                 )
+                 .addEventListener(
+                     "click",
+                     saveDiagram
+                 );
+         
+             document
+                 .getElementById(
+                     "downloadBtn"
+                 )
+                 .addEventListener(
+                     "click",
+                     downloadDiagram
+                 );
+         
+             document
+                 .getElementById(
+                     "uploadBtn"
+                 )
+                 .addEventListener(
+                     "click",
+                     openDiagram
+                 );
+         
+             document
+                 .getElementById(
+                     "zoomInBtn"
+                 )
+                 .addEventListener(
+                     "click",
+                     zoomIn
+                 );
+         
+             document
+                 .getElementById(
+                     "zoomOutBtn"
+                 )
+                 .addEventListener(
+                     "click",
+                     zoomOut
+                 );
+         
+             document
+                 .getElementById(
+                     "fitBtn"
+                 )
+                 .addEventListener(
+                     "click",
+                     fitDiagram
+                 );
+         
+             document
+                 .getElementById(
+                     "fileInput"
+                 )
+                 .addEventListener(
+                     "change",
+                     handleFileSelect
+                 );
+         }
+         
+         /*
+          * ---------------------------------------------------------
+          * KEYBOARD SHORTCUTS
+          * ---------------------------------------------------------
+          */
+         
+         document.addEventListener(
+             "keydown",
+             async function(e) {
+         
+                 if (!modeler) {
+                     return;
+                 }
+         
+                 /*
+                  * CTRL + S
+                  */
+                 if (
+                     e.ctrlKey &&
+                     e.key === "s"
+                 ) {
+         
+                     e.preventDefault();
+         
+                     await saveDiagram();
+                 }
+         
+                 /*
+                  * CTRL + O
+                  */
+                 if (
+                     e.ctrlKey &&
+                     e.key === "o"
+                 ) {
+         
+                     e.preventDefault();
+         
+                     openDiagram();
+                 }
+             }
+         );
+         
+         /*
+          * ---------------------------------------------------------
+          * START APPLICATION
+          * ---------------------------------------------------------
+          */
+         
+         window.addEventListener(
+             "load",
+             async function() {
+         
+                 try {
+         
+                     await initializeModeler();
+         
+                     registerEvents();
+         
+                     bindUIEvents();
+                     document
+                     .getElementById(
+                         "addVariableBtn"
+                     )
+                     .addEventListener(
+                         "click",
+                         function() {
+         
+                             const selected =
+                                 modeler
+                                 .get("selection")
+                                 .get()[0];
+         
+                             if (!selected) {
+                                 return;
+                             }
+         
+                             addVariable(
+                                 selected
+                             );
+         
+                             renderVariables(
+                                 selected
+                             );
+                         }
+                     );
+         
+                     const existingXml =
+                         localStorage.getItem(
+                             STORAGE_KEY
+                         );
+         
+                     if (
+                         existingXml &&
+                         existingXml.trim() !== ""
+                     ) {
+         
+                         await loadDiagram(
+                             existingXml,
+                             "Existing BPMN Loaded"
+                         );
+         
+                     } else {
+         
+                         await createNewDiagram();
+                         const rootElement =
+                                 modeler
+                                 .get("canvas")
+                                 .getRootElement();
+         
+                             renderProcessVariables(
+                                 rootElement
+                             );
+                             renderProcessConfig(
+                                 rootElement
+                             );
+                     }
+         
+                 } catch (err) {
+         
+                     console.error(err);
+         
+                     updateStatus(
+                         "Startup Failed"
+                     );
+                 }
+             }
+         );
+         
+         function buildFormOptions(
+         selectedValue
+         ) {
+         
+         let html = "";
+         
+         FORM_OPTIONS.forEach(function(form) {
+         
+             html +=
+         
+                 '<option value="' +
+         
+                 form.id +
+         
+                 '"' +
+         
+                 (form.id === selectedValue
+                     ? ' selected'
+                     : '') +
+         
+                 '>' +
+         
+                 form.name +
+         
+                 '</option>';
+         });
+         
+         return html;
+         }
+         function buildOptions(
+         options,
+         selectedValue
+         ) {
+         
+         let html = "";
+         
+         options.forEach(function(item) {
+         
+             html +=
+         
+                 '<option value="' +
+         
+                 item.id +
+         
+                 '"' +
+         
+                 (item.id === selectedValue
+                     ? ' selected'
+                     : '') +
+         
+                 '>' +
+         
+                 item.name +
+         
+                 '</option>';
+         
+         });
+         
+         return html;
+         }
+         
+         function renderJqProperties(
+         element
+         ) {
+         
+         const elementName =
+         element.businessObject.name || "";
+         
+         
+         
+         const container =
+             document.getElementById(
+                 "jqFormContainer"
+             );
+         
+         if (
+             !element ||
+             element.type !== "bpmn:UserTask"
+         ) {
+         
+             container.innerHTML =
+                 "Select a User Task";
+         
+             return;
+         }
+         
+         const taskConfig =
+         getTaskConfig(element);
+         
+         
+         const sla =
+         getSla(
+             element
+         );
+         
+         const durationHours =
+         sla?.durationHours || "";
+         
+         const reminderHours =
+         sla?.reminderHours || "";
+         
+         const escalationRole =
+         sla?.escalationRole || "";
+         
+         const autoAction =
+         sla?.autoAction || "";
+         
+         const taskCode =
+         taskConfig?.taskCode || "";
+         
+         const taskType =
+         taskConfig?.taskType || "";
+         
+         const formId =
+         taskConfig?.formId || "";
+         
+         const assigneeType =
+         taskConfig?.assigneeType || "";
+         
+         const assigneeValue =
+         taskConfig?.assigneeValue || "";
+         
+         const slaHours =
+         taskConfig?.slaHours || "";
+         
+         const canReassign =
+         taskConfig?.canReassign || false;
+         
+         const canDelegate =
+         taskConfig?.canDelegate || false;
+         
+         let assigneeOptions = [];
+         
+         if (
+         assigneeType === "ROLE"
+         ) {
+         
+         assigneeOptions =
+             ROLE_OPTIONS;
+         }
+         else if (
+         assigneeType === "USER"
+         ) {
+         
+         assigneeOptions =
+             USER_OPTIONS;
+         }
+         else if (
+         assigneeType === "GROUP"
+         ) {
+         
+         assigneeOptions =
+             GROUP_OPTIONS;
+         }
+         container.innerHTML =
+         '<div class="jq-field">' +
+         
+         '<label>Element Name</label>' +
+         
+         '<input type="text" ' +
+         
+         'id="elementName" ' +
+         
+         'value="' +
+         
+         elementName +
+         
+         '">' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>Task Code</label>' +
+         
+         '<input type="text" ' +
+         'id="taskCode" ' +
+         'value="' +
+         taskCode +
+         '">' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>Task Type</label>' +
+         
+         '<select id="taskType">' +
+         
+             '<option value="">Select</option>' +
+         
+             '<option value="APPROVAL"' +
+                 (taskType === "APPROVAL" ? " selected" : "") +
+             '>Approval</option>' +
+         
+             '<option value="REVIEW"' +
+                 (taskType === "REVIEW" ? " selected" : "") +
+             '>Review</option>' +
+         
+             '<option value="DATA_ENTRY"' +
+                 (taskType === "DATA_ENTRY" ? " selected" : "") +
+             '>Data Entry</option>' +
+         
+             '<option value="NOTIFICATION"' +
+                 (taskType === "NOTIFICATION" ? " selected" : "") +
+             '>Notification</option>' +
+         
+         '</select>' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>Form</label>' +
+         
+         '<select id="formId">' +
+         
+             '<option value="">Select Form</option>' +
+         
+             buildFormOptions(
+                 formId
+             ) +
+         
+         '</select>' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+             '<label>Assignee Type</label>' +
+            '<select id="assigneeType">' +
+         
+         '<option value="">Select</option>' +
+         
+         '<option value="USER"' +
+             (assigneeType === "USER" ? " selected" : "") +
+         '>User</option>' +
+         
+         '<option value="ROLE"' +
+             (assigneeType === "ROLE" ? " selected" : "") +
+         '>Role</option>' +
+         
+         '<option value="GROUP"' +
+             (assigneeType === "GROUP" ? " selected" : "") +
+         '>Group</option>' +
+         
+         '</select>' +
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>Assignee Value</label>' +
+         
+         '<select id="assigneeValue">' +
+         
+             '<option value="">Select</option>' +
+         
+             buildOptions(
+                 assigneeOptions,
+                 assigneeValue
+             ) +
+         
+         '</select>' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+             '<label>SLA Hours</label>' +
+             '<input type="number" id="slaHours" value="' +
+             slaHours +
+             '">' +
+         '</div>' +
+         
+         '<div class="jq-field">' +
+             '<label>Can Reassign</label>' +
+             '<input type="checkbox" id="canReassign" ' +
+             (canReassign ? 'checked' : '') +
+             '>' +
+         '</div>' +
+         
+         '<div class="jq-field">' +
+             '<label>Can Delegate</label>' +
+             '<input type="checkbox" id="canDelegate" ' +
+             (canDelegate ? 'checked' : '') +
+             '>' +
+         '</div>' +
+         
+         '<hr>' +
+         '<div class="jq-section">'+
+         
+         '<div class="jq-title">'+
+         'Actions'+
+         '</div>'+
+         
+         '<button class="jq-btn" id="addActionBtn">'+
+         'Add Action'+
+         '</button>'+
+         
+         '<div id="actionContainer"></div>'+
+         
+         '</div>'+
+         '<hr>' +
+         
+         '<h3>Permissions</h3>' +
+         
+         '<button id="addPermissionBtn">' +
+         'Add Permission' +
+         '</button>' +
+         
+         '<div id="permissionContainer">' +
+         '</div>'+
+         '<hr>' +
+         
+         '<h3>Notifications</h3>' +
+         
+         '<button id="addNotificationBtn">' +
+         
+         'Add Notification' +
+         
+         '</button>' +
+         
+         '<div id="notificationContainer">' +
+         
+         '</div>'+
+         '<hr>' +
+         
+         '<h3>SLA</h3>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>SLA Hours</label>' +
+         
+         '<input type="number" id="slaDuration">' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>Reminder Hours</label>' +
+         
+         '<input type="number" id="slaReminder">' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>Escalation Role</label>' +
+         
+         '<input type="text" id="slaEscalationRole">' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>Auto Action</label>' +
+         
+         '<select id="slaAutoAction">' +
+         
+         '<option value="">None</option>' +
+         
+         '<option value="APPROVE">Approve</option>' +
+         
+         '<option value="REJECT">Reject</option>' +
+         
+         '</select>' +
+         
+         '</div>'+
+         
+         '<hr>' +
+         
+         '<h3>Escalations</h3>' +
+         
+         '<button id="addEscalationBtn">' +
+         'Add Escalation' +
+         '</button>' +
+         
+         '<div id="escalationContainer">' +
+         '</div>'+
+         '<hr>' +
+         
+         '<h3>Data Mappings</h3>' +
+         
+         '<button id="addDataMappingBtn">' +
+         'Add Mapping' +
+         '</button>' +
+         
+         '<div id="dataMappingContainer">' +
+         '</div>' +
+         '<hr>' +
+         
+         '<h3>Business Rule</h3>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>Rule Code</label>' +
+         
+         '<input type="text" ' +
+         'id="ruleCode">' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>Rule Type</label>' +
+         
+         '<select id="ruleType">' +
+         
+             '<option value="JAVA">JAVA</option>' +
+         
+             '<option value="SCRIPT">SCRIPT</option>' +
+         
+             '<option value="REST">REST</option>' +
+         
+         '</select>' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>Description</label>' +
+         
+         '<input type="text" ' +
+         'id="ruleDescription">' +
+         
+         '</div>'+
+         '<hr>' +
+         
+         '<h3>Form Configuration</h3>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>Form Id</label>' +
+         
+         '<input type="text" id="workflowFormId">' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>Mode</label>' +
+         
+         '<select id="formMode">' +
+         
+             '<option value="VIEW">VIEW</option>' +
+         
+             '<option value="EDIT">EDIT</option>' +
+         
+         '</select>' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+         '<label>Allow Draft</label>' +
+         
+         '<input type="checkbox" id="saveDraft">' +
+         
+         '</div>';
+         const formConfig =
+         getFormConfig(
+             element
+         );
+         
+         document
+         .getElementById(
+         "workflowFormId"
+         )
+         .value =
+         formConfig?.formId || "";
+         
+         document
+         .getElementById(
+         "formMode"
+         )
+         .value =
+         formConfig?.mode || "EDIT";
+         
+         document
+         .getElementById(
+         "saveDraft"
+         )
+         .checked =
+         formConfig?.saveDraft === "true";
+         
+         const businessRule =
+         getBusinessRule(
+             element
+         );
+         
+         document
+         .getElementById(
+         "ruleCode"
+         )
+         .value =
+         businessRule?.ruleCode || "";
+         
+         document
+         .getElementById(
+         "ruleType"
+         )
+         .value =
+         businessRule?.ruleType || "JAVA";
+         
+         document
+         .getElementById(
+         "ruleDescription"
+         )
+         .value =
+         businessRule?.description || "";
+         
+         
+         
+         document
+         .getElementById("elementName")
+         .addEventListener(
+             "change",
+             function(e) {
+         
+                 saveElementName(
+                     element,
+                     e.target.value
+                 );
+             }
+         );
+         
+         document
+         .getElementById("taskCode")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveTaskProperty(
+                 element,
+                 "taskCode",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById("taskType")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveTaskProperty(
+                 element,
+                 "taskType",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById("formId")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveTaskProperty(
+                 element,
+                 "formId",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById("assigneeType")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveTaskProperty(
+                 element,
+                 "assigneeType",
+                 e.target.value
+             );
+         
+             renderJqProperties(
+                 element
+             );
+         }
+         );
+         
+         document
+         .getElementById("assigneeValue")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveTaskProperty(
+                 element,
+                 "assigneeValue",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById("slaHours")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveTaskProperty(
+                 element,
+                 "slaHours",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById("canReassign")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveTaskProperty(
+                 element,
+                 "canReassign",
+                 e.target.checked
+             );
+         }
+         );
+         
+         document
+         .getElementById("canDelegate")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveTaskProperty(
+                 element,
+                 "canDelegate",
+                 e.target.checked
+             );
+         }
+         );
+         renderActions(
+         element
+         );
+         renderPermissions(
+         element
+         );
+         
+         renderNotifications(
+         element
+         );
+         
+         renderEscalations(
+         element
+         );
+         
+         document
+         .getElementById(
+         "addEscalationBtn"
+         )
+         .addEventListener(
+         "click",
+         function() {
+         
+             addEscalation(
+                 element
+             );
+         
+             renderEscalations(
+                 element
+             );
+         }
+         );
+         
+         document
+         .getElementById(
+         "addNotificationBtn"
+         )
+         .addEventListener(
+         "click",
+         function() {
+         
+             addNotification(
+                 element
+             );
+         
+             renderNotifications(
+                 element
+             );
+         }
+         );
+         
+         document
+         .getElementById(
+         "addActionBtn"
+         )
+         .addEventListener(
+         "click",
+         function() {
+         
+             addAction(
+                 element
+             );
+         
+             renderActions(
+                 element
+             );
+             
+         }
+         );
+         
+         document
+         .getElementById(
+         "addPermissionBtn"
+         )
+         .addEventListener(
+         "click",
+         function() {
+         
+             addPermission(
+                 element
+             );
+         
+             renderPermissions(
+                 element
+             );
+         }
+         );
+         
+         document
+         .getElementById("slaDuration")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveSlaProperty(
+                 element,
+                 "durationHours",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById("slaReminder")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveSlaProperty(
+                 element,
+                 "reminderHours",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById("slaEscalationRole")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveSlaProperty(
+                 element,
+                 "escalationRole",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById("slaAutoAction")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveSlaProperty(
+                 element,
+                 "autoAction",
+                 e.target.value
+             );
+         }
+         );
+         
+         renderDataMappings(
+         element
+         );
+         
+         document
+         .getElementById(
+         "addDataMappingBtn"
+         )
+         .addEventListener(
+         "click",
+         function() {
+         
+             addDataMapping(
+                 element
+             );
+         
+             renderDataMappings(
+                 element
+             );
+         }
+         );
+         
+         document
+         .getElementById(
+         "ruleCode"
+         )
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveBusinessRuleProperty(
+                 element,
+                 "ruleCode",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById(
+         "ruleType"
+         )
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveBusinessRuleProperty(
+                 element,
+                 "ruleType",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById(
+         "ruleDescription"
+         )
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveBusinessRuleProperty(
+                 element,
+                 "description",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById(
+         "workflowFormId"
+         )
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveFormConfigProperty(
+                 element,
+                 "formId",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById(
+         "formMode"
+         )
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveFormConfigProperty(
+                 element,
+                 "mode",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById(
+         "saveDraft"
+         )
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveFormConfigProperty(
+                 element,
+                 "saveDraft",
+                 String(
+                     e.target.checked
+                 )
+             );
+         }
+         );
+         
+         bindElementName(
+         element
+         );
+         
+         }
+         
+         function saveTaskProperty(
+         element,
+         propertyName,
+         value
+         ) {
+         
+         const moddle =
+             window.modeler.get(
+                 "moddle"
+             );
+         
+         const modeling =
+             window.modeler.get(
+                 "modeling"
+             );
+         
+         const taskConfig =
+             getOrCreateTaskConfig(
+                 element,
+                 moddle,
+                 modeling
+             );
+         
+         taskConfig[propertyName] =
+             value;
+         
+         modeling.updateProperties(
+             element,
+             {}
+         );
+         
+         console.log(
+             propertyName +
+             " Saved:",
+             value
+         );
+         }
+         
+         function getVariables(
+         element
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         const extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return [];
+         }
+         
+         return extensionElements.values.filter(
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:Variable"
+                 );
+             }
+         );
+         }
+         function addVariable(
+         element
+         ) {
+         console.log("ADD VARIABLE CALLED");
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const modeling =
+             modeler.get(
+                 "modeling"
+             );
+         
+         const businessObject =
+             element.businessObject;
+         
+         let extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+         
+             extensionElements =
+                 moddle.create(
+                     "bpmn:ExtensionElements",
+                     {
+                         values: []
+                     }
+                 );
+         
+             modeling.updateProperties(
+                 element,
+                 {
+                     extensionElements:
+                         extensionElements
+                 }
+             );
+         }
+         
+         const variable =
+             moddle.create(
+                 "jq:Variable",
+                 {
+                     name:
+                         "",
+                     type:
+                         "String"
+                 }
+             );
+         
+         extensionElements.values.push(
+             variable
+         );
+         
+         modeling.updateProperties(
+             element,
+             {}
+         );
+         }
+         function renderVariables(
+         element
+         ) {
+         
+         const container =
+             document.getElementById(
+                 "variableContainer"
+             );
+         
+         container.innerHTML =
+             "";
+         
+         const variables =
+             getVariables(
+                 element
+             );
+         
+         variables.forEach(function(v,index) {
+         
+         container.innerHTML +=
+         
+             '<div class="jq-variable">' +
+         
+                 '<input ' +
+                 'type="text" ' +
+                 'class="varName" ' +
+                 'data-index="' + index + '" ' +
+                 'value="' + (v.name || '') + '">' +
+         
+                 '<select ' +
+                 'class="varType" ' +
+                 'data-index="' + index + '">' +
+         
+                     '<option value="String"' +
+                     (v.type === "String" ? " selected" : "") +
+                     '>String</option>' +
+         
+                     '<option value="Integer"' +
+                     (v.type === "Integer" ? " selected" : "") +
+                     '>Integer</option>' +
+         
+                     '<option value="Boolean"' +
+                     (v.type === "Boolean" ? " selected" : "") +
+                     '>Boolean</option>' +
+         
+                     '<option value="Date"' +
+                     (v.type === "Date" ? " selected" : "") +
+                     '>Date</option>' +
+         
+                 '</select>' +
+         
+                 '<button ' +
+                 'class="deleteVariable" ' +
+                 'data-index="' + index + '">' +
+                 'Delete' +
+                 '</button>' +
+         
+             '</div>';
+         });
+         
+         const inputs =
+         document.querySelectorAll(
+             ".varName"
+         );
+         
+         const lastInput =
+         inputs[inputs.length - 1];
+         
+         if (lastInput) {
+         
+         lastInput.focus();
+         }
+         
+         bindVariableEvents(
+         element
+         );
+         
+         }
+         
+         function bindVariableEvents(
+         element
+         ) {
+         
+         document
+         .querySelectorAll(
+             ".varName"
+         )
+         .forEach(function(input) {
+         
+             input.addEventListener(
+                 "change",
+                 function() {
+         
+                     updateVariable(
+                         element,
+                         this.dataset.index,
+                         "name",
+                         this.value
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".varType"
+         )
+         .forEach(function(select) {
+         
+             select.addEventListener(
+                 "change",
+                 function() {
+         
+                     updateVariable(
+                         element,
+                         this.dataset.index,
+                         "type",
+                         this.value
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".deleteVariable"
+         )
+         .forEach(function(button) {
+         
+             button.addEventListener(
+                 "click",
+                 function() {
+         
+                     deleteVariable(
+                         element,
+                         this.dataset.index
+                     );
+                 }
+             );
+         });
+         }
+         
+         function updateVariable(
+         element,
+         index,
+         property,
+         value
+         ) {
+         
+         const variables =
+             getVariables(
+                 element
+             );
+         
+               if (
+             !variables[index]
+         ) {
+             return;
+         }
+         
+         variables[index][property] =
+             value;
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         }
+         
+         function deleteVariable(
+         element,
+         index
+         ) {
+         
+         const extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return;
+         }
+         
+         const variables =
+             getVariables(
+                 element
+             );
+         
+         const variable =
+             variables[index];
+         
+         extensionElements.values =
+             extensionElements.values.filter(
+                 function(v) {
+         
+                     return v !== variable;
+                 }
+             );
+         
+         modeler
+             .get("modeling")
+             .updateProperties(
+                 element,
+                 {}
+             );
+         
+         renderVariables(
+             element
+         );
+         }
+         
+         function renderSequenceFlowProperties(
+         element
+         ) {
+         
+         const container =
+             document.getElementById(
+                 "jqFormContainer"
+             );
+         
+         const condition =
+             getCondition(
+                 element
+             );
+         
+         const conditionType =
+             condition?.type ||
+             "EXPRESSION";
+         
+         const expression =
+             condition?.expression ||
+             "";
+         
+         container.innerHTML =
+         
+             '<div class="jq-field">' +
+         
+                 '<label>Condition Type</label>' +
+         
+                 '<select id="conditionType">' +
+         
+                     '<option value="EXPRESSION"' +
+                     (conditionType === "EXPRESSION"
+                         ? " selected"
+                         : "") +
+                     '>Expression</option>' +
+         
+                 '</select>' +
+         
+             '</div>' +
+         
+             '<div class="jq-field">' +
+         
+                 '<label>Expression</label>' +
+         
+                 '<input type="text" ' +
+                 'id="conditionExpression" ' +
+                 'value="' +
+                 expression +
+                 '">' +
+         
+             '</div>';
+         
+                 document
+         .getElementById(
+             "conditionExpression"
+         )
+         .addEventListener(
+         
+             "change",
+         
+             function(e) {
+         
+                 saveConditionProperty(
+         
+                     element,
+         
+                     "expression",
+         
+                     e.target.value
+                 );
+             }
+         );
+         
+         document
+         .getElementById(
+         "conditionType"
+         )
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveConditionProperty(
+                 element,
+                 "type",
+                 e.target.value
+             );
+         }
+         );
+         }
+         
+         function renderServiceTaskProperties(
+         element
+         ) {
+         const elementName =
+         element.businessObject.name || "";
+         
+         const container =
+             document.getElementById(
+                 "jqFormContainer"
+             );
+         
+         const config =
+             getServiceTaskConfig(
+                 element
+             );
+         
+         const taskCode =
+             config?.taskCode || "";
+         
+         const serviceType =
+             config?.serviceType || "";
+         
+         const endpoint =
+             config?.endpoint || "";
+         
+         const method =
+             config?.method || "";
+         
+         container.innerHTML =
+         '<div class="jq-field">' +
+         
+         '<label>Element Name</label>' +
+         
+         '<input type="text" ' +
+         
+         'id="elementName" ' +
+         
+         'value="' +
+         
+         elementName +
+         
+         '">' +
+         
+         '</div>' +
+             '<div class="jq-field">' +
+         
+                 '<label>Task Code</label>' +
+         
+                 '<input type="text" ' +
+                 'id="serviceTaskCode" ' +
+                 'value="' +
+                 taskCode +
+                 '">' +
+         
+             '</div>' +
+         
+             '<div class="jq-field">' +
+         
+                 '<label>Service Type</label>' +
+         
+                 '<select id="serviceType">' +
+         
+                     '<option value="">Select</option>' +
+         
+                     '<option value="EMAIL"' +
+                     (serviceType === "EMAIL"
+                         ? " selected"
+                         : "") +
+                     '>EMAIL</option>' +
+         
+                     '<option value="REST"' +
+                     (serviceType === "REST"
+                         ? " selected"
+                         : "") +
+                     '>REST</option>' +
+         
+                     '<option value="DATABASE"' +
+                     (serviceType === "DATABASE"
+                         ? " selected"
+                         : "") +
+                     '>DATABASE</option>' +
+         
+                 '</select>' +
+         
+             '</div>' +
+         
+             '<div class="jq-field">' +
+         
+                 '<label>Endpoint</label>' +
+         
+                 '<input type="text" ' +
+                 'id="endpoint" ' +
+                 'value="' +
+                 endpoint +
+                 '">' +
+         
+             '</div>' +
+         
+             '<div class="jq-field">' +
+         
+                 '<label>Method</label>' +
+         
+                 '<select id="method">' +
+         
+                     '<option value="GET"' +
+                     (method === "GET"
+                         ? " selected"
+                         : "") +
+                     '>GET</option>' +
+         
+                     '<option value="POST"' +
+                     (method === "POST"
+                         ? " selected"
+                         : "") +
+                     '>POST</option>' +
+         
+                     '<option value="PUT"' +
+                     (method === "PUT"
+                         ? " selected"
+                         : "") +
+                     '>PUT</option>' +
+         
+                 '</select>' +
+         
+             '</div>';
+         
+             document
+         .getElementById("elementName")
+         .addEventListener(
+             "change",
+             function(e) {
+         
+                 saveElementName(
+                     element,
+                     e.target.value
+                 );
+             }
+         );
+         
+         document
+         .getElementById(
+             "serviceTaskCode"
+         )
+         .addEventListener(
+             "change",
+             function(e) {
+         
+                 saveServiceTaskProperty(
+                     element,
+                     "taskCode",
+                     e.target.value
+                 );
+             }
+         );
+         
+         document
+         .getElementById(
+             "serviceType"
+         )
+         .addEventListener(
+             "change",
+             function(e) {
+         
+                 saveServiceTaskProperty(
+                     element,
+                     "serviceType",
+                     e.target.value
+                 );
+             }
+         );
+         
+         document
+         .getElementById(
+             "endpoint"
+         )
+         .addEventListener(
+             "change",
+             function(e) {
+         
+                 saveServiceTaskProperty(
+                     element,
+                     "endpoint",
+                     e.target.value
+                 );
+             }
+         );
+         
+         document
+         .getElementById(
+             "method"
+         )
+         .addEventListener(
+             "change",
+             function(e) {
+         
+                 saveServiceTaskProperty(
+                     element,
+                     "method",
+                     e.target.value
+                 );
+             }
+         );
+         
+         bindElementName(
+         element
+         );
+         }
+         
+         
+         document
+         .getElementById(
+         "addProcessVariableBtn"
+         )
+         .addEventListener(
+         "click",
+         function() {
+         
+             const rootElement =
+                 modeler
+                 .get("canvas")
+                 .getRootElement();
+         
+             addProcessVariable(
+                 rootElement
+             );
+         
+             renderProcessVariables(
+                 rootElement
+             );
+         }
+         );
+         
+         function renderProcessVariables(
+         processElement
+         ) {
+         
+         const container =
+             document.getElementById(
+                 "processVariableContainer"
+             );
+         
+         container.innerHTML =
+             "";
+         
+         const variables =
+             getProcessVariables(
+                 processElement
+             );
+         
+         variables.forEach(
+             function(v,index) {
+         
+                 container.innerHTML +=
+         
+                     '<div class="jq-variable">' +
+         
+                         '<input ' +
+                         'type="text" ' +
+                         'class="processVarName" ' +
+                         'data-index="' +
+                         index +
+                         '" ' +
+                         'value="' +
+                         (v.name || "") +
+                         '">' +
+         
+                         '<select ' +
+                         'class="processVarType" ' +
+                         'data-index="' +
+                         index +
+                         '">' +
+         
+                             '<option value="String"' +
+                             (v.type === "String"
+                                 ? " selected"
+                                 : "") +
+                             '>String</option>' +
+         
+                             '<option value="Integer"' +
+                             (v.type === "Integer"
+                                 ? " selected"
+                                 : "") +
+                             '>Integer</option>' +
+         
+                             '<option value="Boolean"' +
+                             (v.type === "Boolean"
+                                 ? " selected"
+                                 : "") +
+                             '>Boolean</option>' +
+         
+                             '<option value="Date"' +
+                             (v.type === "Date"
+                                 ? " selected"
+                                 : "") +
+                             '>Date</option>' +
+         
+                         '</select>' +
+         
+                         '<button ' +
+                         'class="deleteProcessVariable" ' +
+                         'data-index="' +
+                         index +
+                         '">' +
+                         'Delete' +
+                         '</button>' +
+         
+                     '</div>';
+             }
+         );
+         
+         bindProcessVariableEvents(
+             processElement
+         );
+         
+         const inputs =
+             document.querySelectorAll(
+                 ".processVarName"
+             );
+         
+         const lastInput =
+             inputs[
+                 inputs.length - 1
+             ];
+         
+         if (
+             lastInput
+         ) {
+         
+             lastInput.focus();
+         }
+         }
+         function bindProcessVariableEvents(
+         processElement
+         ) {
+         
+         document
+         .querySelectorAll(
+             ".processVarName"
+         )
+         .forEach(function(input) {
+         
+             input.addEventListener(
+                 "change",
+                 function() {
+         
+                     updateProcessVariable(
+                         processElement,
+                         this.dataset.index,
+                         "name",
+                         this.value
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".processVarType"
+         )
+         .forEach(function(select) {
+         
+             select.addEventListener(
+                 "change",
+                 function() {
+         
+                     updateProcessVariable(
+                         processElement,
+                         this.dataset.index,
+                         "type",
+                         this.value
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".deleteProcessVariable"
+         )
+         .forEach(function(button) {
+         
+             button.addEventListener(
+                 "click",
+                 function() {
+         
+                     deleteProcessVariable(
+                         processElement,
+                         this.dataset.index
+                     );
+                 }
+             );
+         });
+         }
+         
+         function updateProcessVariable(
+         processElement,
+         index,
+         property,
+         value
+         ) {
+         
+         const variables =
+             getProcessVariables(
+                 processElement
+             );
+         
+         variables[index][property] =
+             value;
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             processElement,
+             {}
+         );
+         }
+         
+         function deleteProcessVariable(
+         processElement,
+         index
+         ) {
+         
+         const businessObject =
+             processElement.businessObject;
+         
+         const extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return;
+         }
+         
+         const variables =
+             getProcessVariables(
+                 processElement
+             );
+         
+         const variable =
+             variables[index];
+         
+         const pos =
+             extensionElements.values.indexOf(
+                 variable
+             );
+         
+         if (
+             pos >= 0
+         ) {
+         
+             extensionElements.values.splice(
+                 pos,
+                 1
+             );
+         }
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             processElement,
+             {}
+         );
+         
+         renderProcessVariables(
+             processElement
+         );
+         }
+         
+         function getServiceTaskConfig(
+         element
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         const extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return null;
+         }
+         
+         return extensionElements.values.find(
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:ServiceTaskConfig"
+                 );
+             }
+         );
+         }
+         
+         function getOrCreateServiceTaskConfig(
+         element,
+         moddle,
+         modeling
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         let extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+         
+             extensionElements =
+                 moddle.create(
+                     "bpmn:ExtensionElements",
+                     {
+                         values: []
+                     }
+                 );
+         
+             modeling.updateProperties(
+                 element,
+                 {
+                     extensionElements:
+                         extensionElements
+                 }
+             );
+         }
+         
+         let config =
+             extensionElements.values.find(
+                 function(v) {
+         
+                     return (
+                         v.$type ===
+                         "jq:ServiceTaskConfig"
+                     );
+                 }
+             );
+         
+         if (!config) {
+         
+             config =
+                 moddle.create(
+                     "jq:ServiceTaskConfig",
+                     {}
+                 );
+         
+             extensionElements.values.push(
+                 config
+             );
+         }
+         
+         return config;
+         }
+         
+         function saveServiceTaskProperty(
+         element,
+         propertyName,
+         value
+         ) {
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const modeling =
+             modeler.get(
+                 "modeling"
+             );
+         
+         const config =
+             getOrCreateServiceTaskConfig(
+                 element,
+                 moddle,
+                 modeling
+             );
+         
+         config[propertyName] =
+             value;
+         
+         modeling.updateProperties(
+             element,
+             {}
+         );
+         
+         console.log(
+             propertyName +
+             " Saved:",
+             value
+         );
+         }
+         
+         function renderTimerProperties(
+         element
+         ) {
+         
+         const elementName =
+         element.businessObject.name || "";
+         
+         const container =
+             document.getElementById(
+                 "jqFormContainer"
+             );
+         
+         const config =
+             getEventConfig(
+                 element
+             );
+         
+         const eventType =
+             config?.eventType ||
+             "TIMER";
+         
+         container.innerHTML =
+         '<div class="jq-field">' +
+         
+         '<label>Element Name</label>' +
+         
+         '<input type="text" ' +
+         
+         'id="elementName" ' +
+         
+         'value="' +
+         
+         elementName +
+         
+         '">' +
+         
+         '</div>' +
+         
+             '<h3>Event Configuration</h3>' +
+         
+             '<div class="jq-field">' +
+         
+                 '<label>Event Type</label>' +
+         
+                 '<select id="eventType">' +
+         
+                     '<option value="TIMER"' +
+                     (eventType === "TIMER"
+                         ? " selected"
+                         : "") +
+                     '>Timer</option>' +
+         
+                     '<option value="MESSAGE"' +
+                     (eventType === "MESSAGE"
+                         ? " selected"
+                         : "") +
+                     '>Message</option>' +
+         
+                     '<option value="SIGNAL"' +
+                     (eventType === "SIGNAL"
+                         ? " selected"
+                         : "") +
+                     '>Signal</option>' +
+         
+                 '</select>' +
+         
+             '</div>';
+         
+         
+         
+         document
+         .getElementById(
+             "eventType"
+         )
+         .addEventListener(
+         
+             "change",
+         
+             function(e) {
+         
+                 saveEventProperty(
+         
+                     element,
+         
+                     "eventType",
+         
+                     e.target.value
+                 );
+             }
+         );
+         
+         bindElementName(
+         element
+         );
+         }
+         
+         function getEventConfig(
+         element
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         const extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return null;
+         }
+         
+         return extensionElements.values.find(
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:EventConfig"
+                 );
+             }
+         );
+         }
+         function getOrCreateEventConfig(
+         element,
+         moddle,
+         modeling
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         let extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+         
+             extensionElements =
+                 moddle.create(
+                     "bpmn:ExtensionElements",
+                     {
+                         values: []
+                     }
+                 );
+         
+             modeling.updateProperties(
+                 element,
+                 {
+                     extensionElements:
+                         extensionElements
+                 }
+             );
+         }
+         
+         let config =
+             extensionElements.values.find(
+                 function(v) {
+         
+                     return (
+                         v.$type ===
+                         "jq:EventConfig"
+                     );
+                 }
+             );
+         
+         if (!config) {
+         
+             config =
+                 moddle.create(
+                     "jq:EventConfig",
+                     {}
+                 );
+         
+             extensionElements.values.push(
+                 config
+             );
+         }
+         
+         return config;
+         }
+         function saveEventProperty(
+         element,
+         propertyName,
+         value
+         ) {
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const modeling =
+             modeler.get(
+                 "modeling"
+             );
+         
+         const config =
+             getOrCreateEventConfig(
+                 element,
+                 moddle,
+                 modeling
+             );
+         
+         config[propertyName] =
+             value;
+         
+         modeling.updateProperties(
+             element,
+             {}
+         );
+         
+         console.log(
+             propertyName +
+             " Saved:",
+             value
+         );
+         }
+         
+         function renderGatewayProperties(
+         element
+         ) {
+         const elementName =
+         element.businessObject.name || "";
+         
+         const outgoingFlows =
+         element.businessObject.outgoing || [];
+         
+         const container =
+             document.getElementById(
+                 "jqFormContainer"
+             );
+         
+             const currentDefault =
+         
+         element.businessObject.default
+             ? element.businessObject.default.id
+             : "";
+         
+             let flowOptions =
+         
+         '<option value="">None</option>';
+         
+         outgoingFlows.forEach(function(flow) {
+         
+         flowOptions +=
+         
+             '<option value="' +
+         
+             flow.id +
+         
+              '"' +
+         
+         (currentDefault === flow.id
+             ? ' selected'
+             : '') +
+         
+         '>' +
+         
+             flow.id +
+         
+             '</option>';
+         });
+         
+         container.innerHTML =
+         '<div class="jq-field">' +
+         
+         '<label>Element Name</label>' +
+         
+         '<input type="text" ' +
+         
+         'id="elementName" ' +
+         
+         'value="' +
+         
+         elementName +
+         
+         '">' +
+         
+         '</div>' +
+             '<h3>Gateway Configuration</h3>' +
+         
+             '<div class="jq-field">' +
+         
+                 '<label>Gateway Type</label>' +
+         
+                 '<input type="text" readonly value="' +
+         
+                 element.type +
+         
+                 '">' +
+         
+             '</div>'+
+             '<div class="jq-field">' +
+         
+         '<label>Default Flow</label>' +
+         
+         '<select id="defaultFlow">' +
+         
+             flowOptions +
+         
+         '</select>' +
+         
+         '</div>';
+         
+         document
+         .getElementById("elementName")
+         .addEventListener(
+             "change",
+             function(e) {
+         
+                 saveElementName(
+                     element,
+                     e.target.value
+                 );
+             }
+         );
+         
+         document
+         .getElementById(
+         "defaultFlow"
+         )
+         .addEventListener(
+         
+         "change",
+         
+         function(e) {
+         
+             saveDefaultFlow(
+         
+                 element,
+         
+                 e.target.value
+             );
+         }
+         );
+         bindElementName(
+         element
+         );
+         }
+         
+         function saveElementName(
+         element,
+         value
+         ) {
+         
+         const modeling =
+             modeler.get(
+                 "modeling"
+             );
+         
+         modeling.updateProperties(
+             element,
+             {
+                 name: value
+             }
+         );
+         
+         console.log(
+             "Element Name Saved:",
+             value
+         );
+         }
+         
+         
+         
+         function saveDefaultFlow(
+         element,
+         flowId
+         ) {
+         
+         const modeling =
+             modeler.get(
+                 "modeling"
+             );
+         
+         const outgoingFlows =
+             element.businessObject.outgoing || [];
+         
+         const selectedFlow =
+             outgoingFlows.find(
+                 function(f) {
+         
+                     return f.id === flowId;
+                 }
+             );
+         
+         modeling.updateProperties(
+         
+             element,
+         
+             {
+                 default:
+                     selectedFlow || null
+             }
+         );
+         }
+         
+         function getOrCreateCondition(
+         element,
+         moddle,
+         modeling
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         let extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+         
+             extensionElements =
+                 moddle.create(
+                     "bpmn:ExtensionElements",
+                     {
+                         values: []
+                     }
+                 );
+         
+             modeling.updateProperties(
+                 element,
+                 {
+                     extensionElements:
+                         extensionElements
+                 }
+             );
+         }
+         
+         let condition =
+             extensionElements.values.find(
+                 function(v) {
+         
+                     return (
+                         v.$type ===
+                         "jq:Condition"
+                     );
+                 }
+             );
+         
+         if (!condition) {
+         
+             condition =
+                 moddle.create(
+                     "jq:Condition",
+                     {
+                          type: "EXPRESSION",
+                          expression: ""
+                     }
+                 );
+         
+             extensionElements.values.push(
+                 condition
+             );
+         }
+         
+         return condition;
+         }
+         
+         function saveConditionProperty(
+         element,
+         propertyName,
+         value
+         ) {
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const modeling =
+             modeler.get(
+                 "modeling"
+             );
+         
+         const condition =
+             getOrCreateCondition(
+                 element,
+                 moddle,
+                 modeling
+             );
+         
+         condition[propertyName] =
+             value;
+         
+         modeling.updateProperties(
+             element,
+             {}
+         );
+         
+         console.log(
+             propertyName +
+             " Saved:",
+             value
+         );
+         }
+         
+         function getCondition(
+         element
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         const extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return null;
+         }
+         
+         return extensionElements.values.find(
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:Condition"
+                 );
+             }
+         );
+         }
+         function getProcessConfig(
+         processElement
+         ) {
+         
+         const extensionElements =
+             processElement.businessObject
+                 .extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return null;
+         }
+         
+         return extensionElements.values.find(
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:ProcessConfig"
+                 );
+             }
+         );
+         }
+         function getOrCreateTaskConfig(
+         element,
+         moddle,
+         modeling
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         let extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+         
+             extensionElements =
+                 moddle.create(
+                     "bpmn:ExtensionElements",
+                     {
+                         values: []
+                     }
+                 );
+         
+             modeling.updateProperties(
+                 element,
+                 {
+                     extensionElements:
+                         extensionElements
+                 }
+             );
+         }
+         
+         let taskConfig =
+             extensionElements.values.find(
+                 function(v) {
+         
+                     return (
+                         v.$type ===
+                         "jq:TaskConfig"
+                     );
+                 }
+             );
+         
+         if (!taskConfig) {
+         
+             taskConfig =
+                 moddle.create(
+                     "jq:TaskConfig",
+                     {}
+                 );
+         
+             extensionElements.values.push(
+                 taskConfig
+             );
+         }
+         
+         return taskConfig;
+         }
+         function getOrCreateProcessConfig(
+         processElement,
+         moddle,
+         modeling
+         ) {
+         
+         const businessObject =
+             processElement.businessObject;
+         
+         let extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+         
+             extensionElements =
+                 moddle.create(
+                     "bpmn:ExtensionElements",
+                     {
+                         values: []
+                     }
+                 );
+         
+             modeling.updateProperties(
+                 processElement,
+                 {
+                     extensionElements:
+                         extensionElements
+                 }
+             );
+         }
+         
+         let processConfig =
+             extensionElements.values.find(
+                 function(v) {
+         
+                     return (
+                         v.$type ===
+                         "jq:ProcessConfig"
+                     );
+                 }
+             );
+         
+         if (!processConfig) {
+         
+             processConfig =
+                 moddle.create(
+                     "jq:ProcessConfig",
+                     {
+                         workflowCode: "",
+                         workflowName: "",
+                         version: "1.0",
+                         category: "",
+                         description:"",
+                         isActive:true
+         
+                     }
+                 );
+         
+             extensionElements.values.push(
+                 processConfig
+             );
+         }
+         
+         return processConfig;
+         }
+         function saveProcessConfigProperty(
+         processElement,
+         propertyName,
+         value
+         ) {
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const modeling =
+             modeler.get(
+                 "modeling"
+             );
+         
+         const processConfig =
+             getOrCreateProcessConfig(
+                 processElement,
+                 moddle,
+                 modeling
+             );
+         
+         processConfig[propertyName] =
+             value;
+         
+         modeling.updateProperties(
+             processElement,
+             {}
+         );
+         
+         console.log(
+             propertyName +
+             " Saved:",
+             value
+         );
+         }
+         function renderProcessConfig(
+         processElement
+         ) {
+         
+         const container =
+             document.getElementById(
+                 "processConfigContainer"
+             );
+         
+         const config =
+             getProcessConfig(
+                 processElement
+             );
+         
+         const workflowCode =
+             config?.workflowCode || "";
+         
+         const workflowName =
+             config?.workflowName || "";
+         
+         const version =
+             config?.version || "1.0";
+         
+         const category =
+             config?.category || "";
+         
+         const description =
+             config?.description || "";
+         
+         const isActive =
+             config?.isActive ?? true;
+         
+         container.innerHTML =
+         
+         '<div class="jq-field">' +
+         
+             '<label>Workflow Code</label>' +
+         
+             '<input type="text" ' +
+             'id="workflowCode" ' +
+             'value="' +
+             workflowCode +
+             '">' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+             '<label>Workflow Name</label>' +
+         
+             '<input type="text" ' +
+             'id="workflowName" ' +
+             'value="' +
+             workflowName +
+             '">' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+             '<label>Version</label>' +
+         
+             '<input type="text" ' +
+             'id="workflowVersion" ' +
+             'value="' +
+             version +
+             '">' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+             '<label>Category</label>' +
+         
+             '<input type="text" ' +
+             'id="workflowCategory" ' +
+             'value="' +
+             category +
+             '">' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+             '<label>Description</label>' +
+         
+             '<textarea id="description">' +
+         
+             (description || "") +
+         
+             '</textarea>' +
+         
+         '</div>' +
+         
+         '<div class="jq-field">' +
+         
+             '<label>Active</label>' +
+         
+             '<select id="isActive">' +
+         
+                 '<option value="true"' +
+         
+                     (isActive === true ||
+                      isActive === "true"
+                         ? ' selected'
+                         : '') +
+         
+                 '>Active</option>' +
+         
+                 '<option value="false"' +
+         
+                     (isActive === false ||
+                      isActive === "false"
+                         ? ' selected'
+                         : '') +
+         
+                 '>Inactive</option>' +
+         
+             '</select>' +
+         
+         '</div>';
+         
+         document
+         .getElementById(
+             "workflowCode"
+         )
+         .addEventListener(
+             "change",
+             function(e) {
+         
+                 saveProcessConfigProperty(
+                     processElement,
+                     "workflowCode",
+                     e.target.value
+                 );
+             }
+         );
+         
+         document
+         .getElementById(
+             "workflowName"
+         )
+         .addEventListener(
+             "change",
+             function(e) {
+         
+                 saveProcessConfigProperty(
+                     processElement,
+                     "workflowName",
+                     e.target.value
+                 );
+             }
+         );
+         
+         document
+         .getElementById(
+             "workflowVersion"
+         )
+         .addEventListener(
+             "change",
+             function(e) {
+         
+                 saveProcessConfigProperty(
+                     processElement,
+                     "version",
+                     e.target.value
+                 );
+             }
+         );
+         
+         document
+         .getElementById(
+             "workflowCategory"
+         )
+         .addEventListener(
+             "change",
+             function(e) {
+         
+                 saveProcessConfigProperty(
+                     processElement,
+                     "category",
+                     e.target.value
+                 );
+             }
+         );
+         document
+         .getElementById("description")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveProcessConfigProperty(
+                 processElement,
+                 "description",
+                 e.target.value
+             );
+         }
+         );
+         
+         document
+         .getElementById("isActive")
+         .addEventListener(
+         "change",
+         function(e) {
+         
+             saveProcessConfigProperty(
+                 processElement,
+                 "isActive",
+                 e.target.value
+             );
+         }
+         );
+         }
+         function bindElementName(
+         element
+         ) {
+         
+         const field =
+             document.getElementById(
+                 "elementName"
+             );
+         
+         if (!field) {
+             return;
+         }
+         
+         field.addEventListener(
+             "change",
+             function(e) {
+         
+                 saveElementName(
+                     element,
+                     e.target.value
+                 );
+             }
+         );
+         }
+         
+         function getStartEventConfig(
+         element
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         const extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return null;
+         }
+         
+         return extensionElements.values.find(
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:StartEventConfig"
+                 );
+             }
+         );
+         }
+         
+         function getOrCreateStartEventConfig(
+         element,
+         moddle,
+         modeling
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         let extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+         
+             extensionElements =
+                 moddle.create(
+                     "bpmn:ExtensionElements",
+                     {
+                         values: []
+                     }
+                 );
+         
+             modeling.updateProperties(
+                 element,
+                 {
+                     extensionElements:
+                         extensionElements
+                 }
+             );
+         }
+         
+         let config =
+             extensionElements.values.find(
+                 function(v) {
+         
+                     return (
+                         v.$type ===
+                         "jq:StartEventConfig"
+                     );
+                 }
+             );
+         
+         if (!config) {
+         
+             config =
+                 moddle.create(
+                     "jq:StartEventConfig",
+                     {}
+                 );
+         
+             extensionElements.values.push(
+                 config
+             );
+         }
+         
+         return config;
+         }
+         function saveStartEventProperty(
+         element,
+         propertyName,
+         value
+         ) {
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const modeling =
+             modeler.get(
+                 "modeling"
+             );
+         
+         const config =
+             getOrCreateStartEventConfig(
+                 element,
+                 moddle,
+                 modeling
+             );
+         
+         config[propertyName] =
+             value;
+         
+         modeling.updateProperties(
+             element,
+             {}
+         );
+         
+         console.log(
+             propertyName +
+             " Saved:",
+             value
+         );
+         }
+         function renderStartEventProperties(
+         element
+         ) {
+         
+         const elementName =
+             element.businessObject.name || "";
+         
+         const container =
+             document.getElementById(
+                 "jqFormContainer"
+             );
+         
+         const config =
+             getStartEventConfig(
+                 element
+             );
+         
+         const eventType =
+             config?.eventType ||
+             "NONE";
+         
+         container.innerHTML =
+         
+             '<div class="jq-field">' +
+         
+                 '<label>Element Name</label>' +
+         
+                 '<input type="text" ' +
+                 'id="elementName" ' +
+                 'value="' +
+                 elementName +
+                 '">' +
+         
+             '</div>' +
+         
+             '<div class="jq-field">' +
+         
+                 '<label>Event Type</label>' +
+         
+                 '<select id="startEventType">' +
+         
+                     '<option value="NONE"' +
+                     (eventType === "NONE"
+                         ? " selected"
+                         : "") +
+                     '>None</option>' +
+         
+                     '<option value="MESSAGE"' +
+                     (eventType === "MESSAGE"
+                         ? " selected"
+                         : "") +
+                     '>Message</option>' +
+         
+                     '<option value="TIMER"' +
+                     (eventType === "TIMER"
+                         ? " selected"
+                         : "") +
+                     '>Timer</option>' +
+         
+                     '<option value="SIGNAL"' +
+                     (eventType === "SIGNAL"
+                         ? " selected"
+                         : "") +
+                     '>Signal</option>' +
+         
+                 '</select>' +
+         
+             '</div>';
+         
+         bindElementName(
+             element
+         );
+         
+         document
+         .getElementById(
+             "startEventType"
+         )
+         .addEventListener(
+         
+             "change",
+         
+             function(e) {
+         
+                 saveStartEventProperty(
+         
+                     element,
+         
+                     "eventType",
+         
+                     e.target.value
+                 );
+             }
+         );
+         }
+         function getEndEventConfig(
+         element
+         ) {
+         
+         const extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return null;
+         }
+         
+         return extensionElements.values.find(
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:EndEventConfig"
+                 );
+             }
+         );
+         }
+         function getOrCreateEndEventConfig(
+         element,
+         moddle,
+         modeling
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         let extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+         
+             extensionElements =
+                 moddle.create(
+                     "bpmn:ExtensionElements",
+                     {
+                         values: []
+                     }
+                 );
+         
+             modeling.updateProperties(
+                 element,
+                 {
+                     extensionElements
+                 }
+             );
+         }
+         
+         let config =
+             extensionElements.values.find(
+                 function(v) {
+         
+                     return (
+                         v.$type ===
+                         "jq:EndEventConfig"
+                     );
+                 }
+             );
+         
+         if (!config) {
+         
+             config =
+                 moddle.create(
+                     "jq:EndEventConfig",
+                     {}
+                 );
+         
+             extensionElements.values.push(
+                 config
+             );
+         }
+         
+         return config;
+         }
+         function saveEndEventProperty(
+         element,
+         propertyName,
+         value
+         ) {
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const modeling =
+             modeler.get(
+                 "modeling"
+             );
+         
+         const config =
+             getOrCreateEndEventConfig(
+                 element,
+                 moddle,
+                 modeling
+             );
+         
+         config[propertyName] =
+             value;
+         
+         modeling.updateProperties(
+             element,
+             {}
+         );
+         }
+         function renderEndEventProperties(
+         element
+         ) {
+         
+         console.log(
+             "renderEndEventProperties called"
+         );
+         const elementName =
+             element.businessObject.name || "";
+         
+         const container =
+             document.getElementById(
+                 "jqFormContainer"
+             );
+         
+         const config =
+             getEndEventConfig(
+                 element
+             );
+         
+         const result =
+             config?.result ||
+             "COMPLETED";
+         
+         container.innerHTML =
+         
+             '<div class="jq-field">' +
+         
+                 '<label>Element Name</label>' +
+         
+                 '<input type="text" ' +
+                 'id="elementName" ' +
+                 'value="' +
+                 elementName +
+                 '">' +
+         
+             '</div>' +
+         
+             '<div class="jq-field">' +
+         
+                 '<label>Result</label>' +
+         
+                 '<select id="endResult">' +
+         
+                     '<option value="COMPLETED">Completed</option>' +
+         
+                     '<option value="APPROVED">Approved</option>' +
+         
+                     '<option value="REJECTED">Rejected</option>' +
+         
+                     '<option value="CANCELLED">Cancelled</option>' +
+         
+                     '<option value="ERROR">Error</option>' +
+         
+                 '</select>' +
+         
+             '</div>';
+         
+         bindElementName(
+             element
+         );
+         
+         document
+         .getElementById(
+             "endResult"
+         )
+         .addEventListener(
+         
+             "change",
+         
+             function(e) {
+         
+                 saveEndEventProperty(
+         
+                     element,
+         
+                     "result",
+         
+                     e.target.value
+                 );
+             }
+         );
+         
+         document
+             .getElementById(
+                 "endResult"
+             )
+             .value = result;
+         }
+         function getActions(
+         element
+         ) {
+         
+         const extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (!extensionElements) {
+         
+             return [];
+         }
+         
+         return extensionElements.values.filter(
+         
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:Action"
+                 );
+             }
+         );
+         }
+         function addAction(
+         element
+         ) {
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const modeling =
+             modeler.get(
+                 "modeling"
+             );
+         
+         let extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+         
+             extensionElements =
+                 moddle.create(
+                     "bpmn:ExtensionElements",
+                     {
+                         values: []
+                     }
+                 );
+         
+             modeling.updateProperties(
+                 element,
+                 {
+                     extensionElements:
+                         extensionElements
+                 }
+             );
+         }
+         
+         const action =
+             moddle.create(
+                 "jq:Action",
+                 {
+                     name: "",
+                     label: ""
+                 }
+             );
+         
+         extensionElements.values.push(
+             action
+         );
+         
+         modeling.updateProperties(
+             element,
+             {}
+         );
+         }
+         function renderActions(
+    element
+) {
+
+    const container =
+        document.getElementById(
+            "actionContainer"
+        );
+
+    container.innerHTML = "";
+
+    const actions =
+        getActions(
+            element
+        );
+
+    const outgoingFlows =
+        element.businessObject.outgoing || [];
+
+    actions.forEach(
+
+        function(
+            action,
+            index
+        ) {
+
+            let flowOptions =
+                '<option value="">Select Sequence Flow</option>';
+
+            outgoingFlows.forEach(
+
+                function(flow) {
+
+                    flowOptions +=
+
+                        '<option value="' +
+
+                        flow.id +
+
+                        '"' +
+
+                        (action.sequenceFlowId === flow.id
+                            ? ' selected'
+                            : '') +
+
+                        '>' +
+
+                        flow.id +
+
+                        '</option>';
+                }
+            );
+
+            container.innerHTML +=
+
+                '<div class="jq-card action-card">' +
+
+                    '<div class="jq-field">' +
+
+                        '<label>Action Name</label>' +
+
+                        '<input ' +
+                            'type="text" ' +
+                            'class="actionName" ' +
+                            'data-index="' + index + '" ' +
+                            'value="' + (action.name || "") + '">' +
+
+                    '</div>' +
+
+                    '<div class="jq-field">' +
+
+                        '<label>Outcome</label>' +
+
+                        '<input ' +
+                            'type="text" ' +
+                            'class="actionOutcome" ' +
+                            'data-index="' + index + '" ' +
+                            'value="' + (action.outcome || "") + '">' +
+
+                    '</div>' +
+
+                    '<div class="jq-field">' +
+
+                        '<label>Sequence Flow</label>' +
+
+                        '<select ' +
+                            'class="actionSequenceFlow" ' +
+                            'data-index="' + index + '">' +
+
+                            flowOptions +
+
+                        '</select>' +
+
+                    '</div>' +
+
+                    '<div class="jq-card-actions">' +
+
+                        '<button ' +
+                            'class="jq-danger-btn deleteAction" ' +
+                            'data-index="' + index + '">' +
+
+                            'Delete Action' +
+
+                        '</button>' +
+
+                    '</div>' +
+
+                '</div>';
+
+        }
+    );
+
+    bindActionEvents(
+        element
+    );
+}
+         function bindActionEvents(
+         element
+         ) {
+         
+         document
+         .querySelectorAll(
+             ".actionName"
+         )
+         .forEach(function(input) {
+         
+             input.addEventListener(
+                 "change",
+                 function() {
+         
+                     updateAction(
+                         element,
+                         this.dataset.index,
+                         "name",
+                         this.value
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".actionOutcome"
+         )
+         .forEach(function(input) {
+         
+             input.addEventListener(
+                 "change",
+                 function() {
+         
+                     updateAction(
+                         element,
+                         this.dataset.index,
+                         "outcome",
+                         this.value
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".actionSequenceFlow"
+         )
+         .forEach(function(select) {
+         
+             select.addEventListener(
+                 "change",
+                 function() {
+         
+                     updateAction(
+                         element,
+                         this.dataset.index,
+                         "sequenceFlowId",
+                         this.value
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".deleteAction"
+         )
+         .forEach(function(button) {
+         
+             button.addEventListener(
+                 "click",
+                 function() {
+         
+                     deleteAction(
+                         element,
+                         this.dataset.index
+                     );
+                 }
+             );
+         });
+         }
+         function updateAction(
+         element,
+         index,
+         property,
+         value
+         ) {
+         
+         const actions =
+             getActions(
+                 element
+             );
+         
+         if (
+             !actions[index]
+         ) {
+             return;
+         }
+         
+         actions[index][property] =
+             value;
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         }
+         function deleteAction(
+         element,
+         index
+         ) {
+         
+         const extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return;
+         }
+         
+         const actions =
+             getActions(
+                 element
+             );
+         
+         const action =
+             actions[index];
+         
+         extensionElements.values =
+             extensionElements.values.filter(
+                 function(v) {
+         
+                     return v !== action;
+                 }
+             );
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         
+         renderActions(
+             element
+         );
+         }
+         
+         
+         
+         function getPermissions(
+         element
+         ) {
+         
+         const extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return [];
+         }
+         
+         return extensionElements.values.filter(
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:Permission"
+                 );
+             }
+         );
+         }
+         function addPermission(
+         element
+         ) {
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const modeling =
+             modeler.get(
+                 "modeling"
+             );
+         
+         const businessObject =
+             element.businessObject;
+         
+         let extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+         
+             extensionElements =
+                 moddle.create(
+                     "bpmn:ExtensionElements",
+                     {
+                         values: []
+                     }
+                 );
+         
+             modeling.updateProperties(
+                 element,
+                 {
+                     extensionElements:
+                         extensionElements
+                 }
+             );
+         }
+         
+         const permission =
+             moddle.create(
+                 "jq:Permission",
+                 {
+                     role: "",
+                     canView: true,
+                     canEdit: false,
+                     canComment: false,
+                     canUpload: false
+                 }
+             );
+         
+         extensionElements.values.push(
+             permission
+         );
+         
+         modeling.updateProperties(
+             element,
+             {}
+         );
+         }
+         function renderPermissions(
+    element
+) {
+
+    const container =
+        document.getElementById(
+            "permissionContainer"
+        );
+
+    container.innerHTML =
+        "";
+
+    const permissions =
+        getPermissions(
+            element
+        );
+
+    permissions.forEach(
+
+        function(
+            permission,
+            index
+        ) {
+
+            container.innerHTML +=
+
+                '<div class="jq-card permission-card">' +
+
+                    '<div class="jq-field">' +
+
+                        '<label>Role</label>' +
+
+                        '<select class="permissionRole" data-index="' +
+                        index +
+                        '">' +
+
+                            '<option value="">Select Role</option>' +
+
+                            ROLE_OPTIONS.map(function(role){
+
+                                return '<option value="' +
+                                    role.id +
+                                    '"' +
+                                    (permission.role === role.id
+                                        ? ' selected'
+                                        : '') +
+                                    '>' +
+                                    role.name +
+                                    '</option>';
+
+                            }).join("") +
+
+                        '</select>' +
+
+                    '</div>' +
+
+                    '<div class="permission-checkboxes">' +
+
+                        '<label>' +
+                        '<input type="checkbox" class="canView" data-index="' +
+                        index +
+                        '"' +
+                        (permission.canView
+                            ? ' checked'
+                            : '') +
+                        '> View' +
+                        '</label>' +
+
+                        '<label>' +
+                        '<input type="checkbox" class="canEdit" data-index="' +
+                        index +
+                        '"' +
+                        (permission.canEdit
+                            ? ' checked'
+                            : '') +
+                        '> Edit' +
+                        '</label>' +
+
+                        '<label>' +
+                        '<input type="checkbox" class="canComment" data-index="' +
+                        index +
+                        '"' +
+                        (permission.canComment
+                            ? ' checked'
+                            : '') +
+                        '> Comment' +
+                        '</label>' +
+
+                        '<label>' +
+                        '<input type="checkbox" class="canUpload" data-index="' +
+                        index +
+                        '"' +
+                        (permission.canUpload
+                            ? ' checked'
+                            : '') +
+                        '> Upload' +
+                        '</label>' +
+
+                    '</div>' +
+
+                    '<div class="jq-card-actions">' +
+
+                        '<button class="jq-danger-btn deletePermission" data-index="' +
+                        index +
+                        '">' +
+
+                        'Delete Permission' +
+
+                        '</button>' +
+
+                    '</div>' +
+
+                '</div>';
+
+        }
+    );
+
+    bindPermissionEvents(
+        element
+    );
+}
+
+         function bindPermissionEvents(
+         element
+         ) {
+         
+         document
+         .querySelectorAll(
+             ".permissionRole"
+         )
+         .forEach(function(select) {
+         
+             select.addEventListener(
+                 "change",
+                 function() {
+         
+                     updatePermission(
+                         element,
+                         this.dataset.index,
+                         "role",
+                         this.value
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".canView"
+         )
+         .forEach(function(input) {
+         
+             input.addEventListener(
+                 "change",
+                 function() {
+         
+                     updatePermission(
+                         element,
+                         this.dataset.index,
+                         "canView",
+                         this.checked
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".canEdit"
+         )
+         .forEach(function(input) {
+         
+             input.addEventListener(
+                 "change",
+                 function() {
+         
+                     updatePermission(
+                         element,
+                         this.dataset.index,
+                         "canEdit",
+                         this.checked
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".canComment"
+         )
+         .forEach(function(input) {
+         
+             input.addEventListener(
+                 "change",
+                 function() {
+         
+                     updatePermission(
+                         element,
+                         this.dataset.index,
+                         "canComment",
+                         this.checked
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".canUpload"
+         )
+         .forEach(function(input) {
+         
+             input.addEventListener(
+                 "change",
+                 function() {
+         
+                     updatePermission(
+                         element,
+                         this.dataset.index,
+                         "canUpload",
+                         this.checked
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".deletePermission"
+         )
+         .forEach(function(button) {
+         
+             button.addEventListener(
+                 "click",
+                 function() {
+         
+                     deletePermission(
+                         element,
+                         this.dataset.index
+                     );
+                 }
+             );
+         });
+         }
+         function updatePermission(
+         element,
+         index,
+         property,
+         value
+         ) {
+         
+         const permissions =
+             getPermissions(
+                 element
+             );
+         
+         if (
+             !permissions[index]
+         ) {
+             return;
+         }
+         
+         permissions[index][property] =
+             value;
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         }
+         function deletePermission(
+         element,
+         index
+         ) {
+         
+         const extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return;
+         }
+         
+         const permissions =
+             getPermissions(
+                 element
+             );
+         
+         const permission =
+             permissions[index];
+         
+         extensionElements.values =
+             extensionElements.values.filter(
+                 function(v) {
+         
+                     return v !== permission;
+                 }
+             );
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         
+         renderPermissions(
+             element
+         );
+         }
+         
+         function getNotifications1(
+         element
+         ) {
+         
+         const extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return [];
+         }
+         
+         return extensionElements.values.filter(
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:Notification"
+                 );
+             }
+         );
+         }
+         
+         function addNotification(
+         element
+         ) {
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const modeling =
+             modeler.get(
+                 "modeling"
+             );
+         
+         let extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+         
+             extensionElements =
+                 moddle.create(
+                     "bpmn:ExtensionElements",
+                     {
+                         values: []
+                     }
+                 );
+         
+             modeling.updateProperties(
+                 element,
+                 {
+                     extensionElements:
+                         extensionElements
+                 }
+             );
+         }
+         
+         const notification =
+             moddle.create(
+                 "jq:Notification",
+                 {
+                     event: "TASK_ASSIGNED",
+                     type: "EMAIL"
+                 }
+             );
+         
+         extensionElements.values.push(
+             notification
+         );
+         
+         modeling.updateProperties(
+             element,
+             {}
+         );
+         }
+         function renderNotifications(
+    element
+) {
+
+    const container =
+        document.getElementById(
+            "notificationContainer"
+        );
+
+    container.innerHTML =
+        "";
+
+    const notifications =
+        getNotifications1(
+            element
+        );
+
+    notifications.forEach(
+
+        function(
+            notification,
+            index
+        ) {
+
+            container.innerHTML +=
+
+                '<div class="jq-card notification-card">' +
+
+                    '<div class="jq-field">' +
+
+                        '<label>Notification Event</label>' +
+
+                        '<select class="notificationEvent" data-index="' +
+                        index +
+                        '">' +
+
+                            '<option value="TASK_ASSIGNED"' +
+                            (notification.event === "TASK_ASSIGNED"
+                                ? ' selected'
+                                : '') +
+                            '>Task Assigned</option>' +
+
+                            '<option value="TASK_COMPLETED"' +
+                            (notification.event === "TASK_COMPLETED"
+                                ? ' selected'
+                                : '') +
+                            '>Task Completed</option>' +
+
+                            '<option value="TASK_APPROVED"' +
+                            (notification.event === "TASK_APPROVED"
+                                ? ' selected'
+                                : '') +
+                            '>Task Approved</option>' +
+
+                            '<option value="TASK_REJECTED"' +
+                            (notification.event === "TASK_REJECTED"
+                                ? ' selected'
+                                : '') +
+                            '>Task Rejected</option>' +
+
+                        '</select>' +
+
+                    '</div>' +
+
+
+                    '<div class="jq-field">' +
+
+                        '<label>Notification Type</label>' +
+
+                        '<select class="notificationType" data-index="' +
+                        index +
+                        '">' +
+
+                            '<option value="EMAIL"' +
+                            (notification.type === "EMAIL"
+                                ? ' selected'
+                                : '') +
+                            '>Email</option>' +
+
+                            '<option value="SMS"' +
+                            (notification.type === "SMS"
+                                ? ' selected'
+                                : '') +
+                            '>SMS</option>' +
+
+                            '<option value="INAPP"' +
+                            (notification.type === "INAPP"
+                                ? ' selected'
+                                : '') +
+                            '>In App</option>' +
+
+                        '</select>' +
+
+                    '</div>' +
+
+
+                    '<div class="jq-field">' +
+
+                        '<label>Template Name</label>' +
+
+                        '<input ' +
+                        'type="text" ' +
+                        'class="notificationTemplate" ' +
+                        'data-index="' +
+                        index +
+                        '" ' +
+                        'value="' +
+                        (notification.template || '') +
+                        '">' +
+
+                    '</div>' +
+
+
+                    '<div class="jq-field">' +
+
+                        '<label>Recipient Type</label>' +
+
+                        '<select class="notificationRecipientType" data-index="' +
+                        index +
+                        '">' +
+
+                            '<option value="USER"' +
+                            (notification.recipientType === "USER"
+                                ? ' selected'
+                                : '') +
+                            '>User</option>' +
+
+                            '<option value="ROLE"' +
+                            (notification.recipientType === "ROLE"
+                                ? ' selected'
+                                : '') +
+                            '>Role</option>' +
+
+                            '<option value="GROUP"' +
+                            (notification.recipientType === "GROUP"
+                                ? ' selected'
+                                : '') +
+                            '>Group</option>' +
+
+                        '</select>' +
+
+                    '</div>' +
+
+
+                    '<div class="jq-field">' +
+
+                        '<label>Recipient</label>' +
+
+                        '<select ' +
+                        'class="notificationRecipientValue" ' +
+                        'data-index="' +
+                        index +
+                        '">' +
+                               buildRecipientOptions(
+
+                                notification.recipientType,
+
+                                notification.recipientValue
+
+                            ) +
+
+                        '</select>' +
+
+                    '</div>' +
+
+
+                    '<div class="jq-card-actions">' +
+
+                        '<button ' +
+                        'class="jq-danger-btn deleteNotification" ' +
+                        'data-index="' +
+                        index +
+                        '">' +
+
+                        'Delete Notification' +
+
+                        '</button>' +
+
+                    '</div>' +
+
+                '</div>';
+
+        }
+    );
+
+    bindNotificationEvents(
+        element
+    );
+}
+         
+         function bindNotificationEvents(
+         element
+         ) {
+         
+         document
+         .querySelectorAll(
+             ".notificationEvent"
+         )
+         .forEach(function(select) {
+         
+             select.addEventListener(
+                 "change",
+                 function() {
+         
+                     updateNotification(
+                         element,
+                         this.dataset.index,
+                         "event",
+                         this.value
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".notificationType"
+         )
+         .forEach(function(select) {
+         
+             select.addEventListener(
+                 "change",
+                 function() {
+         
+                     updateNotification(
+                         element,
+                         this.dataset.index,
+                         "type",
+                         this.value
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".notificationTemplate"
+         )
+         .forEach(function(input) {
+         
+             input.addEventListener(
+                 "change",
+                 function() {
+         
+                     updateNotification(
+                         element,
+                         this.dataset.index,
+                         "template",
+                         this.value
+                     );
+                 }
+             );
+         });
+         
+        document
+        .querySelectorAll(
+            ".notificationRecipientType"
+        )
+        .forEach(function(select) {
+
+            select.addEventListener(
+                "change",
+                function(e) {
+
+                    updateNotification(
+                        element,
+                        this.dataset.index,
+                        "recipientType",
+                        this.value
+                    );
+
+                    const index =
+                        this.dataset.index;
+
+                    const recipientSelect =
+                        document.querySelector(
+
+                            '.notificationRecipientValue[data-index="' +
+
+                            index +
+
+                            '"]'
+
+                        );
+
+                    if(recipientSelect){
+
+                        recipientSelect.innerHTML =
+
+                            buildRecipientOptions(
+
+                                this.value,
+
+                                ""
+
+                            );
+
+                    }
+
+                }
+            );
+
+        });
+         
+         document
+         .querySelectorAll(
+             ".notificationRecipientValue"
+         )
+         .forEach(function(input) {
+         
+             input.addEventListener(
+                 "change",
+                 function() {
+         
+                     updateNotification(
+                         element,
+                         this.dataset.index,
+                         "recipientValue",
+                         this.value
+                     );
+                 }
+             );
+         });
+         
+         document
+         .querySelectorAll(
+             ".deleteNotification"
+         )
+         .forEach(function(button) {
+         
+             button.addEventListener(
+                 "click",
+                 function() {
+         
+                     deleteNotification(
+                         element,
+                         this.dataset.index
+                     );
+                 }
+             );
+         });
+         }
+         function updateNotification(
+         element,
+         index,
+         property,
+         value
+         ) {
+         
+         const notifications =
+             getNotifications1(
+                 element
+             );
+         
+         if (
+             !notifications[index]
+         ) {
+             return;
+         }
+         
+         notifications[index][property] =
+             value;
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         }
+         function deleteNotification(
+         element,
+         index
+         ) {
+         
+         const extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return;
+         }
+         
+         const notifications =
+             getNotifications1(
+                 element
+             );
+         
+         const notification =
+             notifications[index];
+         
+         extensionElements.values =
+             extensionElements.values.filter(
+                 function(v) {
+         
+                     return v !== notification;
+                 }
+             );
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         
+         renderNotifications(
+             element
+         );
+         }
+         function getSla(
+         element
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         const extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return null;
+         }
+         
+         return extensionElements.values.find(
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:Sla"
+                 );
+             }
+         );
+         }
+         function getOrCreateSla(
+         element,
+         moddle,
+         modeling
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         let extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+         
+             extensionElements =
+                 moddle.create(
+                     "bpmn:ExtensionElements",
+                     {
+                         values: []
+                     }
+                 );
+         
+             modeling.updateProperties(
+                 element,
+                 {
+                     extensionElements:
+                         extensionElements
+                 }
+             );
+         }
+         
+         let sla =
+             extensionElements.values.find(
+                 function(v) {
+         
+                     return (
+                         v.$type ===
+                         "jq:Sla"
+                     );
+                 }
+             );
+         
+         if (!sla) {
+         
+             sla =
+                 moddle.create(
+                     "jq:Sla",
+                     {}
+                 );
+         
+             extensionElements.values.push(
+                 sla
+             );
+         }
+         
+         return sla;
+         }
+         function saveSlaProperty(
+         element,
+         propertyName,
+         value
+         ) {
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const modeling =
+             modeler.get(
+                 "modeling"
+             );
+         
+         const sla =
+             getOrCreateSla(
+                 element,
+                 moddle,
+                 modeling
+             );
+         
+         sla[propertyName] =
+             value;
+         
+         modeling.updateProperties(
+             element,
+             {}
+         );
+         
+         console.log(
+             propertyName +
+             " Saved:",
+             value
+         );
+         }
+         
+         function getEscalations(
+         element
+         ) {
+         
+         const businessObject =
+             element.businessObject;
+         
+         const extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return [];
+         }
+         
+         return extensionElements.values.filter(
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:Escalation"
+                 );
+             }
+         );
+         }
+         
+         function addEscalation(
+         element
+         ) {
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const extensionElements =
+             getOrCreateExtensionElements(
+                 element,
+                 moddle
+             );
+         
+         const escalation =
+             moddle.create(
+                 "jq:Escalation",
+                 {
+                     level: "1",
+                     afterHours: "24",
+                     role: "",
+                     action: "EMAIL"
+                 }
+             );
+         
+         extensionElements.values.push(
+             escalation
+         );
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         }
+         
+         function renderEscalations(
+         element
+         ) {
+         
+         const container =
+             document.getElementById(
+                 "escalationContainer"
+             );
+         
+         container.innerHTML = "";
+         
+         const escalations =
+             getEscalations(
+                 element
+             );
+         
+         escalations.forEach(
+         
+             function(
+                 esc,
+                 index
+             ) {
+         
+                 container.innerHTML +=
+         
+                 '<div class="jq-escalation">' +
+         
+                     '<input ' +
+                     'class="escLevel" ' +
+                     'data-index="' +
+                     index +
+                     '" ' +
+                     'value="' +
+                     (esc.level || "") +
+                     '">' +
+         
+                     '<input ' +
+                     'class="escAfterHours" ' +
+                     'data-index="' +
+                     index +
+                     '" ' +
+                     'value="' +
+                     (esc.afterHours || "") +
+                     '">' +
+         
+                     '<input ' +
+                     'class="escRole" ' +
+                     'data-index="' +
+                     index +
+                     '" ' +
+                     'value="' +
+                     (esc.role || "") +
+                     '">' +
+         
+                     '<select ' +
+                     'class="escAction" ' +
+                     'data-index="' +
+                     index +
+                     '">' +
+         
+                         '<option value="EMAIL"' +
+                         (esc.action === "EMAIL"
+                             ? " selected"
+                             : "") +
+                         '>EMAIL</option>' +
+         
+                         '<option value="REASSIGN"' +
+                         (esc.action === "REASSIGN"
+                             ? " selected"
+                             : "") +
+                         '>REASSIGN</option>' +
+         
+                         '<option value="AUTO_APPROVE"' +
+                         (esc.action === "AUTO_APPROVE"
+                             ? " selected"
+                             : "") +
+                         '>AUTO_APPROVE</option>' +
+         
+                     '</select>' +
+         
+                     '<button ' +
+                     'class="deleteEscalation" ' +
+                     'data-index="' +
+                     index +
+                     '">' +
+                     'Delete' +
+                     '</button>' +
+         
+                 '</div>';
+             }
+         );
+         
+         bindEscalationEvents(
+             element
+         );
+         }
+         
+         function bindEscalationEvents(
+         element
+         ) {
+         
+         document
+         .querySelectorAll(
+             ".escLevel"
+         )
+         .forEach(
+         
+             function(
+                 input
+             ) {
+         
+                 input.addEventListener(
+                     "change",
+                     function() {
+         
+                         updateEscalation(
+                             element,
+                             this.dataset.index,
+                             "level",
+                             this.value
+                         );
+                     }
+                 );
+             }
+         );
+         
+         document
+         .querySelectorAll(
+             ".escAfterHours"
+         )
+         .forEach(
+         
+             function(
+                 input
+             ) {
+         
+                 input.addEventListener(
+                     "change",
+                     function() {
+         
+                         updateEscalation(
+                             element,
+                             this.dataset.index,
+                             "afterHours",
+                             this.value
+                         );
+                     }
+                 );
+             }
+         );
+         
+         document
+         .querySelectorAll(
+             ".escRole"
+         )
+         .forEach(
+         
+             function(
+                 input
+             ) {
+         
+                 input.addEventListener(
+                     "change",
+                     function() {
+         
+                         updateEscalation(
+                             element,
+                             this.dataset.index,
+                             "role",
+                             this.value
+                         );
+                     }
+                 );
+             }
+         );
+         
+         document
+         .querySelectorAll(
+             ".escAction"
+         )
+         .forEach(
+         
+             function(
+                 input
+             ) {
+         
+                 input.addEventListener(
+                     "change",
+                     function() {
+         
+                         updateEscalation(
+                             element,
+                             this.dataset.index,
+                             "action",
+                             this.value
+                         );
+                     }
+                 );
+             }
+         );
+         
+         document
+         .querySelectorAll(
+             ".deleteEscalation"
+         )
+         .forEach(
+         
+             function(
+                 btn
+             ) {
+         
+                 btn.addEventListener(
+                     "click",
+                     function() {
+         
+                         deleteEscalation(
+                             element,
+                             this.dataset.index
+                         );
+                     }
+                 );
+             }
+         );
+         }
+         
+         function updateEscalation(
+         element,
+         index,
+         property,
+         value
+         ) {
+         
+         const escalations =
+             getEscalations(
+                 element
+             );
+         
+         if (
+             !escalations[index]
+         ) {
+             return;
+         }
+         
+         escalations[index][property] =
+             value;
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         }
+         function deleteEscalation(
+         element,
+         index
+         ) {
+         
+         const extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return;
+         }
+         
+         const escalations =
+             getEscalations(
+                 element
+             );
+         
+         const escalation =
+             escalations[index];
+         
+         extensionElements.values =
+             extensionElements.values.filter(
+                 function(v) {
+         
+                     return (
+                         v !== escalation
+                     );
+                 }
+             );
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         
+         renderEscalations(
+             element
+         );
+         }
+         
+         function getOrCreateExtensionElements(
+         element
+         ) {
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const businessObject =
+             element.businessObject;
+         
+         let extensionElements =
+             businessObject.extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+         
+             extensionElements =
+                 moddle.create(
+                     "bpmn:ExtensionElements",
+                     {
+                         values: []
+                     }
+                 );
+         
+             modeler
+             .get("modeling")
+             .updateProperties(
+                 element,
+                 {
+                     extensionElements:
+                         extensionElements
+                 }
+             );
+         }
+         
+         return extensionElements;
+         }
+         
+         function getDataMappings(
+         element
+         ) {
+         
+         const extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (!extensionElements) {
+             return [];
+         }
+         
+         return extensionElements.values.filter(
+             function(v) {
+         
+                 return v.$type ===
+                     "jq:DataMapping";
+             }
+         );
+         }
+         
+         function addDataMapping(
+         element
+         ) {
+         
+         const moddle =
+             modeler.get("moddle");
+         
+         const extensionElements =
+             getOrCreateExtensionElements(
+                 element
+             );
+         
+         const mapping =
+             moddle.create(
+                 "jq:DataMapping",
+                 {
+                     sourceField: "",
+                     targetVariable: ""
+                 }
+             );
+         
+         extensionElements.values.push(
+             mapping
+         );
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         }
+         
+         function deleteDataMapping(
+         element,
+         index
+         ) {
+         
+         const mappings =
+             getDataMappings(
+                 element
+             );
+         
+         const mapping =
+             mappings[index];
+         
+         const extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         extensionElements.values =
+             extensionElements.values.filter(
+                 function(v) {
+         
+                     return v !== mapping;
+                 }
+             );
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         
+         renderDataMappings(
+             element
+         );
+         }
+         
+         function renderDataMappings(
+         element
+         ) {
+         
+         const container =
+             document.getElementById(
+                 "dataMappingContainer"
+             );
+         
+         if (!container) {
+             return;
+         }
+         
+         container.innerHTML = "";
+         
+         const mappings =
+             getDataMappings(
+                 element
+             );
+         
+         mappings.forEach(
+         
+             function(
+                 mapping,
+                 index
+             ) {
+         
+                 container.innerHTML +=
+         
+                     '<div class="jq-mapping-row">' +
+         
+                         '<input ' +
+                         'class="mappingSource" ' +
+                         'data-index="' +
+                         index +
+                         '" ' +
+                         'placeholder="Source Field" ' +
+                         'value="' +
+                         (mapping.sourceField || "") +
+                         '">' +
+         
+                         '<input ' +
+                         'class="mappingTarget" ' +
+                         'data-index="' +
+                         index +
+                         '" ' +
+                         'placeholder="Target Variable" ' +
+                         'value="' +
+                         (mapping.targetVariable || "") +
+                         '">' +
+         
+                         '<button ' +
+                         'class="deleteMappingBtn" ' +
+                         'data-index="' +
+                         index +
+                         '">' +
+                         'Delete' +
+                         '</button>' +
+         
+                     '</div>';
+             }
+         );
+         
+         bindDataMappingEvents(
+             element
+         );
+         }
+         
+         function updateDataMapping(
+         element,
+         index,
+         propertyName,
+         value
+         ) {
+         
+         const mappings =
+             getDataMappings(
+                 element
+             );
+         
+         if (
+             !mappings[index]
+         ) {
+             return;
+         }
+         
+         mappings[index][propertyName] =
+             value;
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         }
+         
+         function bindDataMappingEvents(
+         element
+         ) {
+         
+         document
+         .querySelectorAll(
+             ".mappingSource"
+         )
+         .forEach(
+         
+             function(input) {
+         
+                 input.addEventListener(
+                     "change",
+                     function(e) {
+         
+                         updateDataMapping(
+                             element,
+                             parseInt(
+                                 e.target.dataset.index
+                             ),
+                             "sourceField",
+                             e.target.value
+                         );
+                     }
+                 );
+             }
+         );
+         
+         document
+         .querySelectorAll(
+             ".mappingTarget"
+         )
+         .forEach(
+         
+             function(input) {
+         
+                 input.addEventListener(
+                     "change",
+                     function(e) {
+         
+                         updateDataMapping(
+                             element,
+                             parseInt(
+                                 e.target.dataset.index
+                             ),
+                             "targetVariable",
+                             e.target.value
+                         );
+                     }
+                 );
+             }
+         );
+         
+         document
+         .querySelectorAll(
+             ".deleteMappingBtn"
+         )
+         .forEach(
+         
+             function(button) {
+         
+                 button.addEventListener(
+                     "click",
+                     function(e) {
+         
+                         deleteDataMapping(
+                             element,
+                             parseInt(
+                                 e.target.dataset.index
+                             )
+                         );
+                     }
+                 );
+             }
+         );
+         }
+         
+         
+         function getBusinessRule(
+         element
+         ) {
+         
+         const extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return null;
+         }
+         
+         return extensionElements.values.find(
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:BusinessRule"
+                 );
+             }
+         );
+         }
+         
+         function getOrCreateBusinessRule(
+         element
+         ) {
+         
+         let rule =
+             getBusinessRule(
+                 element
+             );
+         
+         if (rule) {
+             return rule;
+         }
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const extensionElements =
+             getOrCreateExtensionElements(
+                 element
+             );
+         
+         rule =
+             moddle.create(
+                 "jq:BusinessRule",
+                 {
+                     ruleCode: "",
+                     ruleType: "JAVA",
+                     description: ""
+                 }
+             );
+         
+         extensionElements.values.push(
+             rule
+         );
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         
+         return rule;
+         }
+         
+         function saveBusinessRuleProperty(
+         element,
+         propertyName,
+         value
+         ) {
+         
+         const rule =
+             getOrCreateBusinessRule(
+                 element
+             );
+         
+         rule[propertyName] =
+             value;
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         }
+         
+         function getFormConfig(
+         element
+         ) {
+         
+         const extensionElements =
+             element.businessObject
+                 .extensionElements;
+         
+         if (
+             !extensionElements
+         ) {
+             return null;
+         }
+         
+         return extensionElements.values.find(
+             function(v) {
+         
+                 return (
+                     v.$type ===
+                     "jq:FormConfig"
+                 );
+             }
+         );
+         }
+         
+         function getOrCreateFormConfig(
+         element
+         ) {
+         
+         let config =
+             getFormConfig(
+                 element
+             );
+         
+         if (config) {
+             return config;
+         }
+         
+         const moddle =
+             modeler.get(
+                 "moddle"
+             );
+         
+         const extensionElements =
+             getOrCreateExtensionElements(
+                 element
+             );
+         
+         config =
+             moddle.create(
+                 "jq:FormConfig",
+                 {
+                     formId: "",
+                     mode: "EDIT",
+                     saveDraft: "false"
+                 }
+             );
+         
+         extensionElements.values.push(
+             config
+         );
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         
+         return config;
+         }
+         
+         function saveFormConfigProperty(
+         element,
+         propertyName,
+         value
+         ) {
+         
+         const config =
+             getOrCreateFormConfig(
+                 element
+             );
+         
+         config[propertyName] =
+             value;
+         
+         modeler
+         .get("modeling")
+         .updateProperties(
+             element,
+             {}
+         );
+         }
+         
+         
+         
+      </script>
+   </body>
+</html>

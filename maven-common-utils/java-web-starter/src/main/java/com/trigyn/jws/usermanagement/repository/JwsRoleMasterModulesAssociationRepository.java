@@ -1,6 +1,7 @@
 package com.trigyn.jws.usermanagement.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -37,4 +38,29 @@ public interface JwsRoleMasterModulesAssociationRepository extends JpaRepository
 			" AND moduleId IN :moduleIds")
 	void toggleAnonymousUserAccessInMasterModule(@Param("isActive") Integer isActive, @Param("moduleIds") List<String> moduleIds);
 
+	
+	@Query("""
+			SELECT rm
+			FROM JwsRoleMasterModulesAssociation rm
+			WHERE rm.roleId = :roleId
+			AND rm.moduleId = :moduleId
+			""")
+			Optional<JwsRoleMasterModulesAssociation> findAssociation(
+			        @Param("roleId") String roleId,
+			        @Param("moduleId") String moduleId);
+	
+	
+	@Modifying
+	@Query("""
+	UPDATE JwsRoleMasterModulesAssociation
+	SET isActive = :isActive,
+	    roleTypeId = :roleTypeId
+	WHERE roleId = :roleId
+	AND moduleId = :moduleId
+	""")
+	int updateAssociation(
+	        @Param("roleId") String roleId,
+	        @Param("moduleId") String moduleId,
+	        @Param("isActive") Integer isActive,
+	        @Param("roleTypeId") Integer roleTypeId);
 }

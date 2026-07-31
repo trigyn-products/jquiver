@@ -22,6 +22,7 @@ import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+import com.trigyn.jws.dynamicform.utils.SqlIdentifierUtil;
 import com.trigyn.jws.typeahead.dao.TypeAheadDAO;
 import com.trigyn.jws.typeahead.dao.TypeAheadRepository;
 import com.trigyn.jws.typeahead.entities.Autocomplete;
@@ -60,6 +61,9 @@ public class TypeAheadService {
 	
 	@Autowired
 	private JwsMasterModulesRepository	jwsMasterModulesRepository	= null;
+	
+	@Autowired
+	protected SqlIdentifierUtil			sqlIdentifierUtil			= null;
 
 	public List<Map<String, Object>> getAutocompleteData(AutocompleteParams autocompleteParams,
 			Map<String, Object> requestParamMap) throws Exception, CustomStopException {
@@ -145,24 +149,68 @@ public class TypeAheadService {
 
 	}
 	
-	public String saveAutocompleteFromMasterGenerator(Map<String, Object> fkInfo, List<String> roleIds)
-			throws Exception {
+	public String saveAutocompleteFromMasterGenerator(Map<String, Object> fkInfo, List<String> roleIds,
+			String dbProductName) throws Exception {
 		logger.debug("Inside TypeAheadService.saveAutocompleteFromMasterGenerator" + "(fkInfo: {})", fkInfo);
-		
-		Autocomplete			autocomplete			= new Autocomplete();
-		UserDetailsVO			userDetailsVO			= userDetailsService.getUserDetails();
-		Date					date					= new Date();
-		String					autoCompleteId			= fkInfo.get("autocompleteId").toString();
-		String					autoCompleteDesc		= fkInfo.get("autocompleteName").toString();
-		String					tableName				= fkInfo.get("tableDisplayName").toString();
-		String					alias					= getAlias(tableName);
-		String					idColumn				= fkInfo.get("idColumn").toString();
-		String					displayColumn			= fkInfo.get("displayColumn").toString();
-		String					autoCompleteSelectQuery	= "SELECT " + alias + "." + idColumn + " AS entityId, " + alias
-				+ "." + displayColumn + " AS entityName " + "FROM " + tableName + " " + alias + " " + "WHERE " + alias
-				+ "." + displayColumn + " LIKE CONCAT('%', :searchText, '%') " + "ORDER BY " + alias + "."
-				+ displayColumn + " ASC " + "LIMIT :startIndex, :pageSize";
 
+		Autocomplete	autocomplete		= new Autocomplete();
+		UserDetailsVO	userDetailsVO		= userDetailsService.getUserDetails();
+		Date			date				= new Date();
+		String			autoCompleteId		= fkInfo.get("autocompleteId").toString();
+		String			autoCompleteDesc	= fkInfo.get("autocompleteName").toString();
+		String			tableName			= fkInfo.get("tableDisplayName").toString();
+		String			alias				= getAlias(tableName);
+		String			idColumn			= fkInfo.get("idColumn").toString();
+		String			displayColumn		= fkInfo.get("displayColumn").toString();
+		// Quote identifiers
+		String			quotedTable			= sqlIdentifierUtil.quote(tableName, dbProductName);
+		String			quotedIdColumn		= sqlIdentifierUtil.quote(idColumn, dbProductName);
+		String			quotedDisplayColumn	= sqlIdentifierUtil.quote(displayColumn, dbProductName);
+
+		String entityIdAlias = "entityId";
+		String entityNameAlias = "entityName";
+
+		if (dbProductName != null && dbProductName.toLowerCase().contains("postgresql")) {
+
+			entityIdAlias	= "\"entityId\"";
+			entityNameAlias	= "\"entityName\"";
+		}
+
+		StringBuilder	query				= new StringBuilder();
+		
+		query.append("SELECT ").append(alias).append(".").append(quotedIdColumn).append(" AS ").append(entityIdAlias)
+				.append(", ").append(alias).append(".").append(quotedDisplayColumn).append(" AS ")
+				.append(entityNameAlias).append(" ").append("FROM ").append(quotedTable).append(" ").append(alias)
+				.append(" ").append("WHERE ");
+
+//		query.append("SELECT ").append(alias).append(".").append(quotedIdColumn).append(" AS entityId, ").append(alias)
+//				.append(".").append(quotedDisplayColumn).append(" AS entityName ").append("FROM ").append(quotedTable)
+//				.append(" ").append(alias).append(" ").append("WHERE ");
+
+		if (dbProductName != null && dbProductName.toLowerCase().contains("sqlserver")) {
+			query.append(alias).append(".").append(quotedDisplayColumn).append(" LIKE '%' + :searchText + '%' ");
+		} else {
+			query.append(alias).append(".").append(quotedDisplayColumn).append(" LIKE CONCAT('%', :searchText, '%') ");
+		}
+
+		query.append("ORDER BY ").append(alias).append(".").append(quotedDisplayColumn).append(" ASC ");
+
+		if (dbProductName != null) {
+			String db = dbProductName.toLowerCase().replace("[", "").replace("]", "");
+			if (db.contains("sqlserver") || db.contains("mssql")) {
+				query.append("OFFSET :startIndex ROWS ").append("FETCH NEXT :pageSize ROWS ONLY");
+			} else if (db.contains("mysql") || db.contains("mariadb")) {
+				query.append("LIMIT :startIndex, :pageSize");
+			} else if (db.contains("postgresql")) {
+				query.append("LIMIT :pageSize OFFSET :startIndex");
+			} else if (db.contains("oracle")) {
+				query.append("OFFSET :startIndex ROWS ").append("FETCH NEXT :pageSize ROWS ONLY");
+			} else {
+				// Default to MySQL/MariaDB
+				query.append("LIMIT :startIndex, :pageSize");
+			}
+		}
+		String					autoCompleteSelectQuery	= query.toString();
 		String					dataSourceId			= fkInfo.get("dataSourceId").toString();
 		Optional<Autocomplete>	autocompleteOptional	= typeAheadRepository.findById(autoCompleteId);
 		if (autocompleteOptional != null && autocompleteOptional.isEmpty() == false) {
@@ -182,9 +230,9 @@ public class TypeAheadService {
 		autocomplete.setAutocompleteSelectQuery(autoCompleteSelectQuery);
 		autocomplete.setLastUpdatedTs(date);
 		autocomplete.setAcTypeId(1);
-		AutocompleteVO	autocompleteVO	= convertEntityToVO(autocomplete);
+		AutocompleteVO autocompleteVO = convertEntityToVO(autocomplete);
 		typeAheadRepository.save(autocomplete);
-		saveRolesForAutocomplete(fkInfo,roleIds);
+		saveRolesForAutocomplete(fkInfo, roleIds);
 		moduleVersionService.saveModuleVersion(autocompleteVO, null, autoCompleteId, "jq_autocomplete_details",
 				Constant.MASTER_SOURCE_VERSION_TYPE);
 		return autoCompleteId;

@@ -1551,7 +1551,7 @@ public class ImportService {
 			if ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes() != null) {
 				detailsVO = detailsService.getUserDetails();
 			} else {
-				detailsVO = new UserDetailsVO("admin@jquiver.io", "admin", Arrays.asList("ADMIN"), "admin");
+				detailsVO = new UserDetailsVO("admin@localhost.io", "admin", Arrays.asList("ADMIN"), "admin");
 			}
 			Date	date		= new Date();
 			String	user		= detailsVO.getUserName();

@@ -66,7 +66,7 @@
               <div class="modal-body">
                 <div class="form-group mb-4">
                     <label>Lookup Type</label>
-                    <select id="foreignKeyMode" class="form-control" onchange="onForeignKeyModeChange()">
+                    <select id="foreignKeyMode" class="form-control" onchange="onForeignKeyModeChange();clearForeignKeyFields();">
                         <option value="DROPDOWN">
                             Dropdown
                         </option>
@@ -157,7 +157,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="saveForeignKeyDetails();">Ok</button>
+                <button type="button" id="modalOkBtn" class="btn btn-primary"  onclick="saveForeignKeyDetails();">Ok</button>
                 <button type="button" id="modalCloseBtn"  class="btn btn-secondary" data-bs-dismiss="modal" onclick="uncheckSelectBoxonCancel();">Cancel</button>
             </div>
         </div>
@@ -210,7 +210,6 @@
 			resetAutocomplete: function(autocompleteObj){     
             },       
 	    });	
-
          // Existing Autocomplete
           existingAutocomplete = $("#existingAutocomplete").autocomplete({
 	        autocompleteId: "existingAutocomplete",
@@ -261,60 +260,82 @@
             $("#newAutocompleteSection").show();
             $("#datasourceSection").show();
             $("#tableSection").show();
+          //  $("#tabledropdownAutocomplete").empty().val(null).trigger("change");
+            document.getElementById("tabledropdownAutocomplete").value = ""; 
             $("#tabledropdownAutocomplete").val("");
             $("#autocompleteIdColumn").val("");
             $("#autocompleteIdColumn").empty().append('<option value="">Select ID Column</option>'); 
             $("#autocompleteId").val("");
         }
     }
-    
-   function uncheckSelectBoxonCancel() {
-       document.activeElement.blur();   // remove focus from Cancel button
-    if (isForeignKeySaved == false && currentForeignKeyIndex != null) {
-        $("#foreignKey_" + currentForeignKeyIndex).prop("checked", false);
-        // Hide edit button
-        $("#editForeignKey_" + currentForeignKeyIndex).hide();
-        // Remove saved config
-        let columnName = $("#tfcolumn_" + currentForeignKeyIndex).text().trim();
-        foreignKeyDetails = foreignKeyDetails.filter(
-            x => x.columnName !== columnName
-        );
-    }
-    clearForeignKeyPopup();
+
+    function clearForeignKeyFields() {
+        tabledropdownAutocomplete.resetAutocomplete();
+        $("#selectTabledropDown").val("");
+        $("#selectedTable").val("");
+
+        $("#fkIdColumn").empty().append('<option value="">Select ID Column</option>');
+        $("#fkDisplayColumn").empty().append('<option value="">Select Display Column</option>');
+
+        $("#autocompleteIdColumn").empty().append('<option value="">Select ID Column</option>');
+        $("#autocompleteDisplayColumn").empty().append('<option value="">Select Display Column</option>');
+
+        $("#autocompleteId").val("");
+        $("#autocompleteName").val("");
+        $("#existingAutocomplete").val("");
 }
 
-    function getAlltableDatasource(isEdit) {
-        $.ajax({
-            type: "POST",
-            async: false,
-            url: contextPath + apiPath + "/jq-all-datasource",
-            success: function(data) {
-                data.forEach(function(dataSourceObj) {
-                    if (dataSourceObj.selectedDataSource !== null && isEdit === 0) {
-                        $("#dataSourceTbl").append("<option selected value=" + dataSourceObj.additionalDatasourceId + " data-product-name=" + dataSourceObj.databaseProductName + ">" + dataSourceObj.datasourceName + "</option>")
-                    } else {
-                        $("#dataSourceTbl").append("<option value=" + dataSourceObj.additionalDatasourceId + " data-product-name=" + dataSourceObj.databaseProductName + ">" + dataSourceObj.datasourceName + "</option>")
-                    }
-                });
-                if ($("#dataSourceId") != undefined && $("#dataSourceId").val() != undefined && $("#dataSourceId").val().trim() !== "") {
-                    $("#dataSourceTbl").val($("#dataSourceId").val());
-                }
-            },
-            error: function(xhr, error) {
-                showMessage("Error occurred while fetching list of active database drivers", "error");
-            },
-        });
-    }
+function uncheckSelectBoxonCancel() {
+    let columnName = $("#tfcolumn_" + currentForeignKeyIndex).text().trim();
+    // Check whether this column already has a saved FK configuration
+    let existingConfig = foreignKeyDetails.find(fk => fk.columnName === columnName);
 
-    function openForeignKeyModal() {
-        getAlltableDatasource(0);
-        clearForeignKeyPopup();
-        // Reset toggle states
-        $("#fkTypeToggle").prop("checked", false);
-        $("#autocompleteToggle").prop("checked", false);
-        var myModal = new bootstrap.Modal(document.getElementById('foreignkeyModalDialog'));
-        myModal.show();
+    if (existingConfig) {
+        // User was editing an existing configuration.
+        // Cancel should restore previous state.
+        $("#foreignKey_" + currentForeignKeyIndex).prop("checked", true);
+        $("#editForeignKey_" + currentForeignKeyIndex).addClass("show");
+    } else {
+        // User was creating a new configuration.
+        // Cancel should remove lookup selection.
+        $("#foreignKey_" + currentForeignKeyIndex).prop("checked", false);
+        $("#editForeignKey_" + currentForeignKeyIndex).removeClass("show");
     }
+    
+}
+
+function getAlltableDatasource(isEdit) {
+    $.ajax({
+        type: "POST",
+        async: false,
+        url: contextPath + apiPath + "/jq-all-datasource",
+        success: function(data) {
+            data.forEach(function(dataSourceObj) {
+                if (dataSourceObj.selectedDataSource !== null && isEdit === 0) {
+                    $("#dataSourceTbl").append("<option selected value=" + dataSourceObj.additionalDatasourceId + " data-product-name=" + dataSourceObj.databaseProductName + ">" + dataSourceObj.datasourceName + "</option>")
+                } else {
+                    $("#dataSourceTbl").append("<option value=" + dataSourceObj.additionalDatasourceId + " data-product-name=" + dataSourceObj.databaseProductName + ">" + dataSourceObj.datasourceName + "</option>")
+                }
+            });
+            if ($("#dataSourceId") != undefined && $("#dataSourceId").val() != undefined && $("#dataSourceId").val().trim() !== "") {
+                $("#dataSourceTbl").val($("#dataSourceId").val());
+            }
+        },
+        error: function(xhr, error) {
+            showMessage("Error occurred while fetching list of active database drivers", "error");
+        },
+    });
+}
+
+function openForeignKeyModal() {
+    getAlltableDatasource(0);
+    clearForeignKeyPopup();
+    // Reset toggle states
+    $("#fkTypeToggle").prop("checked", false);
+    $("#autocompleteToggle").prop("checked", false);
+    var myModal = new bootstrap.Modal(document.getElementById('foreignkeyModalDialog'));
+    myModal.show();
+}
 
      function updateTblDataSource() {
         if (tabledropdownAutocomplete != null) {
@@ -350,6 +371,7 @@
         onForeignKeyModeChange();
         $("#dataSourceTbl").val("").trigger("change");
         $("#tabledropdownAutocomplete").val("");
+        tabledropdownAutocomplete.resetAutocomplete();
         $("#idColumn").empty().append('<option value="">Select ID Column</option>');
         $("#displayColumn").empty().append('<option value="">Select Display Column</option>');    
         $("#fkTable").val("");

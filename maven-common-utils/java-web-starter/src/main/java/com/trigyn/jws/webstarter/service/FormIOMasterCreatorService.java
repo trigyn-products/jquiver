@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.service.DynamicFormHelperService;
 import com.trigyn.jws.dynamicform.service.DynamicFormIoService;
+import com.trigyn.jws.dynamicform.utils.SqlIdentifierUtil;
 import com.trigyn.jws.formio.dao.IFormIORepository;
 import com.trigyn.jws.formio.entities.FormIO;
 import com.trigyn.jws.formio.utils.Constants;
@@ -52,12 +53,15 @@ public class FormIOMasterCreatorService {
 	private TemplatingUtils			templatingUtils			= null;
 	
 	@Autowired
-	private DynamicFormIoService dynamicFormIoService = null;
+	private DynamicFormIoService		dynamicFormIoService		= null;
 	@Autowired
-	private DynamicFormHelperService dynamicFormHelperService =null;
-	
+	private DynamicFormHelperService	dynamicFormHelperService	= null;
+
 	@Autowired
-	private HttpServletRequest 			request 			= null;
+	private HttpServletRequest			request						= null;
+
+	@Autowired
+	protected SqlIdentifierUtil			sqlIdentifierUtil			= null;
 
 
 	String generateSelectQueryForFormIO(String tableName, List<Map<String, Object>> formDetails,
@@ -70,12 +74,14 @@ public class FormIOMasterCreatorService {
 		int							selectColoumnCounter	= tableInformation.size();
 		Map<String, Object>			saveQueryparameters		= new HashMap<>();
 		for (Map<String, Object> info : tableInformation) {
-			if(info != null && info.get("columnType") !=null && info.get("columnType").toString() !=null ) {
-				String	columnName		= info.get("tableColumnName").toString();
-				String	dataType		= info.get("dataType").toString();
-				String	columnKey		= info.get("columnKey").toString();
-				String	columnType		= info.get("columnType").toString();
-				String	isAutoIncrement	= info.get("autoIncrement").toString();
+			if (info != null && info.get("columnType") != null && info.get("columnType").toString() != null) {
+				// String columnName = info.get("tableColumnName").toString();
+				String	originalColumnName	= info.get("tableColumnName").toString();
+				String	columnName			= sqlIdentifierUtil.quoteIfRequired(originalColumnName, dbProductName);
+				String	dataType			= info.get("dataType").toString();
+				String	columnKey			= info.get("columnKey").toString();
+				String	columnType			= info.get("columnType").toString();
+				String	isAutoIncrement		= info.get("autoIncrement").toString();
 				if ("PK".equals(columnKey)) {
 					selectParameters.put("primaryKeyColumnName", columnName);
 				}
@@ -83,17 +89,23 @@ public class FormIOMasterCreatorService {
 						dbProductName, selectColoumnCounter, isAutoIncrement, saveQueryparameters, colmnsAs);
 			}
 		}
-		String columsAsCsv = StringUtils.join(colmnsAs, ",");
-		selectParameters.put("tableName", tableName);
-		selectParameters.put("columnNames", columsAsCsv);
+		String	columsAsCsv		= StringUtils.join(colmnsAs, ",");
+		String	quotedTableName	= sqlIdentifierUtil.quoteIfRequired(tableName, dbProductName);
+		//selectParameters.put("tableName", quotedTableName);
+		// selectParameters.put("tableName", tableName);
+	//	selectParameters.put("columnNames", columsAsCsv);
+		selectParameters.put("tableName", quotedTableName.replace("\"", "\\\""));
+		selectParameters.put("columnNames", columsAsCsv.replace("\"", "\\\""));
+		selectParameters.put("primaryKeyColumnName",selectParameters.get("primaryKeyColumnName").toString().replace("\"", "\\\""));
+
 		if (dataSourceId != null && !dataSourceId.isBlank()) {
-		    selectParameters.put("dataSourceId", dataSourceId);
+			selectParameters.put("dataSourceId", dataSourceId);
 		} else {
 			selectParameters.put("dataSourceId", null);
 		}
 		selectParameters.put("dbProductName", dbProductName.replaceAll("[\\[\\]]", ""));
-		//selectParameters.put("dataSourceId", dataSourceId);
-		
+		// selectParameters.put("dataSourceId", dataSourceId);
+
 		TemplateVO	templateVO;
 		String		template;
 		templateVO	= dbTemplatingService.getTemplateByName("formio-select-template");

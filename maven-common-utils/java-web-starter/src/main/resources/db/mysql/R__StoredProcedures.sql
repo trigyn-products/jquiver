@@ -1,16 +1,16 @@
 
 REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id, created_by, created_date, last_updated_ts) 
 VALUES ("userListingGrid", 'userListingGrid', 'userListingGrid', 'userListingGrid'
-,'email,firstName,lastName,status,isAfterDate', 2, 2, 'admin@jquiver.io', NOW(), NOW()); 
+,'email,firstName,lastName,status,isAfterDate', 2, 2, 'admin@localhost.io', NOW(), NOW()); 
 
 
 REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id, created_by, created_date, last_updated_ts) 
 VALUES ("roleListingGrid", 'roleGrid', 'roleGrid', 'roleGrid'
-,'roleName,isActive,isAfterDate', 2, 2, 'admin@jquiver.io', NOW(), NOW()); 
+,'roleName,isActive,isAfterDate', 2, 2, 'admin@localhost.io', NOW(), NOW()); 
 
 REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id, created_by, created_date, last_updated_ts) 
 VALUES ("helpManualListingGrid", 'helpManualListingGrid', 'helpManualListingGrid', 'helpManualListingGrid'
-,'manualId,manualName,isSystemManual,isAfterDate', 2, 2, 'admin@jquiver.io', NOW(), NOW()); 
+,'manualId,manualName,isSystemManual,isAfterDate', 2, 2, 'admin@localhost.io', NOW(), NOW()); 
 
 
 
@@ -1406,54 +1406,132 @@ BEGIN
 END;
 
 
-CREATE  OR REPLACE VIEW `jq_manage_entity_role_listing` AS
-SELECT `a`.`entityroleid`    AS `entityroleid`,
-       `a`.`entityid`        AS `entityid`,
-       `a`.`entityname`      AS `entityname`,
-       `a`.`moduleid`        AS `moduleid`,
-       `a`.`modulename`      AS `modulename`,
-       `a`.`role_name`       AS `role_name`,
-       `a`.`role_id`         AS `role_id`,
-       `a`.`is_active`       AS `is_active`,
-       a.role_type_id 		 AS role_type_id FROM   (
-       (
-         SELECT    `jera`.`entity_role_id` AS `entityroleid`,
-                   `jera`.`entity_id`      AS `entityid`,
-                   `jera`.`entity_name`    AS `entityname`,
-                   `jera`.`module_id`      AS `moduleid`,
-                   `jmm`.`module_name`     AS `modulename`,
-                   `jr`.`role_name`        AS `role_name`,
-                   `jera`.`role_id`        AS `role_id`,
-                   `jera`.`is_active`      AS `is_active`,
-                    jera.role_type_id       AS role_type_id
-         FROM      ((`jq_entity_role_association` `jera`
-         LEFT JOIN `jq_role` `jr`
-         ON       (
-                             `jera`.`role_id` = `jr`.`role_id`))
-         JOIN      `jq_master_modules` `jmm`
-         ON       (
-                             `jmm`.`module_id` = `jera`.`module_id`))
-         WHERE     `jr`.`is_active` = 1
-         AND       `jera`.`module_type_id` = 0 )
-	UNION
+CREATE OR REPLACE VIEW jq_manage_entity_role_listing AS
+
+SELECT
+    a.entityroleid,
+    a.entityid,
+    a.entityname,
+    a.moduleid,
+    a.modulename,
+    a.role_name,
+    a.role_id,
+    a.is_active,
+    a.role_type_id
+FROM
+(
+    /* ------------------------------------------------------------
+       Existing Entity Role Associations
+       ------------------------------------------------------------ */
+    SELECT
+        jera.entity_role_id AS entityroleid,
+        jera.entity_id AS entityid,
+        jera.entity_name AS entityname,
+        jera.module_id AS moduleid,
+        jmm.module_name AS modulename,
+        jr.role_name AS role_name,
+        jera.role_id AS role_id,
+        jera.is_active AS is_active,
+        jera.role_type_id AS role_type_id
+    FROM jq_entity_role_association jera
+    LEFT JOIN jq_role jr
+        ON jr.role_id = jera.role_id
+    INNER JOIN jq_master_modules jmm
+        ON jmm.module_id = jera.module_id
+    WHERE jr.is_active = 1
+      AND jera.module_type_id = 0
+
+    UNION
+
+    /* ------------------------------------------------------------
+       Existing Master Module Associations
+       ------------------------------------------------------------ */
+    SELECT
+        jrma.role_module_id AS entityroleid,
+        jrma.module_id AS entityid,
+        jmm.module_name AS entityname,
+        '7982cc6a-6bd3-11ed-997d-7c8ae1bb24d8' AS moduleid,
+        'Master module' AS modulename,
+        jr.role_name AS role_name,
+        jrma.role_id AS role_id,
+        jrma.is_active AS is_active,
+        jrma.role_type_id AS role_type_id
+    FROM jq_role_master_modules_association jrma
+    INNER JOIN jq_role jr
+        ON jr.role_id = jrma.role_id
+    INNER JOIN jq_master_modules jmm
+        ON jmm.module_id = jrma.module_id
+    WHERE jr.is_active = 1
+      AND jmm.is_perm_supported = 1
+
+    UNION ALL
+
+    /* ------------------------------------------------------------
+       Missing Entity Associations based on Template Role
+       ------------------------------------------------------------ */
+    SELECT
+        NULL AS entityroleid,
+        t.entity_id AS entityid,
+        t.entity_name AS entityname,
+        t.module_id AS moduleid,
+        jmm.module_name AS modulename,
+        jr.role_name AS role_name,
+        jr.role_id AS role_id,
+        0 AS is_active,
+        t.role_type_id AS role_type_id
+    FROM
+    (
+        SELECT DISTINCT
+            entity_id,
+            entity_name,
+            module_id,
+            role_type_id
+        FROM jq_entity_role_association
+        WHERE role_id = 'ae6465b3-097f-11eb-9a16-f48e38ab9348'
+          AND module_type_id = 0
+    ) t
+    INNER JOIN jq_master_modules jmm
+        ON jmm.module_id = t.module_id
+    CROSS JOIN jq_role jr
+    WHERE jr.is_active = 1
+      AND NOT EXISTS
       (
-    	SELECT `jrma`.`role_module_id`                AS `entityroleid`,
-               `jrma`.`module_id`                     AS `entityid`,
-              `jmm`.`module_name`                    AS `entityname`,
-              '7982cc6a-6bd3-11ed-997d-7c8ae1bb24d8' AS `moduleid`,
-              'Master module'                        AS `modulename`,
-              `jr`.`role_name`                       AS `role_name`,
-              `jrma`.`role_id`                       AS `role_id`,
-              `jrma`.`is_active`                     AS `is_active`,
-   			   jrma.role_type_id		             AS role_type_id
-	    FROM      ((`jq_role` `jr`
-	    LEFT JOIN `jq_role_master_modules_association` `jrma`
-	    ON       (
-	                        `jrma`.`role_id` = `jr`.`role_id`))
-	    LEFT JOIN `jq_master_modules` `jmm`
-	    ON       (
-	                        `jrma`.`module_id` = `jmm`.`module_id`))
-	    WHERE     `jmm`.`is_perm_supported` = 1 )) `a`;
+          SELECT 1
+          FROM jq_entity_role_association jera
+          WHERE jera.role_id = jr.role_id
+            AND jera.entity_id = t.entity_id
+            AND jera.module_id = t.module_id
+            AND jera.module_type_id = 0
+      )
+
+    UNION ALL
+
+    /* ------------------------------------------------------------
+       Missing Master Module Associations
+       ------------------------------------------------------------ */
+    SELECT
+        NULL AS entityroleid,
+        mm.module_id AS entityid,
+        mm.module_name AS entityname,
+        '7982cc6a-6bd3-11ed-997d-7c8ae1bb24d8' AS moduleid,
+        'Master module' AS modulename,
+        jr.role_name AS role_name,
+        jr.role_id AS role_id,
+        0 AS is_active,
+        2 AS role_type_id
+    FROM jq_master_modules mm
+    CROSS JOIN jq_role jr
+    WHERE mm.is_perm_supported = 1
+      AND jr.is_active = 1
+      AND NOT EXISTS
+      (
+          SELECT 1
+          FROM jq_role_master_modules_association jrma
+          WHERE jrma.role_id = jr.role_id
+            AND jrma.module_id = mm.module_id
+      )
+
+) a;
 	    
 	CREATE  OR REPLACE VIEW `jq_form_io_listing_view` AS 
 	SELECT

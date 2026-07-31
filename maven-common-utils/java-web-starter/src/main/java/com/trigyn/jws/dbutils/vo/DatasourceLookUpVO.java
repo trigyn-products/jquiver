@@ -21,24 +21,28 @@ public class DatasourceLookUpVO implements Serializable {
 	private String 				connectionUrlPattern  = null;
 	
 	private String				datasourceLookupId		= null;
+	
+	private String              connectionProperties = null;
 
 	public DatasourceLookUpVO() {
 
 	}
 
-	public DatasourceLookUpVO(String datasourceName, String driverClassName, Boolean driverClassAvailable, String connectionUrlString) {
+	public DatasourceLookUpVO(String datasourceName, String driverClassName, Boolean driverClassAvailable, String connectionUrlString,String connectionProperties) {
 		this.datasourceName			= datasourceName;
 		this.driverClassName		= driverClassName;
 		this.driverClassAvailable	= driverClassAvailable;
 		this.connectionUrlPattern 	= connectionUrlString;
+		this.connectionProperties=connectionProperties;
 	}
 	
-	public DatasourceLookUpVO(String datasourceName, String driverClassName, Boolean driverClassAvailable, String connectionUrlString,String datasourceLookupId) {
+	public DatasourceLookUpVO(String datasourceName, String driverClassName, Boolean driverClassAvailable, String connectionUrlString,String datasourceLookupId,String connectionProperties) {
 		this.datasourceName			= datasourceName;
 		this.driverClassName		= driverClassName;
 		this.driverClassAvailable	= driverClassAvailable;
 		this.connectionUrlPattern 	= connectionUrlString;
 		this.datasourceLookupId 	= datasourceLookupId;
+		this.connectionProperties=connectionProperties;
 	}
 
 	public String getDatasourceName() {
@@ -97,9 +101,17 @@ public class DatasourceLookUpVO implements Serializable {
 		this.datasourceLookupId = datasourceLookupId;
 	}
 
+	public String getConnectionProperties() {
+		return connectionProperties;
+	}
+
+	public void setConnectionProperties(String connectionProperties) {
+		this.connectionProperties = connectionProperties;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(datasourceName, driverClassAvailable, driverClassName, connectionUrlPattern);
+		return Objects.hash(datasourceName, driverClassAvailable, driverClassName, connectionUrlPattern,connectionProperties);
 	}
 
 	@Override
@@ -117,7 +129,8 @@ public class DatasourceLookUpVO implements Serializable {
 		return Objects.equals(datasourceName, other.datasourceName)
 				&& Objects.equals(driverClassAvailable, other.driverClassAvailable)
 				&& Objects.equals(driverClassName, other.driverClassName)
-				&& Objects.equals(connectionUrlPattern, other.connectionUrlPattern);
+				&& Objects.equals(connectionUrlPattern, other.connectionUrlPattern)
+				&& Objects.equals(connectionProperties, other.connectionProperties);
 	}
 
 	@Override
@@ -125,7 +138,7 @@ public class DatasourceLookUpVO implements Serializable {
 		StringBuilder builder = new StringBuilder();
 		builder.append("DatasourceLookUpVO [datasourceName=").append(datasourceName).append(", driverClassName=")
 				.append(driverClassName).append(", driverClassAvailable=").append(driverClassAvailable)
-				.append(", connectionUrlPattern=").append(connectionUrlPattern)
+				.append(", connectionUrlPattern=").append(connectionUrlPattern).append(", connectionProperties=").append(connectionProperties)
 				.append("]");
 		return builder.toString();
 	}
@@ -138,6 +151,7 @@ public class DatasourceLookUpVO implements Serializable {
 		datasourceLookUpVO.setDatasourceName(dataSourceLookup.getDatabaseProductName());
 		datasourceLookUpVO.setDatasourceSupportedVersion(dataSourceLookup.getDatasourceSupportedVersion());
 		datasourceLookUpVO.setDriverClassName(dataSourceLookup.getDriverClassName());
+		datasourceLookUpVO.setConnectionProperties(dataSourceLookup.getConnectionProperties());
 		return datasourceLookUpVO;
 	}
 

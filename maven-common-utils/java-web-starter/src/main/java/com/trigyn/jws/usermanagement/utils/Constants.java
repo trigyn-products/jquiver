@@ -67,7 +67,8 @@ public final class Constants {
 		DAO("7d1dba821", 2), 
 		LDAP("7d1ldap821", 3), 
 		OAUTH("7d1oa821", 4)
-		,SAML("7d1sa821", 5);
+		,SAML("7d1sa821", 5),
+		CUSTOM("7d1sa821", 6);
 
 		private final Integer authType;
 		private final String authAtID;
@@ -99,7 +100,8 @@ public final class Constants {
 		DAO("enableDatabaseAuthentication", 2), 
 		LDAP("enableLdapAuthentication", 3), 
 		OAUTH("enableOAuthentication", 4),
-		SAML("enableSamlAuthentication", 5);
+		SAML("enableSamlAuthentication", 5),
+		CUSTOM("enableCustomAuthentication", 6);
 		final String authTypeByName;
 		final Integer authTypeById;
 		private static Map<String, AuthTypeByName> authTypeMap = new HashMap<>();
@@ -227,7 +229,7 @@ public final class Constants {
 
 	public enum AuthTypeHeaderKey {
 		@Deprecated
-		INMEMORY(""), DAO("7d1dba821"), LDAP("7d1ldap821"), OAUTH("7d1oa821"), SAML("7d1sa821");
+		INMEMORY(""), DAO("7d1dba821"), LDAP("7d1ldap821"), OAUTH("7d1oa821"), SAML("7d1sa821"), CUSTOM("7d1sa821");
 
 		final String authTypeHeaderKey;
 
@@ -248,6 +250,8 @@ public final class Constants {
 	
 	public static final String	SAML_ID		= "5";
 	
+	public static final String	CUSTOM_ID	= "6";
+	
 	public static String getAuthType(String authType, String authTypeHeader) {
 		if (authType == null || authType.isEmpty()|| authType.isBlank()) {
 			if (Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey().equals(authTypeHeader)) {
@@ -256,6 +260,8 @@ public final class Constants {
 				authType = Constants.LDAP_ID;
 			} else if (Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey().equals(authTypeHeader)) {
 				authType = Constants.OAUTH_ID;
+			} else if (Constants.AuthTypeHeaderKey.CUSTOM.getAuthTypeHeaderKey().equals(authTypeHeader)) {
+			    authType = Constants.CUSTOM_ID;
 			}
 		}
 		return authType;

@@ -1,0 +1,784 @@
+<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>BPMN Viewer</title>
+
+<link rel="stylesheet"
+      href="${contextPath}/webjars/1.0/bpmn/css/diagram-js.css">
+
+<link rel="stylesheet"
+      href="${contextPath}/webjars/1.0/bpmn/css/bpmn.css">
+
+<style>
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: #f3f4f6;
+}
+
+/*
+ * GLOBAL BOX SIZING
+ */
+* {
+    box-sizing: border-box;
+}
+
+/*
+ * MAIN LAYOUT
+ */
+.main-viewer-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/*
+ * TOP HEADER
+ */
+.topbar {
+    width: 100%;
+    height: 60px;
+    min-height: 60px;
+
+    background: #111827;
+    color: #ffffff;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 24px;
+
+    font-size: 18px;
+    font-weight: 600;
+
+    border-bottom: 1px solid #1f2937;
+
+    flex-shrink: 0;
+}
+
+/*
+ * VIEWER AREA
+ */
+.viewer-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: #f9fafb;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/*
+ * BPMN CANVAS
+ */
+#canvas {
+    width: 100%;
+    height: 100%;
+
+    position: relative;
+    overflow: hidden;
+
+    background: #f9fafb;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: grab;
+}
+
+/*
+ * DRAG CURSOR
+ */
+#canvas.grabbing {
+    cursor: grabbing;
+}
+
+/*
+ * BPMN INTERNAL FIXES
+ */
+#canvas .djs-container {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#canvas svg {
+    overflow: visible !important;
+}
+
+/*
+ * REMOVE BPMN DEFAULT PALETTE
+ */
+.djs-palette {
+    display: none !important;
+}
+
+/*
+ * TOOLBAR
+ */
+.toolbar {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    z-index: 1000;
+}
+
+/*
+ * TOOLBAR BUTTONS
+ */
+.toolbar button {
+    width: 52px;
+    height: 52px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: #ffffff;
+    color: #111827;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+
+    transition: all 0.2s ease;
+}
+
+.toolbar button:hover {
+    background: #f3f4f6;
+    transform: translateY(-1px);
+}
+
+/*
+ * STATUS BAR
+ */
+.status-bar {
+    width: 100%;
+    height: 40px;
+    min-height: 40px;
+
+    background: #ffffff;
+
+    border-top: 1px solid #d1d5db;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 16px;
+
+    font-size: 13px;
+    color: #374151;
+
+    flex-shrink: 0;
+}
+
+/*
+ * TASK HIGHLIGHT
+ */
+.highlight .djs-visual > :nth-child(1) {
+    stroke: #22c55e !important;
+    stroke-width: 4px !important;
+    fill: #bbf7d0 !important;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="main-viewer-container">
+
+    <div class="topbar">
+
+        <div>
+            BPMN Workflow Viewer
+        </div>
+
+        <div id="workflowName">
+            Workflow
+        </div>
+
+    </div>
+
+    <div class="viewer-container">
+
+        <div id="canvas"></div>
+
+        <div class="toolbar">
+
+            <button id="zoomInBtn">+</button>
+
+            <button id="zoomOutBtn">−</button>
+
+            <button id="fitBtn">Fit</button>
+
+        </div>
+
+    </div>
+
+    <div class="status-bar">
+
+        <span id="statusText">
+            Ready
+        </span>
+
+    </div>
+
+</div>
+
+
+
+<!-- BPMN Viewer -->
+<script src="${contextPath}/webjars/1.0/bpmn/js/bpmn-viewer.development.js"></script>
+
+<script ${scriptNonce}>
+
+let viewer;
+
+const definitionId =
+    new URLSearchParams(window.location.search)
+        .get("definitionid");
+
+/*
+ * UPDATE STATUS
+ */
+function updateStatus(message) {
+
+    document.getElementById("statusText")
+        .innerText = message;
+}
+
+/*
+ * CLEAN BPMN XML
+ */
+function cleanBpmnXml(xml) {
+
+    if (!xml) {
+        return "";
+    }
+
+    /*
+     * REMOVE SPACES
+     */
+    xml = xml.trim();
+
+    /*
+     * HANDLE HTML ENCODED XML
+     */
+    xml = $('<textarea/>')
+        .html(xml)
+        .text();
+
+    /*
+     * HANDLE BASE64 XML
+     */
+    if (
+        !xml.startsWith("<?xml") &&
+        !xml.startsWith("<bpmn:")
+    ) {
+
+        try {
+
+            xml = atob(xml);
+
+        } catch (e) {
+
+            console.error(
+                "Base64 decode failed",
+                e
+            );
+        }
+    }
+
+    return xml;
+}
+
+/*
+ * ENABLE MANUAL PAN
+ */
+function enableCanvasDragging(canvas) {
+
+    const canvasElement =
+        document.getElementById("canvas");
+
+    let isDragging = false;
+
+    let startX = 0;
+    let startY = 0;
+
+    let currentViewbox = null;
+
+    canvasElement.addEventListener(
+        "mousedown",
+        function(e) {
+
+            isDragging = true;
+
+            canvasElement.classList
+                .add("grabbing");
+
+            startX = e.clientX;
+            startY = e.clientY;
+
+            currentViewbox =
+                canvas.viewbox();
+        }
+    );
+
+    window.addEventListener(
+        "mousemove",
+        function(e) {
+
+            if (!isDragging) {
+                return;
+            }
+
+            const dx =
+                e.clientX - startX;
+
+            const dy =
+                e.clientY - startY;
+
+            canvas.viewbox({
+
+                x:
+                    currentViewbox.x -
+                    dx /
+                    currentViewbox.scale,
+
+                y:
+                    currentViewbox.y -
+                    dy /
+                    currentViewbox.scale,
+
+                width:
+                    currentViewbox.width,
+
+                height:
+                    currentViewbox.height
+            });
+        }
+    );
+
+    window.addEventListener(
+        "mouseup",
+        function() {
+
+            isDragging = false;
+
+            canvasElement.classList
+                .remove("grabbing");
+        }
+    );
+}
+
+/*
+ * INIT VIEWER
+ */
+async function initializeViewer() {
+
+    try {
+
+        updateStatus(
+            "Loading workflow..."
+        );
+
+        $.ajax({
+
+            type: "GET",
+
+            async: true,
+
+            url:
+                contextPath +
+                "/api/get-bpmn",
+
+            data: {
+                definitionid:
+                    definitionId
+            },
+
+            success:
+                async function(response) {
+
+            try {
+
+                console.log(
+                    "RAW RESPONSE => ",
+                    response
+                );
+
+                let workflowXml = "";
+
+                let workflowName =
+                    "Workflow";
+
+                /*
+                 * HANDLE ARRAY RESPONSE
+                 */
+                if (
+                    Array.isArray(response) &&
+                    response.length > 0
+                ) {
+
+                    workflowXml =
+                        response[0]
+                        .bpmn_xml || "";
+
+                    workflowName =
+                        response[0]
+                        .definition_name
+                        || "Workflow";
+                }
+
+                /*
+                 * HANDLE OBJECT RESPONSE
+                 */
+                else if (
+                    typeof response ===
+                    "object"
+                ) {
+
+                    workflowXml =
+                        response.bpmnXml || "";
+
+                    workflowName =
+                        response.definitionName
+                        || "Workflow";
+                }
+
+                /*
+                 * HANDLE PLAIN STRING
+                 */
+                else {
+
+                    workflowXml =
+                        response;
+                }
+
+                /*
+                 * CLEAN XML
+                 */
+                workflowXml =
+                    cleanBpmnXml(
+                        workflowXml
+                    );
+
+                /*
+                 * VALIDATE XML
+                 */
+                if (
+                    !workflowXml ||
+                    workflowXml
+                        .indexOf("<") === -1
+                ) {
+
+                    throw new Error(
+                        "Invalid BPMN XML received"
+                    );
+                }
+
+                /*
+                 * UPDATE TITLE
+                 */
+                document
+                    .getElementById(
+                        "workflowName"
+                    )
+                    .innerText =
+                        workflowName;
+
+                /*
+                 * CREATE VIEWER
+                 */
+                viewer =
+                    new BpmnJS({
+
+                    container:
+                        "#canvas",
+
+                    keyboard: {
+                        bindTo:
+                            window
+                    }
+                });
+
+                /*
+                 * IMPORT BPMN
+                 */
+                await viewer.importXML(
+                    workflowXml
+                );
+
+                const canvas =
+                    viewer.get("canvas");
+
+                /*
+                 * IMPORTANT
+                 * RESIZE + FIT
+                 */
+                canvas.resized();
+
+                setTimeout(() => {
+
+                   canvas.zoom("fit-viewport", "auto");
+
+                    canvas.resized();
+
+                }, 100);
+
+                /*
+                 * ENABLE DRAGGING
+                 */
+                enableCanvasDragging(
+                    canvas
+                );
+
+                /*
+                 * CTRL + MOUSE WHEEL ZOOM
+                 */
+                const canvasElement =
+                    document
+                        .getElementById(
+                            "canvas"
+                        );
+
+                canvasElement
+                    .addEventListener(
+                        "wheel",
+                        function(e) {
+
+                    if (!e.ctrlKey) {
+                        return;
+                    }
+
+                    e.preventDefault();
+
+                    let currentZoom =
+                        canvas.zoom();
+
+                    if (
+                        e.deltaY < 0
+                    ) {
+
+                        currentZoom +=
+                            0.1;
+
+                    } else {
+
+                        currentZoom -=
+                            0.1;
+                    }
+
+                    currentZoom =
+                        Math.max(
+                            0.2,
+                            Math.min(
+                                4,
+                                currentZoom
+                            )
+                        );
+
+                    canvas.zoom(
+                        currentZoom
+                    );
+
+                },
+                {
+                    passive: false
+                });
+
+                updateStatus(
+                    "Workflow loaded successfully"
+                );
+
+            } catch (err) {
+
+                console.error(
+                    "BPMN RENDER ERROR => ",
+                    err
+                );
+
+                updateStatus(
+                    "Failed to render BPMN"
+                );
+            }
+        },
+
+        error: function(
+            xhr,
+            status,
+            error
+        ) {
+
+            console.error(
+                "API ERROR => ",
+                error
+            );
+
+            console.error(
+                "RESPONSE => ",
+                xhr.responseText
+            );
+
+            updateStatus(
+                "Failed to fetch BPMN XML"
+            );
+        }
+    });
+
+    } catch (err) {
+
+        console.error(
+            "INITIALIZATION ERROR => ",
+            err
+        );
+
+        updateStatus(
+            "Viewer initialization failed"
+        );
+    }
+}
+
+/*
+ * TASK HIGHLIGHT
+ */
+function highlightTask(taskId) {
+
+    if (!viewer) {
+        return;
+    }
+
+    const canvas =
+        viewer.get("canvas");
+
+    canvas.addMarker(
+        taskId,
+        "highlight"
+    );
+}
+
+/*
+ * ZOOM IN
+ */
+function zoomIn() {
+
+    if (!viewer) {
+        return;
+    }
+
+    const canvas =
+        viewer.get("canvas");
+
+    const currentZoom =
+        canvas.zoom();
+
+    canvas.zoom(
+        currentZoom + 0.15
+    );
+}
+
+/*
+ * ZOOM OUT
+ */
+function zoomOut() {
+
+    if (!viewer) {
+        return;
+    }
+
+    const canvas =
+        viewer.get("canvas");
+
+    const currentZoom =
+        canvas.zoom();
+
+    canvas.zoom(
+        currentZoom - 0.15
+    );
+}
+
+/*
+ * FIT VIEWPORT
+ */
+function fitViewport() {
+
+    if (!viewer) {
+        return;
+    }
+
+    const canvas =
+        viewer.get("canvas");
+
+    canvas.zoom(
+        "fit-viewport"
+    );
+}
+
+/*
+ * EVENTS
+ */
+document
+    .getElementById(
+        "zoomInBtn"
+    )
+    .addEventListener(
+        "click",
+        zoomIn
+    );
+
+document
+    .getElementById(
+        "zoomOutBtn"
+    )
+    .addEventListener(
+        "click",
+        zoomOut
+    );
+
+document
+    .getElementById(
+        "fitBtn"
+    )
+    .addEventListener(
+        "click",
+        fitViewport
+    );
+
+/*
+ * INIT
+ */
+window.addEventListener(
+    "load",
+    initializeViewer
+);
+
+</script>
+
+</body>
+</html>

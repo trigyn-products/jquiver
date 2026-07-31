@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
+import java.util.regex.Matcher;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -57,7 +58,6 @@ public class StaticCodeImportConfiguration {
 	public void initialiseScheduler() {
 		try {
 			logger.info("############# Inside Static Code Importer");
-
 			Properties prop = new Properties();
 			prop.load(getClass().getClassLoader().getResourceAsStream("webui-pom.properties"));
 			String webUIJarVersion = prop.getProperty("webui-version");
@@ -96,7 +96,7 @@ public class StaticCodeImportConfiguration {
 						lastDeployedVersionPropertyMaster.setComments("Last deployed version of JQuiver");
 						lastDeployedVersionPropertyMaster.setIsDeleted(0);
 						lastDeployedVersionPropertyMaster.setLastModifiedDate(new Date());
-						lastDeployedVersionPropertyMaster.setModifiedBy("admin@jquiver.io");
+						lastDeployedVersionPropertyMaster.setModifiedBy("admin@localhost.io");
 						lastDeployedVersionPropertyMaster.setOwnerId("system");
 						lastDeployedVersionPropertyMaster.setOwnerType("system");
 					}
@@ -112,7 +112,7 @@ public class StaticCodeImportConfiguration {
 						lastDeployedDatePropertyMaster.setComments("Last deployed date time of JQuiver");
 						lastDeployedDatePropertyMaster.setIsDeleted(0);
 						lastDeployedDatePropertyMaster.setLastModifiedDate(new Date());
-						lastDeployedDatePropertyMaster.setModifiedBy("admin@jquiver.io");
+						lastDeployedDatePropertyMaster.setModifiedBy("admin@localhost.io");
 						lastDeployedDatePropertyMaster.setOwnerId("system");
 						lastDeployedDatePropertyMaster.setOwnerType("system");
 					}
@@ -127,18 +127,24 @@ public class StaticCodeImportConfiguration {
 					propertyMasterService.save(baseUrlPropertyMaster);
 
 					PropertyMaster templateStoragePath = propertyMasterService.findPropertyMasterByName("template-storage-path");
-					baseUrlPropertyMaster.setPropertyValue(jQuiverProperties.getTemplateStoragePath());
-					baseUrlPropertyMaster.setLastModifiedDate(new Date());
+					templateStoragePath.setPropertyValue(jQuiverProperties.getTemplateStoragePath()
+							.replaceAll("\\\\", Matcher.quoteReplacement(File.separator))
+							.replaceAll("/", Matcher.quoteReplacement(File.separator)));
+					templateStoragePath.setLastModifiedDate(new Date());
 					propertyMasterService.save(templateStoragePath);
 
 					PropertyMaster fileCopyPath = propertyMasterService.findPropertyMasterByName("file-copy-path");
-					baseUrlPropertyMaster.setPropertyValue(jQuiverProperties.getFileCopyPath());
-					baseUrlPropertyMaster.setLastModifiedDate(new Date());
+					fileCopyPath.setPropertyValue(jQuiverProperties.getFileCopyPath()
+							.replaceAll("\\\\", Matcher.quoteReplacement(File.separator))
+							.replaceAll("/", Matcher.quoteReplacement(File.separator)));
+					fileCopyPath.setLastModifiedDate(new Date());
 					propertyMasterService.save(fileCopyPath);
 
 					PropertyMaster emlFileStoragePath = propertyMasterService.findPropertyMasterByName("emlFileStoragePath");
-					baseUrlPropertyMaster.setPropertyValue(jQuiverProperties.getEmlFileStoragePath());
-					baseUrlPropertyMaster.setLastModifiedDate(new Date());
+					emlFileStoragePath.setPropertyValue(jQuiverProperties.getEmlFileStoragePath()
+							.replaceAll("\\\\", Matcher.quoteReplacement(File.separator))
+							.replaceAll("/", Matcher.quoteReplacement(File.separator)));
+					emlFileStoragePath.setLastModifiedDate(new Date());
 					propertyMasterService.save(emlFileStoragePath);
 
 					propertyMasterDetails.fetchXSSPatterns();
@@ -168,11 +174,13 @@ public class StaticCodeImportConfiguration {
 			fileUploadLocationPropertyMaster.setComments("File upload path");
 			fileUploadLocationPropertyMaster.setIsDeleted(0);
 			fileUploadLocationPropertyMaster.setLastModifiedDate(new Date());
-			fileUploadLocationPropertyMaster.setModifiedBy("admin@jquiver.io");
+			fileUploadLocationPropertyMaster.setModifiedBy("admin@localhost.io");
 			fileUploadLocationPropertyMaster.setOwnerId("system");
 			fileUploadLocationPropertyMaster.setOwnerType("system");
 		}
-		fileUploadLocationPropertyMaster.setPropertyValue(jQuiverProperties.getFileUploadLocation());
+		fileUploadLocationPropertyMaster.setPropertyValue(jQuiverProperties.getFileUploadLocation()
+				.replaceAll("\\\\", Matcher.quoteReplacement(File.separator))
+				.replaceAll("/", Matcher.quoteReplacement(File.separator)));
 		propertyMasterService.save(fileUploadLocationPropertyMaster);
 		
 	}

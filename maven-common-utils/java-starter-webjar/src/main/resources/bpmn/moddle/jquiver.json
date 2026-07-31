@@ -1,0 +1,33 @@
+{
+  "name": "JQuiver",
+  "uri": "http://jquiver.io/schema/bpmn",
+  "prefix": "jq",
+  "xml": {
+    "tagAlias": "lowerCase"
+  },
+  "types": [
+    {
+      "name": "TaskConfig",
+      "superClass": [
+        "Element"
+      ],
+      "properties": [
+        {
+          "name": "assigneeType",
+          "isAttr": true,
+          "type": "String"
+        },
+        {
+          "name": "assigneeValue",
+          "isAttr": true,
+          "type": "String"
+        },
+        {
+          "name": "formId",
+          "isAttr": true,
+          "type": "String"
+        }
+      ]
+    }
+  ]
+}

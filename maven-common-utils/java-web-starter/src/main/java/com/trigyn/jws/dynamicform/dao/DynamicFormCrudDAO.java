@@ -40,6 +40,7 @@ import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
 import com.trigyn.jws.dynamicform.utils.Constant;
+import com.trigyn.jws.dynamicform.utils.SqlIdentifierUtil;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryConnection;
 import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryDetails;
@@ -51,6 +52,9 @@ import lombok.extern.slf4j.Slf4j;
 @Repository
 @Slf4j
 public class DynamicFormCrudDAO extends DBConnection {
+	
+	@Autowired
+	protected SqlIdentifierUtil					sqlIdentifierUtil					= null;
 
 	public DynamicFormCrudDAO(DataSource dataSource) {
 		super(dataSource);
@@ -212,6 +216,8 @@ public class DynamicFormCrudDAO extends DBConnection {
 		if (dataSourceVO != null) {
 			additionalDataSourceConn = DataSourceUtils.getConnection(DataSourceFactory.getDataSource(dataSourceVO));
 		}
+		
+		//tableName = SqlIdentifierUtil.quote(tableName, additionalDataSourceConn.getMetaData().getDatabaseProductName());
 		List<Map<String, Object>> resultSet = new ArrayList<>();
 		resultSet = DBExtractor.getDBStructure(tableName, additionalDataSourceConn);
 //		Below code is commented as we were getting hikari pool timeout issues, when multiple datasource is connected.
@@ -491,7 +497,12 @@ public class DynamicFormCrudDAO extends DBConnection {
 		if (dataSourceVO != null) {
 			connection = DataSourceUtils.getConnection(DataSourceFactory.getDataSource(dataSourceVO));
 		}
+		String dbProductName = connection.getMetaData().getDatabaseProductName();
 		List<Map<String, Object>> resultSet = new ArrayList<>();
+		tableName		= sqlIdentifierUtil.quoteIfRequired(tableName, dbProductName);
+		idColumn		= sqlIdentifierUtil.quoteIfRequired(idColumn, dbProductName);
+		displayColumn	= sqlIdentifierUtil.quoteIfRequired(displayColumn, dbProductName);
+		
 		String query = "SELECT " + idColumn + ", " + displayColumn + " FROM " + tableName + " ORDER BY "
 				+ displayColumn;
 		try (PreparedStatement ps = connection.prepareStatement(query); ResultSet rs = ps.executeQuery()) {

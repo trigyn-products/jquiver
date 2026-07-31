@@ -194,7 +194,7 @@ public class MultiHttpSecurityConfig {
 									if (Constants.AuthType.INMEMORY.getAuthType() == authType) {
 										// TODO :
 									}
-									if (Constants.AuthType.DAO.getAuthType() == authType) {
+									if (Constants.AuthType.DAO.getAuthType() == authType || Constants.AuthType.CUSTOM.getAuthType() == authType) {
 										http.cors(Customizer.withDefaults()).authorizeHttpRequests(auth -> auth
 												.requestMatchers("/webjars/**").permitAll().requestMatchers("/")
 												.permitAll()

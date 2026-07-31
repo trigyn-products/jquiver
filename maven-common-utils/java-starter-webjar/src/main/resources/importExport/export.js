@@ -1588,17 +1588,17 @@ function checkSystemVar(checkedSystem, id, moduleType, name, version, isSystemVa
 		selectDashlet(checkedSystem, id, moduleType, name, version, isSystemVariable,null);
 	}
 	if ($('#formioChkBx').is(':checked') && moduleType == "DynamicForm") {
-		selectFormIOData(checkedCustom, id, moduleType, name, version, isSystemVariable,null);
+		selectFormIOData(checkedSystem, id, moduleType, name, version, isSystemVariable,null);
 	}
 	if ($('#moduleChkBx').is(':checked')) {
 		selectModuleNames(checkedSystem, id, moduleType, name, version, isSystemVariable,null);
 	}
 	if ($('#scriptLibChkBx').is(':checked') && (moduleType == "DynamicForm" || moduleType == "DynaRest" || moduleType == "FileManager")) {
-		selectScriptLibrary(checkedCustom, id, moduleType, name, version, isSystemVariable,null);
+		selectScriptLibrary(checkedSystem, id, moduleType, name, version, isSystemVariable,null);
 	}
 	
 	if ($('#addDataSourceChkBx').is(':checked') && (moduleType == "DynamicForm" || moduleType == "DynaRest" || moduleType == "FileManager" || moduleType == "Grid" || moduleType == "Dashlets" || moduleType == "Notification" || moduleType == "Autocomplete")) {
-		selectAdditionalDataSource(checkedCustom, id, moduleType, name, version, isSystemVariable,dataSourceList);
+		selectAdditionalDataSource(checkedSystem, id, moduleType, name, version, isSystemVariable,dataSourceList);
 	}
 		
 	if (checkedSystem) {

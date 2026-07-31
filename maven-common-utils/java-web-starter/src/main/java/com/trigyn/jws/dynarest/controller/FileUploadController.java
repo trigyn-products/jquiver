@@ -210,7 +210,7 @@ public class FileUploadController {
 	// }
 
 	@DeleteMapping("/files/{fileUploadId:.+}")
-	public ResponseEntity<?> deleteFile(@PathVariable String fileUploadId, HttpServletRequest httpServletRequest,
+	public ResponseEntity<?> deleteFile(@PathVariable("fileUploadId") String fileUploadId, HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) throws Exception {
 		boolean isTempFileExist = storageService.chkAndDeleteFromTemp(fileUploadId);
 		if (isTempFileExist) {
@@ -292,7 +292,7 @@ public class FileUploadController {
 	}
 
 	@GetMapping("/files/{fileUploadId:.+}")
-	public ResponseEntity<InputStreamResource> getFile(@PathVariable String fileUploadId,
+	public ResponseEntity<InputStreamResource> getFile(@PathVariable("fileUploadId") String fileUploadId,
 			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
 		String				message			= "";
 		InputStreamResource	streamResource	= null;

@@ -127,6 +127,7 @@
         let editId = 'editBtn_' + rowIndx;
         let copyId = 'copyBtn_' + rowIndx;
         let deleteId = 'deleteBtn_' + rowIndx;
+        let viewId = 'viewBtn_' + rowIndx;
         let definitionId=uiObject.rowData.definitionId ;
         let generateRow='<span id="'+editId+'"  class= "grid_action_icons" title="Edit Record"><i class="fa fa-pencil"></i></span>'.toString();
          generateRow += '<span id="' + copyId + '" class="grid_action_icons" ' +
@@ -134,6 +135,11 @@
                    'title="Copy1">' +
                    '<i class="fa fa-regular fa-copy" aria-hidden="true" style=""></i>' +
                    '</span>';
+        generateRow +='<span id="' + viewId + '" ' +
+                    'class="grid_action_icons" ' +
+                    'title="View Workflow">' +
+                    '<i class="fa fa-eye"></i>' +
+                    '</span>';
         <#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>
             <#list loggedInUserRoleList as loggedInUserRole>
                 <#if (loggedInUserRole == "ADMIN")>  
@@ -193,7 +199,19 @@
 
             // Call your confirmation dialog function
             openDeleteConfirmation(definitionId);
-        });       
+        });  
+
+        // View workflow handler
+            $(".grid_action_icons[id^='viewBtn_']").each(function () {
+                const id = this.id;
+                const rowIndx = parseInt(id.split("_")[1]);
+                this.onclick = function () {
+                const definitionId =listingData[rowIndx]["definitionId"];
+                openWorkflowViewer(definitionId);
+                };
+            });
+        
+             
     }
 
 
@@ -208,65 +226,71 @@
     	location.href = redirectURL;
     }
 
-function openDeleteConfirmation(definitionId) {
-    $("#deleteHeader").html("Are you sure you want to delete?");
-    $("#deleteHeader").dialog({
-        bgiframe: true,
-        autoOpen: true,
-        modal: true,
-        closeOnEscape: true,
-        draggable: true,
-        resizable: false,
-        title: "${messageSource.getMessage('jws.deleteBtnText')}",
-        position: {
-            my: "center", at: "center"
-        },
-        buttons: [
-            {
-                text: "${messageSource.getMessage('jws.deleteBtnText')}",
-                "class": 'btn btn-primary',
-                click: function () {
-                    $(this).dialog('close');
-                    deleteDefinition(definitionId);
-                }
-            },
-            {
-                text: "${messageSource.getMessage('jws.cancel')}",
-                "class": 'btn btn-secondary',
-                click: function () {
-                    $(this).dialog('close');
-                }
-            }
-        ],
-        open: function (event, ui) {
-            $('.ui-dialog-titlebar')
-                .find('button')
-                .removeClass('ui-dialog-titlebar-close')
-                .addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
-                .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
-                .append('<span class="ui-button-icon-space"></span>');
-        }
-    });
-}
 
-function deleteDefinition(definitionId) {
-    $.ajax({
-        url: "${contextPath!''}/cf/dDef",   
-        type: "POST",
-        data: {
-            "definitionId": definitionId
-        },
-        async: true,
-        success: function (data) {
-            $("#workflowDefinitionGrid").pqGrid().pqGrid("refreshDataAndView");
-            showMessage("Definition is deleted", "info");
-            
-        },
-        error: function (jqXHR, exception) {
-            showMessage("Error occurred while deleting the definition", "error");
+    function openWorkflowViewer(definitionId) {
+        let redirectURL =contextPath +viewPath +"/view-bpmn?definitionid=" +definitionId;
+        window.open(redirectURL,"_blank");
         }
-    });
-}
+
+    function openDeleteConfirmation(definitionId) {
+        $("#deleteHeader").html("Are you sure you want to delete?");
+        $("#deleteHeader").dialog({
+            bgiframe: true,
+            autoOpen: true,
+            modal: true,
+            closeOnEscape: true,
+            draggable: true,
+            resizable: false,
+            title: "${messageSource.getMessage('jws.deleteBtnText')}",
+            position: {
+                my: "center", at: "center"
+            },
+            buttons: [
+                {
+                    text: "${messageSource.getMessage('jws.deleteBtnText')}",
+                    "class": 'btn btn-primary',
+                    click: function () {
+                        $(this).dialog('close');
+                        deleteDefinition(definitionId);
+                    }
+                },
+                {
+                    text: "${messageSource.getMessage('jws.cancel')}",
+                    "class": 'btn btn-secondary',
+                    click: function () {
+                        $(this).dialog('close');
+                    }
+                }
+            ],
+            open: function (event, ui) {
+                $('.ui-dialog-titlebar')
+                    .find('button')
+                    .removeClass('ui-dialog-titlebar-close')
+                    .addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+                    .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
+                    .append('<span class="ui-button-icon-space"></span>');
+            }
+        });
+    }
+
+    function deleteDefinition(definitionId) {
+        $.ajax({
+            url: "${contextPath!''}/cf/dDef",   
+            type: "POST",
+            data: {
+                "definitionId": definitionId
+            },
+            async: true,
+            success: function (data) {
+                $("#workflowDefinitionGrid").pqGrid().pqGrid("refreshDataAndView");
+                showMessage("Definition is deleted", "info");
+                
+            },
+            error: function (jqXHR, exception) {
+                showMessage("Error occurred while deleting the definition", "error");
+            }
+        });
+    }
 
     //Code go back to previous page
     function backToWelcomePage() {

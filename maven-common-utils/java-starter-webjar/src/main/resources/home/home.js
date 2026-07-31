@@ -498,7 +498,23 @@ const formatDate = function(dateStr) {
 Array.prototype.formatSerializedArray = function() {
 	for (let counter = 0; counter < this.length; ++counter) {
 		if (this[counter]["valueType"] == undefined) {
-			this[counter]["valueType"] = $("#" + this[counter].name).attr('data-type');
+			let fieldName = this[counter].name;
+			let $element = $(); // Initialize empty jQuery object
+			// 1. Try Attribute Selector (Safest for data[name with spaces])
+			// We escape the name for the selector to ensure characters like [ ] are treated literally
+			let escapedName = fieldName.replace(/'/g, "\\'");
+			$element = $("[name='" + escapedName + "']");
+			// 2. Fallback to ID Selector if not found (Backward compatibility)
+			// Using $.escapeSelector handles cases where the ID itself might contain brackets
+			if ($element.length === 0) {
+				try {
+					$element = $("#" + $.escapeSelector(fieldName));
+				} catch (e) {
+					// Fail silently if selector is still invalid
+				}
+			}
+			// Assign the attribute
+			this[counter]["valueType"] = $element.attr('data-type');
 		}
 	}
 	return this;

@@ -1,0 +1,31 @@
+var HashMap =  Java.type('java.util.HashMap');
+var System = Java.type('java.lang.System');
+var params = new HashMap();
+var queryParam = new HashMap();
+function generateJwt(){ 
+	
+    params.put("email", requestDetails.email);
+    params.put("password", requestDetails.password);
+    /*
+ 	* TODO:
+ 	* Generate a valid JWT using the user details received in the request (such as
+ 	* email, username).
+ 	* The JWT should be signed using the application's secret/private key and returned
+ 	* as the response from this API.
+ 	*
+ 	* The returned JWT will be used by the JQuiver Custom Authentication flow to
+ 	* authenticate the user and establish a valid login session. Replace the
+ 	* hardcoded JWT below with the actual JWT generation logic and return the
+ 	* dynamically generated JWT.
+ 	*/
+    return "eyJhbGciOiJIUzI1NiJ9.eyJpc0RlZmF1bHRQYXNzd29yZCI6ZmFsc2UsInJvbGVzIjpbIkFETUlOIiwiQVVUSEVOVElDQVRFRCJdLCJmdWxsTmFtZSI6ImFkbWluIGFkbWluIiwiYWN0aXZlIjp0cnVlLCJ1c2VySWQiOiIxMTE0MTVhZS0wOTgwLTExZWItOWExNi1mNDhlMzhhYjkzNDgiLCJlbWFpbCI6ImFkbWluQGpxdWl2ZXIuaW8iLCJhdXRob3JpdGllcyI6WyJBRE1JTiIsIkFVVEhFTlRJQ0FURUQiXSwidXNlcm5hbWUiOiJhZG1pbkBqcXVpdmVyLmlvIiwic3ViIjoiYWRtaW5AanF1aXZlci5pbyIsImlhdCI6MTc4NDIwMTk5MywiZXhwIjoxNzg0MzIxOTkzfQ.8-THjdU5_6HUTJN9gXnAKykMoI6uRjsDskUKQEAEZ0c";
+    
+}
+
+function getJwtForCustomAuth() {
+    
+    var returnObject = new Object();   
+    return generateJwt();
+}
+
+getJwtForCustomAuth();

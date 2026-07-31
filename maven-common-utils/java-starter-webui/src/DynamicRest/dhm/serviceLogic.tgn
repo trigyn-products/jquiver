@@ -1,0 +1,12 @@
+var HashMap=Java.type("java.util.HashMap");
+var System = Java.type("java.lang.System");
+var params = new HashMap();
+function deleteHelpManual(requestDetails) {
+    params.put("entityId", requestDetails["entityId"]);
+    params.put("moduleType", requestDetails["moduleType"]);
+    jq_updateDBQuery("delete from jq_entity_role_association where entity_id=:entityId AND module_id=:moduleType", null, params); 
+    jq_updateDBQuery("delete from jq_manual_entry where manual_id=:entityId", null, params);
+    jq_updateDBQuery("delete from jq_manual_type where manual_id=:entityId", null, params);  
+   
+}
+deleteHelpManual(requestDetails);

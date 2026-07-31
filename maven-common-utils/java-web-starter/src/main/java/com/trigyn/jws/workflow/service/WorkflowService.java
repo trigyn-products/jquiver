@@ -18,6 +18,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
@@ -27,7 +29,13 @@ import org.xml.sax.SAXException;
 
 import com.itextpdf.io.exceptions.IOException;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.formio.dao.IFormIORepository;
+import com.trigyn.jws.formio.entities.FormIO;
 import com.trigyn.jws.resourcebundle.service.ResourceBundleService;
+import com.trigyn.jws.usermanagement.entities.JwsRole;
+import com.trigyn.jws.usermanagement.entities.JwsUser;
+import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
+import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.workflow.entities.WorkflowDefinition;
 import com.trigyn.jws.workflow.entities.WorkflowInstance;
 import com.trigyn.jws.workflow.entities.WorkflowStatus;
@@ -59,6 +67,19 @@ public class WorkflowService {
 
 	@Autowired
 	private IUserDetailsService detailsService = null;
+	
+	@Autowired
+	private NamedParameterJdbcTemplate jdbcTemplate;
+	
+
+    @Autowired
+    private JwsRoleRepository jwsRoleRepository;
+    
+    @Autowired
+    private JwsUserRepository jwsUserRepository;
+    
+    @Autowired
+    private IFormIORepository iFormIORepository;
 
 	private final static Logger logger = LoggerFactory.getLogger(ResourceBundleService.class);
 
@@ -476,5 +497,123 @@ public class WorkflowService {
 						oldStatus.getStatusName());
 			}
 		}
+	}
+	
+	public Map<String, Object> getMasterData() {
+
+		Map<String, Object> result = new HashMap<>();
+
+		result.put("roles", getRoles());
+		result.put("users", getUsers());
+//		result.put("groups", getGroups());
+		result.put("forms", getForms());
+
+		return result;
+	}
+
+	private List<Map<String, Object>> getRoles() {
+
+	    List<JwsRole> roles =
+	        jwsRoleRepository.findAllRoles();
+
+	    List<Map<String, Object>> response =
+	        new ArrayList<>();
+
+	    for (JwsRole role : roles) {
+
+	        Map<String, Object> item =
+	            new HashMap<>();
+
+	        item.put(
+	            "id",
+	            role.getRoleId()
+	        );
+
+	        item.put(
+	            "name",
+	            role.getRoleName()
+	        );
+
+	        response.add(item);
+	    }
+
+	    return response;
+	}
+
+	private List<Map<String, Object>> getUsers() {
+
+	
+		 List<JwsUser> users =
+				 jwsUserRepository.findAll();
+		 List<Map<String, Object>> response =
+			        new ArrayList<>();
+
+			    for (JwsUser user : users) {
+
+			        Map<String, Object> item =
+			            new HashMap<>();
+
+			        item.put(
+			            "id",
+			            user.getUserId()
+			        );
+
+			        item.put(
+			            "name",
+			            user.getFirstName() + " " + user.getLastName()
+			        );
+
+			        response.add(item);
+			    }
+
+			    return response;
+	}
+
+	private List<Map<String, Object>> getGroups() {
+
+		String sql = """
+				SELECT group_id,
+				       group_name
+				FROM jq_group
+				ORDER BY group_name
+				""";
+
+		return jdbcTemplate.query(sql, new MapSqlParameterSource(), (rs, rowNum) -> {
+
+			Map<String, Object> group = new HashMap<>();
+
+			group.put("id", rs.getString("group_id"));
+
+			group.put("name", rs.getString("group_name"));
+
+			return group;
+		});
+	}
+
+	private List<Map<String, Object>> getForms() {
+
+		 List<FormIO> formIOs =
+				 iFormIORepository.findAll();
+		 List<Map<String, Object>> response =
+			        new ArrayList<>();
+
+			    for (FormIO formIo : formIOs) {
+
+			        Map<String, Object> item =
+			            new HashMap<>();
+
+			        item.put(
+			            "id",
+			            formIo.getFormIoId()
+			        );
+
+			        item.put(
+			            "name",
+			            formIo.getFormName()
+			        );
+
+			        response.add(item);
+			    }
+			    return response;
 	}
 }

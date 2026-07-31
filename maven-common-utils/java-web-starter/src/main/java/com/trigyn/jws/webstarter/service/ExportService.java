@@ -571,11 +571,11 @@ public class ExportService {
 		GenerateModuleMasterQueries moduleMaster = moduleMasterQueryFactory.getModuleMaster(moduleType);
 		exportableList = moduleMaster.generateDynamicModuleQuery(systemConfigIncludeList, customConfigExcludeList,
 				moduleType, exportedList, xmlVO, modifiedAfter, entityType, name, autoExport);
-
-		if (!autoExport) {
-			validate(exportableList, exportedList, "Resource Bundle");
+		if (exportableList != null && !exportableList.isEmpty()) {
+			if (!autoExport) {
+				validate(exportableList, exportedList, "Resource Bundle");
+			}
 		}
-
 		ResourceBundleXMLVO resourceBundleXMLVO = (xmlVO == null) ? null : (ResourceBundleXMLVO) xmlVO;
 		Map<String, Integer> positionMap = new HashMap<>();
 		if (resourceBundleXMLVO != null && resourceBundleXMLVO.getResourceBundleDetails().isEmpty() == false) {

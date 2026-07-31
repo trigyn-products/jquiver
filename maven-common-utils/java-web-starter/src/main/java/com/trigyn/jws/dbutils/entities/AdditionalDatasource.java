@@ -62,6 +62,9 @@ public class AdditionalDatasource implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "datasource_lookup_id", insertable = false, updatable = false)
 	private DatasourceLookUp	datasourceLookup		= null;
+	
+	@Column(name = "datasource_properties")
+	private String datasourceProperties = null;
 
 	public AdditionalDatasource() {
 
@@ -69,7 +72,7 @@ public class AdditionalDatasource implements Serializable {
 
 	public AdditionalDatasource(String additionalDatasourceId, String createdBy, Date createdDate,
 			String datasourceConfiguration, String datasourceName, Integer isDeleted, String lastUpdatedBy,
-			Date lastUpdatedTs, String datasourceLookupId, DatasourceLookUp datasourceLookup) {
+			Date lastUpdatedTs, String datasourceLookupId, DatasourceLookUp datasourceLookup,String datasourceProperties) {
 		this.additionalDatasourceId		= additionalDatasourceId;
 		this.createdBy					= createdBy;
 		this.createdDate				= createdDate;
@@ -80,6 +83,7 @@ public class AdditionalDatasource implements Serializable {
 		this.lastUpdatedTs				= lastUpdatedTs;
 		this.datasourceLookupId			= datasourceLookupId;
 		this.datasourceLookup			= datasourceLookup;
+		this.datasourceProperties = datasourceProperties;
 	}
 
 	public String getAdditionalDatasourceId() {
@@ -170,10 +174,20 @@ public class AdditionalDatasource implements Serializable {
 		this.isCustomUpdated = isCustomUpdated;
 	}
 
+	
+	
+	public String getDatasourceProperties() {
+		return datasourceProperties;
+	}
+
+	public void setDatasourceProperties(String datasourceProperties) {
+		this.datasourceProperties = datasourceProperties;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(additionalDatasourceId, createdBy, createdDate, datasourceConfiguration, datasourceLookup,
-				datasourceLookupId, datasourceName, isDeleted, lastUpdatedTs, lastUpdatedBy);
+				datasourceLookupId, datasourceName, isDeleted, lastUpdatedTs, lastUpdatedBy,datasourceProperties);	
 	}
 
 	@Override
@@ -195,7 +209,8 @@ public class AdditionalDatasource implements Serializable {
 				&& Objects.equals(datasourceLookupId, other.datasourceLookupId)
 				&& Objects.equals(datasourceName, other.datasourceName) && Objects.equals(isDeleted, other.isDeleted)
 				&& Objects.equals(lastUpdatedTs, other.lastUpdatedTs)
-				&& Objects.equals(lastUpdatedBy, other.lastUpdatedBy);
+				&& Objects.equals(lastUpdatedBy, other.lastUpdatedBy)
+				&& Objects.equals(datasourceProperties, other.datasourceProperties);
 	}
 
 	@Override
@@ -206,7 +221,8 @@ public class AdditionalDatasource implements Serializable {
 				.append(", datasourceConfiguration=").append(datasourceConfiguration).append(", datasourceName=")
 				.append(datasourceName).append(", isDeleted=").append(isDeleted).append(", updatedBy=")
 				.append(lastUpdatedBy).append(", lastUpdatedTs=").append(lastUpdatedTs).append(", datasourceLookupId=")
-				.append(datasourceLookupId).append(", datasourceLookup=").append(datasourceLookup).append("]");
+				.append(datasourceLookupId).append(", datasourceLookup=").append(datasourceLookup).append(", datasourceProperties=").append(datasourceProperties)
+				.append("]");
 		return builder.toString();
 	}
 
@@ -225,7 +241,7 @@ public class AdditionalDatasource implements Serializable {
 		if (datasourceLookup != null) {
 			additionalDatasource.setDatasourceLookUp(datasourceLookup.getObject());
 		}
-
+      	additionalDatasource.setDatasourceProperties(datasourceProperties);
 		return additionalDatasource;
 	}
 
@@ -244,6 +260,7 @@ public class AdditionalDatasource implements Serializable {
 		additionalDatasourceVO.setIsDeleted(additionalDatasource.getIsDeleted());
 		additionalDatasourceVO.setLastUpdatedBy(additionalDatasource.getLastUpdatedBy());
 		additionalDatasourceVO.setLastUpdatedTs(additionalDatasource.getLastUpdatedTs());
+		additionalDatasourceVO.setDatasourceProperties(additionalDatasource.getDatasourceProperties());
 
 		return additionalDatasourceVO;
 	}

@@ -320,23 +320,61 @@ public class UserManagementService {
 		activitylog.activitylog(requestParams);
 	}
 
+//	public Boolean saveRoleModules(JwsRoleMasterModulesAssociationVO roleModule) throws Exception {
+//
+//		JwsRoleMasterModulesAssociation	masterModuleAssociation	= roleModule.convertVOToEntity(roleModule);
+//
+//		// roleModuleRepository.save(masterModuleAssociation);
+//
+//		JwsMasterModules				jwsMasterModule			= jwsmasterModuleRepository
+//				.findById(masterModuleAssociation.getModuleId()).get();
+//		masterModuleAssociation.setRoleTypeId(2);
+//		
+//		roleModuleRepository.updateJwsRoleMasterModulesAssociation(jwsMasterModule.getModuleId(),
+//				masterModuleAssociation.getRoleId(), masterModuleAssociation.getIsActive());
+//		JwsRole jwsRole = new JwsRole();
+//		/* Method called for implementing Activity Log */
+//		logActivity(jwsRole.getRoleName() + "-" + (jwsMasterModule.getModuleName()), roleModule.getIsActive(),
+//				Constants.MANAGEROLEMODULES);
+//
+//		// set isactive by moduletype id
+//		entityRoleAssociationRepository.updateEntityRelatedToModule(jwsMasterModule.getModuleTypeId(),
+//				masterModuleAssociation.getRoleId(), masterModuleAssociation.getIsActive());
+//
+//		return true;
+//	}
+	
+	@Transactional
 	public Boolean saveRoleModules(JwsRoleMasterModulesAssociationVO roleModule) throws Exception {
 
-		JwsRoleMasterModulesAssociation	masterModuleAssociation	= roleModule.convertVOToEntity(roleModule);
+		JwsRoleMasterModulesAssociation masterModuleAssociation = roleModule.convertVOToEntity(roleModule);
 
-		// roleModuleRepository.save(masterModuleAssociation);
+		JwsMasterModules jwsMasterModule = jwsmasterModuleRepository.findById(masterModuleAssociation.getModuleId())
+				.orElseThrow(() -> new Exception("Master Module not found"));
 
-		JwsMasterModules				jwsMasterModule			= jwsmasterModuleRepository
-				.findById(masterModuleAssociation.getModuleId()).get();
 		masterModuleAssociation.setRoleTypeId(2);
-		roleModuleRepository.updateJwsRoleMasterModulesAssociation(jwsMasterModule.getModuleId(),
-				masterModuleAssociation.getRoleId(), masterModuleAssociation.getIsActive());
+
+		Optional<JwsRoleMasterModulesAssociation> existingAssociation = roleModuleRepository
+				.findAssociation(masterModuleAssociation.getRoleId(), masterModuleAssociation.getModuleId());
+
+		if (existingAssociation.isPresent()) {
+
+			roleModuleRepository.updateAssociation(masterModuleAssociation.getRoleId(),
+					masterModuleAssociation.getModuleId(), masterModuleAssociation.getIsActive(),
+					masterModuleAssociation.getRoleTypeId());
+
+		} else {
+
+			roleModuleRepository.save(masterModuleAssociation);
+		}
+
 		JwsRole jwsRole = new JwsRole();
+
 		/* Method called for implementing Activity Log */
-		logActivity(jwsRole.getRoleName() + "-" + (jwsMasterModule.getModuleName()), roleModule.getIsActive(),
+		logActivity(jwsRole.getRoleName() + "-" + jwsMasterModule.getModuleName(), roleModule.getIsActive(),
 				Constants.MANAGEROLEMODULES);
 
-		// set isactive by moduletype id
+		/* Update all entities belonging to this module type */
 		entityRoleAssociationRepository.updateEntityRelatedToModule(jwsMasterModule.getModuleTypeId(),
 				masterModuleAssociation.getRoleId(), masterModuleAssociation.getIsActive());
 
@@ -686,14 +724,14 @@ public class UserManagementService {
 			Map<String, Object>	mailDetails				= new HashMap<>();
 			String				propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system",
 					"system", "adminEmailId");
-			String				adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
-					: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+			String				adminEmail				= propertyAdminEmailId == null ? "admin@localhost.io"
+					: propertyAdminEmailId.equals("") ? "admin@localhost.io" : propertyAdminEmailId;
 
 			TemplateVO			subjectTemplateVO		= templatingService.getTemplateByName("totp-subject");
 			String				subject					= templatingUtils.processTemplateContents(
 					subjectTemplateVO.getTemplate(), subjectTemplateVO.getTemplateName(), mailDetails);
 			email.setSubject(subject);
-			// email.setMailFrom("admin@jquiver.com");
+			// email.setMailFrom("admin@localhost.io");
 			if (jwsUser != null) {
 				mailDetails.put("firstName", jwsUser.getFirstName() + " " + jwsUser.getLastName());
 			}
@@ -1154,8 +1192,8 @@ public class UserManagementService {
 		List<JwsUser>	jwsUsers				= jwsUserRepository.findAll();
 		String			propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
 				"adminEmailId");
-		String			adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
-				: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+		String			adminEmail				= propertyAdminEmailId == null ? "admin@localhost.io"
+				: propertyAdminEmailId.equals("") ? "admin@localhost.io" : propertyAdminEmailId;
 		for (JwsUser jwsUser : jwsUsers) {
 			if (jwsUser.getEmail().equalsIgnoreCase(adminEmail) == false
 					&& jwsUser.getEmail().equalsIgnoreCase(adminEmail) == false) {
@@ -1594,8 +1632,8 @@ public class UserManagementService {
 		email.setSubject("TOTP Login");
 		String	propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
 				"adminEmailId");
-		String	adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
-				: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+		String	adminEmail				= propertyAdminEmailId == null ? "admin@localhost.io"
+				: propertyAdminEmailId.equals("") ? "admin@localhost.io" : propertyAdminEmailId;
 		email.setMailFrom(InternetAddress.parse(adminEmail));
 		String fullUrl = getBaseURL(propertyMasterService, servletContext);
 		Map<String, Object>	mailDetails	= new HashMap<>();
@@ -1631,7 +1669,7 @@ public class UserManagementService {
 
 			Email email = new Email();
 			email.setInternetAddressToArray(InternetAddress.parse(user.getEmail()));
-			// email.setMailFrom("admin@jquiver.com");
+			// email.setMailFrom("admin@localhost.io");
 
 			Map<String, Object>	mailDetails			= new HashMap<>();
 			TemplateVO			subjectTemplateVO	= templatingService

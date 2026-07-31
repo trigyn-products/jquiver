@@ -8,6 +8,13 @@ var ECBCipherMode = Java.type("com.trigyn.jws.dbutils.cipher.modes.ECBCipherMode
    var cipher = new ECBCipherMode("AES", "ECB", "PKCS5Padding", 128);
 
    function checkAuthentication(){
+    var token = requestHeaders["t"];
+
+    if (token == null || token.trim() === "") {
+        jq_sendError("412", "Missing required header");
+        return;
+    }
+    
     var decryptKey = jq_getDBResult("SELECT property_value AS propertyName FROM jq_property_master WHERE property_name='jwsSecretKey'", null, new HashMap()).data_list[0].propertyName;  
 
     var decryptedUserId = cipher.decrypt(requestHeaders["t"], decryptKey, "AES");

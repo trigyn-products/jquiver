@@ -95,6 +95,8 @@
                name="saveQueryParametersType"
                value='${(queryParametersType)!""?json_string}'/>
 
+        <input name="search_terms" type = "hidden" data-skip-validation="true" ... />
+
         <div id="formioBody"></div>
     </div>
 </form>
@@ -170,9 +172,9 @@
             submission.data.id =
                 <#noparse>$("#primaryKeyId").val();</#noparse>;
 
-            if (submission.data.${(primaryKeyColumnName)!''} !== undefined) {
+            if (submission.data${(primaryKeyJsRef)!''} !== undefined) {
                 $("#primaryKeyId").val(
-                    submission.data.${(primaryKeyColumnName)!''}
+                    submission.data${(primaryKeyJsRef)!''}
                 );
             }
         });

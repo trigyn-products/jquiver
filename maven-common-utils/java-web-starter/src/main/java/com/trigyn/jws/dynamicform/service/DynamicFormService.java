@@ -73,6 +73,7 @@ import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
 import com.trigyn.jws.dynamicform.utils.Constant;
+import com.trigyn.jws.dynamicform.utils.SqlIdentifierUtil;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 import com.trigyn.jws.dynarest.entities.JqScheduler;
@@ -92,13 +93,9 @@ import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.typeahead.model.AutocompleteVO;
 import com.trigyn.jws.typeahead.service.TypeAheadService;
-import com.trigyn.jws.usermanagement.repository.JwsMasterModulesRepository;
 import com.trigyn.jws.usermanagement.utils.Constants;
-import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
 import com.trigyn.jws.webstarter.dao.ICaptchRepository;
 import com.trigyn.jws.webstarter.service.CaptchaService;
-import com.trigyn.jws.webstarter.service.MasterCreatorService;
-import com.trigyn.jws.webstarter.service.UserManagementService;
 import com.trigyn.jws.webstarter.vo.CaptchaDetails;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -208,6 +205,9 @@ public class DynamicFormService {
 	@Autowired
 	protected TypeAheadService				typeAheadService			= null;
 	
+	@Autowired
+	protected SqlIdentifierUtil				sqlIdentifierUtil			= null;
+	
 	public String loadDynamicForm(String formId, Map<String, Object> requestParam, Map<String, Object> additionalParam)
 			throws IOException, CustomStopException {
 		logger.debug("Inside DynamicFormService.loadDynamicForm(formId: {}, requestParam: {}, additionalParam: {})",
@@ -297,23 +297,13 @@ public class DynamicFormService {
 //			}
 //
 //			requestParam.putAll(modifiedParams);
-			
-			
 			selectTemplateQuery = templateEngine.processTemplateContents(selectQuery, formName, requestParam);
 			ScriptEngineManager	scriptEngineManager	= new ScriptEngineManager();
 			ScriptEngine		scriptEngine		= null;
-			
-			Integer selectQueryType = form.getSelectQueryType();
-
-			if (selectQueryType == null) {
-			    // Default old forms to SQL query type
-			    selectQueryType = Constant.SELECT;
-			}
 			scriptEngine = scriptEngineManager.getEngineByName(
 					Constant.SelectQueryType.getqueryTypeID(form.getSelectQueryType()).getQueryTypeName());
 			if (StringUtils.isNotEmpty(selectTemplateQuery)) {
-				//switch (form.getSelectQueryType()) {
-				switch (selectQueryType) {
+				switch (form.getSelectQueryType()) {
 					case Constant.SELECT:
 						selectResultSet = dynamicFormDAO.executeQueries(form.getDatasourceId(),
 								selectTemplateQuery.toString(), requestParam);
@@ -977,7 +967,25 @@ public class DynamicFormService {
 			throws Exception, CustomStopException {
 		logger.debug("Inside DynamicFormService.saveDynamicForm(formData: {})", formData.get(0));
 
-		Map<String, Object>	formDetails		= createParamterMap(formData);
+		Map<String, Object> formDetails = createParamterMap(formData);
+		// Add sanitized aliases for parameter names
+		Map<String, Object> sanitizedMap = new HashMap<>();
+		for (Map.Entry<String, Object> entry : formDetails.entrySet()) {
+		    String key = entry.getKey();
+		    Object value = entry.getValue();
+		    // Skip null keys
+		    if (key == null) {
+		        continue;
+		    }
+		    // Original key
+		    sanitizedMap.put(key, value);
+		    // Sanitized alias
+		    String sanitizedKey = key.replace(" ", "").replace("_", "");
+		    if (sanitizedKey.equals(key) == false) {
+		        sanitizedMap.put(sanitizedKey, value);
+		    }
+		}
+		formDetails = sanitizedMap;
 		String				formId			= httpServletRequest.getParameter("formId").toString();
 		Map<String, Object>	resultSetMap	= new HashMap<>();
 
@@ -1193,13 +1201,13 @@ public class DynamicFormService {
 				"Inside DynamicFormService.createDefaultFormByTableName(tableName: {}, tableDetails: {}, moduleURL: {}, additionalDataSourceId: {}, dbProductName: {})",
 				tableName, tableDetails, moduleURL, additionalDataSourceId, dbProductName, toggleCaptcha, toggleCsrf,
 				toggleFileBin, fileBinId, fileAssociationId);
-
+		String dbTableName = sqlIdentifierUtil.quote(tableName, dbProductName);
+		String jsTableName = tableName.replaceAll("[^a-zA-Z0-9_]", "");
 		Map<String, String>	templatesMap	= new HashMap<>();
 		Map<String, Object>	parameters		= new HashMap<>();
 		Map<String, String>	regexMap		= new HashMap<>();
 		parameters.put("columnDetails", tableDetails);
 		parameters.put("formName", tableName);
-		//parameters.put("nashornResultAlias", StringUtils.uncapitalize(tableName) + "Data");
 		parameters.put("toggleCaptcha", toggleCaptcha);
 		parameters.put("toggleCsrf", toggleCsrf);
 		parameters.put("toggleFileBin", toggleFileBin);
@@ -1207,9 +1215,16 @@ public class DynamicFormService {
 		boolean isNashorn = StringUtils.isNotBlank(foreignKeyDetails) && !"[]".equals(foreignKeyDetails.trim());
 		parameters.put("isNashorn", isNashorn);
 		if (isNashorn) {
-			parameters.put("nashornResultAlias", StringUtils.uncapitalize(tableName) + "Data");
+			if (dbProductName != null) {
+				dbProductName = dbProductName.trim().replace("[", "").replace("]", "").replace("`", "").replace("\"", "")
+						.toLowerCase();
+			}
+			if (dbProductName.contains("postgres")) {
+				parameters.put("nashornResultAlias", jsTableName + "Data");
+			} else {
+				parameters.put("nashornResultAlias", StringUtils.uncapitalize(jsTableName) + "Data");
+			}
 		}
-
 		parameters.put("fileAssociationId", "${(resultSetObject." + fileAssociationId + ")!''}");
 		parameters.put("editCondition", fileAssociationId);
 		if (StringUtils.isBlank(moduleURL) == false) {
@@ -1269,20 +1284,17 @@ public class DynamicFormService {
  		Map<String, List<Map<String, Object>>> foreignKeyDropDownOptions = new HashMap<>();
  		Map<String, Map<String, String>> foreignKeyExistingAutocompleteData = new HashMap<>();
  		Map<String, String> foreignKeyAutocompleteOptions = new HashMap<>();
- 		Map<String, String> autocompleteResultSet = new HashMap<>();
  		boolean hasAutocomplete = false;
  		boolean hasDropdown = false;
- //		String autocompleteId = null;
 			for (Map<String, Object> fkInfo : foreignKeys) {
 				String	columnName		= fkInfo.get("columnName").toString();
 				String	componentType	= String.valueOf(fkInfo.get("componentType"));
+				fkInfo.put("jsColumnName", columnName.replaceAll("[^a-zA-Z0-9_]", ""));
 				if (componentType != null && "DROPDOWN".equalsIgnoreCase(componentType)) {
 					hasDropdown	= true;
-//					foreignKeyDropDownOptions.put(columnName, options);
 				} else {
 					hasAutocomplete	= true;
 					if(fkInfo.get("mode") != null && "NEW".equalsIgnoreCase(fkInfo.get("mode").toString())) {
-					//	autocompleteId = typeAheadService.saveAutocompleteFromMasterGenerator(fkInfo, roleIds);
 						foreignKeyAutocompleteOptions.put(columnName, autocompleteId);
 					}else if(fkInfo.get("mode") != null && "EXISTING".equalsIgnoreCase(fkInfo.get("mode").toString())) {
 						autocompleteId = fkInfo.get("autocompleteId").toString();
@@ -1308,16 +1320,12 @@ public class DynamicFormService {
 						foreignKeyExistingAutocompleteData.put(columnName, autoInfo);
 					}
 			}
-				
 		}
- 		
  		parameters.put("foreignKeyOptions", foreignKeyDropDownOptions);
  		parameters.put("hasDropdown", hasDropdown);
  		parameters.put("hasAutocomplete", hasAutocomplete);
  		parameters.put("foreignKeyAutocompleteOptions", foreignKeyAutocompleteOptions);
  		parameters.put("foreignKeyExistingAutocompleteData", foreignKeyExistingAutocompleteData);
- 		
- 		
 		try {
 			TemplateVO	templateVO	= templateService.getTemplateByName("system-form-html-template");
 			String		template	= templateEngine.processTemplateContents(templateVO.getTemplate(),
@@ -1325,8 +1333,8 @@ public class DynamicFormService {
 			templatesMap.put("form-template", template);
 
 			Map<String, Object> selectParameters = new HashMap<>();
-			selectParameters.put("tableName", tableName);
-			
+			//selectParameters.put("tableName", tableName);
+			selectParameters.put("tableName", dbTableName);
 			templateVO	= templateService.getTemplateByName("system-form-select-template");
 			template	= templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 					selectParameters);
@@ -1338,8 +1346,7 @@ public class DynamicFormService {
 		} catch (Exception a_excep) {
 			logger.error("Error occured in createDefaultFormByTableName.", a_excep);
 		}
-
-		createSaveUpdateQueryTemplate(tableDetails, tableName, templatesMap, additionalDataSourceId, dbProductName);
+		createSaveUpdateQueryTemplate(tableDetails, dbTableName, templatesMap, additionalDataSourceId, dbProductName);
 		return templatesMap;
 	}
 	
@@ -1362,6 +1369,7 @@ public class DynamicFormService {
 				"Inside DynamicFormService.getTableInformationByName(tableInformation: {}, tableName: {}, additionalDataSourceId: {}, dbProductName: {})",
 				tableInformation, tableName, templatesMap, additionalDataSourceId, dbProductName);
 
+		String			dbTableName			= sqlIdentifierUtil.quote(tableName, dbProductName);
 		StringJoiner	insertJoiner		= new StringJoiner(",", "INSERT INTO " + tableName + " (", ")");
 		StringJoiner	insertValuesJoiner	= null;
 		boolean			isIntPK				= false;
@@ -1384,7 +1392,8 @@ public class DynamicFormService {
 					dataType, columnKey, dbProductName, isAutoIncrement, isHidden, null);
 			if (columnKey != null && PRIMARY_KEY.equals(columnKey)) {
 				if ("false".equalsIgnoreCase(isAutoIncrement)) {
-					insertJoiner.add(columnName);
+					//insertJoiner.add(columnName);
+					insertJoiner.add(sqlIdentifierUtil.quote(columnName, dbProductName));
 				}
 				if("hidden".equalsIgnoreCase(isHidden) == true 
 						&& (INT.equalsIgnoreCase(dataType) || DECIMAL.equalsIgnoreCase(dataType))) {
@@ -1405,7 +1414,8 @@ public class DynamicFormService {
 			String	columnType		= info.get("columnType").toString();
 			String	isAutoIncrement	= info.get("autoIncrement").toString();
 			if ((StringUtils.isBlank(columnKey) || PRIMARY_KEY.equals(columnKey) == false) && "false".equalsIgnoreCase(isAutoIncrement)) {
-				insertJoiner.add(columnName);
+			//	insertJoiner.add(columnName);
+				insertJoiner.add(sqlIdentifierUtil.quote(columnName, dbProductName));
 				joinQueryBuilder(insertValuesJoiner, columnName, dataType, false, columnType, dbProductName,
 						coloumnCounter, isAutoIncrement, columnKey);
 			}
@@ -1464,11 +1474,16 @@ public class DynamicFormService {
 			}
 			if(regexInfo != null && !regexInfo.isEmpty() && "hidden".equals(columnType) == false && "false".equalsIgnoreCase(isAutoIncrement)) {
 			    String displayName = columnName.replaceAll("_", "");
+			 // FreeMarker variable name
+			    String fieldValueName = displayName;
+			    if (columnName.contains(" ")) {
+			        fieldValueName = columnName.replaceAll("[ _]", "");
+			    }
 			    String escapedRegex =  StringEscapeUtils.escapeJson(regexInfo);
 			   
 			    jsonBuilder.append("\t{\n");
 			    jsonBuilder.append("\t\t\"regexPattern\" : \"").append(escapedRegex).append("\",\n");
-			    jsonBuilder.append("\t\t\"fieldValue\" : ").append(displayName).append("!''").append(",\n");
+			    jsonBuilder.append("\t\t\"fieldValue\" : ").append(fieldValueName).append("!''").append(",\n");
 			    jsonBuilder.append("\t\t\"fieldName\" : \"").append(displayName).append("\",\n");
 			    jsonBuilder.append("\t\t\"dataType\" : \"").append(dataType).append("\"\n");
 			    jsonBuilder.append("\t}");
@@ -1508,21 +1523,22 @@ public class DynamicFormService {
 		logger.debug(
 				"Inside joinQueryBuilder(columnName: {}, dataType: {}, showColumnName: {}, columnType: {}, dbProductName: {})",
 				columnName, dataType, showColumnName, columnType, dbProductName);
-
+		
+		String	formFieldName	= columnName.replaceAll("[ _]", "");
+		// Quote only if column has spaces
+		String dbColumnName = sqlIdentifierUtil.quote(columnName, dbProductName);
 
 		if (insertValuesJoiner == null) {
 			insertValuesJoiner = new StringJoiner("");
 		}
-
-		String	formFieldName	= columnName.replace("_", "");
 		String	value;
-		
 		if (dbProductName != null && (dbProductName.contains(Constant.POSTGRESQL) || dbProductName.contains(Constant.DEFAULT) || dbProductName.contains(Constant.MARIADB))) {
 			if ("false".equalsIgnoreCase(isAutoIncrement)) {
 				value = DBExtractor.getCastExpression(dataType, columnName, formFieldName, showColumnName, columnType, dbProductName);
 				insertValuesJoiner.add(value);
 			} else {
-				value = showColumnName ? columnName + " = :" + formFieldName : ":" + formFieldName;
+			//	value = showColumnName ? columnName + " = :" + formFieldName : ":" + formFieldName;
+				value = showColumnName ? dbColumnName + " = :" + formFieldName : ":" + formFieldName;
 				insertValuesJoiner.add(value.replace("\\", ""));
 			}
 			if (columnCounter > 1) {
@@ -1533,12 +1549,14 @@ public class DynamicFormService {
 
 			if (isAutoIncrement.equalsIgnoreCase("false")) {
 				if (TEXT.equalsIgnoreCase(dataType) ) {
-					value = showColumnName ? columnName + " = :" + formFieldName : ":" + formFieldName;
+				//	value = showColumnName ? columnName + " = :" + formFieldName : ":" + formFieldName;
+					value = showColumnName ? dbColumnName + " = :" + formFieldName : ":" + formFieldName;
 					insertValuesJoiner.add(value.replace("\\", ""));
 				} else if (Constant.UNIQUEID.equalsIgnoreCase(dataType) || XML.equalsIgnoreCase(dataType)){
 					if (dbProductName != null && dbProductName.contains(Constant.MSSQLSERVER)) {
 						String paramPlaceholder = "NULLIF(:" + formFieldName + ", '')";
-						value = showColumnName ? columnName + " = " + paramPlaceholder : paramPlaceholder;
+					//	value = showColumnName ? columnName + " = " + paramPlaceholder : paramPlaceholder;
+						value = showColumnName ? dbColumnName + " = " + paramPlaceholder : paramPlaceholder;
 						insertValuesJoiner.add(value.replace("\\", ""));
 					}
 				} else if (INT.equalsIgnoreCase(dataType) || DECIMAL.equalsIgnoreCase(dataType)
@@ -1550,7 +1568,8 @@ public class DynamicFormService {
 						 paramPlaceholder = "NULLIF(:" + formFieldName + ", NULL)";
 					}
 					if(paramPlaceholder != null) {
-						value = showColumnName ? columnName + " = " + paramPlaceholder : paramPlaceholder;
+					//	value = showColumnName ? columnName + " = " + paramPlaceholder : paramPlaceholder;
+						value = showColumnName ? dbColumnName + " = " + paramPlaceholder : paramPlaceholder;
 						insertValuesJoiner.add(value.replace("\\", ""));
 					}
 				} else if (Constant.TINYINT.equalsIgnoreCase(dataType)) {
@@ -1561,7 +1580,8 @@ public class DynamicFormService {
 						 paramPlaceholder = "NULLIF(:" + formFieldName + ", NULL)";
 					}
 					if(paramPlaceholder != null) {
-						value = showColumnName ? columnName + " = " + paramPlaceholder : paramPlaceholder;
+					//	value = showColumnName ? columnName + " = " + paramPlaceholder : paramPlaceholder;
+						value = showColumnName ? dbColumnName + " = " + paramPlaceholder : paramPlaceholder;
 						insertValuesJoiner.add(value.replace("\\", ""));
 					}
 				} else if (DATE.equalsIgnoreCase(dataType) || DATETIME.equalsIgnoreCase(dataType) || DATETIMEOFFSET.equalsIgnoreCase(dataType)) {
@@ -1594,7 +1614,8 @@ public class DynamicFormService {
 							formFieldVal.append("NOW()");
 						}
 					}
-					insertValuesJoiner.add(showColumnName ? columnName + " = " + formFieldVal : "" + formFieldVal);
+				//	insertValuesJoiner.add(showColumnName ? columnName + " = " + formFieldVal : "" + formFieldVal);
+					insertValuesJoiner.add(showColumnName ? dbColumnName + " = " + formFieldVal : "" + formFieldVal);
 				} else if (TIME.equalsIgnoreCase(dataType)) {
 					if ("hidden".equals(columnType) == false) {
 						value = "";
@@ -1606,13 +1627,14 @@ public class DynamicFormService {
 							String nullSafeParam = String.format("NULLIF(%s, '')", param); // or check for 'null' string if needed
 							value = String.format("STR_TO_DATE(%s, '%%H:%%i:%%s')", nullSafeParam);
 							formFieldVal.append(value);
-
 						}
 					}
-					insertValuesJoiner.add(showColumnName ? columnName + " = " + formFieldVal : "" + formFieldVal);
+				//	insertValuesJoiner.add(showColumnName ? columnName + " = " + formFieldVal : "" + formFieldVal);
+					insertValuesJoiner.add(showColumnName ? dbColumnName + " = " + formFieldVal : "" + formFieldVal);
 				}
 			} else {
-				value = showColumnName ? columnName + " = :" + formFieldName : ":" + formFieldName;
+			//	value = showColumnName ? columnName + " = :" + formFieldName : ":" + formFieldName;
+				value = showColumnName ? dbColumnName + " = :" + formFieldName : ":" + formFieldName;
 				insertValuesJoiner.add(value.replace("\\", ""));
 			}
 			if (columnCounter > 1) {
@@ -1644,6 +1666,10 @@ public class DynamicFormService {
 				String					tmpName				= data.get("name");
 				boolean					isFormIO			= false;
 				HashMap<String, String>	saveQueryParamMap	= new HashMap<>();
+				
+				if(tmpName == null) {
+					break;
+				}
 				if (form != null && form.getFormIoId() != null && form.getFormIoId().isBlank() == false
 						&& form.getFormIoId().isEmpty() == false) {
 					for (Map<String, String> fmData : formData) {

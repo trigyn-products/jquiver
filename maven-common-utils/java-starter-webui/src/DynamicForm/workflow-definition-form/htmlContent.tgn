@@ -103,8 +103,8 @@
                   <div class="tipscontent">
                     <span id="contextParameter"></span>
                         <h3 class="titlename method-sign-info">
-                        <label for="ftlParameter">BPMN XML Generator :</label>   </h3>
-                        <span id="ftlParameter">Use the BPMN Generator button to create a BPMN XML file. Once generated, download the file, copy the XML content from the downloaded file, and paste it into the editor below to proceed.</span>
+                        <label for="ftlParameter">BPMN XML Designer :</label>   </h3>
+                        <span id="ftlParameter">Use the BPMN Designer button to create a BPMN XML file. Once generated, download the file, copy the XML content from the downloaded file, and paste it into the editor below to proceed.</span>
                   </div>
              </div>        
          </div>	
@@ -117,7 +117,7 @@
               </div>
               <div class="col-lg-6 col-12 text-end" style="margin-top: 10px;">
                    <button type="button" id="bpmnGeneratorBtn" class="btn btn-secondary btn-sm">
-                           BPMN Generator
+                           BPMN Designer
                    </button>      
               </div>    
          </div>
@@ -220,9 +220,48 @@
 });
   $(function(){
   
-    document.getElementById("bpmnGeneratorBtn").addEventListener("click", function () {
-    window.open("https://demo.bpmn.io/", "_blank");
-    });
+    let designerWindow = null;
+
+document.getElementById("bpmnGeneratorBtn").addEventListener(
+    "click",
+    function () {
+
+        const currentXml =
+            window.editor
+                ? window.editor.getValue()
+                : "";
+
+        localStorage.setItem(
+            "CURRENT_BPMN_XML",
+            currentXml
+        );
+
+        if (
+            designerWindow &&
+            !designerWindow.closed
+        ) {
+
+            designerWindow.focus();
+
+            designerWindow.postMessage(
+                {
+                    type: "LOAD_BPMN",
+                    xml: currentXml
+                },
+                "*"
+            );
+
+            return;
+        }
+
+        designerWindow =
+            window.open(
+                "${contextPath}${viewPath}/bpmn-designer",
+                "BPMN_DESIGNER",
+                "width=1400,height=900"
+            );
+    }
+);
       
     initiatePage();
     Object.keys(saveFunctionMap).forEach(actionId => {
@@ -540,6 +579,28 @@ function initiatePage() {
 
         window.editor = context.editor; // global reference
 
+      window.addEventListener("message", function(event) {
+
+            if (event.data.type === "BPMN_XML") {
+
+                const xml = event.data.xml;
+
+                if (window.editor) {
+
+                    window.editor.setValue(xml);
+
+                    document.getElementById("workflowFileContent").value = xml;
+
+                    document.getElementById("workflowFileName").value =
+                        "generated-workflow.bpmn";
+
+                    showMessage(
+                        "BPMN XML imported successfully",
+                        "success"
+                    );
+                }
+            }
+        });
         // === Auto-format XML after editor loads ===
         setTimeout(() => {
             if (context.editor.getValue().trim()) {

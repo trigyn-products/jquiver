@@ -82,6 +82,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	LdapUserService									ldapUserService				= null;
 	
 	@Autowired
+	CustomLoginService							   customLoginService				= null;
+	
+	@Autowired
 	private ICaptchRepository iCaptchRepository 				= null;
 	
 	@Autowired
@@ -111,7 +114,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		List<JwsUserLoginVO> activeAutenticationDetails = (List<JwsUserLoginVO>) mapDetails
 				.get("activeAutenticationDetails");
 		for (JwsUserLoginVO jwsUserLoginVO : activeAutenticationDetails) {
-			if (Constants.AuthType.DAO.getAuthType() == jwsUserLoginVO.getAuthenticationType()) {
+			if (Constants.AuthType.DAO.getAuthType() == jwsUserLoginVO.getAuthenticationType() 
+					|| Constants.AuthType.CUSTOM.getAuthType() == jwsUserLoginVO.getAuthenticationType()) {
 				this.daoAuthenticationProvider = new DaoAuthenticationProvider();
 				this.daoAuthenticationProvider.setUserDetailsService(userDetailsService);
 				this.daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
@@ -199,6 +203,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 			switch (authType) {
 				case Constants.DAO_ID:
 					return this.daoAuthenticationProvider.authenticate(authentication);
+				case Constants.CUSTOM_ID:
+					customLoginService.authenticate(username, decryptedPassword);
+			        return this.daoAuthenticationProvider.authenticate(authentication);	
 				case Constants.LDAP_ID:
 					String ldapConfigType = request.getParameter("ldapConfig");
 					if (StringUtils.isEmpty(ldapConfigType)) {

@@ -6,7 +6,7 @@
         <isCustomUpdated>0</isCustomUpdated>
         <isHomePage>0</isHomePage>
         <isInsideMenu>0</isInsideMenu>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <moduleId>4f81625d-c3f1-47ec-88d4-e85be439df19</moduleId>
         <moduleListingI18ns>
             <id>
@@ -32,7 +32,7 @@
         <isCustomUpdated>0</isCustomUpdated>
         <isHomePage>0</isHomePage>
         <isInsideMenu>0</isInsideMenu>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <moduleId>74f78214-3add-4e18-84d6-fb3b76805556</moduleId>
         <moduleListingI18ns>
             <id>
@@ -58,7 +58,7 @@
         <isCustomUpdated>0</isCustomUpdated>
         <isHomePage>0</isHomePage>
         <isInsideMenu>0</isInsideMenu>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <moduleId>8dc8f8b5-0f2c-40fe-8148-b90f8c2e3725</moduleId>
         <moduleListingI18ns>
             <id>
@@ -83,7 +83,7 @@
         <isCustomUpdated>0</isCustomUpdated>
         <isHomePage>0</isHomePage>
         <isInsideMenu>0</isInsideMenu>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <moduleId>3ffac75d-e93b-4b65-a7c8-2fd43251b929</moduleId>
         <moduleListingI18ns>
             <id>
@@ -108,7 +108,7 @@
         <isCustomUpdated>0</isCustomUpdated>
         <isHomePage>0</isHomePage>
         <isInsideMenu>0</isInsideMenu>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <moduleId>965e004d-df31-4eba-abc4-e167a7c43cd0</moduleId>
         <moduleListingI18ns>
             <id>
@@ -134,7 +134,7 @@
         <isCustomUpdated>0</isCustomUpdated>
         <isHomePage>0</isHomePage>
         <isInsideMenu>0</isInsideMenu>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <moduleId>c5ab3303-db0e-4b11-9b09-e73d65dade63</moduleId>
         <moduleListingI18ns>
             <id>
@@ -160,7 +160,7 @@
         <isCustomUpdated>0</isCustomUpdated>
         <isHomePage>0</isHomePage>
         <isInsideMenu>0</isInsideMenu>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <menuStyle></menuStyle>
         <moduleId>cb04a77e-fb36-4136-a46b-ed6766c717d4</moduleId>
         <moduleListingI18ns>
@@ -188,7 +188,7 @@
         <isCustomUpdated>0</isCustomUpdated>
         <isHomePage>0</isHomePage>
         <isInsideMenu>0</isInsideMenu>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <menuStyle></menuStyle>
         <moduleId>d60dd21b-cd40-4c9c-8035-a3d060985e57</moduleId>
         <moduleListingI18ns>
@@ -432,7 +432,7 @@
     <router>
         <headerJson>{&quot;Content-Language&quot;:&quot;en_US&quot;,&quot;Powered-By&quot;:&quot;JQuiver&quot;,&quot;Content-Type&quot;:&quot;text/html; charset=UTF-8&quot;}</headerJson>
         <includeLayout>1</includeLayout>
-        <isCustomUpdated>1</isCustomUpdated>
+        <isCustomUpdated>0</isCustomUpdated>
         <isHomePage>0</isHomePage>
         <isInsideMenu>0</isInsideMenu>
         <lastUpdatedBy>anonymous-user</lastUpdatedBy>
@@ -460,7 +460,7 @@
     <router>
         <headerJson>{&quot;Content-Language&quot;:&quot;en_US&quot;,&quot;Powered-By&quot;:&quot;JQuiver&quot;,&quot;Content-Type&quot;:&quot;text/html; charset=UTF-8&quot;}</headerJson>
         <includeLayout>1</includeLayout>
-        <isCustomUpdated>1</isCustomUpdated>
+        <isCustomUpdated>0</isCustomUpdated>
         <isHomePage>0</isHomePage>
         <isInsideMenu>0</isInsideMenu>
         <lastUpdatedBy>anonymous-user</lastUpdatedBy>
@@ -485,5 +485,61 @@
         <targetLookupId>2</targetLookupId>
         <targetTypeId>89a8877c-d2bb-4c7d-9420-68b00260efee</targetTypeId>
         <updatedDate>2025-10-09T13:23:02+05:30</updatedDate>
+    </router>
+     <router>
+        <headerJson>{&quot;Content-Language&quot;:&quot;en_US&quot;,&quot;Powered-By&quot;:&quot;JQuiver&quot;,&quot;Content-Type&quot;:&quot;text/html; charset=UTF-8&quot;}</headerJson>
+        <includeLayout>1</includeLayout>
+        <isCustomUpdated>0</isCustomUpdated>
+        <isHomePage>0</isHomePage>
+        <isInsideMenu>0</isInsideMenu>
+        <lastUpdatedBy>anonymous-user</lastUpdatedBy>
+        <menuStyle></menuStyle>
+        <moduleId>23ae642e-723b-4003-b7ad-420158c612f5</moduleId>
+        <moduleListingI18ns>
+            <id>
+                <languageId>1</languageId>
+                <moduleId>23ae642e-723b-4003-b7ad-420158c612f5</moduleId>
+            </id>
+            <moduleName>view-bpmn</moduleName>
+        </moduleListingI18ns>
+        <moduleTargetLookup>
+            <description>Template</description>
+            <lookupId>5</lookupId>
+        </moduleTargetLookup>
+        <moduleTypeId>2</moduleTypeId>
+        <moduleUrl>view-bpmn</moduleUrl>
+        <openInNewTab>0</openInNewTab>
+        <requestParamJson>{}</requestParamJson>
+        <targetLookupId>5</targetLookupId>
+        <targetTypeId>f802a5a5-91a6-486e-b3c0-d7719e499674</targetTypeId>
+        <updatedDate>2026-07-03T20:58:35+05:30</updatedDate>
+    </router>
+    <router>
+        <headerJson>{&quot;Content-Language&quot;:&quot;en_US&quot;,&quot;Powered-By&quot;:&quot;JQuiver&quot;,&quot;Content-Type&quot;:&quot;text/html; charset=UTF-8&quot;}</headerJson>
+        <includeLayout>0</includeLayout>
+        <isCustomUpdated>0</isCustomUpdated>
+        <isHomePage>0</isHomePage>
+        <isInsideMenu>0</isInsideMenu>
+        <lastUpdatedBy>anonymous-user</lastUpdatedBy>
+        <menuStyle></menuStyle>
+        <moduleId>ea604449-2220-4355-a935-f01ac8ee5bce</moduleId>
+        <moduleListingI18ns>
+            <id>
+                <languageId>1</languageId>
+                <moduleId>ea604449-2220-4355-a935-f01ac8ee5bce</moduleId>
+            </id>
+            <moduleName>bpmn-designer</moduleName>
+        </moduleListingI18ns>
+        <moduleTargetLookup>
+            <description>Template</description>
+            <lookupId>5</lookupId>
+        </moduleTargetLookup>
+        <moduleTypeId>2</moduleTypeId>
+        <moduleUrl>bpmn-designer</moduleUrl>
+        <openInNewTab>0</openInNewTab>
+        <requestParamJson>{}</requestParamJson>
+        <targetLookupId>5</targetLookupId>
+        <targetTypeId>c2a703d8-3d2f-4556-a4de-5443f975813c</targetTypeId>
+        <updatedDate>2026-07-03T20:36:43+05:30</updatedDate>
     </router>
 </routerData>

@@ -32,6 +32,91 @@
 .displayflex label{
     font-weight:bold;
 }
+
+#createAndLink{
+    min-width:220px;
+    height:40px;
+    font-weight:600;
+    border-radius:6px;
+}
+
+#businessModule{
+    background:#f8f9fa;
+    cursor:default;
+}
+
+#isformIodiv .onoffswitch{
+    margin-left:10px;
+}
+
+.lookup-column {
+    width: 90px;
+    min-width: 90px;
+    text-align: center;
+}
+
+.lookup-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.lookup-actions .foreign-key-checkbox {
+    margin: 0;
+    flex: 0 0 auto;
+}
+
+.edit-fk-btn {
+    margin-left: 8px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #0d6efd;
+
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+
+   flex: 0 0 22px;      
+    transition: opacity .15s;
+}
+
+.edit-fk-btn.show {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.edit-fk-btn i {
+    font-size: 15px;
+} 
+
+.full-form-fields{
+    display:flex;
+    flex-direction:column;
+}
+
+.full-form-fields label{
+    margin-bottom:8px;
+    font-weight:600;
+}
+
+.formio-switch-wrapper{
+    height:38px;
+    display:flex;
+    align-items:center;
+}
+
+.create-link-btn{
+    height:38px;
+}
+
+.txtWrapper .form-control{
+    height:38px;
+}
 </style>   
 </head>
 <div>
@@ -74,19 +159,67 @@
 					<input type="text" id="moduleName" name="moduleName" value="" maxlength="100" class="form-control">
 				</div>
 			</div>
-			<div class="col-4  col-12" id="isformIodiv">
-				<div class="col-inner-form full-form-fields">
-					<label for="formIoChkBox">${messageSource.getMessage('jws.formiolabel')}</label>
-					<div class="onoffswitch">
-						<input type="hidden" id="isFormIo" name="isFormIo" value="0">
-						<input type="checkbox" name="formIoChkBox" class="onoffswitch-checkbox" id="formIoChkBox" onchange="updateFormIo();"/>
-						<label class="onoffswitch-label" for="formIoChkBox">
-							<span class="onoffswitch-inner"></span>
-							<span class="onoffswitch-switch"></span>
-						</label>
-					</div>
-				</div>				
-			</div>
+<div class="row mt-3">
+    <!-- Form IO -->
+    <div class="col-md-2">
+        <div class="col-inner-form full-form-fields h-100 d-flex flex-column">
+            <label for="formIoChkBox">${messageSource.getMessage('jws.formiolabel')}</label>
+
+            <div class="formio-switch-wrapper">
+                <div class="onoffswitch">
+                    <input type="hidden" id="isFormIo" name="isFormIo" value="0">
+
+                    <input type="checkbox"
+                           name="formIoChkBox"
+                           class="onoffswitch-checkbox"
+                           id="formIoChkBox"
+                           onchange="updateFormIo();">
+
+                    <label class="onoffswitch-label" for="formIoChkBox">
+                        <span class="onoffswitch-inner"></span>
+                        <span class="onoffswitch-switch"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Button -->
+    <div class="col-md-3">
+        <div class="col-inner-form full-form-fields h-100 d-flex flex-column">
+            <label>&nbsp;</label>
+
+            <button type="button"
+                    id="createAndLink"
+                    class="btn btn-primary btn-block create-link-btn"
+                    onclick="openmodal('jq_template_master')">
+
+                Create / Link Module
+
+            </button>
+        </div>
+    </div>
+
+    <!-- Business Module -->
+    <div class="col-md-7">
+        <div class="col-inner-form full-form-fields h-100 d-flex flex-column">
+            <label for="businessModule">Business Module</label>
+
+            <div class="txtWrapper">
+                <input type="text"
+                       id="businessModule"
+                       class="form-control"
+                       placeholder="Business Modules"
+                       readonly>
+
+                <i class="fa fa-arrows-alt"
+                   title="Click to enter full screen"></i>
+            </div>
+        </div>
+    </div>
+
+</div>
+   
 		</div>
         <input type="hidden" id="columns" name="columns" value="" maxlength="1000">
         <input type="hidden" id="primaryKey" name="primaryKey" value="" maxlength="100">
@@ -276,8 +409,9 @@
 					</div>
 					<div class="col-6">
 						<div class="col-inner-form full-form-fields">
+                            <label for="maxFileSize">
 							<span class="asteriskmark">*</span>
-							<label for="maxFileSize">${messageSource.getMessage('jws.maxfilesize')}</label>
+							${messageSource.getMessage('jws.maxfilesize')}</label>
 							<div class="row">
 								<div class="col-8">
 									<input type="number" id="maxFileSizeUi" name="maxFileSizeUi" value="" onkeyup="fileBinMaster.saveCurrentFileSize(event)" onkeydown="fileBinMaster.validateMaxFileSize(event)" maxlength="10" class="form-control RemoveData">
@@ -295,6 +429,8 @@
 								</div>
 							</div>
 						</div>
+                        </div>
+                    <div class="row">
 						<div class="col-3">
 							<div class="col-inner-form full-form-fields ">
 								<label for="noOfFiles" >
@@ -357,8 +493,8 @@
        
 			<div class="col-12">			
 				<div class="text-end">
-                  <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_template_master')">Create/Link Module</button>
-					<input class="btn btn-primary" name="" value="${messageSource.getMessage('jws.create')}" type="button" onclick="createBusinessModule()">
+                  <!-- <button type="button" id="createAndLink" class="btn btn-primary" onclick="openmodal('jq_template_master')">Create/Link Module</button>-->
+					<input class="btn btn-primary" name="" value="${messageSource.getMessage('jws.create')}" type="button" onclick="createBusinessModule()"> 
 					<span onclick="backToPreviousPage();">
 						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 					</span> 
@@ -396,6 +532,7 @@
     var profile = "prod";
     var listingPageFieldCount = "";
     let allModuleList = [];
+    let allBusModuleList = [];
     let moduleIdList = [];
     let deleteModuleIdList = [];
     let newAddedModuleIdList = [];
@@ -431,8 +568,22 @@
     }  
 	
 	$(function() {
+        $( ".txtWrapper i" ).click(function() {
+            let elem = $(this).prev().get()[0];
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
+            
+            $(this).prev().focus();
+        });
         fileBinMaster = new FileBinMaster();   
 		getAllDatasource(0);
+        getBusinessModuleNames();
+       
 		tableAutocomplete = $("#tableAutocomplete").autocomplete({
 	        autocompleteId: "table-autocomplete",
 	        prefetch : true,
@@ -481,6 +632,9 @@
             let toogleFileBin= $("#toggleFileBin").val();
             $("#menuDisplayName").val(this.value);
             $("#moduleURL").val(this.value);
+            $("#busmoduleName").val(this.value);
+            $("#businessModule").val(this.value);
+            
             if($("#moduleName").val() === ""){
 				$("#formDisplayName").val("");
 	            $("#formModuleURL").val("");
@@ -495,6 +649,9 @@
                 }
             }
 		});	
+        // $("#busmoduleName").keyup(function(){
+        //     $("#businessModule").val(this.value);
+        // });	
 	});
    
     $("#tableAutocomplete").on('change',function(){
@@ -516,170 +673,226 @@
         });
     }
 
-    $(document).on("change", ".foreign-key-checkbox", function() {
-       let index = $(this).data("index");
-       let columnName = $("#tfcolumn_" + index).text().trim();
-       if ($(this).is(":checked")) {
-            currentForeignKeyIndex = index;
+$(document).on("change", ".foreign-key-checkbox", function() {
+    let index = $(this).data("index");
+    let columnName = $("#tfcolumn_" + index).text().trim();
+
+    if ($(this).is(":checked")) {
+        currentForeignKeyIndex = index;
+        clearForeignKeyPopup();
+        openForeignKeyModal();
+    } else {
+        // Hide the edit button
+      //  $("#editForeignKey_" + index).hide();
+      $("#editForeignKey_" + index).removeClass("show");
+        // Remove the configuration
+        foreignKeyDetails = foreignKeyDetails.filter(
+            x => x.columnName !== columnName
+        );
+        // Optional: clear popup if this row was being edited
+        if (currentForeignKeyIndex === index) {
             clearForeignKeyPopup();
-            openForeignKeyModal();
-        } else {
-            foreignKeyDetails = foreignKeyDetails.filter(x => x.columnName !== columnName);
+        }
+    }
+});
+
+$("#modalCloseBtn").on("click", function () {
+    document.activeElement.blur();
+    if(currentForeignKeyIndex != null){
+        $("#foreignKey_" + currentForeignKeyIndex)
+            .prop("checked", false);
+    }
+ //   clearForeignKeyModal();
+});
+
+function updateBusinessModuleTextbox() {
+    let selectedModules = [];
+    $("#linkModuleNameAutocomplete_selectedOptions .ml-selected-item").each(function () {
+        let moduleName = $(this).text().trim();
+        if (moduleName) {
+            selectedModules.push(moduleName);
         }
     });
+    let modules = selectedModules.join(", ");
+    var createbusMods = $("#busmoduleName").val();
+    if(createbusMods !== ""){
+        $("#businessModule").val(createbusMods);
+    } else {
+        $("#businessModule").val(modules).attr("title", modules);
+    }
+}
 
-     $("#modalCloseBtn").on("click", function () {
-        if(currentForeignKeyIndex != null){
-            $("#foreignKey_" + currentForeignKeyIndex)
-                .prop("checked", false);
+function restoreOriginalValonCancel(){
+    $("#busmoduleName").val(originalModuleName);
+}
+
+
+function selectAllHiddenListing(){
+    $("#listingDetailsTable tr td:nth-child(2) input").each(function(a_index, a_element){
+        if($(this).is(':disabled') == false){
+            $(this).prop('checked', $("#chkSelectAllHiddenListing").prop('checked'));
+            updateGridDetails(a_element);
         }
-        clearForeignKeyModal();
     });
+}
 
-    function selectAllHiddenListing(){
-        $("#listingDetailsTable tr td:nth-child(2) input").each(function(a_index, a_element){
-        	if($(this).is(':disabled') == false){
-        		$(this).prop('checked', $("#chkSelectAllHiddenListing").prop('checked'));
-        		updateGridDetails(a_element);
-        	}
-        });
-    }
+function selectAllIncludedForm(){        
+    $("#formDetailsTable tr td:first-child input").each(function(a_index, a_element){			
+        if($(this).is(':disabled') == false){			
+            $(this).prop('checked', $("#chkSelectAllIncludedForm").prop('checked'));
+            addRemoveToFormDetails(a_element);
+        }			
+    });  
+}
 
-    function selectAllIncludedForm(){        
-        $("#formDetailsTable tr td:first-child input").each(function(a_index, a_element){			
-			if($(this).is(':disabled') == false){			
-				$(this).prop('checked', $("#chkSelectAllIncludedForm").prop('checked'));
-				addRemoveToFormDetails(a_element);
-			}			
-        });  
-    }
-
-    function selectAllHiddenForm(){
-        $("#formDetailsTable tr td:nth-child(2) input").each(function(a_index, a_element){
-	        if($(this).is(':disabled') == false){
-	        	$(this).prop('checked', $("#chkSelectAllHiddenForm").prop('checked'));
-	        	updateFormDetails(a_element);
-	        }
-        });
-    }
-
-    function fileBinChecked(t){  
-        let isChecked = $('#toggleFileBinChkBox').is(':checked')? 1 : 0;		
-        $("#toggleFileBin").val(isChecked); 
-        if (t.is(":checked")) {
-            $(".RemoveData").removeAttr("disabled", "disabled"); 
-            $('#slider').slider("enable");
-            $("#fileTypeSupported").attr("placeholder", ".png, .jpg, .gif, .*");
-            document.getElementById('size').value = '1';
-            $("#maxFileSize").focus();
-            $("#fileBinId").val($("#moduleName").val().replace(/[^a-zA-Z0-9]/g, "")+"_fb");
-        } else {
-            $(".RemoveData").attr("placeholder", ""); 
-            $(".RemoveData").val("");    
-            $(".RemoveData").attr("disabled", "disabled");   
-            $('#slider').slider("disable"); 
+function selectAllHiddenForm(){
+    $("#formDetailsTable tr td:nth-child(2) input").each(function(a_index, a_element){
+        if($(this).is(':disabled') == false){
+            $(this).prop('checked', $("#chkSelectAllHiddenForm").prop('checked'));
+            updateFormDetails(a_element);
         }
-    }
-  	 function initializeFileSlider() {
-		var handle = $("#custom-handle");
-        $("#slider").slider({
-            max: 256,
-            min: 0,
-            value: $("#noOfFiles").val() == "" ? 0 : $("#noOfFiles").val(),
-            create: function () {
-                handle.text($(this).slider("value"));
-            },
-            slide: function (event, ui) {
-                handle.text(ui.value);
-                $("#slider").slider(ui.value);
-			    $("#noOfFiles").val(ui.value);
-            }
-        });
-        let fileCount = $("#slider").slider("value");
-		$("#custom-handle").text(fileCount);
-		$("#noOfFiles").val(fileCount);
-	}
+    });
+}
 
-    function updateIsFileStorageEnableText() {
-        if($("#isFileStorageEnable").prop("checked") == true) {
-                $("#customFileStorageClass").prop("disabled", false);
-            $("#fileStorageTxt").val(1);
-        } else {
-            $("#fileStorageTxt").val(0);
-                $("#customFileStorageClass").prop("disabled", true);
-                $("#customFileStorageClass").val("")
-        }
+function fileBinChecked(t){  
+    let isChecked = $('#toggleFileBinChkBox').is(':checked')? 1 : 0;		
+    $("#toggleFileBin").val(isChecked); 
+    if (t.is(":checked")) {
+        $(".RemoveData").removeAttr("disabled", "disabled"); 
+        $('#slider').slider("enable");
+        $("#fileTypeSupported").attr("placeholder", ".png, .jpg, .gif, .*");
+        document.getElementById('size').value = '1';
+        $("#maxFileSize").focus();
+        $("#fileBinId").val($("#moduleName").val().replace(/[^a-zA-Z0-9]/g, "")+"_fb");
+    } else {
+        $(".RemoveData").attr("placeholder", ""); 
+        $(".RemoveData").val("");    
+        $(".RemoveData").attr("disabled", "disabled");   
+        $('#slider').slider("disable"); 
     }
-        
-     function updateFormIo() {
-		let formIoChkBox = $('#formIoChkBox').is(':checked')? 1 : 0;
+}
+    function initializeFileSlider() {
+    var handle = $("#custom-handle");
+    $("#slider").slider({
+        max: 256,
+        min: 0,
+        value: $("#noOfFiles").val() == "" ? 0 : $("#noOfFiles").val(),
+        create: function () {
+            handle.text($(this).slider("value"));
+        },
+        slide: function (event, ui) {
+            handle.text(ui.value);
+            $("#slider").slider(ui.value);
+            $("#noOfFiles").val(ui.value);
+        }
+    });
+    let fileCount = $("#slider").slider("value");
+    $("#custom-handle").text(fileCount);
+    $("#noOfFiles").val(fileCount);
+}
+
+function updateIsFileStorageEnableText() {
+    if($("#isFileStorageEnable").prop("checked") == true) {
+            $("#customFileStorageClass").prop("disabled", false);
+        $("#fileStorageTxt").val(1);
+    } else {
+        $("#fileStorageTxt").val(0);
+            $("#customFileStorageClass").prop("disabled", true);
+            $("#customFileStorageClass").val("")
+    }
+}
+    
+    function updateFormIo() {
+        let formIoChkBox = $('#formIoChkBox').is(':checked')? 1 : 0;
         $("#isFormIo").val(formIoChkBox);  
         if(formIoChkBox == 1) {
-        	$("#csrfdiv").hide();
+            $("#csrfdiv").hide();
         } if(formIoChkBox == 0) {
-        	$("#csrfdiv").show();
+            $("#csrfdiv").show();
         }
-     }
+    }
 
-   function createBusinessModule() {
-        // CHECK WHETHER BUSINESS MODULE IS ALREADY CREATED/LINKED
-        let hasBusinessModule = false;
-        if ($("#busmoduleName").val() != null && $("#busmoduleName").val() != "") {
-            hasBusinessModule = true;
+function createBusinessModule() {
+    // CHECK WHETHER BUSINESS MODULE IS ALREADY CREATED/LINKED
+    let hasBusinessModule = false;
+    var businessModuleName = $("#busmoduleName").val();
+    if ($("#busmoduleName").val() != null && $("#busmoduleName").val() != "") {
+        hasBusinessModule = true;
+    }
+    // if multiselect contains selected items
+    if ($("#linkModuleNameAutocomplete_selectedOptions_ul li").length > 0) {
+        hasBusinessModule = true;
+    }
+    // If Business Module Exists -> Directly create master
+    if (hasBusinessModule) {
+        if (allBusModuleList.some(module => module.toLowerCase() === businessModuleName.toLowerCase())) {
+            showMessage("Business Module Name already exists.", "warn");
+            $("#busmoduleName").focus();
+            return false;
         }
-        // if multiselect contains selected items
-        if ($("#linkModuleNameAutocomplete_selectedOptions_ul li").length > 0) {
-            hasBusinessModule = true;
-        }
-        // If Business Module Exists -> Directly create master
-        if (hasBusinessModule) {
-            createMaster();
-            return;
-        }
-        //Otherwise show confirm dialog box
-        const dialog = $(`
-            <div id="proceedConfirmDialog">
-                Are you sure you want to proceed without creating Business Module?
-            </div>
-        `);
-        $('body').append(dialog);
-        $('#proceedConfirmDialog').dialog({
-            bgiframe: true,
-            autoOpen: true,
-            modal: true,
-            closeOnEscape: true,
-            draggable: true,
-            resizable: false,
-            title: 'Proceed',
-            position: { my: 'center', at: 'center' },
-            buttons: [
-            {
-                text: 'Proceed',
-                class: 'btn btn-primary',
-                click: function () {
-                    createMaster();
-                    $(this).dialog('destroy').remove();
-                }
-            },
-            {
-                text: 'Cancel',
-                class: 'btn btn-secondary',
-                click: function () {
-                    $(this).dialog('destroy').remove();
-                }
-            }
-            ],
-            open: function () {
-                $(".ui-dialog-titlebar button")
-                    .removeClass("ui-dialog-titlebar-close")
-                    .addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
-                    .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
-                    .append('<span class="ui-button-icon-space"></span>');
-            },
-            close: function () {
+        createMaster();
+        return;
+    }
+    //Otherwise show confirm dialog box
+    const dialog = $(`
+        <div id="proceedConfirmDialog">
+            Are you sure you want to proceed without creating Business Module?
+        </div>
+    `);
+    $('body').append(dialog);
+    $('#proceedConfirmDialog').dialog({
+        bgiframe: true,
+        autoOpen: true,
+        modal: true,
+        closeOnEscape: true,
+        draggable: true,
+        resizable: false,
+        title: 'Proceed',
+        position: { my: 'center', at: 'center' },
+        buttons: [
+        {
+            text: 'Proceed',
+            class: 'btn btn-primary',
+            click: function () {
+                createMaster();
                 $(this).dialog('destroy').remove();
             }
-        });
+        },
+        {
+            text: 'Cancel',
+            class: 'btn btn-secondary',
+            click: function () {
+                $(this).dialog('destroy').remove();
+            }
+        }
+        ],
+        open: function () {
+            $(".ui-dialog-titlebar button")
+                .removeClass("ui-dialog-titlebar-close")
+                .addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
+                .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>')
+                .append('<span class="ui-button-icon-space"></span>');
+        },
+        close: function () {
+            $(this).dialog('destroy').remove();
+        }
+    });
+}
+
+function getBusinessModuleNames(){
+    $.ajax({
+        async: false,
+        type: "GET",
+        url: contextPath + apiPath + "/gbm",
+        data: {
+            
+        },
+        success: function(data) {
+            $.each(data, function(key, val) {		
+                allBusModuleList.push(val.moduleName);
+            });
+        }
+    });
 }
 
 </script>

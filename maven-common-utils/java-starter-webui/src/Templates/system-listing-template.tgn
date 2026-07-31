@@ -162,11 +162,15 @@
     	let redirectURL = contextPath+viewPath+"/${(dfModuleURL)!''}";
         if(a_rowID != null && a_rowID != undefined && a_rowID >= 0){
     	 	<#list primaryKeys as primaryKey>
-    	 		<#if  isFormIo?? && isFormIo == false>
-    				redirectURL += '?${primaryKey?replace("_", "")}=' + listingData[a_rowID]["${primaryKey}"];
-    			<#else>
-    				redirectURL += '?${primaryKey}=' + listingData[a_rowID]["${primaryKey}"];
-    			</#if>
+    	 		<#if isFormIo?? && isFormIo == false>
+                    <#if primaryKey?contains(" ")>
+                        redirectURL += '?${primaryKey?replace(" ", "")?replace("_", "")}=' + listingData[a_rowID]["${primaryKey}"];
+                    <#else>
+                        redirectURL += '?${primaryKey?replace("_", "")}=' + listingData[a_rowID]["${primaryKey}"];
+                    </#if>
+                <#else>
+                    redirectURL += '?${primaryKey}=' + listingData[a_rowID]["${primaryKey}"];
+                </#if>
         	</#list>
     	}
     	location.href = redirectURL;

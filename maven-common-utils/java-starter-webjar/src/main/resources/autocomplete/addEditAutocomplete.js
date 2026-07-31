@@ -202,7 +202,8 @@ class AddEditAutocomplete {
 		let tableName = $("#autocompleteTable").val();
 		let additionalDataSourceId = $("#dataSource").find(":selected").val();
 		let productName = $("#dataSource").find(":selected").data("product-name");
-
+		var quotedTableName = context.quoteIdentifierIfRequired(tableName, productName);
+		
 		if (tableName !== "") {
 			$.ajax({
 				type: "POST",
@@ -222,11 +223,45 @@ class AddEditAutocomplete {
 					} else {
 						limitQuery = " LIMIT :startIndex, :pageSize";
 					}
-					context.sqlQuery.setValue("SELECT " + data[0].columnName + " FROM " + tableName + limitQuery);
+					context.sqlQuery.setValue("SELECT " + data[0].columnName + " FROM " + quotedTableName + limitQuery);
 				}
 			});
 		} else {
 			context.sqlQuery.setValue("");
+		}
+	}
+	
+	quoteIdentifierIfRequired(identifier, productName) {
+		if (!identifier) {
+			return identifier;
+		}
+		identifier = identifier.trim();
+		// Already quoted
+		if (
+			(identifier.startsWith("`") && identifier.endsWith("`")) ||
+			(identifier.startsWith("\"") && identifier.endsWith("\"")) ||
+			(identifier.startsWith("[") && identifier.endsWith("]"))
+		) {
+			return identifier;
+		}
+		// Quote only if it contains spaces
+		if (!identifier.includes(" ")) {
+			return identifier;
+		}
+		switch ((productName || "").toLowerCase()) {
+			case "postgresql":
+			case "oracle":
+			case "oracle:thin":
+				return `"${identifier}"`;
+
+			case "sqlserver":
+			case "mssql":
+				return `[${identifier}]`;
+
+			case "mysql":
+			case "mariadb":
+			default:
+				return `\`${identifier}\``;
 		}
 	}
 

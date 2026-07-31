@@ -29,7 +29,7 @@
     <div id="alreadySubmittedBanner" style="display: none; padding: 20px; background-color: #fef3c7; border: 1px solid #facc15; border-radius: 8px; font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto;">
         <h2 style="color: #92400e;">⚠️ Form Already Submitted</h2>
         <p>It looks like you’ve already submitted this form. Duplicate submissions are not allowed.</p>
-        <p>If you believe this is an error or need to make changes, please <a href="mailto:admin@jquiver.io" style="color: #2563eb;">contact our support team</a>.</p>
+        <p>If you believe this is an error or need to make changes, please <a href="mailto:admin@localhost.io" style="color: #2563eb;">contact our support team</a>.</p>
     </div>
 
     <form>

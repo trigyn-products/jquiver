@@ -1,0 +1,556 @@
+/***********************************************************************
+ * WORKFLOW ENGINE UTILITY
+ * ---------------------------------------------------------------------
+ * This utility handles:
+ * 1. Workflow instance creation
+ * 2. Task creation
+ * 3. Workflow movement
+ * 4. Workflow transition traversal
+ * 5. Common DB helper methods
+ *
+ * USE THIS FILE WHEN:
+ * - Starting a workflow
+ * - Moving workflow to next step
+ * - Creating user tasks
+ * - Traversing gateways/system tasks
+ * - Fetching workflow metadata
+ *
+ ***********************************************************************/
+ /***********************************************************************
+ * IMPORTS
+ ***********************************************************************/
+var HashMap = Java.type("java.util.HashMap");
+var UUID = Java.type("java.util.UUID");
+
+/***********************************************************************
+ * ================================================================
+ * SECTION 1 : COMMON DB / PARAM UTILITIES
+ * ================================================================
+ ***********************************************************************/
+
+/**
+ * Converts normal JS object into Java HashMap.
+ *
+ * USE WHEN:
+ * Any jq_getDBResult / jq_updateDBQuery requires params.
+ *
+ * Example:
+ * newParams({ statusId: "123" })
+ */
+function newParams(obj) {
+    var map = new HashMap();
+    for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            map.put(key, obj[key]);
+        }
+    }
+    return map;
+}
+
+/**
+ * Fetch first row from DB query.
+ *
+ * RETURNS:
+ * - First row object
+ * - null if no row found
+ *
+ * USE WHEN:
+ * Query may or may not return data.
+ */
+function fetchFirstRow(query, params) {
+    var result = jq_getDBResult(query, null, params);
+    if (result != null && result.containsKey("data_list") && !result.get("data_list").isEmpty()) {
+        return result.get("data_list").get(0);
+    }
+    return null;
+}
+
+/**
+ * Same as fetchFirstRow()
+ * BUT throws error if no record exists.
+ *
+ * USE WHEN:
+ * Record MUST exist.
+ *
+ * Example:
+ * Workflow definition MUST exist.
+ */
+function mustFetchFirstRow(query, params, errorMessage) {
+    var row = fetchFirstRow(query, params);
+    if (row == null) {
+        throw new Error(errorMessage);
+    }
+    return row;
+}
+
+/***********************************************************************
+ * ================================================================
+ * SECTION 2 : WORKFLOW STATUS HELPERS
+ * ================================================================
+ ***********************************************************************/
+
+
+/**
+ * Returns workflow status type.
+ *
+ * POSSIBLE VALUES:
+ * - USER_TASK
+ * - SYSTEM_TASK
+ * - GATEWAY
+ * - START_EVENT
+ * - END_EVENT
+ *
+ * USE WHEN:
+ * You want to know how workflow should behave.
+ */
+function getStatusType(statusId) {
+    var row = fetchFirstRow(
+        "SELECT status_type FROM jq_workflow_status WHERE status_id = :statusId",
+        newParams({ statusId: statusId })
+    );
+    return row ? row.get("status_type") : null;
+}
+
+/**
+ * Checks whether given status is USER_TASK.
+ *
+ * RETURNS:
+ * true / false
+ *
+ * USE WHEN:
+ * You want to decide whether task entry should be created.
+ */
+function isUserTask(statusId, definitionId, version) {
+    var result = jq_getDBResult(
+        "SELECT is_user_task FROM jq_workflow_status WHERE status_id = :statusId AND definition_id = :definitionId AND version = :version",
+        null,
+        newParams({ statusId: statusId, definitionId: definitionId, version: version })
+    );
+    if (!result || result.get("data_list").isEmpty()) return false;
+    return result.get("data_list").get(0).get("is_user_task") === true || result.get("data_list").get(0).get("is_user_task") === 1;
+}
+
+/***********************************************************************
+ * ================================================================
+ * SECTION 3 : WORKFLOW DEFINITION HELPERS
+ * ================================================================
+ ***********************************************************************/
+
+
+/**
+ * Fetch latest workflow definition version.
+ *
+ * USE WHEN:
+ * Starting new workflow process.
+ */
+function getWorkflowDefinition(definitionId) {
+    return mustFetchFirstRow(
+        "SELECT definition_id, MAX(version) AS version FROM jq_workflow_definition WHERE definition_id = :definitionId",
+        newParams({ definitionId: definitionId }),
+        "No workflow definition found for: " + definitionId
+    );
+}
+
+/**
+ * Returns first workflow status/node.
+ *
+ * USE WHEN:
+ * Starting workflow.
+ */
+function getInitialStatus(definitionId) {
+    return mustFetchFirstRow(
+        "SELECT ws.status_id FROM jq_workflow_status ws WHERE ws.definition_id = :definitionId AND ws.order_no = 1 ORDER BY ws.version DESC LIMIT 1",
+        newParams({ definitionId: definitionId }),
+        "No initial status found for definition: " + definitionId
+    ).get("status_id");
+}
+
+
+/***********************************************************************
+ * ================================================================
+ * SECTION 4 : WORKFLOW INSTANCE METHODS
+ * ================================================================
+ ***********************************************************************/
+
+
+/**
+ * Creates new workflow instance.
+ *
+ * USE WHEN:
+ * Workflow starts first time.
+ *
+ * INSERTS:
+ * jq_workflow_instance
+ */
+function createWorkflowInstance(definitionId, version, statusId, entityId, loggedInUser) {
+    var instanceId = UUID.randomUUID().toString();
+    var insertQuery = "INSERT INTO jq_workflow_instance (instance_id, definition_id, version, current_status_id, " +
+                      "started_by, started_at, last_updated_by, last_updated_ts, is_active, entity_id) " +
+                      "VALUES (:instanceId, :definitionId, :version, :statusId, :startedBy, NOW(), :lastUpdatedBy, NOW(), 1, :entityId)";
+    jq_updateDBQuery(insertQuery, null, newParams({
+        instanceId: instanceId,
+        definitionId: definitionId,
+        version: version,
+        statusId: statusId,
+        startedBy: loggedInUser,
+        lastUpdatedBy: loggedInUser,
+        entityId: entityId
+    }));
+    return instanceId;
+}
+
+/***********************************************************************
+ * ================================================================
+ * SECTION 5 : TRANSITION HELPERS
+ * ================================================================
+ ***********************************************************************/
+
+
+/**
+ * Finds next USER_TASK node.
+ *
+ * Automatically skips:
+ * - gateways
+ * - system tasks
+ * - start events
+ *
+ * USE WHEN:
+ * You want next human task.
+ */
+function getNextUserTaskStatus(fromStatusId, definitionId, version) {
+    var result = jq_getDBResult(
+        "SELECT to_status_id FROM jq_workflow_transition WHERE from_status_id = :fromStatusId AND definition_id = :definitionId AND version = :version ORDER BY order_no",
+        null,
+        newParams({ fromStatusId: fromStatusId, definitionId: definitionId, version: version })
+    );
+    if (!result || result.get("data_list").isEmpty()) return null;
+
+    for (var rowIndex = 0; rowIndex < result.get("data_list").size(); rowIndex++) {
+        var toStatusId = result.get("data_list").get(rowIndex).get("to_status_id");
+        if (getStatusType(toStatusId) === "USER_TASK") return toStatusId;
+    }
+    return null;
+}
+
+/***********************************************************************
+ * ================================================================
+ * SECTION 6 : TASK METHODS
+ * ================================================================
+ ***********************************************************************/
+
+
+/**
+ * Creates workflow task for USER_TASK node.
+ *
+ * AUTOMATICALLY:
+ * - skips gateways
+ * - skips system tasks
+ * - stops at USER_TASK or END_EVENT
+ *
+ * USE WHEN:
+ * Workflow reaches human approval/action step.
+ *
+ * INSERTS:
+ * jq_workflow_task
+ */
+function createWorkflowTask(instanceId, fromStatusId, assignedTo) {
+    if (!assignedTo) throw "Task requires assignedTo";
+
+    var currentStatusId = fromStatusId;
+
+    // --- Traverse until we reach USER_TASK or END_EVENT ---
+    while (true) {
+        var type = getStatusType(currentStatusId);
+        if (type === "USER_TASK" || type === "END_EVENT") break;
+
+        var transitions = jq_getDBResult(
+            "SELECT to_status_id FROM jq_workflow_transition WHERE from_status_id = :fromStatusId ORDER BY order_no",
+            null,
+            newParams({ fromStatusId: currentStatusId })
+        );
+
+        if (!transitions || transitions.get("data_list").isEmpty()) break;
+
+        // pick the first transition (linear workflow)
+        currentStatusId = transitions.get("data_list").get(0).get("to_status_id");
+    }
+
+    // --- Only insert if USER_TASK ---
+    if (getStatusType(currentStatusId) !== "USER_TASK") return null;
+
+    var taskId = UUID.randomUUID().toString();
+
+    var statusName = mustFetchFirstRow(
+        "SELECT status_name FROM jq_workflow_status WHERE status_id = :statusId",
+        newParams({ statusId: currentStatusId }),
+        "Status not found: " + currentStatusId
+    ).get("status_name");
+
+    jq_updateDBQuery(
+        "INSERT INTO jq_workflow_task (task_id, instance_id, status_id, assigned_to, task_name, created_at, is_completed) " +
+        "VALUES (:taskId, :instanceId, :statusId, :assignedTo, :taskName, NOW(), 0)",
+        null,
+        newParams({
+            taskId: taskId,
+            instanceId: instanceId,
+            statusId: currentStatusId,
+            assignedTo: assignedTo,
+            taskName: statusName
+        })
+    );
+
+    return taskId;
+}
+
+/***********************************************************************
+ * ================================================================
+ * SECTION 7 : WORKFLOW RUNTIME METHODS
+ * ================================================================
+ ***********************************************************************/
+
+/*
+ * FUNCTION : startWorkflowProcess()
+ * ---------------------------------------------------------------------
+ * PURPOSE:
+ * Starts a brand-new workflow process.
+ *
+ * WHAT THIS METHOD DOES:
+ * 1. Fetches latest workflow version
+ * 2. Finds initial workflow status/node
+ * 3. Creates workflow instance entry
+ * 4. Finds first USER_TASK
+ * 5. Creates first workflow task
+ * 6. Returns workflow/task details
+ *
+ * USE WHEN:
+ * - Starting workflow first time
+ * - Employee submits leave request
+ * - User creates new ticket/request
+ * - Any new approval process begins
+ *
+ * INPUT:
+ * definitionId  -> Workflow definition ID
+ * requestDetails -> Request data object
+ * userName      -> Logged in user
+ *
+ * RETURNS:
+ * {
+ *    processInstanceId,
+ *    initialStatusId,
+ *    version,
+ *    taskId
+ * }
+ *
+ * EXAMPLE:
+ *
+ * var workflow = startWorkflowProcess(
+ *      "LEAVE_APPROVAL",
+ *      requestDetails,
+ *      loggedInUser
+ * );
+ *
+*/
+function startWorkflowProcess(definitionId, requestDetails, userName) {
+    var defRow = getWorkflowDefinition(definitionId);
+    var version = defRow.get("version");
+    var initialStatusId = getInitialStatus(definitionId);
+
+    var instanceId = createWorkflowInstance(definitionId, version, initialStatusId, requestDetails.entityId, userName);
+
+    // --- Create initial task only if first node is USER_TASK or next node is USER_TASK ---
+    var nextTaskId = null;
+    var initialStatusType = getStatusType(initialStatusId);
+    if (initialStatusType === "USER_TASK") {
+        nextTaskId = createWorkflowTask(instanceId, initialStatusId, requestDetails.assignedTo);
+    } else {
+        var nextUserTask = getNextUserTaskStatus(initialStatusId, definitionId, version);
+        if (nextUserTask) {
+            nextTaskId = createWorkflowTask(instanceId, nextUserTask, requestDetails.assignedTo);
+        }
+    }
+
+    return { processInstanceId: instanceId, initialStatusId: initialStatusId, version: version, taskId: nextTaskId };
+}
+
+
+/*
+ * FUNCTION : moveWorkflowInstance()
+ * ---------------------------------------------------------------------
+ * PURPOSE:
+ * Moves workflow from current step to next step.
+ *
+ * THIS IS THE MAIN WORKFLOW MOVEMENT ENGINE.
+ *
+ * WHAT THIS METHOD DOES:
+ * 1. Completes current task
+ * 2. Finds matching transition using action
+ * 3. Updates workflow current status
+ * 4. Traverses workflow until:
+ *      - USER_TASK found
+ *      - END_EVENT found
+ * 5. Creates next task if needed
+ * 6. Marks workflow inactive if final state reached
+ *
+ * USE WHEN:
+ * - Manager approves request
+ * - Manager rejects request
+ * - HR approves/rejects
+ * - Workflow needs to move forward
+ * - System auto transition required
+ *
+ * COMMON ACTION VALUES:
+ * - APPROVE
+ * - REJECT
+ * - AUTO
+ * - SUBMIT
+ *
+ * INPUT:
+ * taskId         -> Current task ID
+ * loggedInUser   -> Current logged in user
+ * assignedId     -> Next task assignee
+ * action         -> Transition action
+ *
+ * RETURNS:
+ * {
+ *    newTaskId,
+ *    nextStatusId,
+ *    isFinal
+ * }
+ *
+ * EXAMPLE:
+ *
+ * moveWorkflowInstance(
+ *      taskId,
+ *      loggedInUser,
+ *      managerId,
+ *      "APPROVE"
+ * );
+ *
+*/
+function moveWorkflowInstance(taskId, loggedInUser, assignedId, action) {
+    if (!action || !action.trim()) throw "Action is required";
+
+    var task = mustFetchFirstRow(
+        "SELECT wt.task_id, wt.instance_id, wt.status_id,  wi.definition_id, wi.version " +
+        "FROM jq_workflow_task wt JOIN jq_workflow_instance wi ON wi.instance_id = wt.instance_id " +
+        "WHERE wt.task_id = :taskId",
+        newParams({ taskId: taskId }),
+        "Task not found: " + taskId
+    );
+
+    var instanceId = task.get("instance_id");
+    var currentNodeId = task.get("status_id");
+    var definitionId = task.get("definition_id");
+    var version = task.get("version");
+
+    jq_updateDBQuery(
+        "UPDATE jq_workflow_task SET is_completed = 1, completed_on = NOW(), completed_by = :loggedInUser WHERE task_id = :taskId",
+        null,
+        newParams({ taskId: taskId, loggedInUser: loggedInUser })
+    );
+
+    var finalStatusReached = false;
+    var nextStatusId = currentNodeId;
+    var newTaskId = null;
+
+    while (!finalStatusReached) {
+        var transitions = jq_getDBResult(
+            "SELECT wt.to_status_id, ws.is_final, ws.is_user_task, ws.status_type, wt.action " +
+            "FROM jq_workflow_transition wt JOIN jq_workflow_status ws ON ws.status_id = wt.to_status_id " +
+            "WHERE wt.from_status_id = :fromStatusId ORDER BY wt.order_no",
+            null,
+            newParams({ fromStatusId: nextStatusId })
+        );
+        if (!transitions || transitions.get("data_list").isEmpty()) break;
+
+        var matched = null;
+        for (var rowIndex = 0; rowIndex < transitions.get("data_list").size(); rowIndex++) {
+            var row = transitions.get("data_list").get(rowIndex);
+            if ((row.get("action") || "AUTO").toUpperCase() === (action || "AUTO").toUpperCase()) {
+                matched = row;
+                break;
+            }
+        }
+        if (!matched) matched = transitions.get("data_list").get(0);
+
+        nextStatusId = matched.get("to_status_id");
+        finalStatusReached = matched.get("is_final") === true || matched.get("is_final") === 1;
+        var isUserTask = matched.get("is_user_task") === true || matched.get("is_user_task") === 1;
+
+        jq_updateDBQuery(
+            "UPDATE jq_workflow_instance SET current_status_id = :targetStatusId, last_updated_ts = NOW(), last_updated_by = :loggedInUser, is_active = :isActive WHERE instance_id = :instanceId",
+            null,
+            newParams({ targetStatusId: nextStatusId, loggedInUser: loggedInUser, isActive: finalStatusReached ? 0 : 1, instanceId: instanceId })
+        );
+
+        if (finalStatusReached) break;
+        if (isUserTask) {
+            newTaskId = createWorkflowTask(instanceId, nextStatusId, assignedId);
+            break;
+        }
+    }
+
+    return { newTaskId: newTaskId, nextStatusId: nextStatusId, isFinal: finalStatusReached };
+}
+
+
+
+/*
+ * FUNCTION : createFlowableTask()
+ * ---------------------------------------------------------------------
+ * PURPOSE:
+ * Automatically moves workflow to next USER_TASK.
+ *
+ * NOTE:
+ * This method is NOT actual Flowable engine task creation.
+ * It works with custom jq_workflow_task table.
+ *
+ * BETTER METHOD NAME:
+ * - moveToNextUserTask()
+ * - autoMoveToNextTask()
+ *
+ * WHAT THIS METHOD DOES:
+ * 1. Fetches workflow version
+ * 2. Finds next USER_TASK
+ * 3. Creates workflow task
+ * 4. Auto moves workflow using AUTO action
+ *
+ * USE WHEN:
+ * - System-driven workflow movement
+ * - Auto workflow continuation
+ * - Internal workflow helper logic
+ * - No manual approval needed
+ *
+ * INPUT:
+ * definitionId   -> Workflow definition ID
+ * currentStatusId -> Current workflow node
+ * instanceId     -> Workflow instance ID
+ * assignedId     -> Next task assignee
+ *
+ * RETURNS:
+ * moveWorkflowInstance() response object
+ *
+ * EXAMPLE:
+ *
+ * createFlowableTask(
+ *      "LEAVE_APPROVAL",
+ *      currentStatusId,
+ *      instanceId,
+ *      managerId
+ * );
+ * autoMoveToNextTask
+*/
+function createFlowableTask(definitionId, currentStatusId, instanceId, assignedId) {
+    var versionRow = mustFetchFirstRow(
+        "SELECT definition_id, version FROM jq_workflow_instance WHERE instance_id = :instance_id",
+        newParams({ instance_id: instanceId }),
+        "Instance not found: " + instanceId
+    );
+    var version = versionRow.get("version");
+
+    var nextStatusId = getNextUserTaskStatus(currentStatusId, definitionId, version);
+    if (!nextStatusId) throw "No USER_TASK transition found from status=" + currentStatusId;
+
+    var taskId = createWorkflowTask(instanceId, nextStatusId, assignedId);
+    return moveWorkflowInstance(taskId, "system", assignedId, "AUTO");
+}

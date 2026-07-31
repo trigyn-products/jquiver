@@ -92,7 +92,7 @@ public class ModuleListing implements Serializable {
 	private Integer						isCustomUpdated			= 1;
 	
 	@Column(name = "last_updated_by")
-	private String						lastUpdatedBy				= "admin@jquiver.io";
+	private String						lastUpdatedBy				= "admin@localhost.io";
 
 	public ModuleListing() {
 	}

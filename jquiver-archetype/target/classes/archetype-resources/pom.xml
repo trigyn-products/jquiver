@@ -16,21 +16,21 @@
 
 	<properties>
 		<java.version>22</java.version>
-		<jws.version>2.11</jws.version>
+		<jws.version>2.12</jws.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<!-- comment below section if you want spring boot logger to be used 
+			<!-- uncomment below section if you want spring boot logger to be used 
 				 and configured logback.xml file not to be used -->
-			<exclusions>
+			<!--<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-starter-logging</artifactId>
 				</exclusion>
-			</exclusions>
+			</exclusions>-->
 		</dependency>
 
 <!-- uncomment below section if you want to run within a container and comment out above dependency -->

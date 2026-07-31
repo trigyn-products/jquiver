@@ -207,23 +207,8 @@ public class JwtUtil {
 																																							// algorithm
 							.compact();																														// Compacts
 																																							// the
-																																							// JWT
-																																							// into
-																																							// its
-																																							// final
-																																							// string
-																																							// form
-					String		requestId		= "";
-					var			encryptedToken	= signedJwt;
-					if (jQuiverProperties.isEnableSecuredAuthentication() && signedJwt != null) {
-						// Salt generation.............
-						SaltDetails saltDetails = userConfigService.generateAndStoreSalt();
-						requestId = saltDetails.getRequestId();
 
-						var ecbMode = new ECBCipherMode("AES", "ECB", "PKCS5Padding", 128);
-						encryptedToken = ecbMode.encrypt(signedJwt, saltDetails.getSalt(), "AES");
-					}
-					return new JwtRequestDetails(encryptedToken, requestId);
+					return createJwtRequestDetails(signedJwt);
 				}
 			}
 		} catch (Exception exec) {
@@ -233,6 +218,31 @@ public class JwtUtil {
 
 	}
 
+	public JwtRequestDetails createJwtRequestDetails(String signedJwt) {
+
+	    String requestId = "";
+	    String encryptedToken = signedJwt;
+	    try {
+	    if (jQuiverProperties.isEnableSecuredAuthentication() && signedJwt != null) {
+
+	        SaltDetails saltDetails = userConfigService.generateAndStoreSalt();
+	        requestId = saltDetails.getRequestId();
+
+	        ECBCipherMode ecbMode =
+	                new ECBCipherMode("AES", "ECB", "PKCS5Padding", 128);
+
+	        encryptedToken =
+	                ecbMode.encrypt(signedJwt, saltDetails.getSalt(), "AES");
+	    }
+
+	    return new JwtRequestDetails(encryptedToken, requestId);
+	    }
+	    catch (Exception e) {
+	        logger.error("Failed : Error while encrypting JWT", e);
+	    }
+
+	    return null;
+	}
 	public Authentication getAuthentication(String token, String requestId,String uri) {
 		try {
 			Claims claims = extractAllClaims(token, requestId,uri);
@@ -429,6 +439,11 @@ public class JwtUtil {
 		forceLogin.setHttpOnly(true);
 		forceLogin.setMaxAge(5 * 60); // 5 minutes
 		response.addCookie(forceLogin);
+	}
+	
+	//Custom Login
+	public Claims getClaimsFromToken(String token, String requestId, String uri) {
+	    return extractAllClaims(token, requestId, uri);
 	}
 
 

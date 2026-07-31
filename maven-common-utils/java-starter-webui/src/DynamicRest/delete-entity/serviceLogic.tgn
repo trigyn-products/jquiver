@@ -99,7 +99,15 @@ function  deleteEntityData(requestDetails, daoResults){
 		jq_updateDBQuery("delete from jq_form_io where form_io_id=:entityId", null, params);
         jq_updateDBQuery("delete from jq_business_module_entity_details where entity_id=:entityId", null, params);
 		activityLog("FormIO",requestDetails["templateName"],requestDetails["loggedInUserName"],"Custom",requestDetails["updatedDate"]);
-	}
+	} else if(requestDetails["moduleType"] == "fcd0df1f-783f-11eb-94ed-f48e38ab8cd7") {
+        var HashMap = Java.type("java.util.HashMap");
+        var params = new HashMap();
+        params.put("entityId", requestDetails["entityId"]);
+        jq_updateDBQuery("delete from jq_entity_role_association where entity_id=:entityId AND module_id='fcd0df1f-783f-11eb-94ed-f48e38ab8cd7'", null, params); 
+        jq_updateDBQuery("delete from jq_manual_entry where manual_id=:entityId", null, params);
+        jq_updateDBQuery("delete from jq_manual_type where manual_id=:entityId", null, params);
+
+    }
 }
 
 function activityLog(masterModuleType,templateName,userName,typeSelect,date){
@@ -150,7 +158,6 @@ function activityLog(masterModuleType,templateName,userName,typeSelect,date){
         jq_executeRESTCall(restXML);
     }
 }
-
 if(requestDetails["loggedInUserRoleList"].indexOf("ADMIN") > -1) {
     deleteEntityData(requestDetails, daoResults);
     200;

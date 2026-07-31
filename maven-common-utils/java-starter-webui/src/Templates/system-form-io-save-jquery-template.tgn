@@ -57,9 +57,11 @@ function saveFormDetails() {
 		primaryKeyValue = requestDetails[pkColumnName];
 	}
 	columns.forEach(function(item, index) {
-		if (requestDetails &&
-			requestDetails[item] != null) {
-			queryParam.put(item, requestDetails[item]);
+        var cleanItem = getCleanColumnName(item); // e.g., "emp ename"
+		if (requestDetails && requestDetails[cleanItem] != null) {
+        var sanitizedKey = (/[^a-zA-Z0-9]/.test(cleanItem)) ? cleanItem.replace(/[^a-zA-Z0-9]/g, "_") : cleanItem;    
+        queryParam.put(sanitizedKey, requestDetails[cleanItem]);   
+           
 			if (!isFirst) {
 				updateQuery += ', ';
 				insertQuery += ', ';
@@ -67,8 +69,10 @@ function saveFormDetails() {
 			} else {
 				isFirst = false;
 			} 
-			var columnName  =  ":"+item;     
-			var itemCastVal = formioutils.getCastExpressionForSave(columnName, map.get(item), dbProductName);			
+			//var columnName  =  ":"+item;    
+            // Use sanitizedKey for the SQL placeholder (e.g., :age or :dept_id)
+            var columnName = ":" + sanitizedKey; 
+			var itemCastVal = formioutils.getCastExpressionForSave(columnName, map.get(sanitizedKey), dbProductName);			
 			updateQuery += item + ' = ' + itemCastVal;			 
 			insertQuery += item;
             if (pkColumnName != null && pkColumnName == item) {		
@@ -78,10 +82,8 @@ function saveFormDetails() {
 					} else{
 						primaryKeyValue = requestDetails[item];
 					}	
-				} else {
-					primaryKeyValue = requestDetails[item];	
-				}				
-                queryParam.put(item, primaryKeyValue);
+				} 		
+                queryParam.put(sanitizedKey, primaryKeyValue);
 				insertQueryValues += primaryKeyValue; 					
               
             } else {
@@ -107,6 +109,11 @@ function saveFormDetails() {
 	if(queryResult["actionStatus"] != "true" ){
 		jq_sendError("403", "Error while saving the query.");
 	}
+}
+
+// Add this helper function to your JS template
+function getCleanColumnName(col) {
+    return col.replace(/^[`"\[]|[`"\]]$/g, "");
 }
 
 saveFormDetails();

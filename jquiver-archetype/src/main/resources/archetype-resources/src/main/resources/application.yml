@@ -47,7 +47,6 @@ spring:
 logging:
   config: classpath:logback.xml
   level:
-    root: info
     org:
       flywaydb: info
 ## Uncomment below code if javamelody configuration has to be set and uncomment the javamelody dependency in pom.xml as well.
@@ -72,10 +71,10 @@ jquiver:
 ## - emlFileStoragePath   : Stores email (.eml) files.
 ## - file-copy-path       : Stores copied/exported files.
 ## If any property is omitted, the application falls back to its default storage directory.
-  file-upload-location: D:\commons\documents
-  template-storage-path: D:\commons\documents
-  emlFileStoragePath: D:\commons\documents
-  file-copy-path: D:\commons\documents
+  file-upload-location: ${java.io.tmpdir}documents/uploads
+  template-storage-path: ${java.io.tmpdir}documents/uploads
+  emlFileStoragePath: ${java.io.tmpdir}documents/uploads
+  file-copy-path: ${java.io.tmpdir}documents/uploads
   authTokenExpiryTime: 90
 ## Uncomment below code if Rest API and Router configuration has to be set.
 ## Below configuration will define the path prefix of Rest API and Router define in application.

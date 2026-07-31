@@ -15,11 +15,11 @@
 		<type>template</type>
 		<entityID>0d6041fd-7ffd-11eb-971b-f48e38ab8cd7</entityID>
 	</secureEntity>
-	<secureEntity>
+	<!-- <secureEntity>
 		<name>dashlet-common-div</name>
 		<type>template</type>
 		<entityID>0d91402d-1062-11eb-a867-f48e38ab8cd7</entityID>
-	</secureEntity>
+	</secureEntity> -->
 	<secureEntity>
 		<name>force-password-mail-subject</name>
 		<type>template</type>
@@ -30,11 +30,11 @@
 		<type>template</type>
 		<entityID>0ed128a2-72c3-11eb-9439-0242ac131112</entityID>
 	</secureEntity>
-	<secureEntity>
+	<!-- <secureEntity>
 		<name>dashlets</name>
 		<type>template</type>
 		<entityID>1389accc-1062-11eb-a867-f48e38ab8cd7</entityID>
-	</secureEntity>
+	</secureEntity> -->
 	<secureEntity>
 		<name>grid-default-template</name>
 		<type>template</type>
@@ -60,11 +60,11 @@
 		<type>template</type>
 		<entityID>1f0f42df-62af-4bfe-9168-c5d9a6328405</entityID>
 	</secureEntity>
-	<secureEntity>
+	<!-- <secureEntity>
 		<name>dashlet-configuration</name>
 		<type>template</type>
 		<entityID>1f8682c4-1062-11eb-a867-f48e38ab8cd7</entityID>
-	</secureEntity>
+	</secureEntity> -->
 	<secureEntity>
 		<name>select</name>
 		<type>template</type>

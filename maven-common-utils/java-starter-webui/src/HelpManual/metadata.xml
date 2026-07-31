@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <export>
     <settings>
-        <author>admin@jquiver.io</author>
+        <author>admin@localhost.io</author>
         <currentVersion>JQuiver 2.3</currentVersion>
         <leastSupportedVersion>1.0</leastSupportedVersion>
         <timestamp>2025-06-26T18:50:19.047+05:30</timestamp>
@@ -115,7 +115,7 @@ We can include a template within another template by using templateWithoutParams
 	    </div>]]></entryContent>
                     <entryName>Templating</entryName>
                     <lastModifiedOn>2026-04-30T22:07:46+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>17feffba-99f4-4591-9cb5-0fef46ee0b77</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>7</sortIndex>
@@ -539,7 +539,7 @@ For saving the data of the form into the database, another custom RestAPI is cal
 				after submitting the form.]]></entryContent>
                     <entryName>Form IO</entryName>
                     <lastModifiedOn>2025-07-21T15:49:06+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>1a96d7d5-2a4a-421e-a0a9-c4b6b53451ab</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>8</sortIndex>
@@ -577,7 +577,7 @@ For saving the data of the form into the database, another custom RestAPI is cal
 ![](/cf/files/0c402fca-cf3a-41dd-8693-56156e5cab67)]]></entryContent>
                     <entryName>Versioning</entryName>
                     <lastModifiedOn>2025-07-11T16:31:44+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>1d5577fa-a7e3-4bdf-85ed-b84ac81fbb0b</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>15</sortIndex>
@@ -628,7 +628,7 @@ Once the manual entries are made, using "View Manual", you can view the manual a
  Your manual can be viewed either from "Help Manual" module, or you can provide an entry in Router to access your manual from menu or any other location in your application.]]></entryContent>
                     <entryName>Help Manual</entryName>
                     <lastModifiedOn>2026-05-13T18:19:15+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>4dddd5a0-d69f-4e6c-bd91-0fa10e8adbfb</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>20</sortIndex>
@@ -796,7 +796,7 @@ SELECT 0
 ![](/cf/files/1bbca31c-b0a8-43e2-b108-601c90130ece) ![](/cf/files/916c1037-703b-4d8b-971f-d39db6ef17f1)     ![](/cf/files/0dcb46c9-2000-4a2c-aa2d-a2a823d30bff) ![](/cf/files/8da9e6de-8e9e-4709-9859-2a27250450d3)]]></entryContent>
                     <entryName>Grid Utils</entryName>
                     <lastModifiedOn>2026-05-14T17:33:46+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>7428a452-da97-4ef0-b6d7-acf4921beb82</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>6</sortIndex>
@@ -810,7 +810,7 @@ SELECT 0
 **Step 1: **Navigate to User Management from home page.
 
 **Step 2: **Enable the Authentication toggle button. Upon enabling, the pop-up form is opened where in the user has to enter his/her details like First Name, Last Name and Email Id. After entering the email id, and clicking on save button, a mail would be triggered to the user's mail id for logging in.
-![](/cf/files/42865659-aa0b-41ec-9150-dbb5189df786)
+![](/cf/files/aba64809-9474-4bfc-8d69-2ffba242fe19)
 
 **Step 3: **Choose the Authentication Type from the dropdown.
 ![](/cf/files/60d7a5b6-2338-4142-95e0-b3bcd79c7944)
@@ -829,6 +829,15 @@ For Database Authentication, the following details should be given like verifica
 3) TOTP
 If Password is chosen as Verification Type then then by default Password Expiry is set to 30 days. By default the Regex Validation is enabled, Expression text box contains the Regex Expression for Passowrd validation and the message Text box contains the validation message which would be displayed if validation fails.
 There is a provision for enabling captcha validation during authentication.
+
+**Password + Captcha** – Email Id + Password + Captcha login
+ 
+While logging into the application after enabling authentication, the email id is **admin@localhost.io** and the default password is **Account@123**.
+ 
+After clicking on **Sign in**, it redirects to the **Change your password** page where you need to change the default password.
+ 
+After changing the password, you can log into the application.
+
 You can also give any desired Display Name which would be displayed in the login screen.
  
  ![](/cf/files/19058884-bf26-47ae-9e90-352c69ebe543)
@@ -1126,7 +1135,7 @@ By clicking on Manage Permissions icon, you can navigate to the Manage Permissio
 	 Only those modules will be visible whose module_type_id = 0 is in the table jq_entity_role_association]]></entryContent>
                     <entryName>User Management</entryName>
                     <lastModifiedOn>2025-07-14T17:10:55+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>e03447c8-eaa0-4119-b97e-b802bd8f4ff1</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>3</sortIndex>
@@ -1136,17 +1145,17 @@ By clicking on Manage Permissions icon, you can navigate to the Manage Permissio
                     <entryContent><![CDATA[Use this section to quickly navigate to practical guides for performing specific tasks like embedding templates, creating forms, validating data, and configuring system features.]]></entryContent>
                     <entryName>How Can I?</entryName>
                     <lastModifiedOn>2026-04-30T19:42:03+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>f67f5cc9-875a-41de-8761-16991b5aafc4</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
-                    <sortIndex>60</sortIndex>
+                    <sortIndex>62</sortIndex>
                 </manualEntries>
                 <manualEntries>
                     <createdDate>2026-05-04T16:47:15+05:30</createdDate>
                     <entryContent><![CDATA[By using Grid Utils, you can enhance data visibility, improve user interaction, and streamline operations on structured data.]]></entryContent>
                     <entryName>Use Additional Parameter in Autocomplete?</entryName>
                     <lastModifiedOn>2026-05-13T22:21:48+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>04bd7f49-19b7-4b22-b484-ac7756ac3f5b</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1157,7 +1166,7 @@ By clicking on Manage Permissions icon, you can navigate to the Manage Permissio
                     <entryContent><![CDATA[The Logical Operators feature in Grid Utils allows users to build advanced filtering conditions while searching or filtering grid data. These operators help combine multiple conditions to retrieve more precise results.]]></entryContent>
                     <entryName>Use Logical Operators in Grid Utils?</entryName>
                     <lastModifiedOn>2026-05-13T22:31:05+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>04ddf199-33fe-4be7-a8b7-76d779ca29b5</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1172,7 +1181,7 @@ You can also configure access controls, navigation behavior, and dynamic paramet
 Adding routes helps organize application navigation, improve user flow, and ensure seamless access to different features.]]></entryContent>
                     <entryName>Enable Monaco Suggestions?</entryName>
                     <lastModifiedOn>2026-05-13T22:14:13+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>0dec9d4d-7e01-43ae-be56-49b821fd1e23</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1276,7 +1285,7 @@ User can also include Dashboard header based on his/her requirement.
 ![](/cf/files/3a946afd-e5c8-477a-bbf8-89f7e4ea6099)]]></entryContent>
                     <entryName>Dashboard</entryName>
                     <lastModifiedOn>2025-07-14T14:33:38+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>3f0f6b4e-9a00-4b89-9a64-415a1f8256d2</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>14</sortIndex>
@@ -1286,7 +1295,7 @@ User can also include Dashboard header based on his/her requirement.
                     <entryContent><![CDATA[Content Security Policy (CSP) issues occur when the browser blocks scripts, styles, images, or other resources that violate the application's security policy. Proper CSP configuration helps secure the application while allowing trusted resources to load correctly.]]></entryContent>
                     <entryName>Handle CSP Issue?</entryName>
                     <lastModifiedOn>2026-05-14T00:12:05+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>1a77088a-f7c8-4496-8e52-f21b14eef7e9</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1297,7 +1306,7 @@ User can also include Dashboard header based on his/her requirement.
                     <entryContent><![CDATA[Custom Filter Criteria in Grid Utils allows users to dynamically apply filtering conditions to grid data based on specific business requirements. Users can configure custom comparison operators, filter values, and logical conditions to retrieve precise records from the grid.]]></entryContent>
                     <entryName>Use Custom Filter Criteria in Grid Utils?</entryName>
                     <lastModifiedOn>2026-05-14T17:27:54+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>1c9085bd-fcc4-4de4-aa02-524090c8d073</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1312,7 +1321,7 @@ Form.io allows you to configure validations, default values, conditional logic, 
 This approach simplifies form creation, enables rapid customization, and ensures consistent handling of user input across the application.]]></entryContent>
                     <entryName>Use Dependent Autocomplete?</entryName>
                     <lastModifiedOn>2026-05-13T22:22:24+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>1fe95784-1c7c-4b60-bf2b-8f936a74e581</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1458,7 +1467,7 @@ Monaco Editor Suggestions are provided in the Monaco Editors.
 **For Form Builder,File Bins,Autocomplete,Templating:** Type @ to get SQL/FTL/JavaScript Parameters, Macros and Suggestions.]]></entryContent>
                     <entryName>Others</entryName>
                     <lastModifiedOn>2026-05-13T17:56:52+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>56</sortIndex>
@@ -1468,7 +1477,7 @@ Monaco Editor Suggestions are provided in the Monaco Editors.
                     <entryContent><![CDATA[Caching improves application performance by storing frequently accessed data temporarily, reducing repeated database queries and expensive operations. In Spring Boot applications, caching can be configured directly through the application.yml file.]]></entryContent>
                     <entryName>Enable Caching in application.yml?</entryName>
                     <lastModifiedOn>2026-05-14T01:13:01+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>1ffceef1-5554-4a0e-a184-fe10b0ddccf9</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1479,7 +1488,7 @@ Monaco Editor Suggestions are provided in the Monaco Editors.
                     <entryContent><![CDATA[Custom exception handling allows applications to display meaningful and user-friendly error messages instead of generic system errors. It helps improve debugging, error tracking, and overall user experience by handling exceptions in a controlled manner.]]></entryContent>
                     <entryName>Handle Custom exception messages?</entryName>
                     <lastModifiedOn>2026-05-14T01:07:23+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>2d97ab9c-46e1-42a0-b8b5-6d8f2cd636bc</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1490,7 +1499,7 @@ Monaco Editor Suggestions are provided in the Monaco Editors.
                     <entryContent><![CDATA[Internationalization helps make the application accessible to a wider audience by providing a localized and user-friendly experience across different regions.]]></entryContent>
                     <entryName>Import and Export Resource Keys?</entryName>
                     <lastModifiedOn>2026-05-04T18:30:30+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>32262ecb-07bc-46cc-a8ac-20b680938524</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1687,7 +1696,7 @@ and the Rest API Url is : test/a/**
 Then it will print pathVariable as [123, abc]]]></entryContent>
                     <entryName>ScriptUtil</entryName>
                     <lastModifiedOn>2025-07-21T15:40:25+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>3d6d9705-710d-4f98-bf85-5992b79ed906</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -1698,7 +1707,7 @@ Then it will print pathVariable as [123, abc]]]></entryContent>
                     <entryContent><![CDATA[This Link will take you to the content of  How To Embed a Template.]]></entryContent>
                     <entryName>Embed a Template?</entryName>
                     <lastModifiedOn>2026-05-04T16:26:20+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>460b095a-50b3-4bf5-901a-4ba3bd59a431</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1709,7 +1718,7 @@ Then it will print pathVariable as [123, abc]]]></entryContent>
                     <entryContent><![CDATA[Enable User Management to control access, roles, and permissions for users within the application. Navigate to the User Management module and configure user accounts by defining roles, assigning permissions, and managing user details.]]></entryContent>
                     <entryName>Enable User Management?</entryName>
                     <lastModifiedOn>2026-05-04T14:01:26+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>52d690c7-010b-45f8-8c65-ef788dc3de8f</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1760,7 +1769,7 @@ Our Application also has other scheduling frameworks like Quartz Scheduler which
 Sorting Option is also provided for the user to export in their desired sorting order.]]></entryContent>
                     <entryName>JQuiver</entryName>
                     <lastModifiedOn>2026-05-14T16:59:33+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>57bdec61-325a-4487-9ba6-de218207f8c0</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>0</sortIndex>
@@ -1770,7 +1779,7 @@ Sorting Option is also provided for the user to export in their desired sorting 
                     <entryContent><![CDATA[Use the Between operator to display records whose values fall within a specified range, such as numbers, dates, or amounts.]]></entryContent>
                     <entryName>Filter Records Between Two Values Using Between Operator?</entryName>
                     <lastModifiedOn>2026-05-13T23:52:16+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>550cbf89-6bbc-426c-8371-6162e6a96577</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1781,7 +1790,7 @@ Sorting Option is also provided for the user to export in their desired sorting 
                     <entryContent><![CDATA[Docker is a platform that lets you package an application along with all its dependencies (libraries, configs, runtime) into a single unit called a container. This container can run reliably on any system that has Docker installed—your laptop, a server, or the cloud—without worrying about environment differences.]]></entryContent>
                     <entryName>Enable MariaDB in Docker?</entryName>
                     <lastModifiedOn>2026-05-04T16:04:02+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>66dc3737-557e-4955-bb98-be3bfc85b8b0</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1792,7 +1801,7 @@ Sorting Option is also provided for the user to export in their desired sorting 
                     <entryContent><![CDATA[Java Melody is a monitoring tool used to track application performance, server statistics, SQL queries, memory usage, HTTP requests, and application health in Java-based applications. Enabling Java Melody helps administrators monitor and diagnose performance issues effectively.]]></entryContent>
                     <entryName>Enable Java Melody?</entryName>
                     <lastModifiedOn>2026-05-14T00:58:44+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>7bb0a9f1-a1dd-4c4c-bcba-4ac0c9e4f593</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1803,7 +1812,7 @@ Sorting Option is also provided for the user to export in their desired sorting 
                     <entryContent><![CDATA[Enable Mail Configuration to allow the system to send emails for notifications, alerts, and user communications. Configure the required mail server details such as SMTP host, port, username, and password in the Mail Settings section.]]></entryContent>
                     <entryName>Enable Mail Configuration?</entryName>
                     <lastModifiedOn>2026-05-04T13:54:32+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>7c58f97e-b675-4015-a43a-4ec22d5bdde6</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1864,7 +1873,7 @@ Sorting Option is also provided for the user to export in their desired sorting 
  ![](/cf/files/dbe38080-3528-4b2d-a07d-fc68f3bf5bda)]]></entryContent>
                     <entryName>Notification</entryName>
                     <lastModifiedOn>2026-05-08T19:35:47+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>5bccb3f9-b316-4eba-954c-2ab1be346f1b</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>40</sortIndex>
@@ -1922,7 +1931,7 @@ The following actions are available for each linked module:
 ![](/cf/files/0bbbabff-eb7f-4af8-a789-6708b9f1ffc4)]]></entryContent>
                     <entryName>Developer&apos;s View</entryName>
                     <lastModifiedOn>2026-05-13T18:30:39+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>6add470b-5227-43f5-a347-30222a16b1c2</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>36</sortIndex>
@@ -1932,7 +1941,7 @@ The following actions are available for each linked module:
                     <entryContent><![CDATA[CK Editor is a rich text editor integrated into the application to create, edit, and format content with an easy-to-use WYSIWYG (What You See Is What You Get) interface. It allows users to design professional content without writing HTML manually.]]></entryContent>
                     <entryName>Include CK Editor?</entryName>
                     <lastModifiedOn>2026-05-14T01:32:47+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>8140d95b-8407-4cf7-ae00-18eafdd991f6</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1943,7 +1952,7 @@ The following actions are available for each linked module:
                     <entryContent><![CDATA[The Reset Autocomplete functionality allows users to clear the selected or entered value from an autocomplete field and restore it to its default empty state. This helps users perform new searches or remove previously selected suggestions easily.]]></entryContent>
                     <entryName>Reset values in Autocomplete?</entryName>
                     <lastModifiedOn>2026-05-14T00:36:54+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>958afa50-efde-4bcb-9068-f2758ca3f278</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1954,7 +1963,7 @@ The following actions are available for each linked module:
                     <entryContent><![CDATA[The Favourites feature allows users to quickly access frequently used pages, records, menus, or items by marking them as favourites. Users can add items to favourites for faster navigation and remove them when no longer needed.]]></entryContent>
                     <entryName>Use Favourites (add / remove)? </entryName>
                     <lastModifiedOn>2026-05-14T01:22:43+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>b27e54be-8310-4e19-ba4a-4e0a40491e1e</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1965,7 +1974,7 @@ The following actions are available for each linked module:
                     <entryContent><![CDATA[Use the Equal To operator to display records that exactly match a specified value.]]></entryContent>
                     <entryName>Filter Grid Data Using Equal To (=) Operator?</entryName>
                     <lastModifiedOn>2026-05-13T23:43:47+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>bcc35a57-14ce-4fe2-8322-cc8a3ef3796a</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -1976,7 +1985,7 @@ The following actions are available for each linked module:
                     <entryContent><![CDATA[The contain operator is used in Grid Utils to filter records that contain specific text or character values within a column. It performs partial text matching instead of exact matching, making searches more flexible and user-friendly.]]></entryContent>
                     <entryName>Use contain Operator in Grid Filtering?</entryName>
                     <lastModifiedOn>2026-05-13T23:59:53+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>c274813b-e848-4a15-a372-fc6b63c34770</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -2120,7 +2129,7 @@ multiselect = $("#rolesMultiselect").multiselect({
 	});]]></entryContent>
                     <entryName>AutoComplete</entryName>
                     <lastModifiedOn>2026-05-13T14:48:34+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>5e46df00-e07a-4b73-889f-2894adfd3df8</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>12</sortIndex>
@@ -2130,7 +2139,7 @@ multiselect = $("#rolesMultiselect").multiselect({
                     <entryContent><![CDATA[Custom File Storage allows applications to store uploaded files in user-defined storage locations instead of default server directories. This helps manage files more efficiently and supports external storage systems such as local directories, network drives, cloud storage, or database storage.]]></entryContent>
                     <entryName>Use Custom File Storage?</entryName>
                     <lastModifiedOn>2026-05-14T01:18:40+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>d77e1321-f5e8-445a-9b68-c7fb2718a872</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -2141,7 +2150,7 @@ multiselect = $("#rolesMultiselect").multiselect({
                     <entryContent><![CDATA[After applying filters in Grid Utils, the grid data must be refreshed to display updated results based on the configured filter conditions. The refreshDataAndView() method reloads the grid data and updates the grid view dynamically.]]></entryContent>
                     <entryName>Refresh Grid Data After Applying Filters?</entryName>
                     <lastModifiedOn>2026-05-14T00:06:45+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>d993b3aa-f47a-4d88-a296-fcd315f085a4</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -2201,10 +2210,27 @@ The form is created through Form Builder.
 **3. Router**
 The menu is created through Router.
 **4. Grid**
-The Pq Grid in the listing page is created through Grid Utils.]]></entryContent>
+The Pq Grid in the listing page is created through Grid Utils.
+Taking an example of above scenario, 
+* Listing page for employee will be created in Templates. You can update the template to customize the page as per your requirement.
+![](/cf/files/2b375711-52d1-4227-8bab-0a71f2ad0a06)
+![](/cf/files/8c0c1071-6304-4937-8b04-25a9ab708809)
+
+* Add/Edit form is created in Dynamic Form. To customize this page, dynamic form has to be modified.
+ ![](/cf/files/546a81e2-8f14-468c-8f9c-69217cdc8567)
+  ![](/cf/files/e2795bd4-c8a2-4c24-b884-77907843225f)
+	
+* To add a menu entry, entry in Router is done through Master Generator.  
+ ![](/cf/files/d3f2a0d3-f362-4f1f-9f68-8c01c9e0ea26)
+ ![](/cf/files/64661577-d84b-423e-bc73-73aeebb6cf3a)
+ ![](/cf/files/3939ab4c-b91f-448e-ab5e-b02a176f039c)
+ 
+ * Grid page for employee will be created in Grid Utils.
+  ![](/cf/files/2e898ae2-bcf3-4a42-985f-587d682f7e81)
+  ![](/cf/files/a0246bf6-0b79-4729-9032-b06f0f4fd6ab)]]></entryContent>
                     <entryName>Master Generator</entryName>
                     <lastModifiedOn>2026-05-04T16:14:02+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>61fb4be9-a197-4759-9a4c-b885ce973f46</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>4</sortIndex>
@@ -2273,7 +2299,7 @@ In this module, Import Export provision for Resource Keys is given. There are tw
  ![](/cf/files/c37e67a1-aa74-4525-b42d-66a5c236b4d8)]]></entryContent>
                     <entryName>Internationalization</entryName>
                     <lastModifiedOn>2025-07-11T16:13:05+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>9c25fb63-8336-4f22-bb97-a5042159d5c4</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>10</sortIndex>
@@ -2283,7 +2309,7 @@ In this module, Import Export provision for Resource Keys is given. There are tw
                     <entryContent><![CDATA[The Import and Export functionality allows users to upload files to the server for processing and download generated or existing files from the server securely. This feature is commonly used for data migration, backups, reporting, and bulk data operations.]]></entryContent>
                     <entryName>Handle Import and Export of Files in Server?</entryName>
                     <lastModifiedOn>2026-05-14T00:34:39+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>daa6d3f1-8678-4e84-b7db-617ba41051a4</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -2294,7 +2320,7 @@ In this module, Import Export provision for Resource Keys is given. There are tw
                     <entryContent><![CDATA[The Clear Multiselect functionality allows users to remove all selected values from a multiselect dropdown quickly. This helps reset filters, clear user selections, and improve form usability without manually deselecting individual items.]]></entryContent>
                     <entryName>Clear Multiselect values?</entryName>
                     <lastModifiedOn>2026-05-14T00:14:52+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>e21aceff-ecd2-48f3-b4e5-067b8f2dc969</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -2426,7 +2452,7 @@ Except for the Root as a context type, context name autocomplete will be enabled
 * If Include In Menu is enable and if Parent module is Root then Sequence must be unique at parent level or else if Parent module is other than Root then Sequence shoud be unique in that particular group.]]></entryContent>
                     <entryName>Router</entryName>
                     <lastModifiedOn>2026-05-04T16:30:18+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>68613ad7-8596-4c48-94e6-f752ab53eb4e</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>5</sortIndex>
@@ -2436,7 +2462,7 @@ Except for the Root as a context type, context name autocomplete will be enabled
                     <entryContent><![CDATA[The jq_sendError function is used to display or send error messages when an operation fails or validation errors occur in the application. It helps provide meaningful feedback to users and improves error handling within the system.]]></entryContent>
                     <entryName>Send custom errors from client-side?</entryName>
                     <lastModifiedOn>2026-05-14T16:59:33+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>f072102e-2dc9-46dd-bc27-b64910903c1a</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -2447,7 +2473,7 @@ Except for the Root as a context type, context name autocomplete will be enabled
                     <entryContent><![CDATA[Prefetching values in Autocomplete allows the application to load suggestion data in advance before the user starts typing. This improves search performance, reduces server calls, and provides faster autocomplete suggestions.]]></entryContent>
                     <entryName>Prefetch values in Autocomplete?</entryName>
                     <lastModifiedOn>2026-05-14T00:29:22+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>fed96d74-a246-4194-b7e1-b0855f3dd870</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>f67f5cc9-875a-41de-8761-16991b5aafc4</parentId>
@@ -2510,7 +2536,7 @@ Except for the Root as a context type, context name autocomplete will be enabled
 **Note:** There is a provision for adding Script Library in Form Builder, detailed description of which is given in the Script Library Help Manual.]]></entryContent>
                     <entryName>Form Builder</entryName>
                     <lastModifiedOn>2025-07-11T16:11:52+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>6938f0ac-00fe-4b94-95e7-02ef72016fe4</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>9</sortIndex>
@@ -2543,7 +2569,7 @@ By clicking on the download button, the individual file gets imported and by cli
  **Step 5: ** After the comparison is done, the changes are copied and then saved successfully.]]></entryContent>
                     <entryName>Import Configuration</entryName>
                     <lastModifiedOn>2025-07-14T14:34:42+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>be37c240-2607-4d79-9ef1-136dbd7c524b</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>16</sortIndex>
@@ -2682,7 +2708,7 @@ Write service logic using JavaScript variable, functions, objects etc. as shown 
 ![](/cf/files/86cfa8fe-54d3-449e-baf0-2b9e7958fd62)]]></entryContent>
                     <entryName>Rest API</entryName>
                     <lastModifiedOn>2025-07-11T16:14:58+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>81c506ff-dab5-43de-a790-58af356de3e9</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>11</sortIndex>
@@ -2720,7 +2746,7 @@ Write service logic using JavaScript variable, functions, objects etc. as shown 
 ![](/cf/files/13685dc4-5866-4f91-a927-95e28b39c3e3)]]></entryContent>
                     <entryName>Export Configuration</entryName>
                     <lastModifiedOn>2025-07-14T14:35:24+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>dd97c23d-feef-4cea-afcf-3cece7819159</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>17</sortIndex>
@@ -2817,7 +2843,7 @@ There is also a provision of adding Script Library in the File Bins. For creatin
 Details about Script Library is provided in the Script Library Help Manual.]]></entryContent>
                     <entryName>File Bin</entryName>
                     <lastModifiedOn>2026-05-04T21:23:16+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>8b425d39-72f0-4c6f-b71c-4ef247979538</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>13</sortIndex>
@@ -2920,7 +2946,7 @@ and also you need to set the property of **enable-google-analytics** to **true**
  ![](/cf/files/fc650462-72af-4a16-a074-2829d6d1c84f)]]></entryContent>
                     <entryName>Application Configurations</entryName>
                     <lastModifiedOn>2026-05-13T16:50:46+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>918676c8-b653-43ee-964a-d4faaeb13787</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>2</sortIndex>
@@ -3050,7 +3076,7 @@ This separation ensures:
 * Independent business module handling.]]></entryContent>
                     <entryName>Workflow</entryName>
                     <lastModifiedOn>2026-05-08T19:42:58+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>e338ffce-3360-4f1a-82c0-fce323c8671c</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>19</sortIndex>
@@ -3139,7 +3165,7 @@ Storing help manual images and documents in structured paths.
 Handling large video/audio files with streaming support.]]></entryContent>
                     <entryName>Custom File Storage</entryName>
                     <lastModifiedOn>2026-04-30T22:02:05+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>010eacfa-5c08-458f-8d4d-ecd0324a2803</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -3173,7 +3199,7 @@ Use Universal Regex to validate different types of input data in a consistent an
 By leveraging metadata (e.g., from JDBC), you can automatically create type-specific regex patterns that enforce constraints like length, precision, and format. This helps prevent invalid data entry, ensures type safety, and maintains consistency across APIs, forms, and database operations.]]></entryContent>
                     <entryName>Universal Regex</entryName>
                     <lastModifiedOn>2026-05-04T15:59:02+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>039cf692-660d-408a-82e3-31e1e179c07b</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -3221,7 +3247,7 @@ Users can sort the APIs using the available criteria:
 ![](/cf/files/502af235-a89a-4f98-9462-05d905fcde1a) ![](/cf/files/18fed455-c5d7-49ca-b53d-03411849e899)]]></entryContent>
                     <entryName>View REST API</entryName>
                     <lastModifiedOn>2026-04-06T09:42:25+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>102a89e6-36bf-4698-96c7-06b63aca80cd</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -3267,7 +3293,7 @@ Users can verify the encryption configuration using the Test Input section.
 ![](/cf/files/65cc2f8e-1c75-4649-b143-0628b27fc1e7)]]></entryContent>
                     <entryName>API Clients</entryName>
                     <lastModifiedOn>2026-04-06T10:21:47+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>1917f4cb-5d19-4edc-90cc-8eba4a51c53e</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -3310,7 +3336,7 @@ Users can verify the encryption configuration using the Test Input section.
 * Use these classes to maintain consistency, modularity, and responsiveness across pages.]]></entryContent>
                     <entryName>Custom Utility</entryName>
                     <lastModifiedOn>2025-07-21T13:31:30+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>2740a048-876b-4701-b659-540d50517774</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -3435,7 +3461,7 @@ It provides the expressions in ftl syntax.
 ```]]></entryContent>
                     <entryName>Monaco Suggestions</entryName>
                     <lastModifiedOn>2026-05-14T00:47:31+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>30f10de5-3b48-4bfd-a474-5f6a74b79b54</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -3590,7 +3616,7 @@ The system displays:
 Users can now create formatted documentation content along with visible HTML code snippets inside CKEditor successfully. ![](/cf/files/5aadd3c6-2d15-45f7-9599-099d6725d328)]]></entryContent>
                     <entryName>CK Editor</entryName>
                     <lastModifiedOn>2026-05-13T13:18:33+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>2d48e8c4-4a73-4f7f-af6e-fb25734591ac</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -3622,7 +3648,7 @@ Users can now create formatted documentation content along with visible HTML cod
 * Script Library feature is also available in Form Builder and File Bins.]]></entryContent>
                     <entryName>Script Library</entryName>
                     <lastModifiedOn>2025-07-21T15:40:49+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>568c2288-27e3-4d74-b2c4-914f1b44bb8e</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -3695,7 +3721,7 @@ http://localhost:8080/myapp/monitoring
 * Does not require agents or JVM arguments—just a few dependencies and config.]]></entryContent>
                     <entryName>Java Melody</entryName>
                     <lastModifiedOn>2025-07-21T15:34:17+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>677b8f54-f936-4c8d-ab1a-ab2b2ef6e182</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -3777,7 +3803,7 @@ When **CSP Enabled = true,** the browser strictly enforces the configured Conten
 The ${scriptNonce} placeholder denotes the dynamically injected nonce token generated by the backend security layer during request processing. The generated nonce value must correspond exactly with the nonce declared within the Content-Security-Policy response header.]]></entryContent>
                     <entryName>CSP Compliance</entryName>
                     <lastModifiedOn>2026-05-13T14:51:21+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>7331aadd-7b72-47aa-9595-024de56eee19</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -3822,7 +3848,7 @@ The ${scriptNonce} placeholder denotes the dynamically injected nonce token gene
 📌 **Note:** Changes are saved to the routing configuration stored in the database.]]></entryContent>
                     <entryName>Visual Dnd</entryName>
                     <lastModifiedOn>2026-05-04T12:40:52+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>842ba58d-3970-4bc9-92df-0bc06238d9b4</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -3867,11 +3893,92 @@ The ${scriptNonce} placeholder denotes the dynamically injected nonce token gene
 ![](/cf/files/02714c7b-2b5c-4f85-a68b-7c01af92c6a2)]]></entryContent>
                     <entryName>Scheduler</entryName>
                     <lastModifiedOn>2026-04-06T10:17:30+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>8fa18492-79e6-4db6-8a59-f5f5483ec0ad</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
                     <sortIndex>37</sortIndex>
+                </manualEntries>
+                <manualEntries>
+                    <createdDate>2026-07-13T12:05:28+05:30</createdDate>
+                    <entryContent><![CDATA[The **How Can I?** feature provides quick access to commonly used Help Manual topics. Instead of manually browsing through different modules or searching for a specific section, you can simply select a question from the** How Can I?** list. The Help Manual automatically opens the relevant documentation, navigates to the required section, and highlights the information for easy reference.
+This feature improves the user experience by reducing the time required to locate frequently used instructions.
+**How to Use**
+* Open the Help Manual.
+* Expand the How Can I? section in the navigation tree.
+* Click the question related to the task you want to perform.
+* The Help Manual automatically:
+* Opens the appropriate documentation page.
+* Navigates to the relevant section.
+* Highlights the matching content.
+* Follow the instructions displayed on the page to complete your task.
+**Example**
+* Suppose you want to learn how to embed a template.
+* Open How Can I? from the Help Manual.
+* Select Embed a Template?
+* The Help Manual automatically opens the Templating documentation.
+* It scrolls directly to the How To Embed a Template section.
+* The required section is highlighted, allowing you to quickly identify the relevant instructions.
+* The same process is followed for all questions available under How Can I?
+**How the Feature Works**
+	The **How Can I?** feature is designed to simplify navigation within the Help Manual. When you select a question, the application automatically determines where the required information is located and redirects you to the appropriate documentation.
+The feature works as follows:
+	**Step 1:** Detect the Selected Question
+	Whenever you click a question in the Help Manual tree, the application detects the selected item and identifies its title.
+	If no valid item is selected, no further processing is performed.
+	**Step 2:** Verify the Selected Section
+	The application checks whether the selected question belongs to the How Can I? section.
+	If the selected item belongs to another Help Manual category, the documentation is opened using the standard navigation process.
+	**Step 3:** Find the Matching Documentation
+	Each question in the How Can I? section is linked to a specific Help Manual topic.
+	For every question, the application stores:
+	The documentation page that should be opened.
+	The heading or keyword that should be located within that page.
+	This predefined mapping allows the application to immediately identify the correct documentation.
+	**Step 4:** Open the Documentation
+	After identifying the required documentation, the application searches the Help Manual navigation tree to locate the corresponding topic.
+	Once the topic is found:
+	The previous selection is cleared.
+	The required documentation is selected automatically.
+	The associated Help Manual page is opened.
+	**Step 5:** Load the Documentation Content
+	The application first checks whether the documentation has already been loaded.
+	If the content is already available, it is displayed immediately.
+	If the content is not available, it is retrieved from the server and stored for future use.
+	This reduces unnecessary server requests and improves loading performance.
+	**Step 6:** Display the Documentation
+	After the content is loaded, the Help Manual prepares it for display.
+	During this process, the application:
+	Formats the content.
+	Displays the page heading.
+	Updates internal file references where required.
+	Renders the documentation in the Help Manual viewer.
+	Positions the page at the beginning before further navigation.
+	**Step 7:** Locate the Required Section
+	After displaying the documentation, the application searches the page for the heading or keyword associated with the selected How Can I? question.
+	The search is performed across headings, paragraphs, and list items until the matching content is found.
+	**Step 8: **Navigate to the Required Content
+	When the required section is found, the Help Manual automatically scrolls to that location.
+	This eliminates the need to manually search through lengthy documentation pages.
+	**Step 9:** Highlight the Result
+	To help you quickly identify the required information, the matching section is temporarily highlighted.
+	The highlight is automatically removed after a few seconds, while the documentation remains open for further reading.
+**Benefits**
+The **How Can I?** feature offers the following advantages:
+* Provides quick access to frequently used Help Manual topics.
+* Eliminates manual searching through documentation.
+* Automatically opens the correct Help Manual page.
+* Navigates directly to the relevant section.
+* Highlights the required content for easy identification.
+* Reuses existing Help Manual documentation without creating duplicate content.
+* Improves productivity by helping users locate information more efficiently.]]></entryContent>
+                    <entryName>Working of How Can I?</entryName>
+                    <lastModifiedOn>2026-07-13T12:18:35+05:30</lastModifiedOn>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
+                    <manualEntryId>1d84e4a1-3501-4dca-ad1e-1d79f3d60191</manualEntryId>
+                    <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
+                    <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
+                    <sortIndex>68</sortIndex>
                 </manualEntries>
                 <manualEntries>
                     <createdDate>2025-06-25T16:25:48+05:30</createdDate>
@@ -3912,7 +4019,7 @@ This is a callback interface designed to allow developers to hook into the syste
 * Auditing login events]]></entryContent>
                     <entryName>SuccessEventListener</entryName>
                     <lastModifiedOn>2025-07-21T15:28:11+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>a1cc97a9-1ad7-4bb0-bd81-98117ebdfbfa</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -3987,7 +4094,7 @@ This file contains Redisson's settings to connect to the Redis server.
 After updating the config files, restart the JQuiver application for changes to take effect.]]></entryContent>
                     <entryName>Caching</entryName>
                     <lastModifiedOn>2026-04-30T22:02:05+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>9110a893-1944-4af7-b44e-f5f2fa871d69</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -4056,7 +4163,7 @@ Queries can also be executed by selecting the configured datasource from the Dat
 ![](/cf/files/0a3ee020-753b-42d9-a0f6-10b9fee595ce)  ![](/cf/files/097e1378-7d42-44de-839d-67d47d5957ae)]]></entryContent>
                     <entryName>Additional Datasource</entryName>
                     <lastModifiedOn>2026-05-08T19:49:48+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>aa62ece9-2b31-4fd2-9028-2c53aec6accd</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -4188,7 +4295,7 @@ If both configuration files need to be external:
 | Logs not appearing          | Check `logback.xml` path and logging configuration     |]]></entryContent>
                     <entryName>Docker</entryName>
                     <lastModifiedOn>2025-07-21T15:41:13+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>98c0d1c3-262a-45db-aea9-bf4c1ea7dcad</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -4237,7 +4344,7 @@ error : function(xhr, error){
 This will display your message.]]></entryContent>
                     <entryName>Stop Exception</entryName>
                     <lastModifiedOn>2025-07-21T13:31:30+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>c0df183c-9874-45e2-8e73-b3e79ae30660</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -4288,7 +4395,7 @@ This will display your message.]]></entryContent>
 | `typeSelect`           | Custom                                                                                                         |
 | `loggedInUserId`       | anonymous-user                                                                                                 |
 | `locale`               | en\_US                                                                                                         |
-| `userName`             | [admin@jquiver.io](mailto:admin@jquiver.io)                                                                    |
+| `userName`             | [admin@localhost.io](mailto:admin@localhost.io)                                                                    |
 | `message`              | *(empty)*                                                                                                      |
 | `reponseTypeId`        | null                                                                                                           |
 | `methodTypeId`         | 1                                                                                                              |
@@ -4300,7 +4407,7 @@ This will display your message.]]></entryContent>
 | `userObject`           | UserDetailsVO \[userId=anonymous-user, userName=anonymous, roleIdList=\[anonymous]]                            |]]></entryContent>
                     <entryName>Activity Log</entryName>
                     <lastModifiedOn>2025-07-21T15:23:50+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>dad6a587-c0ba-4a5c-af46-f2e9d0cd64aa</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -4349,7 +4456,7 @@ Note:
 The actual storage locations are environment-specific and should be configured by the system administrator according to the deployment requirements.]]></entryContent>
                     <entryName>Import Export of Files</entryName>
                     <lastModifiedOn>2026-05-14T02:12:11+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>f0c30d5f-da2d-45cf-a95e-e8514b691620</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
@@ -4373,52 +4480,13 @@ Selecting a suggestion redirects the user immediately to the relevant view/page.
 Supports up/down arrows and Enter key for accessibility.]]></entryContent>
                     <entryName>QuickJump Autocomplete</entryName>
                     <lastModifiedOn>2025-07-21T15:24:30+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>f29ea700-4fa5-4980-8692-6a3c6b759c39</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
                     <sortIndex>25</sortIndex>
                 </manualEntries>
                 <manualEntries>
-                    <createdDate>2025-06-26T11:01:26+05:30</createdDate>
-                    <entryContent><![CDATA[It is a configuration file used in Spring Boot applications to define application settings in a structured and hierarchical format using YAML syntax. It allows developers to configure environment-specific properties such as server ports, database connections, logging levels, and custom application settings in a readable and organized way.
-Details of which is given below in the table.
-
-| **Property**                                     | **Value**                           | **Description**                                              |        |                                        |
-| ------------------------------------------------ | ----------------------------------- | ------------------------------------------------------------ | ------ | -------------------------------------- |
-| `server.port`                                    | `8060`                              | Runs the application on port 8060 instead of default 8080    |        |                                        |
-| `server.shutdown`                                | `graceful`                          | Enables graceful shutdown to let in-flight requests complete |        |                                        |
-| `server.servlet.context-path`                    | `/demo`                             | Sets base URL path prefix for the application                |        |                                        |
-| `server.servlet.session.persistent`              | `false`                             | Disables persistent sessions across restarts                 |        |                                        |
-| `server.servlet.session.timeout`                 | `5m`                                | Session timeout set to 5 minutes                             |        |                                        |
-| `spring.servlet.multipart.enabled`               | `true`                              | Enables multipart (file upload) support                      |        |                                        |
-| `spring.servlet.multipart.max-file-size`         | `-1`                                | No file size limit for uploads                               |        |                                        |
-| `spring.servlet.multipart.max-request-size`      | `-1`                                | No total request size limit                                  |        |                                        |
-| `spring.main.allow-bean-definition-overriding`   | `true`                              | Allows overriding beans with same name                       |        |                                        |
-| `spring.web.resources.static-locations`          | `classpath:/`                       | Serves static content from root of classpath                 |        |                                        |
-| `spring.flyway.cleanDisabled`                    | `true`                              | Disables `flyway.clean()` to prevent data loss               |        |                                        |
-| `spring.flyway.enabled`                          | `true`                              | Enables Flyway migrations on startup                         |        |                                        |
-| `spring.datasource.driver-class-name`            | `org.mariadb.jdbc.Driver`           | MariaDB JDBC driver class                                    |        |                                        |
-| `spring.datasource.url`                          | `jdbc:mariadb://localhost:3306/...` | JDBC URL for MariaDB connection with extra parameters        |        |                                        |
-| `spring.datasource.username`                     | `root`                              | DB username (should be secured externally)                   |        |                                        |
-| `spring.datasource.password`                     | `root`                              | DB password (should be secured externally)                   |        |                                        |
-| `spring.datasource.jndi-name`                    | *(commented)*                       | JNDI config (optional, if used instead of direct JDBC)       |        |                                        |
-| `javamelody.enabled`                             | `true`                              | Enables JavaMelody performance monitoring                    |        |                                        |
-| `javamelody.spring-monitoring-enabled`           | `true`                              | Enables Spring bean monitoring                               |        |                                        |
-| `javamelody.init-parameters.url-exclude-pattern` | \`(/webjars/.\*                     | /css/.\*                                                     | ...)\` | Excludes static assets from monitoring |
-| `javamelody.init-parameters.monitoring-path`     | `/sss`                              | JavaMelody UI available at `/demo/sss`                       |        |                                        |
-| `logging.config`                                 | `classpath:logback.xml`             | Uses custom logback config                                   |        |                                        |
-| `logging.level.root`                             | `info`                              | Global log level set to `info`                               |        |                                        |
-| `logging.level.org.flywaydb`                     | `info`                              | Flyway-specific log level set to `info`                      |        |                                        |]]></entryContent>
-                    <entryName>application.yml</entryName>
-                    <lastModifiedOn>2026-04-30T22:02:05+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
-                    <manualEntryId>f62531b1-f7c9-49ab-bd4f-478a750e4a7f</manualEntryId>
-                    <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
-                    <parentId>50f92287-c438-4ee2-bdfa-b4e710d2e64b</parentId>
-                    <sortIndex>30</sortIndex>
-                </manualEntries>
-                 <manualEntries>
                     <createdDate>2026-05-18T11:39:01+05:30</createdDate>
                     <entryContent><![CDATA[The Tags module enables users to label and manage specific versions of code configurations. It provides a structured mechanism to track changes and revert to previously saved states, ensuring controlled version management within the application.
 
@@ -4478,10 +4546,136 @@ The following actions are available for each tagged module:
   ![](/cf/files/6112649c-47bb-43b7-94f0-25db7edffc79)]]></entryContent>
                     <entryName>Tags</entryName>
                     <lastModifiedOn>2026-05-19T12:27:14+05:30</lastModifiedOn>
-                    <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
                     <manualEntryId>18fdf669-9a16-47ba-8c3f-271f1bee119a</manualEntryId>
                     <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                     <sortIndex>59</sortIndex>
+                </manualEntries>
+                <manualEntries>
+                    <createdDate>2026-07-09T16:27:38+05:30</createdDate>
+                    <entryContent><![CDATA[Spring Boot uses the application.yml file to define application configuration in a structured, hierarchical format using YAML syntax. This file centralizes application settings such as server configuration, database connectivity, logging, file upload limits, monitoring, caching, and custom application properties. Environment-specific values can be externalized using placeholders, making the application easier to configure across development, testing, and production environments.
+
+The details are given in the table below.
+
+| **Property**                                           | **Value**                                                              | **Description**                                                                                                                     |
+| ------------------------------------------------------ | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `server.port`                                          | `8070` (or `${APPLICATION_PORT}`)                                      | Specifies the HTTP port on which the application runs. Supports environment variable substitution.                                  |
+| `server.shutdown`                                      | `graceful`                                                             | Enables graceful shutdown, allowing active requests to complete before the application terminates.                                  |
+| `server.servlet.context-path`                          | `/demo` (or `/${context_path}`)                                        | Defines the application's base URL context path.                                                                                    |
+| `server.servlet.session.persistent`                    | `false`                                                                | Disables session persistence across application restarts.                                                                           |
+| `server.servlet.session.timeout`                       | `5m` (template: `-1`)                                                  | Configures the HTTP session timeout. A value of `-1` disables the timeout, while `5m` expires inactive sessions after five minutes. |
+| `spring.servlet.multipart.enabled`                     | `true`                                                                 | Enables multipart request processing for file uploads.                                                                              |
+| `spring.servlet.multipart.max-file-size`               | `-1`                                                                   | Removes the maximum upload file size restriction.                                                                                   |
+| `spring.servlet.multipart.max-request-size`            | `-1`                                                                   | Removes the maximum multipart request size limitation.                                                                              |
+| `spring.main.allow-bean-definition-overriding`         | `true`                                                                 | Allows bean definitions with the same name to be overridden by later definitions.                                                   |
+| `spring.web.resources.static-locations`                | `classpath:/` (or `classpath:/static/,classpath:/META-INF/resources/`) | Specifies the locations from which static resources are served.                                                                     |
+| `spring.web.resources.cache.cachecontrol.max-age`      | `365d`                                                                 | Specifies the browser cache duration for static resources.                                                                          |
+| `spring.web.resources.cache.cachecontrol.cache-public` | `true`                                                                 | Marks static resources as publicly cacheable.                                                                                       |
+| `spring.web.resources.chain.enabled`                   | `true`                                                                 | Enables the Spring resource handling chain.                                                                                         |
+| `spring.web.resources.chain.strategy.content.enabled`  | `true`                                                                 | Enables content-based versioning for static resources to support cache busting.                                                     |
+| `spring.web.resources.chain.strategy.content.paths`    | `/**`                                                                  | Applies content-based versioning to all static resources.                                                                           |
+| `spring.profiles`                                      | `${profileName}`                                                       | Activates the specified Spring profile using an environment variable.                                                               |
+| `spring.flyway.cleanDisabled`                          | `true`                                                                 | Prevents execution of `flyway.clean()` to avoid accidental database deletion.                                                       |
+| `spring.flyway.enabled`                                | `true`                                                                 | Enables Flyway database migrations during application startup.                                                                      |
+| `spring.datasource.driver-class-name`                  | `org.mariadb.jdbc.Driver`                                              | Specifies the MariaDB JDBC driver class.                                                                                            |
+| `spring.datasource.url`                                | `jdbc:mariadb://localhost:3306/...`                                    | Specifies the JDBC connection URL for the MariaDB database.                                                                         |
+| `spring.datasource.username`                           | `root` (or `${DB_USERNAME}`)                                           | Specifies the database username.                                                                                                    |
+| `spring.datasource.password`                           | `******` (or `${DB_PASSWORD}`)                                         | Specifies the database password. Externalized credentials are recommended for production environments.                              |
+| `javamelody.enabled`                                   | `true`                                                                 | Enables JavaMelody application performance monitoring.                                                                              |
+| `javamelody.spring-monitoring-enabled`                 | `true`                                                                 | Enables monitoring of Spring-managed beans.                                                                                         |
+| `javamelody.init-parameters.url-exclude-pattern`       | `(/webjars)`                | Excludes static resources from JavaMelody monitoring.                                                                               |
+| `javamelody.init-parameters.monitoring-path`           | `/sss`                                                                 | Specifies the endpoint used to access the JavaMelody monitoring dashboard.                                                          |
+| `logging.config`                                       | `classpath:logback.xml`                                                | Loads the custom Logback configuration file.                                                                                        |
+| `logging.level.root`                                   | `info`                                                                 | Sets the default logging level for the application.                                                                                 |
+| `logging.level.org.flywaydb`                           | `info`                                                                 | Sets the logging level for Flyway migration events.                                                                                 |
+| `jquiver.baseurl`                                      | `http://localhost:8070` (or `http://localhost:${APPLICATION_PORT}`)    | Specifies the application's base URL used internally by the framework.                                                              |
+| `jquiver.enableSecuredAuthentication`                  | `true`                                                                 | Enables secured authentication for application requests and responses.                                                              |
+| `jquiver.authTokenExpiryTime`                          | `90`                                                                   | Specifies the authentication token expiry time in minutes.                                                                          |
+| `file-upload-location`                                 | `D:\commons\documents`                                                 | Specifies the directory used to store uploaded files.                                                                               |
+| `template-storage-path`                                | `D:\commons\documents`                                                 | Specifies the directory used to store generated templates.                                                                          |
+| `emlFileStoragePath`                                   | `D:\commons\documents`                                                 | Specifies the directory used to store generated `.eml` email files.                                                                 |
+| `file-copy-path`                                       | `D:\commons\documents`                                                 | Specifies the directory used to store copied or exported files.                                                                     |
+
+
+
+
+**Additional Configuration**
+
+* **Spring Profile Configuration**
+	* The **spring.profiles** property activates a specific Spring profile, such as development, testing, or production. Profile-specific configuration files are loaded based on the configured profile.
+* **Docker Database Configuration**
+	* If the application is running inside a Docker container and the MariaDB server is hosted on the host machine, use **host.docker.internal** in the datasource URL.
+	* If both the application and MariaDB are running within the same Docker network, replace the datasource host with the Docker service name of the MariaDB container.
+* **JNDI DataSource**
+  * To use an application server-managed datasource, comment out the **spring.datasource.url**, **spring.datasource.username**, and **spring.datasource.password** properties, and uncomment the **spring.datasource.jndi-name** property.
+* **JavaMelody Monitoring**
+  * To enable JavaMelody monitoring, uncomment the JavaMelody configuration section and include the JavaMelody dependency in the **pom.xml** file.
+  * The **monitoring-path** property defines the URL used to access the JavaMelody dashboard. If not specified, the default path is **/monitoring.**
+* **REST API and View Router Configuration**
+  * The **jquiver.view.path** property configures the URL prefix for View Router endpoints.
+  * The **jquiver.api.path** property configures the URL prefix for REST API endpoints.
+  * If these properties are not configured, the default URL prefixes are **/view** and **/api**.
+* **Redis Cache Configuration**
+  * Set **jquiver.redis.cache.enabled** to **true** to activate caching.
+  * The **jquiver.redis.config.path** property specifies the location of the **redisson.yaml** configuration file.
+  * The **ttl** property defines the cache entry lifetime, and the idle property defines the maximum **idle** duration before cached entries expire.
+* **Storage Directory Configuration**
+  * The **file-upload-location**, **template-storage-path**, **emlFileStoragePath**, and **file-copy-path** properties specify the directories used for storing uploaded files, generated templates, email files, and copied/exported files, respectively.
+  * If any of these properties are omitted, the application automatically uses the default storage directory.]]></entryContent>
+                    <entryName>Spring Boot Configuration</entryName>
+                    <lastModifiedOn>2026-07-09T17:29:46+05:30</lastModifiedOn>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
+                    <manualEntryId>76becf22-dcc0-4b21-a653-3fff2b8c52f3</manualEntryId>
+                    <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
+                    <sortIndex>60</sortIndex>
+                </manualEntries>
+                  <manualEntries>
+                    <createdDate>2026-07-10T16:00:13+05:30</createdDate>
+                    <entryContent><![CDATA[JQuiver allows you to create and customize the login page based on the configured authentication method. The appearance and layout of the login page can be modified using HTML and CSS available in the Authentication Pages module.
+
+**Database Authentication – Password :**
+
+**Authentication Template:** jws-login-2-1
+
+The jws-login-2-1 template is used for Database Authentication – Password. You can customize the login page by modifying the HTML and CSS to update the branding, welcome message, logo, background, colors, and other UI elements. The customized page is displayed whenever Password Authentication is enabled.
+
+**Database Authentication – OTP :**
+
+**Authentication Template:** jws-login-2-0
+
+The jws-login-2-0 template is used for Database Authentication – OTP. You can customize the page layout and styling using HTML and CSS to match your organization's branding while maintaining the OTP-based login functionality. The customized page is displayed whenever OTP Authentication is enabled.
+
+**Database Authentication – TOTP :**
+
+**Authentication Template:** jws-login-2-2
+
+The jws-login-2-2 template is used for Database Authentication – TOTP. You can customize the login interface using HTML and CSS to modify the appearance, branding, and page layout without affecting the TOTP authentication process. The customized page is displayed whenever TOTP Authentication is enabled.
+
+**LDAP Authentication :**
+
+**Authentication Template:** jws-login-3-0
+
+The jws-login-3-0 template is used for LDAP Authentication. You can customize the login page using HTML and CSS to align it with your organization's branding while allowing users to authenticate against the configured LDAP directory. The customized page is displayed whenever LDAP Authentication is enabled.
+
+**OAuth Authentication :**
+
+**Authentication Template:** jws-login-4-0
+
+The jws-login-4-0 template is used for OAuth Authentication. You can customize the page using HTML and CSS to update the look and feel of the login interface while preserving the OAuth sign-in flow configured for the application. The customized page is displayed whenever OAuth Authentication is enabled.
+
+**SAML Authentication :**
+
+**Authentication Template:** jws-login-5-0
+
+The jws-login-5-0 template is used for SAML Authentication. You can customize the login page using HTML and CSS to reflect your organization's branding while retaining the configured SAML authentication process. The customized page is displayed whenever SAML Authentication is enabled.
+
+**Note:** The HTML and CSS of each authentication page can be modified independently to customize the login interface according to your organization's branding and design requirements without changing the underlying authentication mechanism. ![](/cf/files/f7776436-4964-4848-a21d-a4f186895f47)]]></entryContent>
+                    <entryName>Customize Login Screens</entryName>
+                    <lastModifiedOn>2026-07-10T16:32:14+05:30</lastModifiedOn>
+                    <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
+                    <manualEntryId>f5aa95d5-5d55-432f-963e-ce9c8325f879</manualEntryId>
+                    <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
+                    <sortIndex>61</sortIndex>
                 </manualEntries>
                 <manualId>07cf45ae-2987-11eb-a9be-e454e805e22f</manualId>
                 <name>JQuiver Manual</name>

@@ -46,6 +46,9 @@ public class DatasourceLookUp implements Serializable {
 	
 	@Column(name = "connection_url_pattern")
 	private String connectionUrlPattern = null;
+	
+	@Column(name = "connection_properties")
+	private String connectionProperties = null;
 
 	public DatasourceLookUp() {
 
@@ -53,7 +56,7 @@ public class DatasourceLookUp implements Serializable {
 
 	public DatasourceLookUp(String datasourceLookupId, String databaseProductName, String driverClassName,
 			Double datasourceSupportedVersion, Integer isDeleted, List<AdditionalDatasource> additionalDatasource,
-			String databaseDisplayProductName, String connectionUrlPattern) {
+			String databaseDisplayProductName, String connectionUrlPattern, String connectionProperties) {
 		super();
 		this.datasourceLookupId			= datasourceLookupId;
 		this.databaseProductName		= databaseProductName;
@@ -63,6 +66,7 @@ public class DatasourceLookUp implements Serializable {
 		this.additionalDatasource		= additionalDatasource;
 		this.databaseDisplayProductName	= databaseDisplayProductName;
 		this.connectionUrlPattern		= connectionUrlPattern;
+		this.connectionProperties		= connectionProperties;
 	}
 
 
@@ -129,8 +133,15 @@ public class DatasourceLookUp implements Serializable {
 
 	public void setConnectionUrlPattern(String connectionUrlPattern) {
 		this.connectionUrlPattern = connectionUrlPattern;
+	}	
+
+	public String getConnectionProperties() {
+		return connectionProperties;
 	}
 
+	public void setConnectionProperties(String connectionProperties) {
+		this.connectionProperties = connectionProperties;
+	}
 
 	public AdditionalDatasource addAdditionalDatasource(AdditionalDatasource additionalDatasource) {
 		getAdditionalDatasource().add(additionalDatasource);
@@ -175,7 +186,8 @@ public class DatasourceLookUp implements Serializable {
 		builder.append("DatasourceLookUp [datasourceLookupId=").append(datasourceLookupId).append(", databaseProductName=")
 				.append(databaseProductName).append(", driverClassName=").append(driverClassName).append(", isDeleted=").append(isDeleted)
 				.append(", additionalDatasource=").append(additionalDatasource)
-				.append(", connectionUrlPattern=").append(connectionUrlPattern).append("]");
+				.append(", connectionUrlPattern=").append(connectionUrlPattern).append(", connectionProperties=").append(connectionProperties)
+				.append("]");
 		return builder.toString();
 	}
 
@@ -190,6 +202,7 @@ public class DatasourceLookUp implements Serializable {
 		datasourceLookUp.setDatasourceSupportedVersion(datasourceSupportedVersion);
 		datasourceLookUp.setDatabaseDisplayProductName(databaseDisplayProductName);
 		datasourceLookUp.setConnectionUrlPattern(connectionUrlPattern);
+		datasourceLookUp.setConnectionProperties(connectionProperties);
 		
 		return datasourceLookUp;
 	}
@@ -207,7 +220,7 @@ public class DatasourceLookUp implements Serializable {
 		datasourceLookUpVO.setDriverClassName(ds.getDriverClassName());
 		datasourceLookUpVO.setDatabaseDisplayProductName(ds.getDatabaseDisplayProductName());
 		datasourceLookUpVO.setDatasourceSupportedVersion(ds.getDatasourceSupportedVersion());
-		
+		datasourceLookUpVO.setConnectionProperties(ds.getConnectionProperties());
 		return datasourceLookUpVO;
 	}
 

@@ -1,0 +1,178 @@
+<#compress>
+<div>
+   <form class="form-signin" id="loginFormCustom" method="post" action="${contextPath}/cf/login" autocomplete="off">
+
+      <p class="divdeform">
+         <label for="email" class="formlablename">
+            <@resourceBundleWithDefault "jws.email" "Email"/>
+         </label>
+         <span class="formicosn">
+            <i class="fa-solid fa-user" aria-hidden="true"></i>
+         </span>
+
+         <input
+             type="email"
+             id="email"
+             name="email"
+             class="form-control"
+             placeholder="<@resourceBundleWithDefault "jws.enteremail" "Enter Email"/>"
+             required
+             autofocus>
+      </p>
+
+      <p class="divdeform">
+         <label for="password" class="formlablename">Password</label>
+         <span class="formicosn">
+            <i class="fa-solid fa-key" aria-hidden="true"></i>
+         </span>
+
+         <input
+             type="password"
+             id="textPasswordCustom"
+             name="textPassword"
+             class="form-control"
+             placeholder="<@resourceBundleWithDefault "jws.enterpwd" "Password"/>"
+             required>
+
+         <span class="passview" onclick="showHidePassword(this);">
+            <i class="fa fa-eye" aria-hidden="true"></i>
+         </span>
+      </p>
+
+      <#if innerTemplateObj.requestId?? && innerTemplateObj.requestId?has_content>
+         <input type="hidden"
+                id="requestId"
+                name="requestId"
+                value="${innerTemplateObj.requestId}"/>
+      </#if>
+
+      <input
+          type="hidden"
+          id="enableAuthenticationType"
+          name="enableAuthenticationType"
+          value="6"/>
+
+      <input
+          type="hidden"
+          id="passwordCustom"
+          name="password"/>
+
+      <div class="loginbtn">
+         <button
+             class="btn btn-lg btn-primary btn-block"
+             type="submit"
+             onclick="encryptPasswordOnSubmitCustom()">
+             <@resourceBundleWithDefault "jws.signin" "Sign In"/>
+         </button>
+      </div>
+
+   </form>
+</div>
+
+<script>
+
+localStorage.setItem('r', null);
+contextPath = "${(contextPath)!''}";
+
+function showHidePassword(thisObj){
+    var element = $(thisObj).parent().find("input[name='textPassword']");
+
+    if(element.prop("type") === "password"){
+        element.prop("type","text");
+        $(thisObj).find("i").removeClass("fa-eye");
+        $(thisObj).find("i").addClass("fa-eye-slash");
+    }else{
+        element.prop("type","password");
+        $(thisObj).find("i").removeClass("fa-eye-slash");
+        $(thisObj).find("i").addClass("fa-eye");
+    }
+
+    $("#textPasswordCustom").focus();
+}
+
+function encryptPasswordOnSubmitCustom(){
+
+    var password = $("#textPasswordCustom").val();
+
+    <#if innerTemplateObj.salt?? && innerTemplateObj.salt?has_content>
+        var encryptionKey = "${innerTemplateObj.salt}";
+    <#else>
+        var encryptionKey = "";
+    </#if>
+
+    var encryptedPassword = encryptPassword(password, encryptionKey);
+
+    $("#passwordCustom").val(encryptedPassword);
+}
+
+function padOrTruncateKey(key, length) {
+
+    if (key.length < length) {
+        return key.padEnd(length, '0');
+    }
+
+    if (key.length > length) {
+        return key.substring(0, length);
+    }
+
+    return key;
+}
+
+function encryptPassword(password, encryptKey) {
+
+    const paddedKey = padOrTruncateKey(encryptKey, 16);
+
+    const key = CryptoJS.enc.Utf8.parse(paddedKey);
+
+    const encrypted = CryptoJS.AES.encrypt(password, key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+    });
+
+    return encrypted.toString();
+}
+
+document.getElementById('loginFormCustom').addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    encryptPasswordOnSubmit();
+
+    const formData = new FormData(event.target);
+
+    fetch(event.target.action, {
+        method: 'POST',
+        headers: {
+            'r': localStorage.getItem('r')
+        },
+        body: formData
+    })
+    .then(response => {
+        return response.text().then(html => ({ html, url: response.url }));
+    })
+    .then(({ html, url }) => {
+
+        let tempDiv = document.createElement("div");
+        tempDiv.innerHTML = html;
+
+        let exceptionMessage = tempDiv.querySelector("#exceptionMessage")?.innerText;
+
+        if (exceptionMessage) {
+            $("#LoginFormError").show().html(exceptionMessage);
+            return;
+        }
+
+        document.open();
+        document.write(html);
+        document.close();
+
+        if (url) {
+            window.history.pushState({}, '', url);
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    });
+});
+
+</script>
+</#compress>

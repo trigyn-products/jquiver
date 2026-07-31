@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <gridData>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:23+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Autocomplete Details Listing</gridDescription>
@@ -10,12 +10,12 @@
         <gridTableName>jq_autocomplete_listing_view</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2024-08-01T19:25:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:21+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Custom DB Resource Bundle Listing</gridDescription>
@@ -24,12 +24,12 @@
         <gridTableName>jq_customResourceBundleListingView</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:23+05:30</createdDate>
         <gridColumnName>dashboardName,dashboardType,contextDescription,createdDate,createdBy,lastUpdatedTs,isAfterDate</gridColumnName>
         <gridDescription>Dashboard Master</gridDescription>
@@ -38,12 +38,12 @@
         <gridTableName>dashboardMasterListing</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>2</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:23+05:30</createdDate>
         <gridColumnName>dashletName,dashletTitle,dashletTypeId,createdDate,createdBy,lastUpdatedTs,updatedBy,status,isAfterDate</gridColumnName>
         <gridDescription>Dashlet Master</gridDescription>
@@ -52,12 +52,12 @@
         <gridTableName>dashletMasterListing</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>2</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:23+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Dynamic Form Master Listing</gridDescription>
@@ -66,12 +66,12 @@
         <gridTableName>jq_dynamic_form_listing_view</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:23+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Dynamic Rest API listing</gridDescription>
@@ -80,12 +80,12 @@
         <gridTableName>jq_dynamic_rest_details</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:23+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Dynamic REST API Listing</gridDescription>
@@ -94,12 +94,12 @@
         <gridTableName>jq_dynarest_api_listing_view</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:26+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Failed mail listing grid</gridDescription>
@@ -108,12 +108,12 @@
         <gridTableName>jq_mail_history_data</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:23+05:30</createdDate>
         <gridColumnName>fileBinId,fileTypeSupported,maxFileSize,noOfFiles,lastUpdatedBy,lastUpdatedTs,uploadDataSourceId,viewDataSourceId,deleteDataSourceId</gridColumnName>
         <gridDescription>File Upload Config</gridDescription>
@@ -122,12 +122,12 @@
         <gridTableName>jq_file_upload_config_listing_view</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:23+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Grid Details Listing</gridDescription>
@@ -136,12 +136,12 @@
         <gridTableName>jq_grid_details_view</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:25+05:30</createdDate>
         <gridColumnName>moduleId,moduleName,moduleURL,roleName,rolePriority</gridColumnName>
         <gridDescription>Home Page Listing</gridDescription>
@@ -150,12 +150,12 @@
         <gridTableName>homePageListing</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>2</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:18+05:30</createdDate>
         <gridColumnName>datasourceName,databaseProductName,productdisplayname,createdBy,createdDate,lastUpdatedBy,lastUpdatedTs,isAfterDate</gridColumnName>
         <gridDescription>jq-additional-datasource Listing</gridDescription>
@@ -164,12 +164,12 @@
         <gridTableName>datasourceListing</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>2</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:22+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>jq-scheduler Listing</gridDescription>
@@ -178,12 +178,12 @@
         <gridTableName>jq_scheduler_view</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:19+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>API Clients Grid</gridDescription>
@@ -192,12 +192,12 @@
         <gridTableName>jq_api_client_details_view</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:27+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>List of users</gridDescription>
@@ -206,12 +206,12 @@
         <gridTableName>jq_user</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:21+05:30</createdDate>
         <gridColumnName>entityName,moduleName,moduleId,roleName,lastUpdatedDate, lastUpdatedBy,isAfterDate</gridColumnName>
         <gridDescription>Import Export Permission Listing</gridDescription>
@@ -220,12 +220,12 @@
         <gridTableName>manageEntityPermissionListing</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>2</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:27+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Entities and role association</gridDescription>
@@ -234,12 +234,12 @@
         <gridTableName>jq_manage_entity_role_listing</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:27+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>manual-entry Listing</gridDescription>
@@ -248,12 +248,12 @@
         <gridTableName>jq_manual_entry</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
      <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:27+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>manual-type Listing</gridDescription>
@@ -262,12 +262,12 @@
         <gridTableName>jq_help_manual_view</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2023-12-29T16:19:30+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:23+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Menu Module Listing</gridDescription>
@@ -276,12 +276,12 @@
         <gridTableName>jq_module_listing_view</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:23+05:30</createdDate>
         <gridColumnName>messageType,validFrom,messageText,validTill,selectionCriteria,updatedBy,updatedDate,isAfterDate,displayOnce</gridColumnName>
         <gridDescription>Notification Details Listing</gridDescription>
@@ -290,12 +290,12 @@
         <gridTableName>notificationlisting</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>2</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:23+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Property master listing</gridDescription>
@@ -304,12 +304,12 @@
         <gridTableName>jq_property_master</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:23+05:30</createdDate>
         <gridColumnName>propertyMasterId,ownerType,ownerId,propertyName,propertyValue,modifiedBy,appVersion,comments,lastModifiedDate,isAfterDate,revisionCount,max_version_id</gridColumnName>
         <gridDescription>Property Master Listing</gridDescription>
@@ -318,12 +318,12 @@
         <gridTableName>jq_property_master_listing_view</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:27+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>List of roles</gridDescription>
@@ -332,12 +332,12 @@
         <gridTableName>jq_role</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2021-11-03T17:18:23+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Template Listing</gridDescription>
@@ -346,12 +346,12 @@
         <gridTableName>jq_template_listing_view</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2021-11-03T17:18:27+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2023-03-23T07:01:46+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Files Import Export Grid.</gridDescription>
@@ -360,13 +360,13 @@
         <gridTableName>jq_file_upload</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2023-03-23T07:01:46+05:30</lastUpdatedTs>
         <queryType>1</queryType>
         <customFilterCriteria>file_path &lt;&gt; &quot;/images&quot;</customFilterCriteria>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2023-07-13T07:01:46+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Resource Bundle Export Grid.</gridDescription>
@@ -375,7 +375,7 @@
         <gridTableName>jq_export_resource_budle_view</gridTableName>
         <gridTypeId>2</gridTypeId>
         <isCustomUpdated>0</isCustomUpdated>
-        <lastUpdatedBy>admin@jquiver.io</lastUpdatedBy>
+        <lastUpdatedBy>admin@localhost.io</lastUpdatedBy>
         <lastUpdatedTs>2023-01-23T07:01:46+05:30</lastUpdatedTs>
         <queryType>1</queryType>
     </grid>
@@ -434,7 +434,7 @@
         <queryType>2</queryType>
     </grid>
     <grid>
-        <createdBy>admin@jquiver.io</createdBy>
+        <createdBy>admin@localhost.io</createdBy>
         <createdDate>2025-10-03T20:24:20+05:30</createdDate>
         <gridColumnName>*</gridColumnName>
         <gridDescription>Manage Tags</gridDescription>

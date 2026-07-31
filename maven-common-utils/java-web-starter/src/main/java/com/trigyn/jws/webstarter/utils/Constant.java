@@ -82,17 +82,6 @@ public final class Constant {
 	public final static String WORKFLOWID            	= "6f1a8a6e-5a6d-4f4d-b9d3-8f1e8a7c9b2a";
 	public final static String FORMIOID            	    = "1faee99c-021c-11ef-a019-7c8ae1bb24d8";
 	
-	public final static String	HHC								= "hhc.exe";
-	public final static String	HHA								= "hha.dll";
-	public final static String	ITIRCL							= "itircl.dll";
-	public final static String	ITSS							= "itss.dll";
-	public final static String	ITCC							= "itcc.dll";
-	public final static String	HHCTRL							= "hhctrl.ocx";
-	public final static String	HHCOUT							= "hhcout.dll";
-	public final static String	HHKOUT							= "hhkout.dll";
-	public final static String	CHCOMPILER						= "chmCompiler";
-	
-	
 	public enum ExportFilterType {
 
 	    PERMISSION,
@@ -190,7 +179,7 @@ public final class Constant {
 		TEMPLATES("jq_template_master"), AUTOCOMPLETE("jq_autocomplete_details"), RESOURCEBUNDLE("jq_resource_bundle"),
 		DASHBOARD("jq_dashboard"), DASHLET("jq_dashlet"), DASHLETS("jq_dashlet"), DYNAREST("jq_dynamic_rest_details"),
 		DYNAMICFORM("jq_dynamic_form"), GRID("jq_grid_details"), NOTIFICATION("jq_generic_user_notification"),
-		APPLICATIONCONFIGURATION("jq_property_master"), HELPMANUAL("jq_manual_type"),ROUTER("jq_router_details"),
+		APPLICATIONCONFIGURATION("jq_property_master"), HELPMANUAL("jq_manual_type"),ROUTER("jq_module_listing"),
 		APICLIENTDETAILS("jq_api_client_details"), ADDITIONALDATASOURCE("jq_additional_datasource"),FILEBIN("jq_file_upload_config"),
 		SCHEDULER("jq_job_scheduler"), FILEIMPEXPDETAILS("Files"),SCRIPTLIBRARY("jq_script_lib_details"), FORMIO("FormIO"), FORMIOTBL("jq_form_io"), BUSINESSMODULE("jq_business_module"),BUSINESSENTITYMODULES("jq_business_module_entity_details"),WORKFLOW("jq_workflow_definition");
 

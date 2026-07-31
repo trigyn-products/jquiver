@@ -587,17 +587,17 @@ public class HelpManualController {
 	 * @throws Exception
 	 * written for implementing Import Functionality of Help Manual, Uncomment the below commented lines for future implementation.
 	 */
-	@RequestMapping(value = "/ehm")
-	@ResponseBody
-	public void exportHelpManual(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		try {
-			 helpManualService.exportHelpManualData(request, response);
-
-		} catch (Exception exception) {
-			logger.error("Error occured while importing data.", exception);
-			return;
-		}
-	}
+//	@RequestMapping(value = "/ehm")
+//	@ResponseBody
+//	public void exportHelpManual(HttpServletRequest request, HttpServletResponse response) throws Exception {
+//		try {
+//			 helpManualService.exportHelpManualData(request, response);
+//
+//		} catch (Exception exception) {
+//			logger.error("Error occured while importing data.", exception);
+//			return;
+//		}
+//	}
 	
 	
 }

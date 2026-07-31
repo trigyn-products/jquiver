@@ -29,10 +29,11 @@ function populateFields(tableName, dbProductID) {
 			$("#formModuleURL").prop("readonly", false);
 
 			resetObjects();
-			$("#moduleName").val(selectedTable.replaceAll("_", "-"));
-			$("#formDisplayName").val(selectedTable.replaceAll("_", "-") + "-form");
-			$("#formModuleURL").val(selectedTable.replaceAll("_", "-") + "-f");
-
+			$("#moduleName").val(generateModuleUrl(selectedTable));
+			$("#busmoduleName").val(generateModuleUrl(selectedTable));
+			$("#businessModule").val(generateModuleUrl(selectedTable));
+			$("#formDisplayName").val(generateModuleUrl(selectedTable) + "-form");
+			$("#formModuleURL").val(generateModuleUrl(selectedTable) + "-f");
 			primaryKey = data.filter(element => element.columnKey == "PK").map(element => element["tableColumnName"]).toString();
 			primaryKeyCounter = data.filter(element => {
 				if (element.columnKey == "PK") {
@@ -44,7 +45,8 @@ function populateFields(tableName, dbProductID) {
 			$("#columns").val(columns.toString());
 			$("#primaryKey").val(primaryKey);
 			$("#menuDisplayName").val(selectedTable.replaceAll("_", "-"));
-			$("#moduleURL").val(selectedTable.replaceAll("_", "-"));
+			//$("#moduleURL").val(selectedTable.replaceAll("_", "-"));
+			$("#moduleURL").val(generateModuleUrl(selectedTable));
 			createTable(data);
 			$.unblockUI();
 		},
@@ -159,8 +161,8 @@ function createTable(columns) {
 			
 		let foreignKeyHtml = "";
 		if (columns[iCounter]['columnKey'] !== 'PK') {
-			foreignKeyHtml = "<td>" + "<div style='display:flex; align-items:center; gap:8px;'>" + "<input type='checkbox' " + "id='foreignKey_" + iCounter + "' " + "class='foreign-key-checkbox' " + "data-index='" + iCounter + "' " + "disabled>" +
-				"<button type='button' " + "id='editForeignKey_" + iCounter + "' " + "class='btn btn-link p-0' " + "style='display:none; line-height:1;' " + "onclick='editForeignKey(" + iCounter + ")'>" + "<i class='fa fa-edit'></i>" + "</button>" +
+			foreignKeyHtml = "<td class='lookup-column'>" + "<div class='lookup-actions'>" + "<input type='checkbox' " + "id='foreignKey_" + iCounter + "' " + "class='foreign-key-checkbox' " + "data-index='" + iCounter + "' " + "disabled>" +
+				"<button type='button' " + "id='editForeignKey_" + iCounter + "' " + "class='edit-fk-btn' " + "onclick='editForeignKey(" + iCounter + ")'>" + "<i class='fa fa-edit'></i>" + "</button>" +
 				"</div>" +
 				"</td>";
 		} else {
@@ -475,6 +477,9 @@ function createMaster() {
 	}
 }
 
+function generateModuleUrl(name) {
+	return name.trim().replace(/[_\s]+/g, "-").replace(/-+/g, "-").toLowerCase();
+}
 
 function saveForeignKeyDetails() {
 	let columnName = $("#tfcolumn_" + currentForeignKeyIndex).text().trim();
@@ -504,15 +509,6 @@ function saveForeignKeyDetails() {
 		if (checkExistingAutocompleteId($("#autocompleteId").val()) == true) {
 			showMessage("Autocomplete Id already exists", "warn");
 			$("#autocompleteId").val("");
-			$("#foreignKey_" + currentForeignKeyIndex)
-			       .prop("checked", false)
-			       .trigger("change");
-			   $("#foreignKeyMode").val("DROPDOWN");
-			   onForeignKeyModeChange();
-			let columnName = $("#tfcolumn_" + currentForeignKeyIndex).text().trim();
-			foreignKeyDetails = foreignKeyDetails.filter(
-				x => x.columnName !== columnName
-			);
 			return false;
 		}
 		fkConfig.componentType = "AUTOCOMPLETE";
@@ -525,9 +521,32 @@ function saveForeignKeyDetails() {
 		fkConfig.displayColumn = $("#autocompleteDisplayColumn").val();
 		fkConfig.dataSourceId = $("#dataSourceTbl").val();
 	}
+	// Validation
+	if (mode === "DROPDOWN") {
+	    if (fkConfig.table == "" || fkConfig.idColumn == "" || fkConfig.displayColumn == "") {
+	        showMessage("Please configure all Foreign Key details.", "warn");
+	        return false;
+	    }
+	}
+	else if (mode === "AUTOCOMPLETE_EXISTING") {
+	    if (fkConfig.autocompleteId == "") {
+	        showMessage("Please select an existing Autocomplete.", "warn");
+	        return false;
+	    }
+	}
+	else if (mode === "AUTOCOMPLETE_NEW") {
+		if (fkConfig.autocompleteId == "" || fkConfig.autocompleteName == "" || fkConfig.table == "" ||
+			fkConfig.idColumn == "" || fkConfig.displayColumn == "") {
+			showMessage("Please fill all Autocomplete details.", "warn");
+			return false;
+		}
+	}
+	const modal = bootstrap.Modal.getInstance(document.getElementById("foreignkeyModalDialog"));
+	modal.hide();
 	foreignKeyDetails = foreignKeyDetails.filter(x => x.columnName !== columnName);
 	foreignKeyDetails.push(fkConfig);
-	$("#editForeignKey_" + currentForeignKeyIndex).show();
+	//$("#editForeignKey_" + currentForeignKeyIndex).show();
+	$("#editForeignKey_" + currentForeignKeyIndex).addClass("show");
 	document.activeElement.blur();   // remove focus from OK button
 	return foreignKeyDetails;
 }
@@ -876,8 +895,6 @@ function validateSiteLayoutDetails() {
 	if (isValid == false) {
 		return isValid;
 	}
-
-
 	$.ajax({
 		url: contextPath + "/cf/ced",
 		type: 'GET',

@@ -301,7 +301,7 @@ public class JwsUserRegistrationController {
 	}
 
 	@GetMapping(value = "/captcha/{flagCaptcha}")
-	public String loadCaptcha(@PathVariable String flagCaptcha, HttpServletRequest request,
+	public String loadCaptcha(@PathVariable("flagCaptcha") String flagCaptcha, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 
 		try {
@@ -429,8 +429,8 @@ public class JwsUserRegistrationController {
 			if (isOtpValid == false) {
 				String	propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
 						"adminEmailId");
-				String	adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
-						: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+				String	adminEmail				= propertyAdminEmailId == null ? "admin@localhost.io"
+						: propertyAdminEmailId.equals("") ? "admin@localhost.io" : propertyAdminEmailId;
 				
 				userConfigService.getConfigurableDetails(mapDetails);
 				mapDetails.put("email", userEmailId);

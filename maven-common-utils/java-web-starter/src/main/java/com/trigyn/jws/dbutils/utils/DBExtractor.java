@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.trigyn.jws.dynamicform.service.UniversalRegexGenerator;
 import com.trigyn.jws.dynamicform.utils.Constant;
+import com.trigyn.jws.dynamicform.utils.SqlIdentifierUtil;
 
 public final class DBExtractor {
-
+	
 	private DBExtractor() {
 		throw new RuntimeException("You are not supposed to instantiate this java class.");
 	}
@@ -29,15 +29,21 @@ public final class DBExtractor {
 		List<Map<String, Object>>	listOfMap	= new ArrayList<>();
 		Map<String, Object>			map			= new HashMap<>();
 		String						query		= "";
-		ResultSet					rs			= con.createStatement().executeQuery("select *  from " + a_tableName);
+		DatabaseMetaData			dbmd				= con.getMetaData();
+		String						productName			= dbmd.getDatabaseProductName();
+		SqlIdentifierUtil			sqlIdentifierUtil	= new SqlIdentifierUtil();
+		String						quotedtableName		= sqlIdentifierUtil.quote(a_tableName, productName);
+		ResultSet					rs			= con.createStatement().executeQuery("select *  from " + quotedtableName);
 		ResultSetMetaData			rsmd		= rs.getMetaData();
+	
 		String						colName		= null;
 		for (int iColCounter = 1; iColCounter <= rsmd.getColumnCount(); iColCounter++) {
 			colName = rsmd.getColumnName(iColCounter);
+			String quotedColumnName	= sqlIdentifierUtil.quote(colName, productName);
 			if (iColCounter > 1) {
 				query += ",";
 			}
-			query += colName + " AS " + colName;
+			query += quotedColumnName + " AS " + quotedColumnName;
 		}
 		map.put("columnName", query);
 		listOfMap.add(map);
@@ -49,21 +55,23 @@ public final class DBExtractor {
 		List<String>				cols		= new ArrayList<String>();
 		Map<String, Object>			dbCol		= null;
 		try {
-
 			DatabaseMetaData	dbmd			= con.getMetaData();
 			String				productName		= dbmd.getDatabaseProductName();
 			String				queryTableName	= a_tableName;
+			SqlIdentifierUtil sqlIdentifierUtil = new SqlIdentifierUtil();
+			String quotedtableName = sqlIdentifierUtil.quote(queryTableName, productName);
 			if (productName.equalsIgnoreCase("postgresql")) {
 				queryTableName = "\"" + a_tableName + "\"";
 			}
-			String				executeQueryString	= "select *  from " + queryTableName;
+			String				executeQueryString	= "select *  from " + quotedtableName;
 			ResultSet			rs					= con.createStatement().executeQuery(executeQueryString);
 			ResultSetMetaData	rsmd				= rs.getMetaData();
 			String				colName				= null;
 			for (int iColCounter = 1; iColCounter <= rsmd.getColumnCount(); iColCounter++) {
 				dbCol	= new HashMap<String, Object>();
 				colName	= rsmd.getColumnName(iColCounter);
-				cols.add(colName);
+				String quotedColumnName	= sqlIdentifierUtil.quote(colName, productName);
+				cols.add(quotedColumnName);
 				rsmd.getCatalogName(1);
 				dbCol.put("tableColumnName", colName);
 				dbCol.put("columnName", colName.replace("_", ""));
@@ -169,27 +177,30 @@ public final class DBExtractor {
 				schemaName	= null;
 			}
 			ResultSet rsPK = dbmd.getPrimaryKeys(catalogName, schemaName, a_tableName);
-			// while (rsPK.next()) {
-			// colName = rsPK.getString("COLUMN_NAME");
-			// dbStructure.get(cols.indexOf(colName)).put("columnKey", "PK");// instead of
-			// PRI please use PK
-			// }
 			while (rsPK.next()) {
 				colName = rsPK.getString("COLUMN_NAME");
-				Map<String, Object> pkCol = dbStructure.get(cols.indexOf(colName));
+				String quotedColumnName	= sqlIdentifierUtil.quote(colName, productName);
+				Map<String, Object> pkCol = dbStructure.get(cols.indexOf(quotedColumnName));
 				pkCol.put("columnKey", "PK");
-				pkCol.put("selectWhereClause", colName + " = <#if " + colName.replace("_", "") + "??> :"
+				pkCol.put("selectWhereClause", quotedColumnName + " = <#if " + colName.replace("_", "") + "??> :"
 						+ colName.replace("_", "") + " <#else> 'null' </#if>");
-				//pkCol.put("jsWhereClause", colName + " = '${" + colName.replace("_", "") + "!\"null\"}'");
-//				pkCol.put("jsWhereClause",
-//						colName + " = '<#noparse>${" + colName.replace("_", "") + "!\"null\"}</#noparse>'");
-				pkCol.put("jsWhereClause",
-					    colName + " = '${" + colName.replace("_", "") + "!''}'");
+			    String dataType = "";
+			    if (pkCol.get("dataType") != null) {
+			        dataType = pkCol.get("dataType").toString();
+			    }
+			    String jsVar = colName.replaceAll("[^a-zA-Z0-9]", "");
+				if ("int".equalsIgnoreCase(dataType) || "integer".equalsIgnoreCase(dataType)
+						|| "bigint".equalsIgnoreCase(dataType) || "smallint".equalsIgnoreCase(dataType)) {
+					pkCol.put("jsWhereClause", "<#if " + jsVar + "?? && " + jsVar + "?trim?has_content>"
+							+ quotedColumnName + " = CAST('${" + jsVar + "}' AS INTEGER)" + "<#else>1 = 0</#if>");
+				} else {
+					pkCol.put("jsWhereClause", "<#if " + jsVar + "?? && " + jsVar + "?trim?has_content>"
+							+ quotedColumnName + " = '${" + jsVar + "}'" + "<#else>1 = 0</#if>");
+				}
 			}
 		} catch (Throwable a_th) {
 			a_th.printStackTrace();
 		}
-
 		return dbStructure;
 	}
 
@@ -471,6 +482,9 @@ public final class DBExtractor {
 
 	public static String getCastExpression(String dataType, String columnName, String formFieldName,
 			boolean showColumnName, String columnType, String dbProductName) {
+		
+		SqlIdentifierUtil sqlIdentifierUtil = new SqlIdentifierUtil();
+		String dbColumnName = sqlIdentifierUtil.quote(columnName, dbProductName);
 
 		String	param				= ":" + formFieldName;
 		String	expr				= param;
@@ -593,7 +607,7 @@ public final class DBExtractor {
 				break;
 		}
 
-		return showColumnName ? String.format("%s = %s", columnName, expr) : expr;
+		return showColumnName ? String.format("%s = %s", dbColumnName, expr) : expr;
 	}
 
 }

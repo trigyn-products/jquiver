@@ -83,8 +83,8 @@ function getNextUserTaskStatus(fromStatusId, definitionId, version) {
     );
     if (!result || result.get("data_list").isEmpty()) return null;
 
-    for (var i = 0; i < result.get("data_list").size(); i++) {
-        var toStatusId = result.get("data_list").get(i).get("to_status_id");
+    for (var count = 0; count < result.get("data_list").size(); count++) {
+        var toStatusId = result.get("data_list").get(count).get("to_status_id");
         if (getStatusType(toStatusId) === "USER_TASK") return toStatusId;
     }
     return null;
@@ -202,8 +202,8 @@ function moveWorkflowInstance(taskId, loggedInUser, assignedId, action) {
         if (!transitions || transitions.get("data_list").isEmpty()) break;
 
         var matched = null;
-        for (var i = 0; i < transitions.get("data_list").size(); i++) {
-            var row = transitions.get("data_list").get(i);
+        for (var count = 0; count < transitions.get("data_list").size(); count++) {
+            var row = transitions.get("data_list").get(count);
             if ((row.get("action") || "AUTO").toUpperCase() === (action || "AUTO").toUpperCase()) {
                 matched = row;
                 break;
