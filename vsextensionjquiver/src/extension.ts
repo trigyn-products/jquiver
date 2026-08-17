@@ -7,7 +7,7 @@ import {
 
 import { loadTree,normalizePath,
     fileRegistry,
-    saveTemplateMap } from './treeService';
+    saveTemplateMap,reloadJquiverWorkspace } from './treeService';
 import { showDiff } from './conflictService';
 
 const fetch = async (...args: [string, any?]) => {
@@ -336,6 +336,14 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     );
 
+    const reloadJquiverCommand = vscode.commands.registerCommand(
+    'jquiver.reloadWorkspace',
+    async () => {
+        await reloadJquiverWorkspace();
+    }
+);
+
+context.subscriptions.push(reloadJquiverCommand);
     context.subscriptions.push(fetchApiCommand);
     //Done fetch Command
 
@@ -394,8 +402,8 @@ export async function activate(context: vscode.ExtensionContext) {
     );
 
     refreshBtn.text = "$(refresh) Reload JQuiver Workspace";
-    refreshBtn.tooltip = "Reload JQuiver Workspace";
-    refreshBtn.command = "jquiver.fetchApi";
+    refreshBtn.tooltip = "Delete local JQuiver files and reload from server";
+    refreshBtn.command = "jquiver.reloadWorkspace";
 
     refreshBtn.show();
 

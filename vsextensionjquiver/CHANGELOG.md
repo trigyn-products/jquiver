@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ---
 
+## [0.0.5] - 2026-08-17
+
+### Added
+- Added a dedicated **Reload JQuiver Workspace** command (`jquiver.reloadWorkspace`) to completely refresh the JQuiver workspace.
+- Added the **Reload JQuiver Workspace** command to the JQuiver VS Code Extension command palette.
+- Added workspace reload functionality to delete local JQuiver files and reload the latest files from the server.
+
+### Improved
+- Updated the JQuiver footer refresh action to use the new **Reload JQuiver Workspace** command. This will delete the local folder and download all the files afresh locally.
+- Updated the refresh button tooltip to clearly indicate that local JQuiver files will be deleted and reloaded from the server.
+- Improved workspace refresh functionality by centralizing the reload operation in the `reloadJquiverWorkspace` method.
+- Added validation to handle scenarios where no VS Code workspace is currently open.
+
+---
+
 ## [0.0.4] - 2026-06-29
 
 ### Added

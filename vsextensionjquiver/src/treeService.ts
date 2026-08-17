@@ -170,6 +170,16 @@ async function buildFolderStructure(items: EntityItem[], basePath: string[] = []
     for (const item of items) {
 
         const currentPath = [...basePath, item.label as string];
+        /*if (basePath[0] === "BusinessModule") {
+    console.log("BusinessModule Path");
+    console.log({
+        basePath,
+        label: item.label,
+        htmlFile: item.htmlFile,
+        entityInfo: item.entityInfo,
+        children: item.children
+    });
+}*/
         //For template special
         const isTemplateModule = basePath[0] === 'Template';
 
@@ -177,6 +187,7 @@ async function buildFolderStructure(items: EntityItem[], basePath: string[] = []
         // TEMPLATE MODULE
         // ----------------------------
         if (isTemplateModule && item.entityId) {
+
 
             const templateBase = basePath[1] || 'unknown';
 
@@ -188,12 +199,10 @@ async function buildFolderStructure(items: EntityItem[], basePath: string[] = []
             );
 
             await vscode.workspace.fs.createDirectory(templateUri);
-
             const fileUri = vscode.Uri.joinPath(
                 templateUri,
                 `${item.label}.html`
             );
-
             try {
                 await vscode.workspace.fs.stat(fileUri);
             } catch {
@@ -338,6 +347,63 @@ async function buildFolderStructure(items: EntityItem[], basePath: string[] = []
 }
 
 // ----------------------------
+// FULL JQUIVER WORKSPACE RELOAD
+// ----------------------------
+export async function reloadJquiverWorkspace() {
+
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri;
+
+    if (!workspaceRoot) {
+        vscode.window.showErrorMessage("No workspace is open");
+        return;
+    }
+
+    const srcUri = vscode.Uri.joinPath(
+        workspaceRoot,
+        'src'
+    );
+
+    try {
+        // Delete complete JQuiver generated folder
+        try {
+            await vscode.workspace.fs.delete(srcUri, {
+                recursive: true,
+                useTrash: false
+            });
+        } catch (err: any) {
+            // Ignore if src does not exist
+            console.log("src folder does not exist or already deleted");
+        }
+
+        // Recreate empty src folder
+        await vscode.workspace.fs.createDirectory(srcUri);
+
+        // Clear all local metadata
+        fileRegistry.clear();
+        saveTemplateMap.clear();
+        serverPaths.clear();
+
+        // Reload everything from server
+        await loadTree();
+
+        vscode.window.showInformationMessage(
+            "JQuiver Workspace reloaded successfully"
+        );
+
+    } catch (err: any) {
+
+        console.error(
+            "JQuiver workspace reload failed:",
+            err
+        );
+
+        vscode.window.showErrorMessage(
+            `JQuiver Workspace reload failed: ${err.message}`
+        );
+    }
+}
+
+// ----------------------------
 // LOAD TREE
 // ----------------------------
 export async function loadTree() {
@@ -350,7 +416,8 @@ export async function loadTree() {
     if (data === null) {
         return;
     }
-
+//console.log("========== SERVER DATA ==========");
+//console.log(JSON.stringify(data, null, 2));
     const items = createItems(data);
     const businessItems = createBusinessModuleItems(data);
     const finalItems = [
