@@ -1,9 +1,22 @@
+
+var ArrayList=Java.type("java.util.ArrayList");
 var HashMap=Java.type("java.util.HashMap");
 var System = Java.type("java.lang.System");
 var params = new HashMap();
 function deleteHelpManual(requestDetails) {
     params.put("entityId", requestDetails["entityId"]);
     params.put("moduleType", requestDetails["moduleType"]);
+
+    var manualEntryIds = jq_getDBResult("select manual_entry_id from jq_manual_entry where manual_id=:entityId", null, params);
+    if(manualEntryIds != null && manualEntryIds.data_list != null && manualEntryIds.data_list.size() > 0) {
+        var manualEntryIdList = new ArrayList();
+        for(var cnt = 0; cnt < manualEntryIds.data_list.size(); cnt++) {
+            manualEntryIdList.add(manualEntryIds.data_list[cnt].get("manual_entry_id"));
+        }
+
+        params.put("manualEntryIdList", manualEntryIdList);
+        jq_updateDBQuery("delete from jq_file_upload where file_bin_id = 'helpManual' AND file_association_id IN (:manualEntryIdList)", null, params);
+    }
     jq_updateDBQuery("delete from jq_entity_role_association where entity_id=:entityId AND module_id=:moduleType", null, params); 
     jq_updateDBQuery("delete from jq_manual_entry where manual_id=:entityId", null, params);
     jq_updateDBQuery("delete from jq_manual_type where manual_id=:entityId", null, params);  

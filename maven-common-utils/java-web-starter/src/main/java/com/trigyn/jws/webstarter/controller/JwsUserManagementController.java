@@ -41,6 +41,8 @@ import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 import com.trigyn.jws.usermanagement.security.config.LdapConfigService;
+import com.trigyn.jws.usermanagement.security.config.oauth.CustomSAMLUserService;
+import com.trigyn.jws.usermanagement.security.config.oauth.OAuth2HelperService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
@@ -49,6 +51,8 @@ import com.trigyn.jws.usermanagement.vo.JwsRoleMasterModulesAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.usermanagement.vo.JwsUserVO;
 import com.trigyn.jws.usermanagement.vo.UserManagementVo;
+import com.trigyn.jws.webstarter.service.OtpService;
+import com.trigyn.jws.webstarter.service.OtpService;
 import com.trigyn.jws.webstarter.service.UserManagementService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -88,6 +92,15 @@ public class JwsUserManagementController {
 	
 	@Autowired
 	private FileUtilities 				fileUtilities 				= null;
+	
+	@Autowired
+	private CustomSAMLUserService customSAMLUserService = null;
+	
+	@Autowired
+	private OAuth2HelperService oAuth2HelperService = null;
+
+	@Autowired
+	private OtpService otpService = null;
 	
 	@GetMapping(value = "/um")
 	public String userManagement(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
@@ -521,5 +534,22 @@ public class JwsUserManagementController {
 	public Boolean checkLdapConnection(@RequestBody MultiValueMap<String, Object> formLdapData,
 			HttpServletRequest a_httpServletRequest) throws Exception {
 		return ldapService.checkLdapConnection(formLdapData);
+	}
+	
+	@PostMapping(value = "/checkSamlConnection")
+	public Boolean checkSamlConnection(@RequestBody MultiValueMap<String, Object> formSamlData,
+			HttpServletRequest a_httpServletRequest) throws Exception {
+		return customSAMLUserService.checkSamlConnection(formSamlData);
+	}
+	
+	@PostMapping(value = "/checkDbConnection")
+	public Boolean checkOtpAndTotpConnection(HttpServletRequest a_httpServletRequest) throws Exception {
+		return otpService.checkOtpAndTotpConnection();
+	}
+	
+	@PostMapping(value = "/checkOauthConnection")
+	public Boolean checkOauthConnection(@RequestBody MultiValueMap<String, Object> formOauthData,
+			HttpServletRequest a_httpServletRequest) throws Exception {
+		return oAuth2HelperService.checkOauthConnection(formOauthData);
 	}
 }

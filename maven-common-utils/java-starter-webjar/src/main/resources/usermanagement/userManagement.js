@@ -321,6 +321,82 @@ function testLdapAuth(thisObj) {
 	return true;
 }
 
+function testOauthAuth(thisObj) {
+    const str = thisObj.id;
+    const [first, ...rest] = str.split('-');
+    const lastIndex = rest.join('-');
+    let formObj = {};
+    formObj["registrationId"] = $("#registration-id-" + lastIndex).val();
+    formObj["clientId"] = $("#client-id-" + lastIndex).val();
+    formObj["clientSecret"] = $("#client-secret-" + lastIndex).val();
+    formObj["authorizationUri"] = $("#authorization-uri-" + lastIndex).val();
+    formObj["tokenUri"] = $("#token-uri-" + lastIndex).val();
+    formObj["scope"] = $("#scope-" + lastIndex).val();
+    formObj["authorizationCode"] = $("#authorization_code-" + lastIndex).val();
+    formObj["redirectUri"] = $("#redirect-uri-template-" + lastIndex).val();
+    formObj["jwkUri"] = $("#jwk-set-uri-" + lastIndex).val();
+    formObj["usernameAttr"] = $("#user-name-attr-" + lastIndex).val();
+
+    $.ajax({
+        type: "POST",
+        url: contextPath + "/cf/checkOauthConnection",
+        data: formObj,
+        success: function(data) {
+            if (data !== undefined) {
+                if (data == false) {
+                    showMessage("OAuth configuration test failed. Please contact administrator!","error");
+                } else {
+                    showMessage("OAuth configuration test is successful!","success");
+                }
+                return false;
+            }
+        },
+        error: function(xhr, status, error) {
+            showMessage("OAuth configuration test failed!","error");
+        }
+    });
+    return true;
+}
+
+function testSamlAuth(thisObj) {
+	const str = thisObj.id;
+	const [first, ...rest] = str.split('-');
+	const lastIndex = rest.join('-');
+	let formObj = {};
+	formObj["metadataURL"] = $("#metadataURL-" + lastIndex).val();
+	formObj["registrationId"] = $("#registrationId-" + lastIndex).val();
+	formObj["assertionConsumerServiceLocation"] = $("#assertionConsumerServiceLocation-" + lastIndex).val();
+	$.ajax({
+		type: "POST",
+		url: contextPath + "/cf/checkSamlConnection",
+		data: formObj,
+		success: function(data) {
+			if (data == false) {
+				showMessage("Connection refused. Please contact administrator!", "error");
+			} else {
+				showMessage("Connection is successful!", "success");
+			}
+		}
+	});
+}
+
+function testDbAuth(thisObj) {
+	$.ajax({
+		type: "POST",
+		url: contextPath + "/cf/checkDbConnection",
+		success: function(data) {
+			if (data === false) {
+				showMessage("Mail configuration test failed. Please check SMTP configuration!","error");
+			} else {
+				showMessage("Connection test is successful!","success");
+			}
+		},
+		error: function(xhr, status, error) {
+			showMessage("Unable to verify mail configuration!","error");
+		}
+	});
+	return true;
+}
 
 function removeOauthSection(thisObj) {
 	var buttonId = thisObj.id;
@@ -375,7 +451,73 @@ function removeOauthSection(thisObj) {
 				.find("button").removeClass("ui-dialog-titlebar-close").addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
 				.prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
 		}
+	});
+}
 
+function removeSamlAuth(thisObj) {
+	var buttonId = thisObj.id;
+	let deleteElement = $('<div id="deleteConfirmation"></div>');
+	var thisObj = $(this);
+	$("body").append(deleteElement);
+	$("#deleteConfirmation").html("Are you sure you want to delete the changes ?");
+	$("#deleteConfirmation").dialog({
+		bgiframe: true,
+		autoOpen: true,
+		modal: true,
+		closeOnEscape: true,
+		draggable: true,
+		resizable: false,
+		title: "Delete",
+		dialogClass: "popup-center",
+		position: {
+			my: "center",
+			at: "center"
+		},
+		buttons: [
+			{
+				text: "Delete",
+				"class": "btn btn-primary",
+				click: function() {
+					const [first, ...rest] =buttonId.split('removeSamlAuth');
+					const remainder = rest.join('-');
+					$("#addSection" + rest).closest('.addSectionDiv').remove();
+					$(this).dialog("destroy");
+					$(this).remove();
+					var lastIndex =buttonId.split("-").pop();
+					var num =document.querySelectorAll('authType-' + lastIndex +' .addSectionDiv').length;
+					var numItems =$('#props-' + lastIndex).find('.addSectionDiv').length;
+					if (numItems <= 0) {
+						$("#authTypeDiv-" + lastIndex).remove();
+						$(this).parent('.dividesection').remove();
+					}
+					var numOfMainAuthTypes = document.querySelectorAll('.dividesection').length;
+					if (numOfMainAuthTypes <= 0) {
+						$("#isAuthenticationEnabled").prop("checked", false).trigger("change");
+					}
+				}
+			},
+			{
+				text: "Cancel",
+				"class": "btn btn-secondary",
+				click: function() {
+					$(this).dialog("destroy");
+					$(this).remove();
+				}
+			}
+		],
+
+		open: function(event, ui) {
+			$(".ui-dialog-titlebar").find("button").removeClass("ui-dialog-titlebar-close").addClass(
+				"ui-button ui-corner-all ui-widget " +
+				"ui-button-icon-only ui-dialog-titlebar-close"
+			)
+				.prepend(
+					'<span class="ui-button-icon ui-icon ui-icon-closethick"></span>'
+				)
+				.append(
+					'<span class="ui-button-icon-space"></span>'
+				);
+		}
 	});
 }
 
@@ -483,6 +625,24 @@ function changeVerificationType(thisObj) {
 	let verificationType = $("#" + thisObj.id).val();
 	var lastIndex = thisObj.id.split("-").pop();
 	var elementLastIndex = '-0-' + lastIndex;
+	    // -----------------------------------------
+	    // Test button enable / disable
+	    // -----------------------------------------
+	    var testButton = $("#test-section-" + lastIndex);
+	    if (testButton.length > 0) {
+	        if (verificationType == "1") {
+	            // Password -> Test not required
+	            testButton.prop("disabled", true);
+	        } else if (verificationType == "0" || verificationType == "2") {
+	            // OTP / TOTP -> Test required
+	            testButton.prop("disabled", false);
+	        } else {
+	            // --Select--
+	            testButton.prop("disabled", true);
+	        }
+	    }
+
+
 	if (onLoad == true) {
 		if ($("#enableRegex" + elementLastIndex).is(":checked")) {
 			$("#enableRegex" + elementLastIndex).prop("checked", true).trigger("change");

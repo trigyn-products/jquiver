@@ -1,5 +1,11 @@
 package com.trigyn.jws.webstarter.service;
 
+import java.net.InetSocketAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,17 +13,19 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
@@ -70,6 +78,9 @@ public class OtpService implements InitializingBean{
        
     @Autowired
    	private IUserDetailsService					userDetailsService						= null;
+    
+    @Autowired
+	private PropertyMasterDAO					propertyMasterDAO		= null;
     
     
     public OtpService() {
@@ -227,5 +238,60 @@ public class OtpService implements InitializingBean{
 			baseURL = baseURL + servletContext.getContextPath();
 		}
 		return baseURL;
+	}
+	
+	public Boolean checkOtpAndTotpConnection() {
+		try {
+			String mailConfiguration = propertyMasterDAO.findPropertyMasterValue("system", "system",
+					"mail-configuration");
+			// 1. Check mail-configuration exists
+			if (mailConfiguration == null || mailConfiguration.trim().isEmpty()) {
+				logger.error("Mail configuration not found.");
+				return false;
+			}
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode config = objectMapper.readTree(mailConfiguration);
+
+			// 2. Check SMTP Host
+			String smtpHost = config.path("smtpHost").asText();
+			if (smtpHost == null || smtpHost.trim().isEmpty()) {
+				logger.error("SMTP host is not configured.");
+				return false;
+			}
+			// 3. Check SMTP Port
+			String smtpPort = config.path("smtpPort").asText();
+			if (smtpPort == null || smtpPort.trim().isEmpty()) {
+				logger.error("SMTP port is not configured.");
+				return false;
+			}
+			int port;
+			try {
+				port = Integer.parseInt(smtpPort);
+			} catch (NumberFormatException ex) {
+				logger.error("Invalid SMTP port: {}", smtpPort);
+				return false;
+			}
+
+			// 4. Check Mail From
+			String mailFrom = config.path("mailFrom").asText();
+			if (mailFrom == null || mailFrom.trim().isEmpty()) {
+				logger.error("Mail From address is not configured.");
+				return false;
+			}
+			logger.info("Checking SMTP server {}:{}", smtpHost, port);
+			// 5. Check SMTP server reachability
+			try (Socket socket = new Socket()) {
+				socket.connect(new InetSocketAddress(smtpHost, port), 5000);
+				logger.info("SMTP server is reachable at {}:{}", smtpHost, port);
+			} catch (Exception ex) {
+				logger.error("Unable to connect to SMTP server {}:{}", smtpHost, port, ex);
+				return false;
+			}
+			logger.info("Mail configuration verified successfully.");
+			return true;
+		} catch (Exception ex) {
+			logger.error("Failed to verify mail configuration.", ex);
+			return false;
+		}
 	}
 }

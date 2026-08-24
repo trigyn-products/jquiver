@@ -116,7 +116,7 @@
                </div>
             </div>
             <div id="mainTabBtn" class="filterblock btn btn-secondary spacingclss">
-               <span class="filtericon"><i class="fa-solid fa-filter"></i></span>
+               <span class="filtericon"><i class="fa-solid fa-paperclip"></i></span>
                <div  class="addonbtnblock_cate">
                   <ul class="filterlist">
                      <li id="deselectLi">

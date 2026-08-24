@@ -1,9 +1,14 @@
 package com.trigyn.jws.usermanagement.security.config.oauth;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.channels.AcceptPendingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -18,6 +23,10 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
@@ -116,6 +125,55 @@ public class CustomSAMLUserService {
 			return null;
 		}
 	} 
-
+	
+	public Boolean checkSamlConnection(MultiValueMap<String, Object> formSamlData) {
+		boolean isConnected = true;
+		try {
+			String metadataUrl = (String) formSamlData.getFirst("metadataURL");
+			if (metadataUrl == null || metadataUrl.trim().isEmpty()) {
+				return false;
+			}
+			logger.info("Checking SAML Metadata URL : " + metadataUrl);
+			URL url = new URL(metadataUrl);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setConnectTimeout(10000);
+			connection.setReadTimeout(10000);
+			int responseCode = connection.getResponseCode();
+			if (responseCode != HttpURLConnection.HTTP_OK) {
+				logger.error("Unable to access Metadata URL. Response Code : " + responseCode);
+				return false;
+			}
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setNamespaceAware(true);
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			Document document = builder.parse(connection.getInputStream());
+			Element root = document.getDocumentElement();
+			if (root == null) {
+				logger.error("Invalid Metadata XML.");
+				return false;
+			}
+			String rootName = root.getLocalName();
+			if ("EntityDescriptor".equals(rootName) == false) {
+				logger.error("Metadata does not contain EntityDescriptor.");
+				return false;
+			}
+			NodeList idpList = document.getElementsByTagNameNS("*", "IDPSSODescriptor");
+			if (idpList.getLength() == 0) {
+				logger.error("IDPSSODescriptor not found.");
+				return false;
+			}
+			NodeList ssoList = document.getElementsByTagNameNS("*", "SingleSignOnService");
+			if (ssoList.getLength() == 0) {
+				logger.error("SingleSignOnService not found.");
+				return false;
+			}
+			logger.info("SAML configuration verified successfully.");
+		} catch (Exception ex) {
+			logger.error("Failed to verify SAML configuration.", ex);
+			isConnected = false;
+		}
+		return isConnected;
+	}
 
 }

@@ -386,7 +386,28 @@
 			draggable	 : true,
 			resizable	 : false,
 			title		 : "Delete",
-			buttons		 : [{
+			buttons		 : [
+				{
+					text	: "Delete",
+					"class":'btn btn-primary',
+					click	: function(){
+						let multiselectIdDivId = context.options.multiselectItem[0].id;
+					   context.selectedObjects = new Array();
+					   $("#" + multiselectIdDivId + "_count").addClass("disable_cls");
+					   $("#" + multiselectIdDivId + "_count > span").css('pointer-events', 'none');
+
+					   // Keep ADMIN and remove all other items
+					   $("#" + multiselectIdDivId + "_ul li").filter(function () {
+					       return $.trim($(this).text()) !== "ADMIN";
+					   }).remove();
+
+					   $("#" + multiselectIdDivId + "_removeAll").addClass("disable_cls");
+					   $("#" + multiselectIdDivId + "_removeAll > span").css('pointer-events', 'none');
+					   $(this).dialog("destroy");
+					   $(this).remove();
+					   showMessage("All items except ADMIN removed successfully.", "success");
+					}
+	           	},{
 					text :"Cancel",
 					"class":'btn btn-secondary',
 					click: function() { 
@@ -394,23 +415,6 @@
 						$(this).remove();
 					},
 				},
-				{
-					text	: "Delete",
-					"class":'btn btn-primary',
-					click	: function(){
-				    	let multiselectIdDivId = context.options.multiselectItem[0].id;
-				    	context.selectedObjects = new Array();
-				    	$("#"+multiselectId+"_count").addClass("disable_cls");
-				    	$("#"+multiselectId+"_count > span" ).css('pointer-events','none');
-				    	$("#"+multiselectId+"_count > span").text("0");
-				    	$("#"+multiselectId+"_removeAll").addClass("disable_cls");
-				    	$("#"+multiselectId+"_removeAll > span" ).css('pointer-events','none');
-				    	$("#"+multiselectIdDivId+"_ul").empty();
-				    	$(this).dialog("destroy");
-						$(this).remove();
-						showMessage("All items removed successfully.", "success");
-					}
-	           	},
 	       ],	
 	       
 	       open		: function( event, ui ) {	    	

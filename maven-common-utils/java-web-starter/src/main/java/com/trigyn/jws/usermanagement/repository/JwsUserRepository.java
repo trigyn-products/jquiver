@@ -1,7 +1,5 @@
 package com.trigyn.jws.usermanagement.repository;
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,6 +18,4 @@ public interface JwsUserRepository extends JpaRepository<JwsUser, String> {
 	
 	@Query("SELECT ju.email FROM JwsUser ju WHERE ju.email=:email and ju.isActive=1")
 	String findbyEmailAndIsActive(@Param("email") String email);
-	
-
 }

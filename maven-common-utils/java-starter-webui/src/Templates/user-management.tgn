@@ -18,6 +18,23 @@
             margin: 0px !important;
         }
 
+        .testSection {
+            right: 105px !important;
+        }
+
+        .testOauthAuth {
+            margin-bottom: 0px;
+            position: absolute;
+            right: 52px;
+            height: 34px;
+            padding: 4px 15px;
+            line-height: inherit;
+        }
+
+        .testOauthAuth {
+            width: auto !important;
+        }
+
         </style>
 </head>
 <form action="${(contextPath)!''}/cf/sat" method="POST" id="userManagement" name="userManagement">
@@ -299,10 +316,25 @@ if(num<1)						$("#isAuthenticationEnabled").prop("checked",false).trigger("chan
 	   }});           
 	}});	
 	
-	$('button[name="testLdapAuth"]').click(function(e){	
-		e.preventDefault(); 
-		testLdapAuth(this);
-	});
+	$(document).on('click', 'button[name="testLdapAuth"]', function(e) {
+        e.preventDefault();
+        testLdapAuth(this);
+    });
+
+    $(document).on('click', 'button[name="testSamlAuth"]', function(e) {
+        e.preventDefault();
+        testSamlAuth(this);
+    });
+
+    $(document).on('click', 'button[name="testOauthAuth"]', function(e) {
+        e.preventDefault();
+        testOauthAuth(this);
+    });
+
+    $(document).on('click', 'button[name="testDbAuth"]', function(e) {
+        e.preventDefault();
+        testDbAuth(this);
+    });
 	
 	$('#adminModalDialog').on(".modal", function() {
         if(isAdminEmailExist == false) {
@@ -428,8 +460,12 @@ function changeAuthType(thisObj){
 				}				
 				if(typeof key != 'undefined' && key == 'authenticationDetail'){					
 					$.each(val, function(configKeys, configVals){
-					if(authTypeVal == AuthType.OAUTH || authTypeVal == AuthType.LDAP || authTypeVal == AuthType.SAML){
+					if(authTypeVal == AuthType.OAUTH || authTypeVal == AuthType.LDAP || authTypeVal == AuthType.SAML || authTypeVal == AuthType.DAO){
 						propertyElem +='<button class="addSection btn btn-primary" type="button" id="add-section-'+elementId+'" name="add-section" onclick="addSection(this)">Add</button>';
+                    }
+                    if(authTypeVal == AuthType.DAO) {
+                      propertyElem += '<button class="addSection testSection btn btn-primary" type="button" ' +
+                            'id="test-section-'+elementId+'" name="testDbAuth">Test</button>';
 					}
 						
 						$.each(configVals, function(idx, configurationVal) {

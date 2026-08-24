@@ -43,7 +43,9 @@
             <select class="typeSelectDropDown" id="typeRole" onchange="changeType()">
                 <#if roles ??>
                     <#list roles as role>
-                        <option value="${role?api.getRoleId()}">${role?api.getRoleName()}</option>
+                        <#if role?api.getRoleName() != "ADMIN">
+                            <option value="${role?api.getRoleId()}">${role?api.getRoleName()}</option>
+                        </#if>
                     </#list>
                 </#if>
             </select>
